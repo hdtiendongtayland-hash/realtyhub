@@ -435,6 +435,8 @@ const buildUnits = (
       10_000_000;
     const netPrice =
       Math.round((listedPrice * (0.88 + rng() * 0.07)) / 10_000_000) * 10_000_000;
+    // Gia full VAT = gia niem yet + 8% VAT
+    const fullVatPrice = Math.round((listedPrice * 1.08) / 10_000_000) * 10_000_000;
 
     // Don gia bam theo gia thanh toan som, dung cach thiet ke dang hien thi
     const unitPrice = Math.round(netPrice / landArea);
@@ -446,11 +448,19 @@ const buildUnits = (
     const block = intBetween(rng, 1, 62);
     const slot = intBetween(rng, 1, 60);
 
+    // Phan bo quy hang giong buildPlanMap: 20% doc quyen, 66% an cheo, 14% thuong.
+    // Giu cung ti le de so lieu dong bo giua card va mat bang.
+    const fundRoll = rng();
+    const fundType: UnitFundType =
+      fundRoll < 0.2 ? 'doc-quyen' : fundRoll < 0.86 ? 'an-cheo' : 'thuong';
+
     units.push({
       publicId: `${project.publicId}-unit-${String(index + 1).padStart(4, '0')}`,
       code: `${initialsOf(phaseName)}${block}-${String(slot).padStart(2, '0')}`,
+      fundType,
       listedPrice,
       netPrice,
+      fullVatPrice,
       unitPrice,
       propertyTypeLabel: typeLabels[typeIndex],
       direction: pickOne(rng, DIRECTIONS),
@@ -1051,6 +1061,7 @@ export const getAllUnitsAcrossProjects = (): UnitWithProject[] => {
         projectName: project.name,
         developerName: project.developerName,
         segment: project.segment,
+        propertyType: project.propertyType,
         projectIsHot: project.isHot,
       });
     }

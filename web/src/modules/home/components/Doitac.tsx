@@ -1,32 +1,41 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiChevronRight } from 'react-icons/fi';
 import { useInvestorList } from '@/modules/developer/hooks/useInvestors';
 import type { Investor, InvestorSummary } from '@/modules/developer/models/investor.model';
 
 /**
  * Section "CAC CHU DAU TU" tren trang chu.
  *
- * Source data la `useInvestorList()` hook (InvestorService - single source
- * of truth cho 25 investor). Server component route doc data qua
- * HomeService.content() roi truyen xuong qua `initialInvestors` de HTML
- * tra ve co ngay 25 logo (quan trong cho SEO va first paint). Client chi
- * refetch khi stale (5 phut).
+ * Hien thi dang carousel ngang tu chay (autoplay), responsive:
+ *   - Mobile (<640px):   2 logo / viewport (~45%/slide)
+ *   - sm  (>=640px):    3 logo / viewport (~30%/slide)
+ *   - md  (>=768px):    4 logo / viewport (~22%/slide)
+ *   - lg  (>=1024px):   6 logo / viewport (~16.5%/slide)
  *
- * Khong hard-code logo hay ten o day - data duy nhat tu INVESTORS (25
- * record, khong duplicate).
+ * Autoplay 4s/slide, dung khi hover/focus, tat hoan toan neu
+ * `prefers-reduced-motion: reduce`. KHONG co dot, KHONG co nut prev/next
+ * (mobile dung swipe, desktop dung hover de dung).
  *
- * Click logo hoac ten -> /chu-dau-tu/[slug] (route detail da co).
+ * Source data tu useInvestorList() (InvestorService - single source of truth
+ * cho cac investor). Server component route doc data qua HomeService.content()
+ * roi truyen xuong qua `initialInvestors` de HTML tra ve co ngay cac logo
+ * (SEO + first paint). Client chi refetch khi stale (5 phut).
+ *
+ * Click logo hoac ten -> /chu-dau-tu/[slug].
  */
 type DoitacProps = {
   initialInvestors?: InvestorSummary[];
 };
 
+const AUTOPLAY_INTERVAL_MS = 4000;
+
 const Doitac = ({ initialInvestors }: DoitacProps) => {
   const { data, isLoading, isError, refetch } = useInvestorList();
+
   // Lay data tu hook; initialData (staleTime 5 phut) se co san tu query,
   // nen khong can truyen prop xuong hook. Nhung van fallback neu hook chua
   // co data (trang thai ngay sau SSR).
@@ -35,8 +44,8 @@ const Doitac = ({ initialInvestors }: DoitacProps) => {
     [data, initialInvestors],
   );
 
-  // Embla carousel - `loop: true` de logo chay vô hanh. Khi chi co 1 logo,
-  // embla van cho phep loop nhung khong co hieu ung nen ta van cho phep.
+  // Embla carousel - `loop: true` de logo chay vô hanh. Canh theo slide de
+  // moi lan cuon nhay nguyen mot slide (khong nhay nua slide).
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     loop: investors.length > 4,
@@ -44,30 +53,45 @@ const Doitac = ({ initialInvestors }: DoitacProps) => {
     skipSnaps: false,
   });
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
+  // Autoplay tat ca breakpoint. Pause khi hover/focus ben trong carousel,
+  // resume khi roi di. Tang-thich `prefers-reduced-motion: reduce` thi tat.
   useEffect(() => {
-    if (!emblaApi) return;
+    if (!emblaApi || investors.length < 2) return;
 
-    const onReInit = () => {
-      setScrollSnaps(emblaApi.scrollSnapList());
-      setSelectedIndex(emblaApi.selectedScrollSnap());
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    if (reduceMotion) return;
+
+    let paused = false;
+    const container = emblaApi.containerNode();
+
+    const pause = () => {
+      paused = true;
     };
-    emblaApi.on('reInit', onReInit);
-    emblaApi.on('select', onSelect);
+    const resume = () => {
+      paused = false;
+    };
 
-    emblaApi.reInit();
+    const timer = window.setInterval(() => {
+      if (paused) return;
+      emblaApi.scrollNext();
+    }, AUTOPLAY_INTERVAL_MS);
+
+    // Pause khi hover/focus ben trong carousel.
+    container.addEventListener('mouseenter', pause);
+    container.addEventListener('mouseleave', resume);
+    container.addEventListener('focusin', pause);
+    container.addEventListener('focusout', resume);
+
     return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onReInit);
+      window.clearInterval(timer);
+      container.removeEventListener('mouseenter', pause);
+      container.removeEventListener('mouseleave', resume);
+      container.removeEventListener('focusin', pause);
+      container.removeEventListener('focusout', resume);
     };
-  }, [emblaApi, onSelect, investors.length]);
+  }, [emblaApi, investors.length]);
 
   const showSkeleton = isLoading && investors.length === 0;
 
@@ -100,72 +124,20 @@ const Doitac = ({ initialInvestors }: DoitacProps) => {
         ) : showSkeleton ? (
           <LogoSkeletonStrip />
         ) : (
-          <div className="relative">
-            {/* Embla viewport - mobile/tablet */}
-            <div
-              ref={emblaRef}
-              className="overflow-hidden lg:hidden"
-            >
-              <div className="flex gap-4">
-                {investors.map((investor) => (
-                  <div
-                    key={investor.slug}
-                    className="flex-[0_0_45%] min-w-0 sm:flex-[0_0_30%] md:flex-[0_0_22%]"
-                  >
-                    <InvestorLogoCard investor={investor} />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Grid chi desktop */}
-            <div className="hidden lg:grid lg:grid-cols-5 lg:gap-4">
+          // Embla viewport - carousel ngang, responsive slide width.
+          // KHONG co nut prev/next, KHONG co dot. Tu chay (autoplay), nguoi
+          // dung dung bang hover (desktop) hoac swipe (touch).
+          <div ref={emblaRef} className="overflow-hidden">
+            <div className="flex gap-4">
               {investors.map((investor) => (
-                <InvestorLogoCard key={investor.slug} investor={investor} />
+                <div
+                  key={investor.slug}
+                  className="flex-[0_0_45%] min-w-0 sm:flex-[0_0_30%] md:flex-[0_0_22%] lg:flex-[0_0_calc((100%-5*1rem)/6)]"
+                >
+                  <InvestorLogoCard investor={investor} />
+                </div>
               ))}
             </div>
-
-            {/* Nav buttons: chi hien tren mobile/tablet */}
-            {investors.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => emblaApi?.scrollPrev()}
-                  aria-label="Chủ đầu tư trước"
-                  className="absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white lg:hidden"
-                >
-                  <FiChevronLeft aria-hidden className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => emblaApi?.scrollNext()}
-                  aria-label="Chủ đầu tư tiếp theo"
-                  className="absolute right-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white lg:hidden"
-                >
-                  <FiChevronRight aria-hidden className="h-5 w-5" />
-                </button>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Dot indicator - chi mobile/tablet */}
-        {!showSkeleton && scrollSnaps.length > 1 && (
-          <div className="mt-4 flex items-center justify-center gap-2 lg:hidden">
-            {scrollSnaps.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => emblaApi?.scrollTo(idx)}
-                aria-label={`Đi đến nhóm chủ đầu tư ${idx + 1}`}
-                aria-current={idx === selectedIndex ? 'true' : undefined}
-                className={`h-2 rounded-full transition-all ${
-                  idx === selectedIndex
-                    ? 'w-6 bg-brand-500'
-                    : 'w-2 bg-gray-300 hover:bg-gray-400'
-                }`}
-              />
-            ))}
           </div>
         )}
       </div>
@@ -199,10 +171,10 @@ const InvestorLogoCard = ({ investor }: { investor: Investor }) => (
   </Link>
 );
 
-/** Skeleton cho luc loading - 5 the logo de giu layout on dinh. */
+/** Skeleton cho luc loading - 6 the logo de giu layout carousel on dinh. */
 const LogoSkeletonStrip = () => (
-  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-    {Array.from({ length: 5 }).map((_, idx) => (
+  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+    {Array.from({ length: 6 }).map((_, idx) => (
       <div
         key={idx}
         className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-5"

@@ -8,7 +8,7 @@ import {
   formatMillionPerSqm,
   formatNumber,
 } from '@/common/utils/format';
-import { useProjectUnits } from '../../../hooks/useProjects';
+import { useProjectDetail, useProjectUnits } from '../../../hooks/useProjects';
 import {
   DEFAULT_UNIT_QUERY,
   MAX_UNIT_SELECTION,
@@ -17,7 +17,9 @@ import {
   type UnitQuery,
   type UnitSort,
   type UnitStatus,
+  type UnitWithProject,
 } from '../../../models/project-detail.model';
+import UnitDetailModal from '../../UnitDetailModal';
 
 const PAGE_SIZE_OPTIONS = [24, 48, 96];
 
@@ -82,13 +84,16 @@ const UnitsTab = ({ slug, lockedPhaseName }: UnitsTabProps) => {
   }));
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
+  const [selectedUnit, setSelectedUnit] = useState<UnitWithProject | null>(null);
 
   const unitsQuery = useProjectUnits(slug, query);
+  const projectQuery = useProjectDetail(slug);
 
   const units = unitsQuery.data?.units ?? [];
   const total = unitsQuery.data?.total ?? 0;
   const facets = unitsQuery.data?.facets;
   const totalPages = Math.max(1, Math.ceil(total / query.limit));
+  const project = projectQuery.data;
 
   /** Doi bo loc thi phai ve trang 1, neu khong nguoi dung ket o trang trong */
   const patchQuery = useCallback(
@@ -120,6 +125,33 @@ const UnitsTab = ({ slug, lockedPhaseName }: UnitsTabProps) => {
   );
 
   const isAtSelectionLimit = selected.length >= MAX_UNIT_SELECTION;
+
+  // Helper: build UnitWithProject từ ProjectUnit + project info
+  const buildUnitWithProject = useCallback(
+    (unit: typeof units[0]): UnitWithProject | null => {
+      if (!project) return null;
+      return {
+        ...unit,
+        projectSlug: slug,
+        projectName: project.name,
+        developerName: project.developerName,
+        segment: project.segment,
+        propertyType: project.propertyType,
+        projectIsHot: project.isHot,
+      };
+    },
+    [project, slug],
+  );
+
+  const handleUnitClick = useCallback(
+    (unit: typeof units[0]) => {
+      const unitWithProject = buildUnitWithProject(unit);
+      if (unitWithProject) {
+        setSelectedUnit(unitWithProject);
+      }
+    },
+    [buildUnitWithProject],
+  );
 
   return (
     <div>
@@ -274,9 +306,13 @@ const UnitsTab = ({ slug, lockedPhaseName }: UnitsTabProps) => {
                       </td>
 
                       <td className="whitespace-nowrap px-3 py-2.5">
-                        <span className="rounded bg-error-50 px-2 py-1 text-theme-xs font-bold text-error-600">
+                        <button
+                          type="button"
+                          onClick={() => handleUnitClick(unit)}
+                          className="rounded bg-error-50 px-2 py-1 text-theme-xs font-bold text-error-600 transition hover:bg-error-100 hover:text-error-700 focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-1"
+                        >
                           {unit.code}
-                        </span>
+                        </button>
                       </td>
 
                       <td className="whitespace-nowrap px-3 py-2.5 text-theme-sm font-bold text-gray-900">
@@ -363,6 +399,15 @@ const UnitsTab = ({ slug, lockedPhaseName }: UnitsTabProps) => {
       <p className="mt-3 text-theme-xs text-gray-400">
         Tổng {formatNumber(total)} căn khớp điều kiện hiện tại.
       </p>
+
+      {/* Modal chi tiết căn */}
+      {selectedUnit && (
+        <UnitDetailModal
+          unit={selectedUnit}
+          open={selectedUnit !== null}
+          onClose={() => setSelectedUnit(null)}
+        />
+      )}
     </div>
   );
 };
