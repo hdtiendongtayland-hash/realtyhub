@@ -33,7 +33,7 @@ export default function DemoPopupPage() {
     projectSlug: 'vinhomes-ocean-park-gia-lam',
     projectName: 'Vinhomes Ocean Park Gia Lâm',
     developerName: 'Vingroup',
-    segment: 'cao-cap',
+    segment: 'thap-tang',
     propertyType: 'biet-thu',
     projectIsHot: true,
     // Thông tin bổ sung
@@ -66,8 +66,8 @@ export default function DemoPopupPage() {
     projectSlug: 'starlake-tay-ho-tay',
     projectName: 'Starlake - Tây Hồ Tây',
     developerName: 'Daewoo E&C',
-    segment: 'cao-cap',
-    propertyType: 'lien-ke',
+    segment: 'thap-tang',
+    propertyType: 'nha-pho',
     projectIsHot: false,
     // Thông tin bổ sung
     floor: 'Trệt + 3 lầu',
@@ -99,7 +99,7 @@ export default function DemoPopupPage() {
     projectSlug: 'the-manor-central-park',
     projectName: 'The Manor Central Park',
     developerName: 'Bitexco Group',
-    segment: 'trung-cap',
+    segment: 'cao-tang',
     propertyType: 'can-ho',
     projectIsHot: true,
     // Thông tin bổ sung
