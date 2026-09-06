@@ -18,7 +18,7 @@ import { FiHome, FiShoppingCart, FiBook, FiTool } from 'react-icons/fi';
 const TABS = [
   { label: 'Trang chủ', href: '/', icon: FiHome, exact: true },
   { label: 'Giỏ hàng', href: '/gio-hang', icon: FiShoppingCart, exact: false },
-  { label: 'Đào tạo', href: '/dao-tao', icon: FiBook, exact: false },
+  { label: 'Quỹ căn', href: '/quy-can', icon: FiBook, exact: false },
   { label: 'Tiện ích', href: '/tien-ich', icon: FiTool, exact: false },
 ] as const;
 
