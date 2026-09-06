@@ -52,11 +52,7 @@ const nextConfig: NextConfig = {
 
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-if (!apiUrl) {
-  throw new Error("NEXT_PUBLIC_API_URL is required");
-}
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.api.dongtayland.click";
 let serverOrigin = "";
 if (!apiUrl.startsWith("http")) {
   throw new Error("NEXT_PUBLIC_API_URL must be an absolute URL");
