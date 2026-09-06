@@ -58,12 +58,12 @@ const BrandMark = () => (
   // moi. Khi doi href cua nav DỰ ÁN can cap nhat lai o day.
   <Link href={DỰ_ÁN_HREF} className="flex items-center" aria-label="Dự án">
     <Image
-      src="/images/home/realtyhub_new.svg"
+      src="/images/home/logo-realtyhub.svg"
       alt="RealtyHub"
       priority
-      width={180}
-      height={60}
-      className="h-12 w-auto"
+      width={140}
+      height={40}
+      className="h-8 w-auto"
     />
   </Link>
 );

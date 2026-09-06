@@ -209,7 +209,7 @@ const SiteFooter = () => (
       <div className="sm:col-span-2 lg:col-span-3">
         <Link href="/" aria-label="Trang chủ" className="mb-5 inline-block">
           <Image
-            src="/images/home/realtyhub_new.svg"
+            src="/images/home/logo-realtyhub.svg"
             alt="RealtyHub"
             width={180}
             height={46}

@@ -237,10 +237,18 @@ export const UNIT_STATUS_LABELS: Record<UnitStatus, string> = {
 export type ProjectUnit = {
   publicId: string;
   code: string;
+  /**
+   * Loai quy hang cua can: quy doc quyen (HOT) / an cheo / thuong.
+   * Duoc sinh deterministic trong mock va di cung tung can - day la co so de
+   * the "Sản phẩm nổi bật" gan nhan HOT len cac can doc quyen.
+   */
+  fundType: UnitFundType;
   /** Gia niem yet */
   listedPrice: number;
   /** Gia thanh toan som */
   netPrice: number;
+  /** Gia full VAT (bao gom thue VAT) */
+  fullVatPrice?: number;
   /** Don gia tren m2 dat */
   unitPrice: number;
   propertyTypeLabel: string;
@@ -249,6 +257,28 @@ export type ProjectUnit = {
   buildArea: number;
   phaseName: string;
   status: UnitStatus;
+  
+  // Thông tin bổ sung cho popup chi tiết
+  /** Tầng (VD: 12, 15-20) */
+  floor?: string;
+  /** Số phòng ngủ */
+  bedrooms?: number;
+  /** Số toilet */
+  toilets?: number;
+  /** Số tầng (cho biệt thự/nhà phố) */
+  floors?: number;
+  /** Thông tin vay ngân hàng: lãi suất ưu đãi */
+  loanRate?: string;
+  /** Thông tin vay ngân hàng: thời hạn vay */
+  loanTerm?: string;
+  /** Chính sách bán hàng: chiết khấu */
+  discount?: string;
+  /** Chính sách bán hàng: quà tặng */
+  gift?: string;
+  /** Ngày bàn giao dự kiến (ISO hoặc Q1/2025) */
+  handoverDate?: string;
+  /** Tình trạng bàn giao */
+  handoverStatus?: string;
 };
 
 export type UnitSort =
@@ -375,6 +405,7 @@ export type UnitWithProject = ProjectUnit & {
   projectName: string;
   developerName: string;
   segment: Project['segment'];
+  propertyType: Project['propertyType'];
   projectIsHot: boolean;
 };
 

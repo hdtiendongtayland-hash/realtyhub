@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
       // Whitelist de next/image optimizer hoat dong (dung de tu dong toi uu
       // va cache logo nho).
       { protocol: "https", hostname: "realtyhub.com.vn", pathname: "**" },
+      { protocol: "https", hostname: "images.unsplash.com", pathname: "**" },
     ],
   },
 };

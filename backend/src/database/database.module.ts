@@ -52,9 +52,7 @@ const buildMongoUriFromEnvUri = (
           configService.get<string>('NODE_ENV') === 'production';
         const mongoUri = configService.get<string>('MONGO_URI') || '';
         const database =
-          configService.get<string>('MONGO_DB_NAME') ??
-          configService.get<string>('DB_NAME') ??
-          'restaurant';
+          configService.get<string>('MONGO_DB_NAME') || 'realtyhub';
         console.log("MONGO_URI", mongoUri);
         console.log("MONGO_DB_NAME", database);
 

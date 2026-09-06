@@ -24,10 +24,6 @@ async function bootstrap() {
       logger: new CompositeLogger(winstonLogger),
     });
     const configService = app.get(ConfigService);
-    const RATE_LIMIT =
-      configService.get<number>('RATE_LIMIT') || 15 * 60 * 1000; // Default to 15 minutes for 1000 requests
-    const RATE_LIMIT_MAX_REQUESTS =
-      configService.get<number>('RATE_LIMIT_MAX_REQUESTS') || 1000;
     const ALLOWED_ORIGINS = configService.get<string>('ALLOWED_ORIGINS') || '*';
     const NODE_ENV = configService.get<string>('NODE_ENV') || 'development';
     const PORT = configService.get<number>('PORT') || 8080;
