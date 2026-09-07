@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import {
-  FiCamera,
+  FiBarChart2,
+  FiCalendar,
   FiCompass,
-  FiFileText,
+  FiDollarSign,
+  FiColumns,
   FiGrid,
-  FiMoon,
-  FiSliders,
+  FiSun,
   FiUsers,
-  FiDroplet,
 } from 'react-icons/fi';
 
 type QuickUtility = {
@@ -23,30 +23,30 @@ type QuickUtility = {
 
 const UTILITIES: QuickUtility[] = [
   {
-    label: 'PDF Converter',
-    href: '/pdf-converter',
-    icon: FiFileText,
+    label: 'So sánh sản phẩm',
+    href: '/so-sanh-san-pham',
+    icon: FiBarChart2,
     tone: 'brand',
-    description: 'Chuyển đổi PDF ↔ Word / Excel / PPT / JPG',
+    description: 'So sánh sản phẩm và căn hộ cạnh nhau',
   },
   {
-    label: 'PDF Scanner',
-    href: '/pdf-scanner',
-    icon: FiCamera,
+    label: 'So sánh chính sách',
+    href: '/so-sanh-chinh-sach',
+    icon: FiColumns,
     tone: 'jade',
-    description: 'Quét tài liệu thành PDF bằng camera',
+    description: 'So sánh chính sách vay và các tính năng khác',
   },
   {
-    label: 'Watermark',
-    href: '/watermark',
-    icon: FiDroplet,
+    label: 'Tính lãi vay',
+    href: '/tinh-lai-vay',
+    icon: FiDollarSign,
     tone: 'gold',
-    description: 'Thêm watermark bản quyền lên ảnh / PDF',
+    description: 'Tính lãi vay trên số tiền vay và thời gian vay',
   },
   {
-    label: 'Lịch âm',
+    label: 'Tính thuế',
     href: '/lich-am',
-    icon: FiMoon,
+    icon: FiCalendar,
     tone: 'accent',
     description: 'Lịch âm Việt Nam, can chi, ngày tốt xấu',
   },
@@ -65,11 +65,11 @@ const UTILITIES: QuickUtility[] = [
     description: 'La bàn + hướng nhà theo tuổi',
   },
   {
-    label: 'So sánh',
-    href: '/so-sanh',
-    icon: FiSliders,
+    label: 'Lịch Việt Nam',
+    href: '/lich-viet-nam',
+    icon: FiSun,
     tone: 'gold',
-    description: 'So sánh dự án và căn hộ cạnh nhau',
+    description: 'Lịch âm, can chi, ngày tốt xấu',
   },
   {
     label: 'Xem thêm',

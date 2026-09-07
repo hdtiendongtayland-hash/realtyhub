@@ -52,6 +52,7 @@ const PARAM = {
   hasDiscount: 'ck',
   hasBankSupport: 'nh',
   postedWithinDays: 'dang',
+  sort: 'sapxep',
   page: 'trang',
   limit: 'sl',
 } as const;
@@ -157,6 +158,7 @@ const ProjectListPage = () => {
   const viewpoints = readList(PARAM.viewpoints);
   const hasDiscount = searchParams.get(PARAM.hasDiscount) === '1';
   const hasBankSupport = searchParams.get(PARAM.hasBankSupport) === '1';
+  const sort = searchParams.get(PARAM.sort) ?? 'mac-dinh';
 
   const rawPage = Number(searchParams.get(PARAM.page));
   const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
@@ -413,6 +415,10 @@ const ProjectListPage = () => {
           onClearAll={clearAllFilters}
           onSubmitSearch={submitSearch}
           onChange={handleFilterChange}
+          sort={sort}
+          onSortChange={(nextSort) =>
+            applyParams({ [PARAM.sort]: nextSort === 'mac-dinh' ? null : nextSort })
+          }
         />
       </div>
 

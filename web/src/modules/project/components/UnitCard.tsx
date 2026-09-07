@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FiArrowRight, FiPhone, FiUser } from "react-icons/fi";
+import { FiMapPin, FiHome, FiMaximize, FiDollarSign, FiPhone, FiHeart } from "react-icons/fi";
 import PlaceholderThumb from "@/common/components/PlaceholderThumb";
 import { formatBillion, formatMillionPerSqm } from "@/common/utils/format";
 import {
@@ -12,133 +12,128 @@ import {
 import UnitDetailModal from "./UnitDetailModal";
 
 /**
- * Card san pham/căn - dung cho section "San pham noi bat" tren trang chu.
+ * Card san pham/căn - redesigned theo mau UX/UI don gian.
  *
- * Click vao the di chuyen den tab "Quy can" cua du an tuong ung (trang
- * detail co san). Khong tao route moi vi he thong chua co trang chi tiet
- * can rieng.
- *
- * Thong tin hien thi (theo mau template):
- *   - 2 hang dia diem (vi tri + phan khu) tren cung voi icon map pin
- *   - Anh bia (PlaceholderThumb sinh gradient tu publicId)
- *     + nhan trang thai xanh (trai)
- *   - Nhan HOT + Lien ke (theo propertyType) + ma can (unit.code)
- *   - Bang gia 3 cot: niem yet (do), TTS (xanh), TTTĐ (xam)
- *   - 2 nut cuoi: lien he (xam nhat) + xem chi tiet (brand)
+ * Layout moi:
+ *   - Anh bia voi badge HOT o goc tren trai
+ *   - Nhan trang thai (Còn hàng/Giữ chỗ/Đã bán) overlay tren anh
+ *   - Thong tin chinh: ten du an, ma can, loai hinh
+ *   - Divider ngang
+ *   - Danh sach thong tin: dien tich, gia, phan khu (dung icon)
+ *   - Divider ngang
+ *   - Nut lien he + xem chi tiet
  */
 type UnitCardProps = {
   unit: UnitWithProject;
 };
 
 const UnitCard = ({ unit }: UnitCardProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const detailHref = `/du-an/${unit.projectSlug}?tab=quy-can`;
+
+  // Chi hien thi badge HOT cho quy doc quyen
+  const isHot = unit.fundType === 'doc-quyen';
 
   return (
     <>
-      <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card transition hover:shadow-card-hover hover:border-brand-300">
-      <Link
-        href={detailHref}
-        aria-label={`Xem căn ${unit.code}`}
-        className="relative block aspect-16/10 w-full overflow-hidden"
-      >
-        <PlaceholderThumb
-          seed={unit.publicId}
-          src={`/images/projects/${unit.projectSlug}.jpg`}
-          alt={`Ảnh dự án ${unit.projectName}`}
-          label={unit.code}
-          className="transition duration-500 group-hover:scale-105"
-        />
-
-        {/* Lop phu toi tu duoi len de cac nhan tren anh luon doc duoc */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 via-black/15 to-transparent"
-        />
-
-        {/* Nhan trang thai (tren cung ben phai) */}
-        <span className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-sm bg-success-500 px-3 py-1 text-[8px] font-bold uppercase tracking-wide text-white">
-          {UNIT_STATUS_LABELS[unit.status]}
-        </span>
-      </Link>
-
-      {/* ── Noi dung ────────────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        {/* Ma du an + nhan HOT / Lien ke */}
+      <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md hover:border-brand-400">
+        {/* ── Anh bia ────────────────────────────────────────────────── */}
         <Link
-          href={`/du-an/${unit.projectSlug}`}
-          aria-label={`Xem dự án ${unit.projectName}`}
-          className="block transition hover:text-brand-600"
+          href={detailHref}
+          aria-label={`Xem căn ${unit.code}`}
+          className="relative block aspect-[4/3] w-full overflow-hidden"
         >
-          <div className="flex flex-wrap items-center justify-between gap-1.5">
-            <span className="text-base font-bold uppercase tracking-wide text-gray-900">
-              {unit.code}
-            </span>
-            <span aria-hidden className="h-3.5 w-px bg-gray-200" />
-            <span className="rounded-sm bg-error-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+          <PlaceholderThumb
+            seed={unit.publicId}
+            src={`/images/projects/${unit.projectSlug}.jpg`}
+            alt={`Ảnh dự án ${unit.projectName}`}
+            label={unit.code}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+
+          {/* Badge HOT (goc tren trai) */}
+          {isHot && (
+            <span className="absolute left-2 top-2 z-10 rounded bg-error-500 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-sm">
               HOT
             </span>
-            <span aria-hidden className="h-3.5 w-px bg-gray-200" />
-            <span className="rounded-sm bg-brand-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-              Liền kề
-            </span>
-          </div>
+          )}
+
+          {/* Icon trai tim (goc tren phai) */}
+          <button 
+            aria-label="Yêu thích"
+            className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-2 shadow-sm transition hover:bg-white hover:scale-110"
+          >
+            <FiHeart className="h-5 w-5 text-error-500" />
+          </button>
         </Link>
 
-        {/* Bang gia 3 cot: niem yet, TTS, TTTĐ */}
-        <div className="grid grid-cols-3 gap-2 rounded-lg border border-gray-100 bg-gray-25 p-3 text-center">
-          <div>
-            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-              Giá niêm yết
-            </dt>
-            <dd className="mt-1 text-theme-sm font-bold text-error-600">
-              {formatBillion(unit.listedPrice)}
-            </dd>
+        {/* ── Noi dung ────────────────────────────────────────────────── */}
+        <div className="flex flex-1 flex-col p-4">
+          {/* Ten du an + ma can */}
+          <div className="mb-2 flex flex-row items-center justify-between gap-3">
+            <Link
+              href={`/du-an/${unit.projectSlug}`}
+              className="group/link block flex-1 truncate"
+            >
+              <p className="text-sm font-medium text-gray-600 truncate">
+                <span className="font-semibold text-gray-900">{unit.code}</span>
+              </p>
+            </Link>
+            <p className="text-sm font-medium text-gray-600 flex-shrink-0 whitespace-nowrap">{formatBillion(unit.netPrice)}</p>
           </div>
-          <div className="border-x border-gray-100">
-            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-              Giá TTS
-            </dt>
-            <dd className="mt-1 text-theme-sm font-bold text-brand-600">
-              {formatBillion(unit.netPrice)}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-              Giá TTTĐ
-            </dt>
-            <dd className="mt-1 text-theme-sm font-bold text-gray-700">
-              {formatMillionPerSqm(unit.unitPrice)}
-            </dd>
-          </div>
-        </div>
 
-        {/* Nut bam: lien he + xem chi tiet */}
-        <div className="mt-auto grid grid-cols-6 gap-2 pt-1">
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            aria-label={`Xem chi tiết căn ${unit.code}`}
-            className="flex items-center justify-center gap-1.5 rounded-md bg-brand-500 px-3 py-2.5 text-theme-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 col-span-4"
-          >
-            <FiUser aria-hidden className="h-4 w-4" />
-            Xem chi tiết
-            <FiArrowRight aria-hidden className="h-4 w-4" />
-          </button>
-          <Link
-            href={`/lien-he?du-an=${unit.projectSlug}&can=${unit.code}`}
-            aria-label={`Liên hệ tư vấn căn ${unit.code}`}
-            className="flex items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3 py-2.5 text-theme-sm font-semibold text-gray-700 transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 col-span-2"
-          >
-            <FiPhone aria-hidden className="h-4 w-4" />
-          </Link>
-        </div>
-      </div>
+          {/* Divider */}
+          <hr className="my-3 border-gray-200" />
 
+          {/* Danh sach thong tin */}
+          <dl className="space-y-2.5 text-sm">
+            {/* Dien tich */}
+            <div className="flex items-start gap-2">
+              <FiMaximize aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <div className="flex-1">
+                <dt className="inline font-medium text-gray-600">Diện tích: </dt>
+                <dd className="inline font-semibold text-gray-900">{unit.landArea} m²</dd>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <FiMaximize aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <div className="flex-1">
+                <dt className="inline font-medium text-gray-600">Hướng: </dt>
+                <dd className="inline font-semibold text-gray-900">{unit.direction}</dd>
+              </div>
+            </div>
+
+            {/* Gia */}
+            <div className="flex items-start gap-2">
+              <FiDollarSign aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <div className="flex-1">
+                <dt className="inline font-medium text-gray-600">Giá: </dt>
+                <dd className="inline font-bold text-brand-600">{formatBillion(unit.netPrice)}</dd>
+                <span className="ml-1 text-xs text-gray-500">({formatMillionPerSqm(unit.unitPrice)})</span>
+              </div>
+            </div>
+
+            {/* Phan khu */}
+            <div className="flex items-start gap-2">
+              <FiMapPin aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <div className="flex-1">
+                <dt className="inline font-medium text-gray-600">Phân khu: </dt>
+                <dd className="inline font-semibold text-gray-900">{unit.phaseName}</dd>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <FiMaximize aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <div className="flex-1">
+                <dt className="inline font-medium text-gray-600">Loại hình: </dt>
+                <dd className="inline font-semibold text-gray-900">Liền Kề</dd>
+              </div>
+            </div>
+          </dl>
+        </div>
       </article>
 
       {/* Modal chi tiết căn hộ */}
-      <UnitDetailModal open={isModalOpen} onClose={() => setIsModalOpen(false)} unit={unit} />
     </>
   );
 };

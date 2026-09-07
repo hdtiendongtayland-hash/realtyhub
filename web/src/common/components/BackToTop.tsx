@@ -16,17 +16,16 @@ const BackToTop = () => {
   if (!isVisible) return null;
 
   return (
-    // bottom-36 chu khong phai bottom-6: stack tinh tu duoi len gom
-    //   - bottom-0: thanh tabs (mobile, cao 56px)
-    //   - bottom-20: nut chatbot (mobile, cao 56px, z-40)
-    //   - bottom-36: nut BackToTop (z-30, cao 44px)
-    // Tren desktop khong co tabs va chatbot o bottom-6 -> bottom-24
-    // (~96px) de tranh chatbot nhung van gan goc phai.
+    // Stack các nút ở góc phải dưới, từ thấp lên cao:
+    //   - bottom-6: BackToTop (z-30, thấp nhất)
+    //   - bottom-24: Zalo (z-35, giữa)
+    //   - bottom-44: ChatWidget (z-40, cao nhất)
+    // Tất cả đều 56x56px
     <button
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="Lên đầu trang"
-      className="fixed bottom-36 right-6 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-brand-500 text-white shadow-card-hover transition hover:bg-brand-600 sm:bottom-24"
+      className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-white shadow-card-hover transition hover:bg-brand-600"
     >
       <FiArrowUp aria-hidden />
     </button>

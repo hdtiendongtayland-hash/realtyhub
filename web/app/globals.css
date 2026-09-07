@@ -200,6 +200,38 @@
     }
   }
 
+  /* Logo Zalo lac qua lac lai moi 2s */
+  --animate-zalo-shake: zalo-shake 2s ease-in-out infinite;
+
+  @keyframes zalo-shake {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    10% {
+      transform: rotate(14deg);
+    }
+    20% {
+      transform: rotate(-12deg);
+    }
+    30% {
+      transform: rotate(14deg);
+    }
+    40% {
+      transform: rotate(-12deg);
+    }
+    50% {
+      transform: rotate(6deg);
+    }
+    60% {
+      transform: rotate(-6deg);
+    }
+    70%,
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
   --animate-fade-up: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @keyframes fade-up {

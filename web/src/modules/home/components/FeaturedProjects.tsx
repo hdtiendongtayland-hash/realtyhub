@@ -39,6 +39,7 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -61,6 +62,24 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
       emblaApi.off('reInit', onReInit);
     };
   }, [emblaApi, onSelect]);
+
+  // Auto-play: tu dong scroll moi 3 giay, dung khi user tuong tac
+  useEffect(() => {
+    if (!emblaApi || !isAutoPlaying) return;
+
+    const autoScroll = setInterval(() => {
+      emblaApi.scrollNext();
+    }, 3000);
+
+    // Dung auto-play khi user click vao carousel
+    const stopAutoPlay = () => setIsAutoPlaying(false);
+    emblaApi.on('pointerDown', stopAutoPlay);
+
+    return () => {
+      clearInterval(autoScroll);
+      emblaApi.off('pointerDown', stopAutoPlay);
+    };
+  }, [emblaApi, isAutoPlaying]);
 
   return (
     <section className="bg-gray-50 py-8 md:py-12">
@@ -106,7 +125,10 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
             
             <button
               type="button"
-              onClick={() => emblaApi?.scrollPrev()}
+              onClick={() => {
+                emblaApi?.scrollPrev();
+                setIsAutoPlaying(false);
+              }}
               disabled={!canLoop && selectedIndex === 0}
               aria-label="Dự án trước"
               className="absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
@@ -115,7 +137,10 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
             </button>
             <button
               type="button"
-              onClick={() => emblaApi?.scrollNext()}
+              onClick={() => {
+                emblaApi?.scrollNext();
+                setIsAutoPlaying(false);
+              }}
               disabled={!canLoop && selectedIndex === scrollSnaps.length - 1}
               aria-label="Dự án tiếp theo"
               className="absolute right-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
@@ -131,7 +156,10 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => emblaApi?.scrollTo(idx)}
+                  onClick={() => {
+                    emblaApi?.scrollTo(idx);
+                    setIsAutoPlaying(false);
+                  }}
                   aria-label={`Đi đến dự án ${idx + 1}`}
                   aria-current={idx === selectedIndex ? 'true' : undefined}
                   className={`h-2 rounded-full transition-all ${

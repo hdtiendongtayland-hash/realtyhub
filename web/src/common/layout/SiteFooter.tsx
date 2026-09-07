@@ -333,7 +333,7 @@ const SiteFooter = () => (
     {/* ── Thong tin dang ky doanh nghiep ───────────────────────────────
         Chay thanh doan van xuoi nhu ban thiet ke, khong ke bang: day la thong
         tin bat buoc theo luat, doc lien mach de hon la nhoi vao o. */}
-    <div className="border-t border-gray-200 bg-gray-25">
+    <div className="border-t border-gray-200 bg-gray-25 mb-14 sm:mb-0">
       <div className="site-container space-y-1.5 py-6 text-theme-xs leading-relaxed text-gray-500">
         <p>
           © 2026.{' '}
