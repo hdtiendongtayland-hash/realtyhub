@@ -8,6 +8,7 @@ import BackToTop from '@/common/components/BackToTop';
 import ChatWidget from '@/modules/chat/components/ChatWidget';
 import HideOnPaths from '@/common/layout/HideOnPaths';
 import QueryProvider from '@/common/providers/QueryProvider';
+import { StickyContact } from '@/common/components/Zalo';
 
 
 const FULLSCREEN_PATHS = ['/tin-nhan'];
@@ -106,10 +107,11 @@ export default function RootLayout({
             <SiteFooter />
           </HideOnPaths>
           <MobileBottomTabs />
-          <BackToTop />
+          <StickyContact />
           <HideOnPaths paths={FULLSCREEN_PATHS}>
             <ChatWidget />
           </HideOnPaths>
+          <BackToTop />
         </QueryProvider>
       </body>
     </html>
