@@ -20,7 +20,6 @@ type QuickUtility = {
   description?: string;
 };
 
-
 const UTILITIES: QuickUtility[] = [
   {
     label: 'So sánh sản phẩm',
@@ -86,7 +85,6 @@ const TONE_CLASSES: Record<QuickUtility['tone'], string> = {
   accent: 'bg-accent-50 text-accent-600 group-hover:bg-accent-500 group-hover:text-white',
   gold: 'bg-gold-200 text-gold-500 group-hover:bg-gold-500 group-hover:text-white',
 };
-
 
 const QuickUtilities = () => (
   <section className="site-container -mt-10 md:-mt-14 lg:-mt-16">

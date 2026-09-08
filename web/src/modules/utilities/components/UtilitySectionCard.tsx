@@ -93,6 +93,12 @@ const UtilitySectionCard = ({ section, searchKeyword, onActionClick }: UtilitySe
               action={action}
               tone={section.tone}
               highlight={isMatched(action)}
+              section={{
+                publicId: section.publicId,
+                title: section.title,
+                tone: section.tone,
+              }}
+              iconKey={action.icon.displayName ?? action.icon.name ?? action.publicId}
               onClick={onActionClick}
             />
           ))}

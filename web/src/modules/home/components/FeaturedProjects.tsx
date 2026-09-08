@@ -89,9 +89,6 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
             <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900 md:text-2xl">
               Dự án nổi bật
             </h2>
-            <p className="mt-1 text-theme-sm text-gray-500">
-              Những dự án đang được quan tâm nhiều nhất tuần qua.
-            </p>
           </div>
           <Link
             href="/gio-hang"
@@ -122,7 +119,7 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
               </div>
             </div>
 
-            
+
             <button
               type="button"
               onClick={() => {

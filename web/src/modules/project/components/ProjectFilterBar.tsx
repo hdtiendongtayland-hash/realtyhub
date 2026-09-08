@@ -1,17 +1,21 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { type FormEvent } from 'react';
 import {
   FiBriefcase,
-  FiHome,
   FiMapPin,
   FiSearch,
   FiTag,
   FiX,
 } from 'react-icons/fi';
 import FilterSelect from '@/common/components/FilterSelect';
+import RangeSliderField from '@/common/components/RangeSliderField';
 import {
+  PRICE_LIMIT,
+  PRICE_SCALE,
+  PRICE_STEP,
   STATUS_LABELS,
+  formatPriceShort,
   type FilterOption,
   type ProjectFilterOptions,
 } from '../models/project.model';
@@ -47,7 +51,7 @@ export type ProjectFilterValues = {
 export type ProjectViewMode = 'danh-sach' | 'ban-do';
 
 /** Cac o loc duoc dua len hang chip cho bam nhanh - phan con lai nam trong bang loc */
-type ChipSelectKey = 'regionId' | 'propertyType' | 'developerId' | 'status';
+type ChipSelectKey = 'regionId' | 'developerId' | 'status';
 
 const SORT_OPTIONS = [
   { value: 'mac-dinh', label: 'Mặc định' },
@@ -112,12 +116,6 @@ const ProjectFilterBar = ({
     options: FilterOption[];
   }[] = [
     { key: 'regionId', label: 'Khu vực', icon: <FiMapPin />, options: options.regions },
-    {
-      key: 'propertyType',
-      label: 'Loại hình',
-      icon: <FiHome />,
-      options: options.propertyTypes,
-    },
     {
       key: 'developerId',
       label: 'Chủ đầu tư',
@@ -202,51 +200,43 @@ const ProjectFilterBar = ({
         )}
       </div>
 
-      {/* ── Hang 3: khoang gia + dien tich + tien ich ──────────────────── */}
+      {/* ── Hang 3: Khoang gia rieng ───────────────────────────────────── */}
+      <div className="mt-3 rounded-xl border border-gray-200 bg-gradient-to-r from-brand-50/50 to-brand-50/30 px-5 py-4">
+        <div className="mb-3 flex items-center justify-between">
+          <span className="flex items-center gap-2 text-theme-sm font-semibold text-gray-700">
+            <FiTag className="text-brand-500" aria-hidden />
+            Khoảng giá
+          </span>
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={onClearAll}
+              className="flex items-center gap-1 text-theme-xs font-medium text-gray-400 underline underline-offset-2 transition hover:text-error-500"
+            >
+              <FiX aria-hidden className="text-base" />
+              Xóa
+            </button>
+          )}
+        </div>
+        <RangeSliderField
+          label="Khoảng giá"
+          limit={PRICE_LIMIT}
+          step={PRICE_STEP}
+          scale={PRICE_SCALE}
+          unit="tỷ"
+          min={values.priceMin}
+          max={values.priceMax}
+          format={formatPriceShort}
+          onChange={(min, max) => {
+            onChange({ priceMin: min, priceMax: max });
+          }}
+        />
+      </div>
+
+      {/* ── Hang 4: dien tich + phong ngu ─────────────────────────────── */}
       <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-25 px-4 py-3">
         <span className="text-theme-xs font-semibold uppercase tracking-wide text-gray-500">
-          Khoảng giá (tỷ VND)
-        </span>
-        <input
-          type="number"
-          min={0}
-          inputMode="numeric"
-          placeholder="Từ"
-          value={values.priceMin !== null ? values.priceMin / 1_000_000_000 : ''}
-          onChange={(event) => {
-            const billion = Number(event.target.value);
-            const vnd = Number.isFinite(billion) && billion > 0 ? billion * 1_000_000_000 : null;
-            setOne(onChange, 'priceMin', vnd);
-          }}
-          onBlur={(event) => {
-            const billion = Number(event.target.value);
-            const vnd = Number.isFinite(billion) && billion > 0 ? billion * 1_000_000_000 : null;
-            setOne(onChange, 'priceMin', vnd);
-          }}
-          className="h-9 w-24 rounded-md border border-gray-200 bg-white px-2 text-theme-sm text-gray-800 outline-none focus:border-brand-400"
-        />
-        <span className="text-gray-400">–</span>
-        <input
-          type="number"
-          min={0}
-          inputMode="numeric"
-          placeholder="Đến"
-          value={values.priceMax !== null ? values.priceMax / 1_000_000_000 : ''}
-          onChange={(event) => {
-            const billion = Number(event.target.value);
-            const vnd = Number.isFinite(billion) && billion > 0 ? billion * 1_000_000_000 : null;
-            setOne(onChange, 'priceMax', vnd);
-          }}
-          onBlur={(event) => {
-            const billion = Number(event.target.value);
-            const vnd = Number.isFinite(billion) && billion > 0 ? billion * 1_000_000_000 : null;
-            setOne(onChange, 'priceMax', vnd);
-          }}
-          className="h-9 w-24 rounded-md border border-gray-200 bg-white px-2 text-theme-sm text-gray-800 outline-none focus:border-brand-400"
-        />
-
-        <span className="ml-2 text-theme-xs font-semibold uppercase tracking-wide text-gray-500">
-          DT đất ≤
+          Diện tích ≤
         </span>
         <input
           type="number"

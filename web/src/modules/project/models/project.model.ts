@@ -8,7 +8,7 @@
 export type ProjectSegment = 'cao-tang' | 'thap-tang';
 
 /** Trang thai ban hang */
-export type ProjectStatus = 'dang-mo-ban' | 'sap-mo-ban' | 'da-ban-giao';
+export type ProjectStatus = 'tat-ca' | 'ban-chay' | 'da-ban-het' | 'da-ban-giao' | 'sap-mo-ban' | 'moi-mo-ban' | 'dang-mo-ban';
 
 /** Loai hinh bat dong san */
 export type ProjectPropertyType =
@@ -189,9 +189,13 @@ export const SEGMENT_BADGE_LABELS: Record<ProjectSegment, string> = {
 };
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
-  'dang-mo-ban': 'Đang mở bán',
-  'sap-mo-ban': 'Sắp mở bán',
+  'tat-ca': 'Tất cả',
+  'ban-chay': 'Bán chạy',
+  'da-ban-het': 'Đã bán hết',
   'da-ban-giao': 'Đã bàn giao',
+  'sap-mo-ban': 'Sắp mở bán',
+  'moi-mo-ban': 'Mới mở bán',
+  'dang-mo-ban': 'Đang mở bán',
 };
 
 export const PROPERTY_TYPE_LABELS: Record<ProjectPropertyType, string> = {
@@ -200,6 +204,12 @@ export const PROPERTY_TYPE_LABELS: Record<ProjectPropertyType, string> = {
   'nha-pho': 'Nhà phố',
   shophouse: 'Shophouse',
   'dat-nen': 'Đất nền',
+};
+
+/** Loại hình rút gọn cho filter - chỉ Cao tầng / Thấp tầng */
+export const PROPERTY_TYPE_SEGMENT_LABELS: Record<string, string> = {
+  'cao-tang': 'Cao tầng',
+  'thap-tang': 'Thấp tầng',
 };
 
 export const AMENITY_TAG_LABELS: Record<ProjectAmenityTag, string> = {

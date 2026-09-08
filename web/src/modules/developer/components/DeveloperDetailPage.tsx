@@ -53,10 +53,15 @@ const InvestorDetailPage = ({
   const projects: Project[] = InvestorService.projectsSync(slug);
 
   const sortedProjects: Project[] = [...projects].sort((a, b) => {
+    // Sap xep: dang-mo-ban -> sap-mo-ban -> moi-mo-ban -> da-ban-giao -> cac status khac
     const order: Record<ProjectStatus, number> = {
       'dang-mo-ban': 0,
       'sap-mo-ban': 1,
-      'da-ban-giao': 2,
+      'moi-mo-ban': 2,
+      'da-ban-giao': 3,
+      'da-ban-het': 4,
+      'ban-chay': 5,
+      'tat-ca': 6,
     };
     return order[a.status] - order[b.status];
   });

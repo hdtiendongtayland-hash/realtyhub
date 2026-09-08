@@ -134,6 +134,10 @@ const LEGAL_BY_STATUS: Record<ProjectStatus, ProjectLegal[]> = {
   'dang-mo-ban': ['so-lau-dai', 'so-50-nam'],
   'sap-mo-ban': ['dang-hoan-thien', 'so-lau-dai'],
   'da-ban-giao': ['so-lau-dai'],
+  'moi-mo-ban': ['so-50-nam', 'dang-hoan-thien'],
+  'da-ban-het': ['so-lau-dai'],
+  'ban-chay': ['so-lau-dai', 'so-50-nam'],
+  'tat-ca': ['so-lau-dai', 'so-50-nam', 'dang-hoan-thien'],
 };
 
 /**
@@ -165,6 +169,10 @@ const HANDOVER_BY_STATUS: Record<ProjectStatus, [number, number]> = {
   'dang-mo-ban': [2027, 2029],
   'sap-mo-ban': [2029, 2031],
   'da-ban-giao': [2023, 2026],
+  'moi-mo-ban': [2026, 2028],
+  'da-ban-het': [2020, 2023],
+  'ban-chay': [2025, 2027],
+  'tat-ca': [2020, 2031],
 };
 
 /**

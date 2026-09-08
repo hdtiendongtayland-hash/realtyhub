@@ -9,38 +9,31 @@ import FooterLinkList from '@/common/layout/FooterLinkList';
 
 
 const POPULAR_SEARCHES = [
-  'Giỏ hàng mới',
-  'Căn hộ giá tốt',
   'Căn hộ dưới 3 tỷ',
   'Căn hộ 2PN',
+  'Căn hộ 3PN',
   'Dự án mới mở bán',
-  'Bảng giá dự án',
-  'Giá bán mới nhất',
-  'Chính sách bán hàng',
-  'Chiết khấu',
-  'Hỗ trợ vay ngân hàng',
-  'Pháp lý dự án',
-  'Tiến độ dự án',
-  'Ngày bàn giao',
-  'Hàng chủ đầu tư',
-  'Căn hộ 2PN dưới 3 tỷ tại Bình Dương',
   'Nhà phố',
   'Shophouse',
   'Biệt thự',
-  'Căn hộ cho thuê',
-  'Đầu tư căn hộ',
+  'Đất nền',
+  'Hỗ trợ vay ngân hàng',
+  'Pháp lý dự án',
+  'Tiến độ dự án',
   'So sánh dự án',
-  'Tính khoản vay',
-  'Eco Retreat Long An',
-  'So sánh chính sách',
+  'Căn hộ cho thuê',
+  'Chung cư giá rẻ',
+  'Bảng giá dự án',
+  'Chính sách bán hàng',
+  'Chiết khấu',
 ];
 
 const ABOUT_LINKS = [
   { label: 'Trang chủ', href: '/' },
   { label: 'Giới thiệu', href: '/gioi-thieu' },
-  { label: 'Điều khoản sử dụng', href: '/dieu-khoan-su-dung' },
   { label: 'Chính sách bảo mật', href: '/chinh-sach-bao-mat' },
-  { label: 'Liên hệ', href: '/lien-he-chung-toi' },
+  { label: 'Điều khoản sử dụng', href: '/dieu-khoan-su-dung' },
+  { label: 'Liên hệ chúng tôi', href: '/lien-he-chung-toi' },
 ];
 
 /** Thanh dieu huong nganh tren cung footer - to nen dam hon de tach khoi cac
@@ -50,64 +43,61 @@ const ABOUT_LINKS = [
 
 const BROKER_LINKS = [
   { label: 'Trở thành môi giới', href: '/tro-thanh-moi-gioi' },
-  { label: 'Giỏ hàng BĐS', href: '/gio-hang' },
+  { label: 'Quỹ căn', href: '/quy-can' },
   { label: 'Đào tạo', href: '/dao-tao' },
   { label: 'Hướng dẫn sử dụng', href: '/huong-dan' },
-  { label: 'So sánh chính sách', href: '/so-sanh-chinh-sach' },
+  { label: 'Sự kiện', href: '/su-kien' },
+  { label: 'Tin tức', href: '/tin-tuc' },
 ];
 
 /** Nam sau nut "Xem thêm" cua cot "Danh cho moi gioi" - deu la route da co */
 const BROKER_MORE_LINKS = [
-  { label: 'Sự kiện', href: '/su-kien' },
-  { label: 'Tin tức', href: '/tin-tuc' },
+  { label: 'So sánh chính sách', href: '/so-sanh-chinh-sach' },
   { label: 'Góp ý & phản hồi', href: '/gop-y-va-phan-hoi' },
 ];
 
 const OTHER_LINKS = [
-  { label: 'Điểm tích lũy VIP', href: '/diem-tich-luy-vip' },
-  { label: 'Lịch sử mua hàng', href: '/lich-su-mua-hang' },
-  { label: 'Bán hàng doanh nghiệp', href: '/ban-hang-doanh-nghiep' },
-  { label: 'Đăng ký bán hàng CTV', href: '/dang-ky-ban-hang-ctv' },
-  { label: 'Chính sách bảo hành', href: '/chinh-sach-bao-hanh' },
-  { label: 'Chính sách đổi trả', href: '/chinh-sach-doi-tra' },
-  { label: 'Chính sách bảo mật', href: '/chinh-sach-bao-mat' },
+  { label: 'Yêu thích', href: '/yeu-thich' },
+  { label: 'Tài khoản', href: '/tai-khoan' },
+  { label: 'Thông báo', href: '/thong-bao' },
+  { label: 'Tin nhắn', href: '/tin-nhan' },
+  { label: 'So sánh dự án', href: '/so-sanh' },
+  { label: 'Tiện ích', href: '/tien-ich' },
 ];
 
 /** Nam sau nut "Xem thêm" cua cot "Thong tin khac" - deu la route da co */
 const OTHER_MORE_LINKS = [
-  { label: 'Tiện ích', href: '/tien-ich' },
-  { label: 'So sánh dự án', href: '/so-sanh' },
+  { label: 'Tính năng', href: '/tinh-nang' },
+  { label: 'Lịch âm', href: '/lich-am' },
 ];
 
 /**
- * CHUA CO duong dan that - dat '#' theo dung cach APP_LINKS trong
- * AppStoreBadges dang lam, thay bang URL that khi co.
- *
- * `stat` la con so trong ban thiet ke. Doi so o day la doi ca chan trang.
+ * Link mang xa hoi that cua RealtyHub - lay tu fanpage/zalo chinh thuc.
+ * Cap nhat khi co thay doi fanpage/zalo.
  */
 const SOCIAL_LINKS = [
   {
     label: 'Facebook',
-    stat: '56k follow',
-    href: '#',
+    stat: 'Facebook',
+    href: 'https://www.facebook.com/realtyhubvietnam',
     color: '#1877F2',
     icon: <FaFacebookF aria-hidden />,
   },
   {
     label: 'YouTube',
-    stat: '12k follow',
-    href: '#',
+    stat: 'YouTube',
+    href: 'https://www.youtube.com/@realtyhubvietnam',
     color: '#FF0000',
     icon: <FaYoutube aria-hidden />,
   },
   {
     label: 'TikTok',
-    stat: '14k follow',
-    href: '#',
+    stat: 'TikTok',
+    href: 'https://www.tiktok.com/@realtyhubvietnam',
     color: '#111827',
     icon: <FaTiktok aria-hidden />,
   },
-  { label: 'Zalo', stat: 'Zalo', href: '#', color: '#0068FF', icon: <SiZalo aria-hidden /> },
+  { label: 'Zalo', stat: 'Zalo', href: 'https://zalo.me/realtyhub', color: '#0068FF', icon: <SiZalo aria-hidden /> },
 ];
 
 /** Website cung tap doan - logo lay tu trang chinh chu cua tung don vi. */
@@ -190,7 +180,7 @@ const SiteFooter = () => (
           {POPULAR_SEARCHES.map((keyword) => (
             <li key={keyword}>
               <Link
-                href={`/gio-hang?q=${encodeURIComponent(keyword)}`}
+                href={`/du-an?q=${encodeURIComponent(keyword)}`}
                 className="inline-flex rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-theme-sm text-gray-600 transition hover:border-brand-300 hover:bg-brand-25 hover:text-brand-600"
               >
                 {keyword}

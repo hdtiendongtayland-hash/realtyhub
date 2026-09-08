@@ -17,9 +17,13 @@ import ProjectGallery from './ProjectGallery';
  * noi nhat; da ban giao la thong tin qua khu nen tram lai.
  */
 const STATUS_TONES: Record<ProjectStatus, string> = {
-  'dang-mo-ban': 'bg-success-500 text-white',
-  'sap-mo-ban': 'bg-gold-400 text-navy-900',
+  'tat-ca': 'bg-gray-200 text-gray-700',
+  'ban-chay': 'bg-success-500 text-white',
+  'da-ban-het': 'bg-gray-200 text-gray-700',
   'da-ban-giao': 'bg-gray-200 text-gray-700',
+  'sap-mo-ban': 'bg-gold-400 text-navy-900',
+  'moi-mo-ban': 'bg-success-500 text-white',
+  'dang-mo-ban': 'bg-success-500 text-white',
 };
 
 /**
@@ -71,7 +75,7 @@ const ProjectHero = ({ project }: { project: ProjectDetail }) => {
     // pb-6: dai thong so truoc day chen giua hero va thanh tab dinh, gio no da
     // chuyen vao muc Tong quan nen hero phai tu chua khoang tho cho minh.
     <header className="site-container pb-6 pt-4">
-      <nav aria-label="Đường dẫn" className="mb-3 min-w-0">
+      {/* <nav aria-label="Đường dẫn" className="mb-3 min-w-0">
         <ol className="flex items-center gap-1.5 text-base text-gray-500">
           <li>
             <Link href="/gio-hang" className="transition hover:text-brand-600">
@@ -85,14 +89,14 @@ const ProjectHero = ({ project }: { project: ProjectDetail }) => {
             {project.name}
           </li>
         </ol>
-      </nav>
+      </nav> */}
 
-      <ProjectGallery slides={project.hero} projectName={project.name} />
+      {/* <ProjectGallery slides={project.hero} projectName={project.name} /> */}
 
       {/* Hang 1: nhan trang thai ben trai, nut chia se ben phai - hai thu cung
           la "phu tro" nen xep chung mot hang, thay vi de nut chia se dat le
           phai canh mot khoi chu cao vai dong. */}
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+      {/* <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {chips.map((chip) => (
             <span
@@ -121,14 +125,14 @@ const ProjectHero = ({ project }: { project: ProjectDetail }) => {
             </>
           )}
         </button>
-      </div>
+      </div> */}
 
       {/* Hang 2: ten du an chiem tron chieu ngang, khong bi nut nao chen canh */}
       <h1 className="mt-4 text-3xl font-extrabold uppercase leading-tight tracking-tight text-navy-800 sm:text-4xl lg:text-5xl">
         {project.name}
       </h1>
 
-      <p className="mt-3 max-w-3xl text-base leading-relaxed text-gray-600 sm:text-lg">
+      {/* <p className="mt-3 max-w-3xl text-base leading-relaxed text-gray-600 sm:text-lg">
         {project.tagline}
       </p>
 
@@ -144,7 +148,7 @@ const ProjectHero = ({ project }: { project: ProjectDetail }) => {
             {project.developerName}
           </strong>
         </span>
-      </div>
+      </div> */}
     </header>
   );
 };
