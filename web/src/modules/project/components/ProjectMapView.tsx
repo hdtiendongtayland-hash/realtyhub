@@ -78,6 +78,10 @@ const STATUS_TONE: Record<ProjectStatus, number> = {
   'dang-mo-ban': 3,
   'sap-mo-ban': 1,
   'da-ban-giao': 5,
+  'moi-mo-ban': 2,
+  'da-ban-het': 6,
+  'ban-chay': 4,
+  'tat-ca': 0,
 };
 
 const toLegend = <K extends string>(
