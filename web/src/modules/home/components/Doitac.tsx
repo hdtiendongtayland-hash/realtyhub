@@ -102,11 +102,8 @@ const Doitac = ({ initialInvestors }: DoitacProps) => {
         <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900 md:text-2xl">
-              Các chủ đầu tư
+              Đối tác chiến lược của Realty Hub
             </h2>
-            <p className="mt-1 text-theme-sm text-gray-500">
-              Những chủ đầu tư uy tín đang triển khai dự án trên RealtyHub.
-            </p>
           </div>
 
           <Link

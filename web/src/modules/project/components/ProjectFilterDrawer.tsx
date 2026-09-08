@@ -233,29 +233,12 @@ const ProjectFilterDrawer = ({
           </FilterGroup>
 
           <FilterGroup title="Loại hình">
-            {/* Luoi o vuong thay vi o xo xuong: chi 6 lua chon va deu la khai
-                niem quen thuoc, bay het ra nhanh hon mot lan bam mo */}
-            <div className="grid grid-cols-3 gap-2">
-              {withAll(options.propertyTypes).map((option) => {
-                const isActive = values.propertyType === option.value;
-
-                return (
-                  <button
-                    key={option.value ?? '__all__'}
-                    type="button"
-                    aria-pressed={isActive}
-                    onClick={() => set('propertyType', option.value)}
-                    className={`flex h-16 items-center justify-center rounded-lg border px-2 text-center text-theme-sm transition ${
-                      isActive
-                        ? 'border-brand-500 bg-brand-50 font-semibold text-brand-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>
+            <SegmentedControl
+              label="Loại hình"
+              value={values.segment}
+              options={withAll(options.segments)}
+              onChange={(next) => set('segment', next)}
+            />
           </FilterGroup>
 
           <FilterGroup title="Thông tin mở bán">

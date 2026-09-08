@@ -85,12 +85,12 @@ const Badge = ({ href, caption, store, variant, children }: BadgeProps) => (
   <a
     href={href}
     aria-label={`${caption} ${store}`}
-    className={`flex h-12 min-w-40 items-center gap-2.5 rounded-lg px-3.5 transition ${VARIANT_CLASSES[variant]}`}
+    className={`flex h-10 min-w-32 items-center gap-2 rounded-lg px-3 transition ${VARIANT_CLASSES[variant]}`}
   >
     {children}
     <span className="flex flex-col items-start leading-none">
-      <span className="text-[9px] tracking-tight">{caption}</span>
-      <span className="mt-0.5 text-lg font-semibold leading-tight tracking-tight">
+      <span className="text-[8px] tracking-tight">{caption}</span>
+      <span className="mt-0.5 text-base font-semibold leading-tight tracking-tight">
         {store}
       </span>
     </span>
@@ -104,13 +104,13 @@ const Badge = ({ href, caption, store, variant, children }: BadgeProps) => (
  * nen o day co tinh khong dich.
  */
 const AppStoreBadges = ({ variant = 'dark' }: { variant?: Variant }) => (
-  <div className="flex flex-wrap items-center gap-3">
+  <div className="flex flex-nowrap items-center gap-3">
     <Badge href={APP_LINKS.ios} caption="Download on the" store="App Store" variant={variant}>
-      <AppleIcon className="h-7 w-7 shrink-0" />
+      <AppleIcon className="h-6 w-6 shrink-0" />
     </Badge>
 
     <Badge href={APP_LINKS.android} caption="GET IT ON" store="Google Play" variant={variant}>
-      <GooglePlayIcon className="h-6 w-6 shrink-0" />
+      <GooglePlayIcon className="h-5 w-5 shrink-0" />
     </Badge>
   </div>
 );

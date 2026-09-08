@@ -34,13 +34,13 @@ export function StickyContact() {
             target="_blank"
             rel="nofollow noopener noreferrer"
             whileTap={{ scale: 0.94 }}
-            className="relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-[0_4px_25px_rgba(0,104,255,0.45)] hover:shadow-[0_4px_35px_rgba(0,104,255,0.65)] hover:scale-105 transition-all duration-300 cursor-pointer overflow-visible"
+            className="relative flex h-14 w-14 items-center justify-center rounded-full shadow-[0_4px_25px_rgba(0,104,255,0.45)] hover:shadow-[0_4px_35px_rgba(0,104,255,0.65)] hover:scale-105 transition-all duration-300 cursor-pointer overflow-visible"
             aria-label="Liên hệ qua Zalo"
           >
             {/* Vòng sáng lan tỏa giống ChatWidget */}
             <span
               aria-hidden
-              className="absolute inset-0 -z-10 animate-chat-halo rounded-full bg-[#0068ff]"
+              className="absolute inset-0 -z-10 animate-chat-halo rounded-full"
             />
 
             {/* Khung tròn cắt phần ảnh tràn ra */}

@@ -110,7 +110,7 @@ const NewsSpotlight = ({
   return (
     <section className="py-8">
       <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900">Tin tức</h2>
+        <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wide text-gray-900">Tin tức</h2>
       </div>
 
       {/* `min-w-0` tren tung cot: grid item mac dinh la `min-width: auto`, no

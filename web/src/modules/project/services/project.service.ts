@@ -34,8 +34,7 @@ import type {
 import {
   AMENITY_TAG_LABELS,
   LEGAL_LABELS,
-  PROPERTY_TYPE_LABELS,
-  SEGMENT_LABELS,
+  PROPERTY_TYPE_SEGMENT_LABELS,
   STATUS_LABELS,
   VIEWPOINT_LABELS,
   type FilterOption,
@@ -181,9 +180,9 @@ export const ProjectService = {
     return delay({
       developers: MOCK_DEVELOPERS,
       regions: MOCK_REGIONS,
-      propertyTypes: toOptions(PROPERTY_TYPE_LABELS),
+      propertyTypes: toOptions(PROPERTY_TYPE_SEGMENT_LABELS),
       statuses: toOptions(STATUS_LABELS),
-      segments: toOptions(SEGMENT_LABELS),
+      segments: toOptions(PROPERTY_TYPE_SEGMENT_LABELS),
       amenityTags: toOptions(AMENITY_TAG_LABELS),
       viewpoints: toOptions(VIEWPOINT_LABELS),
       legals: toOptions(LEGAL_LABELS),

@@ -31,12 +31,12 @@ const FeaturedUnits = ({ initialUnits }: FeaturedUnitsProps) => {
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
-    
+
     const container = scrollContainerRef.current;
     const cardWidth = container.querySelector('article')?.offsetWidth || 300;
     const gap = 20; // gap-5 = 20px
     const scrollAmount = cardWidth + gap;
-    
+
     container.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
@@ -51,42 +51,15 @@ const FeaturedUnits = ({ initialUnits }: FeaturedUnitsProps) => {
             <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900 md:text-2xl">
               Sản phẩm nổi bật
             </h2>
-            <p className="mt-1 text-sm text-gray-600">
-              Căn hộ/biệt thự đang mở bán từ nhiều dự án trên toàn hệ thống
-            </p>
           </div>
-          
-          <div className="flex items-center gap-3">
-            {/* Nut dieu huong carousel */}
-            {initialUnits.length > 4 && (
-              <div className="hidden items-center gap-2 md:flex">
-                <button
-                  type="button"
-                  onClick={() => scroll('left')}
-                  aria-label="Xem sản phẩm trước"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  <FiChevronLeft aria-hidden className="h-5 w-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scroll('right')}
-                  aria-label="Xem sản phẩm tiếp theo"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  <FiChevronRight aria-hidden className="h-5 w-5" />
-                </button>
-              </div>
-            )}
 
-            <Link
-              href="/du-an"
+          <Link
+            href="/du-an"
               className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 transition hover:text-brand-700 hover:gap-2"
             >
               Xem tất cả
               <FiChevronRight aria-hidden className="transition-all" />
             </Link>
-          </div>
         </div>
 
         {initialUnits.length === 0 ? (
@@ -94,12 +67,34 @@ const FeaturedUnits = ({ initialUnits }: FeaturedUnitsProps) => {
             <p className="text-sm text-gray-500">Chưa có sản phẩm nổi bật.</p>
           </div>
         ) : (
-          <div className="relative">
-            {/* Container cuon ngang */}
-            <div
-              ref={scrollContainerRef}
-              className="flex gap-5 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory md:overflow-x-hidden"
-            >
+        <div className="relative">
+          {/* Nút điều hướng carousel ở hai bên */}
+          {initialUnits.length > 4 && (
+            <>
+              <button
+                type="button"
+                onClick={() => scroll('left')}
+                aria-label="Xem sản phẩm trước"
+                className="absolute left-0 top-1/2 z-10 hidden h-10 w-10 -translate-x-[calc(50%+32px)] -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:flex"
+              >
+                <FiChevronLeft aria-hidden className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll('right')}
+                aria-label="Xem sản phẩm tiếp theo"
+                className="absolute right-0 top-1/2 z-10 hidden h-10 w-10 translate-x-[calc(50%+32px)] -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:flex"
+              >
+                <FiChevronRight aria-hidden className="h-5 w-5" />
+              </button>
+            </>
+          )}
+
+          {/* Container cuộn ngang */}
+          <div
+            ref={scrollContainerRef}
+            className="flex gap-5 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory md:overflow-x-hidden"
+          >
               {initialUnits.map((unit) => (
                 <div
                   key={unit.publicId}
