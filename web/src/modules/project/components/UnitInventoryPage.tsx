@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   FiBriefcase,
+  FiCompass,
   FiHome,
   FiMapPin,
   FiSearch,
@@ -373,6 +374,19 @@ const UnitInventoryPage = () => {
           }))}
           isLoading={isFirstLoad}
           onChange={(next) => applyParams({ [PARAM.status]: next })}
+        />
+        <FilterSelect
+          key={`huong-${queryKey}`}
+          variant="chip"
+          label="Hướng"
+          icon={<FiCompass />}
+          value={direction}
+          options={(facets?.directions ?? []).map((value) => ({
+            value,
+            label: value,
+          }))}
+          isLoading={isFirstLoad}
+          onChange={(next) => applyParams({ [PARAM.direction]: next })}
         />
 
         {activeCount > 0 && (

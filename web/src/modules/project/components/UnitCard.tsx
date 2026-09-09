@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FiMapPin, FiHome, FiMaximize, FiDollarSign, FiPhone, FiHeart } from "react-icons/fi";
+import { FaFire } from "react-icons/fa";
 import PlaceholderThumb from "@/common/components/PlaceholderThumb";
 import { formatBillion, formatMillionPerSqm } from "@/common/utils/format";
 import {
@@ -50,15 +51,19 @@ const UnitCard = ({ unit }: UnitCardProps) => {
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
 
-          {/* Badge HOT (goc tren trai) */}
+          {/* Icon lua (goc tren trai) - danh dau quy doc quyen */}
           {isHot && (
-            <span className="absolute left-2 top-2 z-10 rounded bg-error-500 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-sm">
-              HOT
+            <span
+              aria-label="Căn độc quyền"
+              title="Căn độc quyền"
+              className="absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-error-500 text-white shadow-sm transition group-hover:scale-110"
+            >
+              <FaFire aria-hidden className="h-4 w-4" />
             </span>
           )}
 
           {/* Icon trai tim (goc tren phai) */}
-          <button 
+          <button
             aria-label="Yêu thích"
             className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-2 shadow-sm transition hover:bg-white hover:scale-110"
           >
