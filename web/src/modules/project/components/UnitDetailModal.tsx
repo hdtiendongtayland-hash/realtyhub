@@ -120,56 +120,88 @@ const UnitDetailModal = ({ open, onClose, unit }: UnitDetailModalProps) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="unit-detail-title"
-      onClick={handleBackdropClick}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity cursor-pointer"
+        onClick={handleBackdropClick}
+      />
 
       {/* Dialog */}
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="relative z-10 w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl focus:outline-none"
+        className="relative z-10 w-full max-w-6xl max-h-[90vh] rounded-2xl bg-white shadow-2xl focus:outline-none"
       >
         {/* Close button */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Đóng"
-          className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-gray-700 shadow-lg transition hover:bg-white hover:text-gray-900"
+          className="absolute right-4 top-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm text-gray-700 shadow-lg transition hover:bg-white hover:text-gray-900"
         >
           <FiX aria-hidden className="h-5 w-5" />
         </button>
 
-        {/* Layout: ảnh bên trái + thông tin bên phải */}
-        <div className="grid grid-cols-1 lg:grid-cols-5">
-          {/* Cột trái: Ảnh (2/5) */}
-          <div className="relative aspect-square lg:aspect-auto lg:min-h-[700px] bg-gray-100 lg:col-span-2">
-            <PlaceholderThumb
-              seed={unit.publicId}
-              src={getImageUrl()}
-              alt={`Căn ${unit.code} - ${unit.projectName}`}
-              label=""
-              className="h-full w-full object-cover"
-            />
+        {/* Layout: ảnh bên trái (fixed) + thông tin bên phải (scroll) */}
+        <div className="flex max-h-[90vh] flex-col lg:flex-row">
+          {/* Cột trái: Ảnh cố định (sticky) */}
+          <div className="relative lg:hidden">
+            {/* Mobile: aspect ratio + scrollable info */}
+            <div className="relative aspect-video w-full bg-gray-100">
+              <PlaceholderThumb
+                seed={unit.publicId}
+                src={getImageUrl()}
+                alt={`Căn ${unit.code} - ${unit.projectName}`}
+                label=""
+                className="h-full w-full object-cover"
+              />
 
-            {/* Nhãn trạng thái */}
-            <span
-              className={`absolute left-4 top-4 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg ${statusColorMap[unit.status]}`}
-            >
-              {UNIT_STATUS_LABELS[unit.status]}
-            </span>
-
-            {/* Nhãn HOT nếu là quỹ độc quyền */}
-            {unit.fundType === 'doc-quyen' && (
-              <span className="absolute right-4 top-4 rounded-lg bg-error-500 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
-                HOT
+              {/* Nhãn trạng thái */}
+              <span
+                className={`absolute left-4 top-4 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg ${statusColorMap[unit.status]}`}
+              >
+                {UNIT_STATUS_LABELS[unit.status]}
               </span>
-            )}
+
+              {/* Nhãn HOT nếu là quỹ độc quyền */}
+              {unit.fundType === 'doc-quyen' && (
+                <span className="absolute right-4 top-4 rounded-lg bg-error-500 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
+                  HOT
+                </span>
+              )}
+            </div>
           </div>
 
-          {/* Cột phải: Thông tin chi tiết (3/5) */}
-          <div className="flex flex-col p-6 lg:p-8 lg:col-span-3">
+          {/* Desktop: Ảnh cố định bên trái */}
+          <div className="relative hidden lg:block lg:w-[40%] lg:flex-shrink-0">
+            <div className="sticky top-0 h-[90vh] bg-gray-100">
+              <PlaceholderThumb
+                seed={unit.publicId}
+                src={getImageUrl()}
+                alt={`Căn ${unit.code} - ${unit.projectName}`}
+                label=""
+                className="h-full w-full object-cover"
+              />
+
+              {/* Nhãn trạng thái */}
+              <span
+                className={`absolute left-4 top-4 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg ${statusColorMap[unit.status]}`}
+              >
+                {UNIT_STATUS_LABELS[unit.status]}
+              </span>
+
+              {/* Nhãn HOT nếu là quỹ độc quyền */}
+              {unit.fundType === 'doc-quyen' && (
+                <span className="absolute right-4 top-4 rounded-lg bg-error-500 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
+                  HOT
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Cột phải: Thông tin chi tiết (scroll) */}
+          <div className="flex flex-col overflow-y-auto p-6 lg:w-[60%] lg:p-8">
             {/* Header */}
             <div className="mb-6 border-b border-gray-200 pb-4">
               <h2
@@ -450,13 +482,12 @@ const UnitDetailModal = ({ open, onClose, unit }: UnitDetailModalProps) => {
                 <FiPhone aria-hidden className="h-4 w-4" />
                 Gọi ngay
               </a>
-              <a
-                href={`/lien-he?du-an=${unit.projectSlug}&can=${unit.code}`}
+              <div
                 className="flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 py-3 text-theme-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
               >
-                <FiMail aria-hidden className="h-4 w-4" />
+                <img src="/images/logo-zalo.webp" alt="Zalo" className="h-6 w-6" />
                 Đặt lịch tư vấn
-              </a>
+              </div>
             </div>
           </div>
         </div>

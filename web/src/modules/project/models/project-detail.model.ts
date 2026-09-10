@@ -18,13 +18,13 @@ export const PROJECT_DETAIL_TABS = [
   { key: 'phan-khu', label: 'Phân khu' },
   { key: 'mat-bang-quy-can', label: 'Vị trí quỹ căn' },
   { key: 'quy-can', label: 'Quỹ căn' },
-  { key: 'anh-360', label: 'Ảnh 360°' },
-  { key: 'dao-tao', label: 'Đào tạo' },
+  { key: 'anh-360', label: 'Camera 360°' },
+  { key: 'phan-tich', label: 'Phân tích' },
   { key: 'chinh-sach-ban-hang', label: 'Chính sách bán hàng' },
+  { key: 'dao-tao', label: 'Đào tạo' },
   { key: 'tien-do', label: 'Tiến độ' },
   { key: 'tai-lieu', label: 'Tài liệu' },
   { key: 'tin-tuc', label: 'Tin tức' },
-  { key: 'phan-tich', label: 'Phân tích' },
 ] as const;
 
 export type ProjectDetailTab = (typeof PROJECT_DETAIL_TABS)[number];

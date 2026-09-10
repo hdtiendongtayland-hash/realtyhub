@@ -29,8 +29,8 @@ const toSlug = (name: string) =>
     .replace(/^-+|-+$/g, '');
 
 /** 25 chu dau tu. Thu tu trong mang nay la thu tu hien thi (co dinh). */
-const INVESTOR_NAMES: ReadonlyArray<{ name: string; logoFile: string }> = [
-  { name: 'Azure', logoFile: 'azure.png' },
+const INVESTOR_NAMES: ReadonlyArray<{ name: string; logoFile: string; localLogo?: string }> = [
+  { name: 'Azure', logoFile: 'azure.png', localLogo: '/images/azure.png' },
   { name: 'BIM Group', logoFile: 'bimgroup.webp' },
   { name: 'CapitaLand', logoFile: 'capitaland.png' },
   { name: 'Đất Xanh Group', logoFile: 'datxanhgroup.webp' },
@@ -58,9 +58,9 @@ const INVESTOR_NAMES: ReadonlyArray<{ name: string; logoFile: string }> = [
 ];
 
 /** 25 Investor records - data goc duy nhat, khong duplicate. */
-export const INVESTORS: Investor[] = INVESTOR_NAMES.map(({ name, logoFile }) => ({
+export const INVESTORS: Investor[] = INVESTOR_NAMES.map(({ name, logoFile, localLogo }) => ({
   name,
-  logo: `${BASE_LOGO_URL}${logoFile}`,
+  logo: localLogo ?? `${BASE_LOGO_URL}${logoFile}`,
   slug: toSlug(name),
 }));
 

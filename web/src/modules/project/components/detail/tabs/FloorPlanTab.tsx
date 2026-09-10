@@ -68,7 +68,8 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
   const [isMapReady, setIsMapReady] = useState(false);
   const [canFullscreen, setCanFullscreen] = useState(false);
   const [funds, setFunds] = useState<UnitFundType[]>(FUND_TYPES);
-  const [showPrice, setShowPrice] = useState(true);
+  const [displayMode, setDisplayMode] = useState<'code' | 'name' | 'price'>('price');
+  const [displayOpen, setDisplayOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -144,7 +145,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
       mapRef.current = map;
       setIsMapReady(true);
 
-      
+
       const observer = new ResizeObserver(() => {
         map?.invalidateSize({ animate: false });
         map?.fitBounds(bounds);
@@ -176,9 +177,15 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
       // Ghim la diem neo 0x0 nam dung toa do, o gia nam trong <span>: xem
       // .plan-pin trong globals.css. Nho vay o gia rong theo do dai tung muc
       // gia, va Leaflet khong giat mat transform cua hieu ung phong to.
+      const label =
+        displayMode === 'code'
+          ? escapeHtml(marker.code)
+          : displayMode === 'name'
+            ? escapeHtml(marker.propertyTypeLabel)
+            : escapeHtml(formatBillionShort(marker.price));
       const icon = L.divIcon({
-        className: `plan-pin plan-pin--${marker.fundType}${showPrice ? '' : ' plan-pin--dot'}`,
-        html: `<span>${showPrice ? escapeHtml(formatBillionShort(marker.price)) : ''}</span>`,
+        className: `plan-pin plan-pin--${marker.fundType}${displayMode === 'price' ? '' : ' plan-pin--dot'}`,
+        html: `<span>${label}</span>`,
         iconSize: [0, 0],
         iconAnchor: [0, 0],
       });
@@ -198,7 +205,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
         )
         .addTo(layer);
     });
-  }, [isMapReady, visibleMarkers, showPrice, toLatLng]);
+  }, [isMapReady, visibleMarkers, displayMode, toLatLng]);
 
   // ── Vao/ra toan man hinh: Leaflet phai do lai kich thuoc khung ───────────
   useEffect(() => {
@@ -363,7 +370,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
         </button>
       </div>
 
-      
+
       <div
         ref={wrapperRef}
         className="plan-map-shell relative isolate overflow-hidden rounded-lg border border-gray-200 bg-gray-100 shadow-card"
@@ -384,26 +391,65 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
             </MapButton>
           )}
 
-          <button
-            type="button"
-            onClick={() => setShowPrice((current) => !current)}
-            aria-pressed={showPrice}
-            className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-theme-xs font-medium text-gray-700 shadow-card"
-          >
-            Giá
-            <span
-              aria-hidden
-              className={`relative h-4 w-8 rounded-full transition ${
-                showPrice ? 'bg-success-500' : 'bg-gray-300'
-              }`}
+          <div className="flex flex-col">
+            <button
+              type="button"
+              onClick={() => setDisplayOpen((o) => !o)}
+              aria-expanded={displayOpen}
+              aria-label={displayOpen ? 'Ẩn tùy chọn hiển thị' : 'Hiện tùy chọn hiển thị'}
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-card transition hover:border-brand-400 hover:text-brand-600"
             >
-              <span
-                className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-all ${
-                  showPrice ? 'left-4.5' : 'left-0.5'
-                }`}
-              />
-            </span>
-          </button>
+              {displayOpen ? (
+                <FiMinus aria-hidden className="h-4 w-4" />
+              ) : (
+                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+                  <circle cx="3.5" cy="8" r="1.5" />
+                  <circle cx="8" cy="8" r="1.5" />
+                  <circle cx="12.5" cy="8" r="1.5" />
+                </svg>
+              )}
+            </button>
+            {displayOpen && (
+              <div className="mt-2 flex flex-col gap-2 overflow-hidden rounded-md border border-gray-300 bg-white shadow-card">
+                <button
+                  type="button"
+                  onClick={() => setDisplayMode('code')}
+                  aria-pressed={displayMode === 'code'}
+                  className={`rounded-none px-2 py-1.5 text-theme-xs font-medium transition ${
+                    displayMode === 'code'
+                      ? 'bg-brand-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Mã căn
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDisplayMode('name')}
+                  aria-pressed={displayMode === 'name'}
+                  className={`rounded-none px-2 py-1.5 text-theme-xs font-medium transition ${
+                    displayMode === 'name'
+                      ? 'bg-brand-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Tên
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDisplayMode('price')}
+                  aria-pressed={displayMode === 'price'}
+                  className={`rounded-none px-2 py-1.5 text-theme-xs font-medium transition ${
+                    displayMode === 'price'
+                      ? 'bg-brand-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  Giá
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="absolute right-3 top-3 z-900 flex items-start gap-2">
