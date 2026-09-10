@@ -5,6 +5,7 @@ import FeaturedUnits from '@/modules/project/components/FeaturedUnits';
 import { useHomeContent } from '../hooks/useHome';
 import type { HomeContent } from '../models/home.model';
 import Doitac from './Doitac';
+import FeaturedEvents from './FeaturedEvents';
 import FeaturedProjects from './FeaturedProjects';
 import HeroSearch from './HeroSearch';
 import QuickUtilities from './QuickUtilities';
@@ -30,6 +31,7 @@ const HomePage = ({ initialContent }: HomePageProps) => {
         </div>
         <FeaturedProjects projects={content.featuredProjects} />
         <FeaturedUnits initialUnits={content.featuredUnits} />
+        <FeaturedEvents />
         <Doitac initialInvestors={content.investors} />
         <div className="bg-white">
           <div className="site-container">

@@ -45,6 +45,8 @@ import {
   VOP_SLUG,
 } from './vinhomes-ocean-park.mock';
 import { MOCK_PROJECTS } from './projects.mock';
+import { BLANCA_CITY_DETAIL, BLANCA_CITY_SLUG } from './blanca-city.mock';
+import { IMPERIA_GREEN_PARADISE_DETAIL, IMPERIA_GREEN_PARADISE_SLUG } from './imperia-green-paradise.mock';
 
 // ── Bo sinh so ngau nhien co hat giong ─────────────────────────────────────
 
@@ -927,6 +929,162 @@ const buildProjectDetail = (
   };
 };
 
+// ── Units cho Blanca City (tu demo.json) ───────────────────────────────────
+
+const BLANCA_CITY_UNIT_TYPES = [
+  { label: 'Studio', area: 35.8, bedrooms: 0 },
+  { label: '1PN+1', area: 49.3, bedrooms: 1 },
+  { label: '2PN', area: 68.8, bedrooms: 2 },
+  { label: '2PN+1', area: 79.2, bedrooms: 2 },
+  { label: '3PN', area: 93.1, bedrooms: 3 },
+];
+
+const BLANCA_CITY_DIRECTIONS = ['ĐÔNG', 'TÂY', 'NAM', 'ĐÔNG NAM', 'TÂY NAM'];
+
+const buildBlancaCityUnits = (): ProjectUnit[] => {
+  const units: ProjectUnit[] = [];
+  let unitIndex = 0;
+
+  // Generate 500 units
+  for (let floor = 5; floor <= 34; floor++) {
+    for (let slot = 1; slot <= 16; slot++) {
+      if (unitIndex >= 500) break;
+
+      const typeIndex = unitIndex % BLANCA_CITY_UNIT_TYPES.length;
+      const type = BLANCA_CITY_UNIT_TYPES[typeIndex];
+
+      // Generate price based on area (approximate, ~50-60 triệu/m2)
+      const basePricePerSqm = 50_000_000 + Math.random() * 10_000_000;
+      const listedPrice = Math.round((type.area * basePricePerSqm) / 1_000_000) * 1_000_000;
+      const netPrice = Math.round(listedPrice * 0.95 / 1_000_000) * 1_000_000;
+      const fullVatPrice = Math.round(listedPrice * 1.08 / 1_000_000) * 1_000_000;
+      const unitPrice = Math.round(netPrice / type.area);
+
+      // Random status: 70% con-hang, 15% giu-cho, 15% da-ban
+      const statusRoll = Math.random();
+      const status: UnitStatus =
+        statusRoll > 0.85 ? 'da-ban' : statusRoll > 0.70 ? 'giu-cho' : 'con-hang';
+
+      // Fund type distribution
+      const fundRoll = Math.random();
+      const fundType: UnitFundType =
+        fundRoll < 0.2 ? 'doc-quyen' : fundRoll < 0.86 ? 'an-cheo' : 'thuong';
+
+      const code = `BT-${String(floor).padStart(2, '0')}${String(slot).padStart(2, '0')}`;
+
+      units.push({
+        publicId: `bc-unit-${String(unitIndex + 1).padStart(4, '0')}`,
+        code,
+        fundType,
+        listedPrice,
+        netPrice,
+        fullVatPrice,
+        unitPrice,
+        propertyTypeLabel: type.label,
+        direction: BLANCA_CITY_DIRECTIONS[unitIndex % BLANCA_CITY_DIRECTIONS.length],
+        landArea: type.area,
+        buildArea: type.area,
+        phaseName: 'Beacon Tower',
+        status,
+        floor: String(floor),
+        bedrooms: type.bedrooms,
+        toilets: type.bedrooms + 1,
+        floors: 1,
+        loanRate: '6%/năm',
+        loanTerm: '24 tháng',
+        discount: 'Chiết khấu 2% khi thanh toán sớm',
+        gift: 'Voucher nội thất 50 triệu',
+        handoverDate: 'Quý 4/2026',
+        handoverStatus: 'Đang xây dựng',
+      });
+
+      unitIndex++;
+    }
+    if (unitIndex >= 500) break;
+  }
+
+  return units;
+};
+
+// ── Units cho Imperia Green Paradise (tu imprea.json) ──────────────────────
+
+const IMPERIA_UNIT_TYPES = [
+  { label: 'Studio', area: 33, bedrooms: 0 },
+  { label: '1PN+1', area: 48, bedrooms: 1 },
+  { label: '2PN+1WC', area: 58, bedrooms: 2 },
+  { label: '2PN+2WC', area: 74, bedrooms: 2 },
+  { label: '3PN', area: 85, bedrooms: 3 },
+  { label: 'Duplex', area: 135, bedrooms: 3 },
+  { label: 'Penthouse', area: 156, bedrooms: 4 },
+];
+
+const IMPERIA_DIRECTIONS = ['ĐÔNG', 'TÂY', 'NAM', 'BẮC', 'ĐÔNG NAM', 'TÂY NAM'];
+
+const buildImperiaUnits = (): ProjectUnit[] => {
+  const units: ProjectUnit[] = [];
+  let unitIndex = 0;
+
+  // Generate 600 units cho Imperia Green Paradise (paradise tower)
+  for (let floor = 6; floor <= 40; floor++) {
+    for (let slot = 1; slot <= 16; slot++) {
+      if (unitIndex >= 600) break;
+
+      const typeIndex = unitIndex % IMPERIA_UNIT_TYPES.length;
+      const type = IMPERIA_UNIT_TYPES[typeIndex];
+
+      // Generate price based on area (Imperia: ~65-75 triệu/m2 vì cao cấp)
+      const basePricePerSqm = 65_000_000 + Math.random() * 10_000_000;
+      const listedPrice = Math.round((type.area * basePricePerSqm) / 1_000_000) * 1_000_000;
+      const netPrice = Math.round(listedPrice * 0.95 / 1_000_000) * 1_000_000;
+      const fullVatPrice = Math.round(listedPrice * 1.08 / 1_000_000) * 1_000_000;
+      const unitPrice = Math.round(netPrice / type.area);
+
+      // Random status: 80% con-hang (sắp mở bán), 12% giu-cho, 8% da-ban
+      const statusRoll = Math.random();
+      const status: UnitStatus =
+        statusRoll > 0.92 ? 'da-ban' : statusRoll > 0.80 ? 'giu-cho' : 'con-hang';
+
+      // Fund type distribution
+      const fundRoll = Math.random();
+      const fundType: UnitFundType =
+        fundRoll < 0.2 ? 'doc-quyen' : fundRoll < 0.86 ? 'an-cheo' : 'thuong';
+
+      const code = `PT-${String(floor).padStart(2, '0')}${String(slot).padStart(2, '0')}`;
+
+      units.push({
+        publicId: `igp-unit-${String(unitIndex + 1).padStart(4, '0')}`,
+        code,
+        fundType,
+        listedPrice,
+        netPrice,
+        fullVatPrice,
+        unitPrice,
+        propertyTypeLabel: type.label,
+        direction: IMPERIA_DIRECTIONS[unitIndex % IMPERIA_DIRECTIONS.length],
+        landArea: type.area,
+        buildArea: type.area,
+        phaseName: 'The Paradise Tower',
+        status,
+        floor: String(floor),
+        bedrooms: type.bedrooms,
+        toilets: type.bedrooms + 1,
+        floors: type.label === 'Duplex' ? 2 : 1,
+        loanRate: '0% (24 tháng đầu)',
+        loanTerm: '24 tháng',
+        discount: 'Chiết khấu 5% khi thanh toán sớm',
+        gift: 'Gói nội thất cao cấp 200 triệu',
+        handoverDate: 'Quý 4/2028',
+        handoverStatus: 'Đang xây dựng',
+      });
+
+      unitIndex++;
+    }
+    if (unitIndex >= 600) break;
+  }
+
+  return units;
+};
+
 // ── Cache: mot du an chi dung mot lan trong bo nho ─────────────────────────
 
 const detailCache = new Map<string, ProjectDetail>();
@@ -937,6 +1095,25 @@ const unitCache = new Map<string, ProjectUnit[]>();
  * goi trong ham nay la mot phan cua "hat giong" - doi thu tu se doi du lieu.
  */
 const ensureBuilt = (slug: string): ProjectDetail | null => {
+  // Check for real project data first (Blanca City)
+  if (slug === BLANCA_CITY_SLUG) {
+    const bcProject = BLANCA_CITY_DETAIL;
+    // Generate units for Blanca City
+    const bcUnits = buildBlancaCityUnits();
+    unitCache.set(slug, bcUnits);
+    detailCache.set(slug, bcProject);
+    return bcProject;
+  }
+
+  // Check for real project data (Imperia Green Paradise)
+  if (slug === IMPERIA_GREEN_PARADISE_SLUG) {
+    const igpProject = IMPERIA_GREEN_PARADISE_DETAIL;
+    const igpUnits = buildImperiaUnits();
+    unitCache.set(slug, igpUnits);
+    detailCache.set(slug, igpProject);
+    return igpProject;
+  }
+
   const cached = detailCache.get(slug);
   if (cached) return cached;
 

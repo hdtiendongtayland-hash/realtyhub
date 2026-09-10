@@ -72,3 +72,37 @@ export type HomeContent = {
    */
   investors: InvestorSummary[];
 };
+
+/** Mot goi y hien trong dropdown khi user go vao thanh tim kiem hero */
+export type HomeSuggestion = {
+  /** Loai goi y - quyet dinh icon va hanh vi khi click */
+  kind: 'project' | 'region' | 'developer';
+  /** Ten hien thi tren dropdown */
+  label: string;
+  /** Chu mo ta nho duoi label (vd: dia chi du an, "Khu vuc", "Chu dau tu") */
+  sublabel: string;
+  /**
+   * Link chi tiet neu co (chi ap dung cho project - mo trang chi tiet luon).
+   * null voi region/developer: click se fill input va submit search.
+   */
+  href: string | null;
+};
+
+/** Tap 3 nhom goi y tra ve tu HomeService.suggest */
+export type HomeSuggestions = {
+  projects: HomeSuggestion[];
+  regions: HomeSuggestion[];
+  developers: HomeSuggestion[];
+};
+
+/** Mot chip filter da parse tu ngon ngu tu nhien, hien thi trong dropdown */
+export type ParsedFilterChip = {
+  /** Stable key - duy nhat trong mot lan suggest (vd 'priceMax', 'view:view-bien') */
+  id: string;
+  /** Group de render icon + mau */
+  group: 'price' | 'area' | 'bedrooms' | 'type' | 'segment' | 'legal' | 'view';
+  /** Text hien thi tren chip (vd: "Duoi 4 ty") */
+  label: string;
+  /** Phan text trong input da tao ra chip nay. Dung de xoa chip (cat khoi input). */
+  originalText: string;
+};

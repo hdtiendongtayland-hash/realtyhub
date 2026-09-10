@@ -24,6 +24,7 @@ export const PROJECT_DETAIL_TABS = [
   { key: 'tien-do', label: 'Tiến độ' },
   { key: 'tai-lieu', label: 'Tài liệu' },
   { key: 'tin-tuc', label: 'Tin tức' },
+  { key: 'phan-tich', label: 'Phân tích' },
 ] as const;
 
 export type ProjectDetailTab = (typeof PROJECT_DETAIL_TABS)[number];
@@ -257,7 +258,7 @@ export type ProjectUnit = {
   buildArea: number;
   phaseName: string;
   status: UnitStatus;
-  
+
   // Thông tin bổ sung cho popup chi tiết
   /** Tầng (VD: 12, 15-20) */
   floor?: string;

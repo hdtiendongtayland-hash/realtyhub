@@ -216,16 +216,16 @@
     "isHot": true
   },
   {
-    "slug": "blanca-city",
-    "name": "Blanca City",
-    "tagline": "Căn hộ view thoáng, bàn giao nội thất cơ bản",
-    "address": "Phường 12, TP. Vũng Tàu, Bà Rịa – Vũng Tàu",
+    "slug": "blanca-city-1777362890000",
+    "name": "BLANCA CITY",
+    "tagline": "Khu đô thị phức hợp cao cấp tại Bãi Sau, Vũng Tàu",
+    "address": "Đường 3 Tháng 2, Phường 10, Vũng Tàu, Bà Rịa – Vũng Tàu",
     "segment": "cao-tang",
     "status": "dang-mo-ban",
     "propertyType": "can-ho",
-    "developerIndex": 2,
+    "developerIndex": 6,
     "regionIndex": 7,
-    "isHot": false
+    "isHot": true
   },
   {
     "slug": "the-berkeley",
@@ -348,16 +348,16 @@
     "isHot": false
   },
   {
-    "slug": "imperia-green-paradise",
-    "name": "Imperia Green Paradise",
-    "tagline": "Tổ hợp căn hộ hiện đại giữa trung tâm",
-    "address": "Phường Đằng Hải, quận Hải An, TP. Hải Phòng",
+    "slug": "imperia-green-paradise-1776759113000",
+    "name": "IMPERIA GREEN PARADISE",
+    "tagline": "Khu đô thị biểu tượng tại mặt tiền biển Cần Giờ",
+    "address": "Mặt tiền biển Cần Giờ, xã Long Hòa, huyện Cần Giờ, TP. Hồ Chí Minh",
     "segment": "cao-tang",
-    "status": "dang-mo-ban",
+    "status": "sap-mo-ban",
     "propertyType": "can-ho",
-    "developerIndex": 3,
-    "regionIndex": 5,
-    "isHot": false
+    "developerIndex": 7,
+    "regionIndex": 1,
+    "isHot": true
   },
   {
     "slug": "haus-quang-ngai",

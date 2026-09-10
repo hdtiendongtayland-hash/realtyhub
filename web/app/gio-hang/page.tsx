@@ -4,16 +4,22 @@ import { redirect } from 'next/navigation';
 // dang o URL cu sang URL moi (giu nguyen query string). Cac route con
 // ([slug], [slug]/phan-khu/[phaseSlug]) khong redirect vi mot du an cu the
 // van truy cap duoc qua slug tuy y, khong anh huong den redirect nay.
-export default function GioHangLegacyPage({
+export default async function GioHangLegacyPage({
   searchParams,
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  // Build lai query string neu co
-  // (trang danh sach khong dung params nhung giu de khong mat filter neu co)
-  // use de tuong thich voi Promise<...> cua Next 15+
-  // Tach rieng de tranh can synchronous khi redirect
-  return redirect('/du-an');
+  // Giu nguyen query string neu co (vi du khi user search "nha duoi 4 ty"
+  // o hero -> /gio-hang?q=...&priceMax=4e9, ta redirect giu nguyen de
+  // /du-an nhan dung filter).
+  const params = (await searchParams) ?? {};
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (typeof value === 'string') qs.set(key, value);
+    else if (Array.isArray(value)) qs.set(key, value.join(','));
+  }
+  const queryString = qs.toString();
+  redirect(queryString ? `/du-an?${queryString}` : '/du-an');
 }
 
 export async function generateMetadata() {
