@@ -116,7 +116,7 @@ const GROUP_SITES = [
     href: 'https://lepalmier.vn',
     logo: '/images/home/logo-le-palmier.png',
     width: 114,
-    height: 70,
+    height: 90,
   },
 ];
 
@@ -255,7 +255,7 @@ const SiteFooter = () => (
                   alt={site.name}
                   width={site.width}
                   height={site.height}
-                  className="h-10 w-auto"
+                  className="h-12 w-auto"
                 />
               </a>
             </li>

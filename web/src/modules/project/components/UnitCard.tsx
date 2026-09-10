@@ -51,14 +51,14 @@ const UnitCard = ({ unit }: UnitCardProps) => {
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
 
-          {/* Icon lua (goc tren trai) - danh dau quy doc quyen */}
+          {/* Tag HOT (goc tren trai) - danh dau quy doc quyen */}
           {isHot && (
             <span
               aria-label="Căn độc quyền"
               title="Căn độc quyền"
-              className="absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-error-500 text-white shadow-sm transition group-hover:scale-110"
+              className="absolute left-2 top-2 z-10 rounded-md bg-white px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-error-500 shadow-sm"
             >
-              <FaFire aria-hidden className="h-4 w-4" />
+              HOT
             </span>
           )}
 
@@ -83,7 +83,7 @@ const UnitCard = ({ unit }: UnitCardProps) => {
                 <span className="font-semibold text-gray-900">{unit.code}</span>
               </p>
             </Link>
-            <p className="text-sm font-medium text-gray-600 flex-shrink-0 whitespace-nowrap">{formatBillion(unit.netPrice)}</p>
+            {/* <p className="text-sm font-medium text-gray-600 flex-shrink-0 whitespace-nowrap">{formatBillion(unit.netPrice)}</p> */}
           </div>
 
           {/* Divider */}
@@ -95,8 +95,16 @@ const UnitCard = ({ unit }: UnitCardProps) => {
             <div className="flex items-start gap-2">
               <FiMaximize aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
               <div className="flex-1">
-                <dt className="inline font-medium text-gray-600">Diện tích: </dt>
+                <dt className="inline font-medium text-gray-600">Diện tích đất: </dt>
                 <dd className="inline font-semibold text-gray-900">{unit.landArea} m²</dd>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <FiMaximize aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <div className="flex-1">
+                <dt className="inline font-medium text-gray-600">Diện tích xây dựng: </dt>
+                <dd className="inline font-semibold text-gray-900">{unit.buildArea} m²</dd>
               </div>
             </div>
 

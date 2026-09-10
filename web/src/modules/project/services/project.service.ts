@@ -177,11 +177,22 @@ export const ProjectService = {
     const toOptions = (labels: Record<string, string>): FilterOption[] =>
       Object.entries(labels).map(([value, label]) => ({ value, label }));
 
+    /**
+     * STATUS_LABELS van con chua khoa 'tat-ca' vi ProjectMapView va ProjectHero
+     * dung no de to mau cho bieu tuong "Tat ca" trong chu thich/bang mau.
+     * Day khong phai mot trang thai ban hang that, nen phai loc ra khoi danh
+     * sach o loc - khong thi hang chip va bang loc deu hien "Tat ca" hai lan
+     * (mot lan do FilterSelect/SegmentedControl chen them, mot lan tu day).
+     */
+    const realStatuses = Object.entries(STATUS_LABELS)
+      .filter(([value]) => value !== 'tat-ca')
+      .map(([value, label]) => ({ value, label }));
+
     return delay({
       developers: MOCK_DEVELOPERS,
       regions: MOCK_REGIONS,
       propertyTypes: toOptions(PROPERTY_TYPE_SEGMENT_LABELS),
-      statuses: toOptions(STATUS_LABELS),
+      statuses: realStatuses,
       segments: toOptions(PROPERTY_TYPE_SEGMENT_LABELS),
       amenityTags: toOptions(AMENITY_TAG_LABELS),
       viewpoints: toOptions(VIEWPOINT_LABELS),

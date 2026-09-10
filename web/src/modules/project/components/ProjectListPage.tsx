@@ -507,7 +507,7 @@ const ProjectListPage = () => {
       )}
 
       {/* Ban do da choan het chieu cao man hinh nen hai khoi nay khong con cho */}
-      {!isMapView && (
+      {/* {!isMapView && (
         <>
           <ProjectHighlightPanel
             groups={highlightsQuery.data ?? []}
@@ -516,7 +516,7 @@ const ProjectListPage = () => {
 
           <NewsSection />
         </>
-      )}
+      )} */}
     </div>
   );
 };
