@@ -13,6 +13,7 @@ import {
 import {
   HiOutlineAcademicCap,
   HiOutlineBookOpen,
+  HiOutlineChartBar,
   HiOutlineHomeModern,
   HiOutlineNewspaper,
   HiOutlineSquares2X2,
@@ -36,6 +37,7 @@ const TAB_ICONS: Record<ProjectDetailTabKey, ReactNode> = {
   'tien-do': <FiCalendar aria-hidden />,
   'tai-lieu': <HiOutlineBookOpen aria-hidden />,
   'tin-tuc': <HiOutlineNewspaper aria-hidden />,
+  'phan-tich': <HiOutlineChartBar aria-hidden />,
 };
 
 const telHref = (phone: string) => `tel:${phone.replace(/\s/g, '')}`;
@@ -96,7 +98,7 @@ const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) =
             Nho vay khong bao gio co tab nao bi nut de len nhu truoc. */}
         <ul
           ref={listRef}
-          className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-2.5 lg:flex-wrap lg:overflow-x-visible"
+          className="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto py-2 lg:flex-wrap lg:overflow-x-visible"
         >
           {PROJECT_DETAIL_TABS.map((tab) => {
             const isActive = tab.key === current;
@@ -108,7 +110,7 @@ const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) =
                   type="button"
                   onClick={() => onChange(tab.key)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2.5 text-[15px] transition duration-200 ${
+                  className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] transition duration-200 ${
                     isActive
                       ? 'brand-gradient font-semibold text-white shadow-[0_4px_14px_-4px_rgba(15,111,209,0.7)]'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-brand-600'
@@ -139,7 +141,7 @@ const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) =
               aria-expanded={isContactOpen}
               aria-haspopup="true"
               aria-label="Liên hệ tư vấn"
-              className="flex items-center gap-2 rounded-full bg-jade-600 px-4 py-2.5 text-[15px] font-bold text-white shadow-[0_4px_14px_-4px_rgba(18,134,111,0.8)] transition duration-200 hover:scale-105 hover:bg-jade-500 active:scale-95"
+              className="flex items-center gap-2 rounded-full bg-jade-600 px-3 py-2 text-[14px] font-bold text-white shadow-[0_4px_14px_-4px_rgba(18,134,111,0.8)] transition duration-200 hover:scale-105 hover:bg-jade-500 active:scale-95"
             >
               <FiPhone aria-hidden />
               {/* Duoi sm chi con icon cho do chat; aria-label o tren lo cho ca

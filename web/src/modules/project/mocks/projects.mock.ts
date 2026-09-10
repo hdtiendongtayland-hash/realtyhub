@@ -31,6 +31,10 @@ export const MOCK_DEVELOPERS: FilterOption[] = [
   { value: 'cdt-truong-son', label: 'Trường Sơn Invest' },
   // Chu dau tu CO THAT - chi dung cho du an that Vinhomes Ocean Park (index 5)
   { value: 'cdt-vingroup', label: 'Vingroup' },
+  // Chu dau tu CO THAT - Sun Group (index 6)
+  { value: 'cdt-sun-group', label: 'Sun Group' },
+  // Chu dau tu CO THAT - MIK Group (index 7) - Imperia Green Paradise
+  { value: 'cdt-mik-group', label: 'MIK Group' },
 ];
 
 // Sau khong doi thu tu 6 muc dau: projects.seed.json tro toi khu vuc bang chi

@@ -3,6 +3,7 @@
 import { type FormEvent } from 'react';
 import {
   FiBriefcase,
+  FiLayers,
   FiMapPin,
   FiSearch,
   FiTag,
@@ -51,7 +52,7 @@ export type ProjectFilterValues = {
 export type ProjectViewMode = 'danh-sach' | 'ban-do';
 
 /** Cac o loc duoc dua len hang chip cho bam nhanh - phan con lai nam trong bang loc */
-type ChipSelectKey = 'regionId' | 'developerId' | 'status';
+type ChipSelectKey = 'regionId' | 'developerId' | 'status' | 'segment';
 
 const SORT_OPTIONS = [
   { value: 'mac-dinh', label: 'Mặc định' },
@@ -115,6 +116,12 @@ const ProjectFilterBar = ({
     icon: React.ReactNode;
     options: FilterOption[];
   }[] = [
+    {
+      key: 'segment',
+      label: 'Loại dự án',
+      icon: <FiLayers />,
+      options: options.segments,
+    },
     { key: 'regionId', label: 'Khu vực', icon: <FiMapPin />, options: options.regions },
     {
       key: 'developerId',
@@ -201,7 +208,7 @@ const ProjectFilterBar = ({
       </div>
 
       {/* ── Hang 4: dien tich + phong ngu ─────────────────────────────── */}
-      <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-25 px-4 py-3">
+      {/* <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-25 px-4 py-3">
         <span className="text-theme-xs font-semibold uppercase tracking-wide text-gray-500">
           Diện tích ≤
         </span>
@@ -252,7 +259,7 @@ const ProjectFilterBar = ({
             Xóa hết
           </button>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

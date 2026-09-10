@@ -95,9 +95,10 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
           ratio="aspect-21/9"
         />
 
-        <p className="mt-6 max-w-4xl text-base leading-relaxed text-gray-600">
-          {project.description}
-        </p>
+        <div
+          className="mt-6 max-w-4xl space-y-4 text-base leading-relaxed text-gray-600 [&_figure]:mx-0 [&_figure_img]:rounded-lg [&_figure_img]:shadow-card [&_ul]:list-inside [&_ul]:list-disc [&_li]:my-1 [&_p]:my-2 [&_strong]:font-semibold [&_strong]:text-gray-800"
+          dangerouslySetInnerHTML={{ __html: project.description }}
+        />
 
         <ProjectSpecs project={project} />
       </section>
