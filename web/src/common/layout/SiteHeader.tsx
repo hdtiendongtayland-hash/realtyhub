@@ -13,7 +13,7 @@ import FavoriteButton from '@/common/layout/FavoriteButton';
 // "REALTY HUB" deu phai tro ve day de khong tao them route moi va tranh
 // duplicate content. Khi doi URL trang danh sach du an, chi can doi
 // hang so nay.
-const DỰ_ÁN_HREF = '/gio-hang';
+const DU_AN_HREF = '/gio-hang';
 
 const NAV_ITEMS = [
   { label: 'Trang chủ', href: '/' },
@@ -21,7 +21,7 @@ const NAV_ITEMS = [
   // Dat ngay TRUOC "Dự án" theo yeu cau nav: nguoi dung nhan dien du an
   // qua chu dau tu nen di tu CDT -> DA la chieu doc tu nhien.
   { label: 'Chủ đầu tư', href: '/chu-dau-tu' },
-  { label: 'Dự án', href: DỰ_ÁN_HREF, aliases: ['/du-an'] },
+  { label: 'Dự án', href: DU_AN_HREF, aliases: ['/du-an'] },
   // Quy can: tong hop toan bo can/san pham cua tat ca du an. Dat ngay
   // sau "Dự án" de nguoi dung tim can nhanh hon qua tung du an rieng le.
   { label: 'Quỹ căn', href: '/quy-can' },
@@ -56,7 +56,7 @@ const BrandMark = () => (
   // Logo dung chung route voi menu "DỰ ÁN" (NAV_ITEMS o tren) de dam bao
   // click logo cung vao dung trang danh sach du an, khong tao them route
   // moi. Khi doi href cua nav DỰ ÁN can cap nhat lai o day.
-  <Link href={DỰ_ÁN_HREF} className="flex items-center" aria-label="Dự án">
+  <Link href={"/"} className="flex items-center" aria-label="Dự án">
     <Image
       src="/images/home/logo-realtyhub.svg"
       alt="RealtyHub"

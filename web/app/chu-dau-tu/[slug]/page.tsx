@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { DEFAULT_INVESTOR_QUERY } from '@/modules/developer/models/investor.model';
 import { InvestorService } from '@/modules/developer/services/investor.service';
 import InvestorDetailPage from '@/modules/developer/components/DeveloperDetailPage';
 
@@ -33,7 +34,7 @@ export default async function ChuDauTuDetailRoutePage({ params }: Props) {
 
   // Lay summary cua investor nay (projectCount, availableUnitCount...) de
   // truyen xuong client cho InvestorDetailPage hien thi stats ngay.
-  const { investors } = await InvestorService.list();
+  const { investors } = await InvestorService.list(DEFAULT_INVESTOR_QUERY);
   const summary = investors.find((entry) => entry.slug === slug) ?? null;
 
   return (
