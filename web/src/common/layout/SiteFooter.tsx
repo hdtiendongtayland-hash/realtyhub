@@ -135,13 +135,13 @@ const CERTIFICATIONS: {
     width: 767,
     height: 263,
   },
-  {
-    label: 'DMCA Protected',
-    href: '#',
-    src: '/images/home/DMCA.jpg',
-    width: 250,
-    height: 125,
-  },
+  // {
+  //   label: 'DMCA Protected',
+  //   href: '#',
+  //   src: '/images/home/DMCA.jpg',
+  //   width: 250,
+  //   height: 125,
+  // },
 ];
 
 /** Thong tin dang ky doanh nghiep - lay tu giay phep, khong duoc tu doi. */
@@ -269,14 +269,14 @@ const SiteFooter = () => (
             canh. Mau truyen qua bien CSS `--tone` chu khong ghep thang vao ten
             class: Tailwind quet class luc build nen `bg-${color}` ghep dong se
             khong bao gio duoc sinh ra CSS. */}
-        <ul className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <ul className="mb-6 grid grid-cols-4 gap-x-2 gap-y-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5">
           {SOCIAL_LINKS.map((social) => (
             <li key={social.label}>
               <a
                 href={social.href}
                 aria-label={social.label}
                 style={{ '--tone': social.color } as React.CSSProperties}
-                className="group flex items-center gap-2 text-theme-sm text-gray-600 transition hover:text-(--tone)"
+                className="group flex items-center justify-center gap-1.5 text-theme-sm text-gray-600 transition hover:text-(--tone) sm:justify-start sm:gap-2"
               >
                 <span className="flex h-6 w-6 items-center justify-center rounded-md bg-(--tone) text-xs text-white transition group-hover:scale-110">
                   {social.icon}

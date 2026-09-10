@@ -200,39 +200,6 @@ const ProjectFilterBar = ({
         )}
       </div>
 
-      {/* ── Hang 3: Khoang gia rieng ───────────────────────────────────── */}
-      <div className="mt-3 rounded-xl border border-gray-200 bg-gradient-to-r from-brand-50/50 to-brand-50/30 px-5 py-4">
-        <div className="mb-3 flex items-center justify-between">
-          <span className="flex items-center gap-2 text-theme-sm font-semibold text-gray-700">
-            <FiTag className="text-brand-500" aria-hidden />
-            Khoảng giá
-          </span>
-          {hasActiveFilter && (
-            <button
-              type="button"
-              onClick={onClearAll}
-              className="flex items-center gap-1 text-theme-xs font-medium text-gray-400 underline underline-offset-2 transition hover:text-error-500"
-            >
-              <FiX aria-hidden className="text-base" />
-              Xóa
-            </button>
-          )}
-        </div>
-        <RangeSliderField
-          label="Khoảng giá"
-          limit={PRICE_LIMIT}
-          step={PRICE_STEP}
-          scale={PRICE_SCALE}
-          unit="tỷ"
-          min={values.priceMin}
-          max={values.priceMax}
-          format={formatPriceShort}
-          onChange={(min, max) => {
-            onChange({ priceMin: min, priceMax: max });
-          }}
-        />
-      </div>
-
       {/* ── Hang 4: dien tich + phong ngu ─────────────────────────────── */}
       <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-25 px-4 py-3">
         <span className="text-theme-xs font-semibold uppercase tracking-wide text-gray-500">

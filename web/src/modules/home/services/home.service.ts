@@ -10,6 +10,7 @@
  * Trang chu chi can mot luot goi duy nhat nen tra ve nguyen object.
  */
 import { InvestorService } from '@/modules/developer/services/investor.service';
+import { DEFAULT_INVESTOR_QUERY } from '@/modules/developer/models/investor.model';
 import { ProjectService } from '@/modules/project/services/project.service';
 import { MOCK_HOME_CONTENT } from '../mocks/home.mock';
 import type { HomeContent } from '../models/home.model';
@@ -39,7 +40,7 @@ export const HomeService = {
   content: async (): Promise<HomeContent> => {
     const [featuredUnits, investorsPage] = await Promise.all([
       ProjectService.featuredUnits(12, 3),
-      InvestorService.list(),
+      InvestorService.list(DEFAULT_INVESTOR_QUERY),
     ]);
     return delay({
       ...MOCK_HOME_CONTENT,
