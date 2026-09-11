@@ -38,7 +38,7 @@ export const FEATURE_ICONS = ['shield', 'search', 'support', 'chart'] as const;
  * about.mock.ts (MOCK_ABOUT_CONTENT).
  */
 export type AboutHero = {
-  eyebrow: string;
+  eyebrow?: string;
   /**
    * Tieu de lon tren hero - luu y viet hoa, vi layout hien thi
    * `text-transform: uppercase` qua CSS.
@@ -47,7 +47,7 @@ export type AboutHero = {
   /** Dong mo ta duoi tieu de chinh. */
   lead: string;
   /** Vi du dang chip nho (promise). */
-  promises: string[];
+  promises?: string[];
   /** CTA chinh duoi lead. */
   primaryCta: { label: string; href: string };
   /** CTA phu (optional). */
@@ -83,7 +83,7 @@ export type AboutIntro = {
  */
 export type AboutInventory = {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   /** Danh sach cac the manh cua quy can (highlight). */
   highlights: {
     iconKey: string;

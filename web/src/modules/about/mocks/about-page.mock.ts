@@ -27,16 +27,8 @@ import type { AboutPageContent } from '../models/about.model';
 export const MOCK_ABOUT_PAGE: AboutPageContent = {
   // ============ 1. HERO ============
   hero: {
-    eyebrow: 'Về RealtyHub',
     headline: 'NỀN TẢNG CÔNG NGHỆ DÀNH RIÊNG CHO MÔI GIỚI BẤT ĐỘNG SẢN',
-    lead: 'RealtyHub cung cấp thông tin dự án, kho quỹ căn tập trung và bộ công cụ hỗ trợ bán hàng chuyên dụng — để mỗi môi giới đều có thể tư vấn nhanh, so sánh chính xác và chốt giao dịch hiệu quả.',
-    promises: [
-      'Quỹ căn tập trung',
-      'AI trợ lý sales',
-      'So sánh sản phẩm',
-      'Tính tài chính',
-      'Quản lý khách hàng',
-    ],
+    lead: 'RealtyHub kết hợp dữ liệu, AI và công nghệ bán hàng trong một nền tảng chuyên biệt cho môi giới — tối ưu từng bước tư vấn, nâng tầm hiệu quả giao dịch.',
     primaryCta: {
       label: 'ĐĂNG KÝ TRỞ THÀNH CỘNG TÁC VIÊN',
       href: '/tro-thanh-moi-gioi',
@@ -49,8 +41,8 @@ export const MOCK_ABOUT_PAGE: AboutPageContent = {
 
   // ============ 2. GIỚI THIỆU - nền tảng công nghệ cho môi giới ============
   intro: {
-    title: 'REALTYHUB – NỀN TẢNG CÔNG NGHỆ DÀNH RIÊNG CHO MÔI GIỚI BẤT ĐỘNG SẢN',
-    body: 'RealtyHub là nền tảng công nghệ dành riêng cho môi giới bất động sản, cung cấp thông tin dự án và các công cụ hỗ trợ kinh doanh hiệu quả. Chúng tôi xây dựng để mỗi môi giới đều có thể làm việc chuyên nghiệp hơn mỗi ngày — bắt đầu từ việc có đủ dữ liệu, có công cụ, và có một quy trình rõ ràng để đi từ nhu cầu khách hàng đến giao dịch thành công.',
+    title: 'MỘT NỀN TẢNG – ĐỦ MỌI CÔNG CỤ, SẴN SÀNG BỨT PHÁ DOANH SỐ',
+    body: 'Không chỉ là nơi tra cứu thông tin, RealtyHub cung cấp bộ công cụ được thiết kế theo từng bước trong quy trình bán hàng bất động sản — từ tìm kiếm sản phẩm đến tư vấn, chăm sóc và theo dõi giao dịch.',
     pillars: [
       {
         iconKey: 'cpuChip',
@@ -106,8 +98,7 @@ export const MOCK_ABOUT_PAGE: AboutPageContent = {
   // ============ 3. QUỸ CĂN - nhấn mạnh thị trường miền Nam ============
   inventory: {
     title: 'QUỸ CĂN PHONG PHÚ – TẬP TRUNG ĐẶC BIỆT TẠI THỊ TRƯỜNG MIỀN NAM',
-    subtitle:
-      'RealtyHub tập trung xây dựng nguồn quỹ căn phong phú cho môi giới — tổng hợp sản phẩm từ nhiều dự án, dễ dàng tìm kiếm và so sánh, cập nhật theo dữ liệu hiện có của hệ thống. Đặc biệt, chúng tôi ưu tiên nguồn hàng tại thị trường miền Nam — nơi tập trung nhiều dự án quy mô và đa dạng loại hình sản phẩm nhất hiện nay.',
+    // subtitle: 'RealtyHub tập trung xây dựng nguồn quỹ căn phong phú cho môi giới — tổng hợp sản phẩm từ nhiều dự án, dễ dàng tìm kiếm và so sánh, cập nhật theo dữ liệu hiện có của hệ thống. Đặc biệt, chúng tôi ưu tiên nguồn hàng tại thị trường miền Nam — nơi tập trung nhiều dự án quy mô và đa dạng loại hình sản phẩm nhất hiện nay.',
     highlights: [
       {
         iconKey: 'building',
@@ -151,44 +142,44 @@ export const MOCK_ABOUT_PAGE: AboutPageContent = {
         iconKey: 'shield',
         title: 'Nguồn thông tin tập trung',
         description:
-          'Thay vì phải tìm dữ liệu rải rác trên nhiều nguồn, mọi thông tin dự án được gom về một nơi duy nhất, có cấu trúc thống nhất.',
+          'Tập trung nguồn hàng – Không bỏ lỡ cơ hội',
       },
       {
         iconKey: 'newspaper',
         title: 'Thông tin dự án dễ tra cứu',
         description:
-          'Pháp lý, tiến độ, bảng giá, mặt bằng, chính sách — đều có thể tra cứu nhanh trong cùng một giao diện.',
+          'Nắm thông tin nhanh – Tư vấn chuẩn xác',
       },
       {
         iconKey: 'checkBadge',
         title: 'Quỹ căn thuận tiện tìm kiếm',
         description:
-          'Tìm căn theo nhu cầu thực tế của khách hàng: giá, diện tích, vị trí, hướng, tầng, view — chỉ trong vài thao tác.',
+          'Tìm đúng căn – Đúng nhu cầu khác',
       },
       {
         iconKey: 'wrench',
         title: 'Hỗ trợ môi giới tư vấn khách hàng',
         description:
-          'Công cụ so sánh, tính tài chính và tạo bảng hàng giúp buổi tư vấn đi đúng trọng tâm, khách hàng ra quyết định nhanh hơn.',
+          'Đủ công cụ – Tự tin chốt giao dịch',
       },
       {
         iconKey: 'bolt',
         title: 'Tiết kiệm thời gian tìm kiếm',
         description:
-          'Một quy trình thay vì hàng chục bước thủ công — từ tìm nguồn, đối chiếu thông tin, đến gửi tài liệu cho khách.',
+          'Bớt tìm kiếm – Thêm thời gian bán hàng',
       },
       {
         iconKey: 'chartBar',
         title: 'Tăng hiệu quả làm việc',
         description:
-          'Một môi giới có đủ công cụ sẽ tư vấn được nhiều khách hàng hơn trong cùng một khoảng thời gian — mà vẫn đảm bảo chất lượng.',
+          'Làm việc thông minh – Tăng tốc doanh số',
       },
     ],
   },
 
   // ============ 5. ĐỒNG HÀNH CÙNG BẠN TỪ A ĐẾN Z ============
   journey: {
-    title: 'ĐỒNG HÀNH CÙNG BẠN TỪ A ĐẾN Z',
+    title: 'ĐỒNG HÀNH TRỌN HÀNH TRÌNH – VỮNG BƯỚC MỖI GIAO DỊCH',
     subtitle:
       'Hành trình của một môi giới trên RealtyHub — từ lúc tìm kiếm thông tin đến khi chốt giao dịch thành công.',
     steps: [

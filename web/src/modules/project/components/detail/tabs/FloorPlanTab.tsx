@@ -177,21 +177,25 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
       // Ghim la diem neo 0x0 nam dung toa do, o gia nam trong <span>: xem
       // .plan-pin trong globals.css. Nho vay o gia rong theo do dai tung muc
       // gia, va Leaflet khong giat mat transform cua hieu ung phong to.
+      const isDot = displayMode !== 'price';
       const label =
         displayMode === 'code'
           ? escapeHtml(marker.code)
           : displayMode === 'name'
-            ? escapeHtml(marker.propertyTypeLabel)
+            ? '' // chế độ tên: chỉ hiện dấu chấm, không text
             : escapeHtml(formatBillionShort(marker.price));
       const icon = L.divIcon({
-        className: `plan-pin plan-pin--${marker.fundType}${displayMode === 'price' ? '' : ' plan-pin--dot'}`,
+        className: `plan-pin plan-pin--${marker.fundType}${isDot ? ' plan-pin--dot' : ''}`,
         html: `<span>${label}</span>`,
         iconSize: [0, 0],
         iconAnchor: [0, 0],
       });
 
-      L.marker(toLatLng(marker), { icon, title: marker.code })
-        .bindPopup(
+      const markerInstance = L.marker(toLatLng(marker), { icon, title: marker.code });
+
+      // displayMode === 'name' → không hiện popup khi click
+      if (displayMode !== 'name') {
+        markerInstance.bindPopup(
           `<div style="min-width:180px">
             <p style="font-weight:700;color:#101828;margin-bottom:6px">${escapeHtml(marker.code)}</p>
             <p style="color:#475467;font-size:12px;line-height:1.7;margin:0">
@@ -202,8 +206,10 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
               Tình trạng: <strong>${escapeHtml(UNIT_STATUS_LABELS[marker.status])}</strong>
             </p>
           </div>`,
-        )
-        .addTo(layer);
+        );
+      }
+
+      markerInstance.addTo(layer);
     });
   }, [isMapReady, visibleMarkers, displayMode, toLatLng]);
 
@@ -433,7 +439,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
                       : 'bg-white text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  Tên
+                  Không Tên
                 </button>
                 <button
                   type="button"

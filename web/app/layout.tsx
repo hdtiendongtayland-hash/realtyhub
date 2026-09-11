@@ -102,7 +102,7 @@ export default function RootLayout({
           <SiteHeader />
           {/* pb-16 = 64px: du cho thanh tabs (56px) + safe-area inset (8px).
               Tren desktop pb-16 khong co tac dung vi tabs an (lg:hidden). */}
-          <main className="flex-1 pb-16 lg:pb-0">{children}</main>
+          <main className="flex-1">{children}</main>
           <HideOnPaths paths={FULLSCREEN_PATHS}>
             <SiteFooter />
           </HideOnPaths>

@@ -1,5 +1,17 @@
 [
   {
+    "slug": "blanca-city-1777362890000",
+    "name": "BLANCA CITY",
+    "tagline": "Khu đô thị phức hợp cao cấp tại Bãi Sau, Vũng Tàu",
+    "address": "Đường 3 Tháng 2, Phường 10, Vũng Tàu, Bà Rịa – Vũng Tàu",
+    "segment": "cao-tang",
+    "status": "dang-mo-ban",
+    "propertyType": "can-ho",
+    "developerIndex": 6,
+    "regionIndex": 7,
+    "isHot": true
+  },
+  {
     "slug": "vinhomes-ocean-park-gia-lam",
     "name": "Vinhomes Ocean Park",
     "tagline": "Đại đô thị 420 ha với biển hồ nước mặn đầu tiên tại Hà Nội",
@@ -213,18 +225,6 @@
     "propertyType": "shophouse",
     "developerIndex": 1,
     "regionIndex": 10,
-    "isHot": true
-  },
-  {
-    "slug": "blanca-city-1777362890000",
-    "name": "BLANCA CITY",
-    "tagline": "Khu đô thị phức hợp cao cấp tại Bãi Sau, Vũng Tàu",
-    "address": "Đường 3 Tháng 2, Phường 10, Vũng Tàu, Bà Rịa – Vũng Tàu",
-    "segment": "cao-tang",
-    "status": "dang-mo-ban",
-    "propertyType": "can-ho",
-    "developerIndex": 6,
-    "regionIndex": 7,
     "isHot": true
   },
   {
