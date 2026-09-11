@@ -45,12 +45,6 @@ const AboutHeroSection = ({ hero }: AboutHeroSectionProps) => (
 
     <div className="site-container">
       <div className="max-w-3xl">
-        <span className="inline-flex items-center gap-2 text-theme-xs font-bold uppercase tracking-[0.22em] text-brand-300">
-          <span aria-hidden className="h-px w-8 bg-current opacity-60" />
-          {hero.eyebrow}
-          <span aria-hidden className="h-px w-8 bg-current opacity-60" />
-        </span>
-
         <h1
           id="about-hero-heading"
           className="mt-6 text-3xl font-bold uppercase leading-[1.1] tracking-tight md:text-5xl lg:text-6xl"
@@ -61,24 +55,6 @@ const AboutHeroSection = ({ hero }: AboutHeroSectionProps) => (
         <p className="mt-7 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
           {hero.lead}
         </p>
-
-        {/* Chip promises */}
-        <ul className="mt-9 flex flex-wrap gap-2.5">
-          {hero.promises.map((promise) => (
-            <li
-              key={promise}
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 py-2 pl-2 pr-4 text-theme-sm text-white backdrop-blur-sm"
-            >
-              <span
-                aria-hidden
-                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500"
-              >
-                <FiCheck className="h-3 w-3" />
-              </span>
-              {promise}
-            </li>
-          ))}
-        </ul>
 
         {/* CTA chinh + CTA phu */}
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">

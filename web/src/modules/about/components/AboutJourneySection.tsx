@@ -88,8 +88,7 @@ const AboutJourneySection = ({ journey }: AboutJourneySectionProps) => (
               Cam kết đồng hành
             </p>
             <p className="mt-3 text-base leading-relaxed text-navy-800 md:text-lg">
-              Mỗi bước trong hành trình đều có công cụ hỗ trợ — để bạn tập trung
-              vào khách hàng, không phải vào thao tác thủ công.
+            Không chỉ là công cụ, RealtyHub - người bạn đồng hành trên hành trình bán hàng của bạn.
             </p>
           </div>
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FiMapPin, FiHome, FiMaximize, FiDollarSign, FiPhone, FiHeart } from "react-icons/fi";
+import { FiMapPin, FiHome, FiMaximize, FiCompass, FiLayers, FiDollarSign, FiPhone, FiHeart } from "react-icons/fi";
 import { FaFire } from "react-icons/fa";
 import PlaceholderThumb from "@/common/components/PlaceholderThumb";
 import { formatBillion, formatMillionPerSqm } from "@/common/utils/format";
@@ -83,7 +83,7 @@ const UnitCard = ({ unit }: UnitCardProps) => {
                 <span className="font-semibold text-gray-900">{unit.code}</span>
               </p>
             </Link>
-            {/* <p className="text-sm font-medium text-gray-600 flex-shrink-0 whitespace-nowrap">{formatBillion(unit.netPrice)}</p> */}
+            <p className="text-sm font-medium text-gray-600 flex-shrink-0 whitespace-nowrap">{formatBillion(unit.netPrice)}</p>
           </div>
 
           {/* Divider */}
@@ -101,7 +101,7 @@ const UnitCard = ({ unit }: UnitCardProps) => {
             </div>
 
             <div className="flex items-start gap-2">
-              <FiMaximize aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <FiHome aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
               <div className="flex-1">
                 <dt className="inline font-medium text-gray-600">Diện tích xây dựng: </dt>
                 <dd className="inline font-semibold text-gray-900">{unit.buildArea} m²</dd>
@@ -109,20 +109,10 @@ const UnitCard = ({ unit }: UnitCardProps) => {
             </div>
 
             <div className="flex items-start gap-2">
-              <FiMaximize aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <FiCompass aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
               <div className="flex-1">
                 <dt className="inline font-medium text-gray-600">Hướng: </dt>
                 <dd className="inline font-semibold text-gray-900">{unit.direction}</dd>
-              </div>
-            </div>
-
-            {/* Gia */}
-            <div className="flex items-start gap-2">
-              <FiDollarSign aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
-              <div className="flex-1">
-                <dt className="inline font-medium text-gray-600">Giá: </dt>
-                <dd className="inline font-bold text-brand-600">{formatBillion(unit.netPrice)}</dd>
-                <span className="ml-1 text-xs text-gray-500">({formatMillionPerSqm(unit.unitPrice)})</span>
               </div>
             </div>
 
@@ -136,7 +126,7 @@ const UnitCard = ({ unit }: UnitCardProps) => {
             </div>
 
             <div className="flex items-start gap-2">
-              <FiMaximize aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+              <FiLayers aria-hidden className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
               <div className="flex-1">
                 <dt className="inline font-medium text-gray-600">Loại hình: </dt>
                 <dd className="inline font-semibold text-gray-900">Liền Kề</dd>

@@ -71,7 +71,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             images={project.thumbnailUrls}
             alt={`Phối cảnh dự án ${project.name}`}
             paused={isHovered}
-            className="transition duration-500 group-hover:scale-105"
+            className="transition duration-500 group-hover:scale-105 aspect-[16/9]"
           />
 
           {/* Lop phu toi dan tu duoi len de chu luon doc duoc tren moi anh */}

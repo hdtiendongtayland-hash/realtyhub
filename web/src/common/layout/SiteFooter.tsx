@@ -269,16 +269,16 @@ const SiteFooter = () => (
             canh. Mau truyen qua bien CSS `--tone` chu khong ghep thang vao ten
             class: Tailwind quet class luc build nen `bg-${color}` ghep dong se
             khong bao gio duoc sinh ra CSS. */}
-        <ul className="mb-6 grid grid-cols-4 gap-x-2 gap-y-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5">
+        <ul className="mb-6 grid grid-cols-4 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5">
           {SOCIAL_LINKS.map((social) => (
             <li key={social.label}>
               <a
                 href={social.href}
                 aria-label={social.label}
                 style={{ '--tone': social.color } as React.CSSProperties}
-                className="group flex items-center justify-center gap-1.5 text-theme-sm text-gray-600 transition hover:text-(--tone) sm:justify-start sm:gap-2"
+                className="group flex flex-col items-center gap-1.5 text-theme-sm text-gray-600 transition hover:text-(--tone) sm:flex-row sm:justify-start sm:gap-2"
               >
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-(--tone) text-xs text-white transition group-hover:scale-110">
+                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-(--tone) text-sm text-white transition group-hover:scale-110 sm:h-6 sm:w-6 sm:text-xs">
                   {social.icon}
                 </span>
                 {social.stat}
