@@ -1240,6 +1240,8 @@ export const getAllUnitsAcrossProjects = (): UnitWithProject[] => {
         segment: project.segment,
         propertyType: project.propertyType,
         projectIsHot: project.isHot,
+        // Mang anh cua du an - card can dung carousel nen khong query them.
+        thumbnailUrls: project.thumbnailUrls,
       });
     }
   }

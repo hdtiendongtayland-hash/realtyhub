@@ -400,6 +400,9 @@ export type PaginatedAllUnits = {
  * Dung cho cac cho can hien can cua nhieu du an tren cung mot trang (vi du
  * trang chu): card se can ten du an, chu dau tu, segment... ma khong can
  * service phai join them mot lan nua.
+ *
+ * `thumbnailUrls` lay luon tu du an de card can co the dung carousel anh
+ * (giong ProjectCard) ma khong can service phai query them.
  */
 export type UnitWithProject = ProjectUnit & {
   projectSlug: string;
@@ -408,6 +411,7 @@ export type UnitWithProject = ProjectUnit & {
   segment: Project['segment'];
   propertyType: Project['propertyType'];
   projectIsHot: boolean;
+  thumbnailUrls: string[];
 };
 
 // ── Tab: Anh 360 ───────────────────────────────────────────────────────────
