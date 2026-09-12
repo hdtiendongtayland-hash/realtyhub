@@ -76,6 +76,20 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
   const [phaseName, setPhaseName] = useState<string | null>(null);
   const [status, setStatus] = useState<UnitStatus | null>(null);
 
+  const displayOptions = useMemo(
+    () =>
+      [
+        { value: 'code' as const, label: 'Mã căn' },
+        { value: 'name' as const, label: 'Không tên' },
+        { value: 'price' as const, label: 'Giá' },
+      ],
+    [],
+  );
+  const activeDisplayIndex = useMemo(
+    () => displayOptions.findIndex((option) => option.value === displayMode),
+    [displayOptions, displayMode],
+  );
+
   const phaseNames = useMemo(
     () => [...new Set(planMap.markers.map((marker) => marker.phaseName))],
     [planMap.markers],
@@ -365,7 +379,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
           );
         })}
 
-        <button
+        {/* <button
           type="button"
           onClick={() => setFunds(FUND_TYPES)}
           aria-label="Hiện tất cả loại quỹ"
@@ -373,7 +387,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
           className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-500 transition hover:border-brand-400 hover:text-brand-600"
         >
           <FiPlus aria-hidden />
-        </button>
+        </button> */}
       </div>
 
 
@@ -400,10 +414,14 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
           <div className="flex flex-col">
             <button
               type="button"
-              onClick={() => setDisplayOpen((o) => !o)}
+              onClick={() => setDisplayOpen((open) => !open)}
               aria-expanded={displayOpen}
               aria-label={displayOpen ? 'Ẩn tùy chọn hiển thị' : 'Hiện tùy chọn hiển thị'}
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-card transition hover:border-brand-400 hover:text-brand-600"
+              className={`flex h-9 w-9 items-center justify-center rounded-md border bg-white shadow-card transition ${
+                displayOpen
+                  ? 'border-brand-400 text-brand-600'
+                  : 'border-gray-300 text-gray-700 hover:border-brand-400 hover:text-brand-600'
+              }`}
             >
               {displayOpen ? (
                 <FiMinus aria-hidden className="h-4 w-4" />
@@ -416,43 +434,31 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
               )}
             </button>
             {displayOpen && (
-              <div className="mt-2 flex flex-col gap-2 overflow-hidden rounded-md border border-gray-300 bg-white shadow-card">
-                <button
-                  type="button"
-                  onClick={() => setDisplayMode('code')}
-                  aria-pressed={displayMode === 'code'}
-                  className={`rounded-none px-2 py-1.5 text-theme-xs font-medium transition ${
-                    displayMode === 'code'
-                      ? 'bg-brand-500 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  Mã căn
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDisplayMode('name')}
-                  aria-pressed={displayMode === 'name'}
-                  className={`rounded-none px-2 py-1.5 text-theme-xs font-medium transition ${
-                    displayMode === 'name'
-                      ? 'bg-brand-500 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  Không Tên
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDisplayMode('price')}
-                  aria-pressed={displayMode === 'price'}
-                  className={`rounded-none px-2 py-1.5 text-theme-xs font-medium transition ${
-                    displayMode === 'price'
-                      ? 'bg-brand-500 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  Giá
-                </button>
+              <div className="plan-display-switch relative mt-2 inline-flex h-9 items-center rounded-md border border-gray-300 bg-white p-0.5 shadow-card">
+                {displayOptions.map((option) => {
+                  const isActive = option.value === displayMode;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setDisplayMode(option.value)}
+                      aria-pressed={isActive}
+                      className={`relative z-10 inline-flex h-full min-w-20 items-center justify-center rounded-sm px-5 text-theme-xs font-medium transition ${
+                        isActive ? 'text-white' : 'text-gray-700 hover:text-brand-600'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 rounded-sm bg-brand-500 shadow-card transition-transform duration-300 ease-out"
+                  style={{
+                    width: `calc((100% - 0.25rem) / ${displayOptions.length})`,
+                    transform: `translateX(${activeDisplayIndex * 100}%)`,
+                  }}
+                />
               </div>
             )}
           </div>
@@ -497,11 +503,6 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
           </span>
         </div>
       </div>
-
-      <p className="mt-3 text-theme-xs text-gray-400">
-        Đang hiển thị {visibleMarkers.length}/{planMap.markers.length} căn trên mặt bằng. Bấm
-        vào pin để xem chi tiết.
-      </p>
     </div>
   );
 };

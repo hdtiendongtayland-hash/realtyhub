@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FiHome, FiShoppingCart, FiBook, FiTool } from 'react-icons/fi';
+import { HiOutlineBuildingOffice2, HiOutlineHomeModern } from 'react-icons/hi2';
 
 /**
  * Tab bar dien thoai o duoi - 4 muc (Trang chu / Gio hang / Dao tao /
@@ -17,8 +18,8 @@ import { FiHome, FiShoppingCart, FiBook, FiTool } from 'react-icons/fi';
 
 const TABS = [
   { label: 'Trang chủ', href: '/', icon: FiHome, exact: true },
-  { label: 'Dự án', href: '/du-an', icon: FiShoppingCart, exact: false },
-  { label: 'Quỹ căn', href: '/quy-can', icon: FiBook, exact: false },
+  { label: 'Dự án', href: '/du-an', icon: HiOutlineBuildingOffice2, exact: false },
+  { label: 'Quỹ căn', href: '/quy-can', icon: HiOutlineHomeModern, exact: false },
   { label: 'Tiện ích', href: '/tien-ich', icon: FiTool, exact: false },
 ] as const;
 

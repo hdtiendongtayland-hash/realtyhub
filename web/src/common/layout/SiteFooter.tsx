@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { HiOutlineUserGroup } from 'react-icons/hi2';
+import { HiOutlineShieldCheck, HiOutlineUserGroup } from 'react-icons/hi2';
 import { FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa';
 import { SiZalo } from 'react-icons/si';
 import AppStoreBadges from '@/common/components/AppStoreBadges';
@@ -120,35 +120,11 @@ const GROUP_SITES = [
   },
 ];
 
-
-const CERTIFICATIONS: {
-  label: string;
-  href: string;
-  src?: string;
-  width?: number;
-  height?: number;
-}[] = [
-  {
-    label: 'Đã thông báo Bộ Công Thương',
-    href: '#',
-    src: '/images/home/Bo_Cong_Thuong.jpg',
-    width: 767,
-    height: 263,
-  },
-  // {
-  //   label: 'DMCA Protected',
-  //   href: '#',
-  //   src: '/images/home/DMCA.jpg',
-  //   width: 250,
-  //   height: 125,
-  // },
-];
-
 /** Thong tin dang ky doanh nghiep - lay tu giay phep, khong duoc tu doi. */
 const COMPANY = {
-  name: 'Công ty Cổ phần Đông Tây Land',
+  name: 'CÔNG TY CỔ PHẦN CÔNG NGHỆ XHUB',
   license: '0312312011',
-  firstRegistered: '05/06/2013',
+  firstRegistered: '09/2026',
   address: '192 Trần Não, Khu Phố 2, Phường An Khánh, Thành phố Hồ Chí Minh, Việt Nam',
   phone: '08.73087777',
   phoneHref: 'tel:+842873087777',
@@ -271,10 +247,11 @@ const SiteFooter = () => (
             khong bao gio duoc sinh ra CSS. */}
         <ul className="mb-6 grid grid-cols-4 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5">
           {SOCIAL_LINKS.map((social) => (
-            <li key={social.label}>
+            <li key={social.label} className="sm:flex-1">
               <a
                 href={social.href}
                 aria-label={social.label}
+                title={social.label}
                 style={{ '--tone': social.color } as React.CSSProperties}
                 className="group flex flex-col items-center gap-1.5 text-theme-sm text-gray-600 transition hover:text-(--tone) sm:flex-row sm:justify-start sm:gap-2"
               >
@@ -288,34 +265,43 @@ const SiteFooter = () => (
         </ul>
 
         <ul className="flex flex-wrap items-center gap-3">
-          {CERTIFICATIONS.map((cert) => (
-            <li key={cert.label}>
-              <a
-                href={cert.href}
-                aria-label={cert.label}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="flex items-center rounded-md transition hover:opacity-80"
-              >
-                {cert.src ? (
-                  // Ghim chieu cao (h-13 = 52px), be ngang tu chay theo ti le:
-                  // hai huy hieu co ti le rat lech nhau (2.92 va 2.00) nen chi
-                  // co ghim chieu cao moi cho ra mot hang thang deu.
-                  <Image
-                    src={cert.src}
-                    alt={cert.label}
-                    width={cert.width ?? 0}
-                    height={cert.height ?? 0}
-                    className="h-13 w-auto"
-                  />
-                ) : (
-                  <span className="rounded-md border border-dashed border-gray-300 bg-gray-25 px-3 py-2.5 text-theme-xs font-semibold uppercase tracking-wide text-gray-400">
-                    {cert.label}
-                  </span>
-                )}
-              </a>
-            </li>
-          ))}
+          <li>
+            <a
+              href="#"
+              aria-label="Đã thông báo Bộ Công Thương"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex items-center rounded-md transition hover:opacity-80"
+            >
+              {/* Ghim chieu cao (h-13 = 52px), be ngang tu chay theo ti le:
+                  hai huy hieu co ti le rat lech nhau (2.92 va 2.00) nen chi
+                  co ghim chieu cao moi cho ra mot hang thang deu. */}
+              <Image
+                src="/images/home/Bo_Cong_Thuong.jpg"
+                alt="Đã thông báo Bộ Công Thương"
+                width={767}
+                height={263}
+                className="h-13 w-auto"
+              />
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              aria-label="DMCA Protected"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex items-center rounded-md transition hover:opacity-80"
+            >
+              <Image
+                src="/images/home/DMCA.jpg"
+                alt="DMCA Protected"
+                width={200}
+                height={90}
+                className="h-12 w-auto"
+              />
+            </a>
+          </li>
         </ul>
       </div>
     </div>
@@ -328,7 +314,7 @@ const SiteFooter = () => (
         <p>
           © 2026.{' '}
           <span className="font-semibold uppercase text-gray-700">{COMPANY.name}.</span>{' '}
-          GPĐKKD: {COMPANY.license}, đăng ký lần đầu ngày {COMPANY.firstRegistered}.
+          GPĐKKD: {COMPANY.license}, thành lập vào tháng{COMPANY.firstRegistered}.
         </p>
         <p>
           Địa chỉ: {COMPANY.address}. Điện thoại:{' '}

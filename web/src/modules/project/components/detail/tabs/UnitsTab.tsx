@@ -138,6 +138,8 @@ const UnitsTab = ({ slug, lockedPhaseName }: UnitsTabProps) => {
         segment: project.segment,
         propertyType: project.propertyType,
         projectIsHot: project.isHot,
+        // ProjectCard/UnitCard muon dung carousel nen can mang anh cua du an
+        thumbnailUrls: project.thumbnailUrls,
       };
     },
     [project, slug],
