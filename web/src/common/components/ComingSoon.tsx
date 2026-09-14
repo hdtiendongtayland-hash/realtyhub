@@ -2,16 +2,6 @@ import Link from 'next/link';
 
 import { FiArrowLeft, FiClock } from 'react-icons/fi';
 
-/**
- * Trang placeholder "Chức năng đang phát triển" - dung cho cac route
- * /pdf-converter, /lich-am, /la-ban-phong-thuy... Khi feature ready,
- * the file route tuong ung se duoc thay the.
- *
- * Props:
- *   - title: tien ich (VD: "PDF Converter")
- *   - description: mo ta ngan
- *   - Icon: react-icon component (render to trong card)
- */
 type ComingSoonProps = {
   title: string;
   description: string;

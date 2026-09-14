@@ -4,13 +4,6 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { FiX } from 'react-icons/fi';
 
-/**
- * Modal "Sắp ra mắt" - mo khi click 1 nut tinh nang chua phat trien.
- *
- * Su dung chung cho 7 khoi tien ich (va cac tinh nang chua ready khac).
- *
- * Co the mo voi icon + tone-color de phan biet theo khoi.
- */
 type ComingSoonModalProps = {
   open: boolean;
   onClose: () => void;

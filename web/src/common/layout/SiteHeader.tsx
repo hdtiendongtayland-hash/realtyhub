@@ -10,44 +10,23 @@ import AccountMenu from '@/common/components/AccountMenu';
 import FavoriteButton from '@/common/layout/FavoriteButton';
 import NotificationsPopover from '@/common/layout/NotificationsPopover';
 
-// Route dung chung cho trang "DANH SÁCH DỰ ÁN". Cả nav "DỰ ÁN" lẫn logo
-// "REALTY HUB" deu phai tro ve day de khong tao them route moi va tranh
-// duplicate content. Khi doi URL trang danh sach du an, chi can doi
-// hang so nay.
 const DU_AN_HREF = '/gio-hang';
 
 const NAV_ITEMS = [
   { label: 'Trang chủ', href: '/' },
-  // Chu dau tu: trang tong hop cac chu dau tu + so du an/cua moi nguoi.
-  // Dat ngay TRUOC "Dự án" theo yeu cau nav: nguoi dung nhan dien du an
-  // qua chu dau tu nen di tu CDT -> DA la chieu doc tu nhien.
   { label: 'Chủ đầu tư', href: '/chu-dau-tu' },
   { label: 'Dự án', href: DU_AN_HREF, aliases: ['/du-an'] },
-  // Quy can: tong hop toan bo can/san pham cua tat ca du an. Dat ngay
-  // sau "Dự án" de nguoi dung tim can nhanh hon qua tung du an rieng le.
   { label: 'Quỹ căn', href: '/quy-can' },
   { label: 'Sự kiện', href: '/su-kien' },
-
-  //{ label: 'Trở thành môi giới', href: '/tro-thanh-moi-gioi' },
 ];
 
-/** Nhom "Khac" hien thi dropdown o desktop. 3 muc con nay cu cung duoc
-    an tu header (chi truy cap qua dropdown) de tranh lap 2 lan. */
 const MORE_MENU = {
   label: 'Mục Khác',
   children: [
-    // Trang gioi thieu da duoc chuyen tu menu chinh xuong day de nhuong
-    // cho "Chu dau tu" va "Quy can". Giu nguyen route /gioi-thieu va
-    // chuc nang (trang gioi thieu ve RealtyHub).
-    { label: 'Giới thiệu', href: '/gioi-thieu' },
-
-    { label: 'Tiện ích', href: '/tien-ich' },
-
-    //{ label: 'So sánh dự án & căn hộ', href: '/so-sanh' },
     { label: 'Tin tức', href: '/tin-tuc' },
+    { label: 'Tiện ích', href: '/tien-ich' },
     { label: 'Đào tạo', href: '/dao-tao' },
-
-    //{ label: 'So sánh chính sách', href: '/so-sanh-chinh-sach' },
+    { label: 'Giới thiệu', href: '/gioi-thieu' },
     { label: 'Liên hệ chúng tôi', href: '/lien-he-chung-toi' },
     { label: 'Góp ý & phản hồi', href: '/gop-y-va-phan-hoi' },
     { label: 'Hướng dẫn sử dụng', href: '/huong-dan' },
@@ -55,9 +34,6 @@ const MORE_MENU = {
 };
 
 const BrandMark = () => (
-  // Logo dung chung route voi menu "DỰ ÁN" (NAV_ITEMS o tren) de dam bao
-  // click logo cung vao dung trang danh sach du an, khong tao them route
-  // moi. Khi doi href cua nav DỰ ÁN can cap nhat lai o day.
   <Link href={"/"} className="flex items-center" aria-label="Dự án">
     <Image
       src="/images/home/logo-realtyhub.svg"
@@ -188,9 +164,6 @@ const SiteHeader = () => {
     });
   };
   const onMoreMouseEnter = () => {
-    // Hover vao button hoac panel: huy timer dong dang doi (neu co) de panel
-    // khong bi dong giua chung, roi sau 100ms moi mo popup - dam bao user
-    // that su muon xem, khong phai chi luot chuot ngang.
     if (moreCloseTimerRef.current) {
       clearTimeout(moreCloseTimerRef.current);
       moreCloseTimerRef.current = null;
@@ -203,21 +176,18 @@ const SiteHeader = () => {
     }
   };
   const onMoreMouseLeave = () => {
-    // Huy timer mo dang doi (neu chuot roi di truoc khi popup mo) de tranh
-    // popup bat len khi user da di cho khac.
+
     if (moreOpenTimerRef.current) {
       clearTimeout(moreOpenTimerRef.current);
       moreOpenTimerRef.current = null;
     }
-    // Neu dang bi khoa (user da click) thi dong ngay + reset lock de lan
-    // sau hover vao lai hoat dong binh thuong.
+
     if (isMoreClickLocked.current) {
       setIsMoreOpen(false);
       isMoreClickLocked.current = false;
       return;
     }
-    // Hover ra ngoai (chua khoa): cho 200ms truoc khi dong - du thoi gian
-    // di chuyen chuot qua khoang gap `mt-3` giua button va dropdown.
+
     if (isMoreOpen && !moreCloseTimerRef.current) {
       moreCloseTimerRef.current = setTimeout(() => {
         moreCloseTimerRef.current = null;
@@ -226,10 +196,6 @@ const SiteHeader = () => {
     }
   };
 
-  // Dong dropdown "Khac" khi:
-  //  - click ra ngoai
-  //  - nhan Esc
-  //  - chuyen trang (pathname thay doi)
   useEffect(() => {
     if (!isMoreOpen) return undefined;
     const onClick = (e: MouseEvent) => {
@@ -312,27 +278,27 @@ const SiteHeader = () => {
     <header className={`sticky top-0 z-40 border-b transition-colors ${headerColor}`}>
       <div className="site-container flex h-16 items-center justify-between gap-4">
         {/* Nut menu mobile dat o goc trai, truoc BrandMark. Tren desktop
-            nut nay an di boi lg:hidden (desktop co nav inline). */}
+            nut nay an di boi xl:hidden (desktop co nav inline). */}
         <button
           type="button"
           onClick={() => setIsMobileOpen((open) => !open)}
           aria-label={isMobileOpen ? 'Đóng menu' : 'Mở menu'}
           aria-expanded={isMobileOpen}
-          className={`order-first flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition lg:hidden ${iconColor}`}
+          className={`order-first flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition xl:hidden ${iconColor}`}
         >
           {isMobileOpen ? <FiX aria-hidden /> : <FiMenu aria-hidden />}
         </button>
 
         <BrandMark />
 
-        <nav aria-label="Điều hướng chính" className="hidden lg:block">
-          <ul className="flex items-center gap-6">
+        <nav aria-label="Điều hướng chính" className="hidden xl:block">
+          <ul className="flex items-center gap-5">
             {NAV_ITEMS.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   aria-current={isNavItemActive(item) ? 'page' : undefined}
-                  className={`text-theme-sm font-semibold uppercase tracking-wide transition ${
+                  className={`whitespace-nowrap text-theme-sm font-semibold uppercase tracking-wide transition ${
                     isNavItemActive(item) ? navColor.active : navColor.idle
                   }`}
                 >
@@ -341,10 +307,6 @@ const SiteHeader = () => {
               </li>
             ))}
 
-            {/* Dropdown "Khac" - desktop. Hover vao nut se mo panel (rat
-                thuong thay trong nav web), click vao nut se KHOA panel lai
-                de chuot di ra ngoai khong bi dong. Click lan nua / click ra
-                ngoai / Esc / chuyen trang se mo khoa. */}
             <li
               className="relative"
               ref={moreRef}
@@ -357,7 +319,7 @@ const SiteHeader = () => {
                 aria-haspopup="menu"
                 aria-expanded={isMoreOpen}
                 aria-current={isMoreActive ? 'page' : undefined}
-                className={`inline-flex items-center gap-1 text-theme-sm font-semibold uppercase tracking-wide transition ${moreBtnActive}`}
+                className={`inline-flex items-center gap-1 whitespace-nowrap text-theme-sm font-semibold uppercase tracking-wide transition ${moreBtnActive}`}
               >
                 {MORE_MENU.label}
                 <FiChevronDown
@@ -396,40 +358,24 @@ const SiteHeader = () => {
         </nav>
 
         <div className="flex items-center gap-1.5">
-          {/* Ba icon nhanh (Tin nhan, Yeu thich, Thong bao) chi hien tren
-              desktop. Tren mobile chung duoc dua vao ngan keo (xem drawer
-              ben duoi) de giam chen chan header va tap trung vao dieu
-              huong chinh. */}
           <Link
             href="/tin-nhan"
             aria-label="Tin nhắn"
-            className={`hidden lg:flex h-9 w-9 items-center justify-center rounded-full transition ${iconColor}`}
+            className={`hidden xl:flex h-9 w-9 items-center justify-center rounded-full transition ${iconColor}`}
           >
             <FiMessageSquare aria-hidden />
           </Link>
 
-          {/* Icon yeu thich: badge so du an da luu. Component tu handle
-              SSR (khong badge lan dau) + hydrate sau mount. */}
-          <FavoriteButton iconClass={`hidden lg:flex ${iconColor}`} />
+          <FavoriteButton iconClass={`hidden xl:flex ${iconColor}`} />
 
-          {/* Popover thong bao: hover/click de mo popup nho hien thi 5
-              muc gan nhat + tong so chua doc. Click "Doc tat ca" hoac
-              click vao tung muc de dong. Pattern giong dropdown "Muc Khac"
-              (hover de mo, click de khoa, click ngoai/Esc de dong). */}
           <NotificationsPopover variant={variant} iconClass={iconColor} />
 
-          {/* Account popover: avatar + ten neu da dang nhap, hoac nut "Dang nhap"
-              neu chua. Click mo menu xo ra voi cac tuy chon tai khoan. */}
           <AccountMenu />
         </div>
       </div>
 
-      {/* ── Ngan keo dieu huong tren dien thoai ─────────────────────────────
-          Truot tu mep trai, phu het chieu cao - khac han kieu xo xuong duoi
-          header truoc day. Nen luon trang du header dang trong suot: chu tren
-          nen anh se khong doc duoc. */}
       {isMobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 xl:hidden">
           <div
             aria-hidden
             onClick={() => setIsMobileOpen(false)}

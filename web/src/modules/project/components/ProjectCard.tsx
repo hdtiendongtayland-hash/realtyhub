@@ -64,7 +64,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
       onMouseLeave={() => setIsHovered(false)}
       className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card transition hover:shadow-card-hover"
     >
-      <div className="relative aspect-video w-full overflow-hidden">
+      <div className="relative aspect-[16/10] w-full overflow-hidden">
         <Link href={project.detailUrl} className="block h-full w-full">
           <ThumbCarousel
             seed={project.publicId}
@@ -75,11 +75,11 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           />
 
           {/* Lop phu toi dan tu duoi len de chu luon doc duoc tren moi anh */}
-          <span
+          {/* <span
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 via-black/15 to-transparent"
-          />
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-2.5 text-center text-base font-bold uppercase leading-tight tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+          /> */}
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-2.5 text-center text-xs md:text-base font-bold uppercase leading-tight tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
             {project.name}
           </span>
         </Link>
@@ -89,7 +89,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         <span
           className={`absolute left-0 top-2 z-10 origin-left overflow-hidden rounded-r-full transition-transform duration-300 ease-out group-hover:scale-105 ${badge.gradient} ${badge.glow}`}
         >
-          <span className="relative z-10 block px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+          <span className="relative z-10 block px-2.5 py-1 text-[8px] md:text-[10px] font-bold uppercase tracking-wide text-white">
             {SEGMENT_BADGE_LABELS[project.segment]}
           </span>
 
@@ -99,9 +99,6 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         <button
           type="button"
           onClick={(event) => {
-            // Nut nam trong <Link> bao quanh thumbnail, can chan ca mac dinh
-            // (Link navigate) lan bubble de click chi toggle favorite ma
-            // khong nhay trang / cuon len dau.
             event.preventDefault();
             event.stopPropagation();
             toggle(project.publicId);
@@ -112,7 +109,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
               ? `Bỏ lưu dự án ${project.name}`
               : `Lưu dự án ${project.name}`
           }
-          className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-white/40 bg-white/15 text-sm backdrop-blur-md transition duration-200 ease-out hover:scale-110 hover:border-white/70 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-0 active:scale-90"
+          className="absolute right-2 top-2 z-10 flex h-5 w-5 md:h-7 md:w-7 items-center justify-center rounded-full border border-white/40 bg-white/15 text-xs md:text-sm backdrop-blur-md transition duration-200 ease-out hover:scale-110 hover:border-white/70 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-0 active:scale-90"
         >
           {/* Nen trong suot nen icon phai co bong do rieng, neu khong se chim
               vao nhung tam anh sang mau. */}
@@ -124,12 +121,10 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         </button>
       </div>
 
-      {/* Ten du an chi hien mot lan - tren anh. Duoi anh chi con ba loi tat, nen
-          moi the cao bang nhau ma khong can ghim gi xuong day. */}
-      <div className="p-4">
+      <div className="p-2 md:p-4">
         <nav
           aria-label={`Lối tắt dự án ${project.name}`}
-          className="grid grid-cols-2 gap-1.5"
+          className="grid grid-cols-2 gap-1"
         >
           {QUICK_TABS.map((tab) => (
             <Link

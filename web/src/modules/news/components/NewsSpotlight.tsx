@@ -96,7 +96,7 @@ const HeadlineRow = ({ article }: { article: NewsArticle }) => (
 );
 
 const NewsSpotlight = ({
-  limit = 12,
+  limit = 11,
   articles,
 }: {
   limit?: number;
@@ -110,13 +110,9 @@ const NewsSpotlight = ({
   return (
     <section className="py-8">
       <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wide text-gray-900">Tin tức</h2>
+        <h2 className="text-xl md:text-2xl font-bold uppercase tracking-wide text-gray-900">Tin tức mới</h2>
       </div>
 
-      {/* `min-w-0` tren tung cot: grid item mac dinh la `min-width: auto`, no
-          khong chiu co xuong duoi be rong noi dung. Danh sach ben duoi dung
-          `truncate` (white-space: nowrap) nen be rong toi thieu cua no bang ca
-          cau -> cot phinh ra, keo trang tran ngang tren dien thoai. */}
       <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
         <div className="min-w-0 lg:col-span-7">
           <FeaturedArticle article={featured} />

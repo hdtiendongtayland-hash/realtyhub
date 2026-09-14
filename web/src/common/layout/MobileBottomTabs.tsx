@@ -2,19 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiHome, FiShoppingCart, FiBook, FiTool } from 'react-icons/fi';
+import { FiHome, FiTool } from 'react-icons/fi';
 import { HiOutlineBuildingOffice2, HiOutlineHomeModern } from 'react-icons/hi2';
-
-/**
- * Tab bar dien thoai o duoi - 4 muc (Trang chu / Gio hang / Dao tao /
- * Tien ich). Tren desktop (`lg:hidden`) thanh tabs an di vi desktop da
- * co nav inline trong header.
- *
- * Ly do dung path-prefix matching (startsWith):
- *   - Khi user o /gio-hang/an-binh-jewelry, "giohang" van la tab active
- *   - Khi o /dao-tao/khoa-hoc-1, "daotao" van la tab active
- * Mau icon + label phan biet trang "index" voi cac trang con.
- */
 
 const TABS = [
   { label: 'Trang chủ', href: '/', icon: FiHome, exact: true },
