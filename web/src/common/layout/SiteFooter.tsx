@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { HiOutlineShieldCheck, HiOutlineUserGroup } from 'react-icons/hi2';
+import { HiOutlineUserGroup } from 'react-icons/hi2';
 import { FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa';
 import { SiZalo } from 'react-icons/si';
 import AppStoreBadges from '@/common/components/AppStoreBadges';
@@ -79,7 +79,7 @@ const SOCIAL_LINKS = [
   {
     label: 'Facebook',
     stat: 'Facebook',
-    href: 'https://www.facebook.com/realtyhubvietnam',
+    href: 'https://www.facebook.com/realtyhub.com.vn',
     color: '#1877F2',
     icon: <FaFacebookF aria-hidden />,
   },
@@ -97,7 +97,7 @@ const SOCIAL_LINKS = [
     color: '#111827',
     icon: <FaTiktok aria-hidden />,
   },
-  { label: 'Zalo', stat: 'Zalo', href: 'https://zalo.me/realtyhub', color: '#0068FF', icon: <SiZalo aria-hidden /> },
+  { label: 'Zalo', stat: 'Zalo', href: 'https://zalo.me/0939653777', color: '#0068FF', icon: <SiZalo aria-hidden /> },
 ];
 
 /** Website cung tap doan - logo lay tu trang chinh chu cua tung don vi. */

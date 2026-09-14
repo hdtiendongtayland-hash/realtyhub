@@ -1,21 +1,10 @@
 import type { SVGProps } from 'react';
 
-/**
- * Duong dan tai ung dung.
- *
- * CHUA CO ung dung that - thay hai duong dan nay bang link cua hang khi phat
- * hanh. De o day de doi mot cho la xong.
- */
 const APP_LINKS = {
   android: '#',
   ios: '#',
 };
 
-/**
- * Icon Google Play chinh chu: bon manh, moi manh mot dai mau rieng. Ve bang
- * gradient chu khong phai mau phang - do la cach hang ve, to phang se nhin ra
- * ngay la hang nhai.
- */
 const GooglePlayIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 512 512" role="img" aria-hidden focusable="false" {...props}>
     <defs>
@@ -97,12 +86,6 @@ const Badge = ({ href, caption, store, variant, children }: BadgeProps) => (
   </a>
 );
 
-/**
- * Huy hieu tai ung dung, dung theo dung quy cach cua Google va Apple: icon
- * chinh chu va cum chu tieng Anh co dinh ("GET IT ON" / "Download on the").
- * Hai chu do la mot phan cua huy hieu - dich sang tieng Viet la sai quy cach,
- * nen o day co tinh khong dich.
- */
 const AppStoreBadges = ({ variant = 'dark' }: { variant?: Variant }) => (
   <div className="flex flex-nowrap items-center gap-3">
     <Badge href={APP_LINKS.ios} caption="Download on the" store="App Store" variant={variant}>

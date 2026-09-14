@@ -1,18 +1,5 @@
 import type { ImgHTMLAttributes } from 'react';
 
-/**
- * Avatar dung chung cho toan app.
- *
- * Quy tac fallback:
- *   1. Co `src` -> <img> (dung the img thuong de tranh 404 crash server
- *      component; Next/Image se force optimize nhung can file that moi
- *      render dung - mat UX neu chua seed avatar).
- *   2. Khong co `src` -> initials gradient (6 mau, hash theo char dau
- *      cua name -> moi user mot to co dinh).
- *
- * Component khong tao state/effect, server-render duoc nguyen ven.
- */
-
 const GRADIENTS = [
   'linear-gradient(135deg, #3a90f2 0%, #0a4785 100%)',
   'linear-gradient(135deg, #17417d 0%, #0b2143 100%)',
@@ -63,10 +50,6 @@ const UserAvatar = ({
   const dim = `${size}px`;
   const fontSize = Math.max(14, Math.round(size * 0.4));
 
-  // Chi render <img> neu src la URL that (khac undefined, null, chuoi rong,
-  // chuoi whitespace). Neu src co nhung file bi 404, browser van se show
-  // broken image icon - vi vay caller nen set avatar undefined neu khong
-  // chac chan file ton tai.
   const hasValidSrc = typeof src === 'string' && src.trim().length > 0;
 
   if (hasValidSrc) {

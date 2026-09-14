@@ -91,11 +91,6 @@ const EMPTY_OPTIONS: ProjectFilterOptions = {
   handoverYears: [],
 };
 
-/**
- * Doi mot gia tri bo loc thanh doan text tren URL.
- * Tra ve null khi "khong loc gi" - applyParams se xoa han tham so do, nen URL
- * chi chua dung nhung gi nguoi dung that su chon.
- */
 const toParam = (value: ProjectFilterValues[keyof ProjectFilterValues]) => {
   if (value === null || value === '' || value === false) return null;
   if (value === true) return '1';
@@ -103,11 +98,8 @@ const toParam = (value: ProjectFilterValues[keyof ProjectFilterValues]) => {
   return String(value);
 };
 
+const GRID_CLASS = 'grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-3';
 
-const GRID_CLASS = 'grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3';
-
-/** Phai giu dung hinh dang ProjectCard (anh - hang 3 nut) de luc du lieu ve
-    khong bi nhay layout */
 const CardSkeleton = () => (
   <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
     <div className="aspect-video w-full animate-pulse bg-gray-100" />

@@ -20,23 +20,6 @@ import {
   type NotificationItem,
 } from '@/modules/notifications/mocks/notifications.mock';
 
-/**
- * Popover thong bao tren header.
- *
- * Mo bang ca hover (desktop) lan click (mobile/touch) - giong pattern cua
- * dropdown "Muc Khac" trong SiteHeader de nguoi dung khong phai hoc them
- * cach dung moi. Click se KHOA panel (mouseLeave khong dong) de user co
- * the di chuyen chot xuong doc noi dung ma khong bi mat popup. Click lan
- * nua / click ra ngoai / Esc / chuyen trang se mo khoa.
- *
- * Doc du lieu qua `useNotifications()` (hook useSyncExternalStore, giong
- * `useFavorites`). Service la "kho dung chung" nen khi co backend that,
- * chi can doi file nay - component khong biet du lieu den tu dau.
- *
- * SSR-safe: server va client render CUNG so badge (0) o lan dau -> hydration
- * khop. Sau khi mount moi load MOCK_NOTIFICATIONS va cap nhat badge that.
- */
-
 type Variant = 'solid' | 'transparent';
 
 type NotificationsPopoverProps = {
@@ -46,8 +29,6 @@ type NotificationsPopoverProps = {
   iconClass: string;
 };
 
-/** Kho luu trữ chung, giong pattern cua `useFavorites`. Khi co backend that
- *  chi can doi ham doc/ghi o day, component va hook deu khong doi. */
 const listeners = new Set<() => void>();
 let cachedRaw: string | null = null;
 let cachedValue: NotificationItem[] = MOCK_NOTIFICATIONS;
@@ -66,9 +47,6 @@ const subscribe = (onChange: () => void) => {
 };
 
 const readSnapshot = (): NotificationItem[] => {
-  // Hien tai khong luu localStorage (trang /thong-bao chua co) - luon tra ve
-  // snapshot cung tham chieu de React khong render lai vo han. Khi noi backend,
-  // doi thanh read tu localStorage / API va notify listeners o day.
   if (cachedRaw === null) {
     cachedRaw = 'mock';
     cachedValue = MOCK_NOTIFICATIONS;
@@ -413,7 +391,7 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
   return (
     <div
       ref={containerRef}
-      className="relative hidden items-center lg:flex"
+      className="relative hidden items-center xl:flex"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 /** Cho nguoi dung go xong roi moi loc, thay vi loc lai o tung chu so */
 const TYPING_DELAY_MS = 400;
@@ -30,7 +30,8 @@ const NumberBox = ({
   onCommit,
 }: NumberBoxProps) => {
   // Lam tron 2 chu so thap phan: 1_500_000_000 / 1e9 ra dung 1.5, khong ra 1.4999
-  const display = value === null ? '' : String(Math.round((value / scale) * 100) / 100);
+  const display =
+    value === null ? "" : String(Math.round((value / scale) * 100) / 100);
 
   const [text, setText] = useState(display);
   const [lastDisplay, setLastDisplay] = useState(display);
@@ -41,9 +42,6 @@ const NumberBox = ({
     setText(display);
   }
 
-  // Giu callback trong ref chu khong dua vao mang phu thuoc: no doi danh tinh
-  // moi lan cha render, de trong mang thi dong ho 400ms bi dat lai lien tuc va
-  // khong bao gio kip chay.
   const commitRef = useRef(onCommit);
 
   useEffect(() => {
@@ -52,11 +50,12 @@ const NumberBox = ({
 
   useEffect(() => {
     const trimmed = text.trim();
-    const parsed = trimmed === '' ? null : Number(trimmed);
+    const parsed = trimmed === "" ? null : Number(trimmed);
     // Go dang do ra so vo nghia thi cho tiep, dung loc voi gia tri rac
     if (parsed !== null && !Number.isFinite(parsed)) return;
 
-    const next = parsed === null ? null : Math.round(clamp(parsed * scale, 0, limit));
+    const next =
+      parsed === null ? null : Math.round(clamp(parsed * scale, 0, limit));
     if (next === value) return;
 
     const timer = setTimeout(() => commitRef.current(next), TYPING_DELAY_MS);
@@ -101,14 +100,6 @@ type RangeSliderFieldProps = {
   format: (value: number) => string;
 };
 
-/**
- * Thanh truot kem o nhap so, dung cho ca khoang hai dau (gia) lan nguong tren
- * mot dau (dien tich).
- *
- * Gia tri chay lien tuc theo `step` chu khong theo mot day moc dinh san: o nhap
- * cho go bat cu con so nao, neu duong ray chi dung lai o vai moc thi con so vua
- * go se khong the hien dung tren duong ray.
- */
 const RangeSliderField = ({
   label,
   limit,
@@ -123,16 +114,11 @@ const RangeSliderField = ({
 }: RangeSliderFieldProps) => {
   const propLow = singleThumb ? 0 : (min ?? 0);
   const propHigh = max ?? limit;
-
-  /**
-   * Vi tri hai nut keo duoc giu tai cho.
-   *
-   * Bao len tren o MOI buoc keo se lam URL doi lien tuc, keo theo mot vong
-   * render + mot lan truy van cho tung pixel - keo thay giat va tut hau. O day
-   * nut chay theo tay ngay lap tuc, chi khi tha ra moi bao gia tri cuoi cung.
-   */
   const [range, setRange] = useState<[number, number]>([propLow, propHigh]);
-  const [lastProps, setLastProps] = useState<[number, number]>([propLow, propHigh]);
+  const [lastProps, setLastProps] = useState<[number, number]>([
+    propLow,
+    propHigh,
+  ]);
 
   // URL doi tu ben ngoai (nut Back, "Xoa tat ca") thi keo nut ve theo
   if (lastProps[0] !== propLow || lastProps[1] !== propHigh) {
@@ -159,22 +145,14 @@ const RangeSliderField = ({
 
   // Khong cho hai nut vuot qua nhau: keo nut duoi len qua nut tren thi dung lai
   // ngay tai do, va nguoc lai. De chung "doi cho" se sinh ra khoang am.
-  const dragLow = (next: number) => setRange([Math.min(next, highPos), highPos]);
+  const dragLow = (next: number) =>
+    setRange([Math.min(next, highPos), highPos]);
   const dragHigh = (next: number) => setRange([lowPos, Math.max(next, lowPos)]);
 
   const commit = () => emit(range);
 
-  /**
-   * Bam vao duong ray thi keo nut gan nhat toi do.
-   *
-   * Chi can cho thanh hai dau: than hai the input o do da bi tat pointer-events
-   * (neu khong the nam tren se nuot het cu cham cua the nam duoi) nen trinh
-   * duyet khong con tu xu ly cu bam vao ray. Thanh mot dau chi co mot input phu
-   * kin duong ray, target luon la INPUT nen ham nay thoat ngay va co che san cua
-   * trinh duyet lam viec.
-   */
   const jumpToPointer = (event: React.PointerEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement).tagName === 'INPUT') return;
+    if ((event.target as HTMLElement).tagName === "INPUT") return;
 
     const rect = event.currentTarget.getBoundingClientRect();
     const ratio = clamp((event.clientX - rect.left) / rect.width, 0, 1);
@@ -197,13 +175,13 @@ const RangeSliderField = ({
   };
 
   const thumbClass = `range-thumb absolute inset-x-0 top-0 h-5 w-full ${
-    singleThumb ? '' : 'pointer-events-none'
+    singleThumb ? "" : "pointer-events-none"
   }`;
 
   const percent = (position: number) => (position / limit) * 100;
 
-  const lowText = lowValue === null ? 'Không giới hạn' : format(lowValue);
-  const highText = highValue === null ? 'Không giới hạn' : format(highValue);
+  const lowText = lowValue === null ? "Không giới hạn" : format(lowValue);
+  const highText = highValue === null ? "Không giới hạn" : format(highValue);
 
   const track = (
     <div className="relative h-5 cursor-pointer" onPointerDown={jumpToPointer}>
@@ -251,7 +229,7 @@ const RangeSliderField = ({
       scale={scale}
       limit={limit}
       unit={unit}
-      placeholder={singleThumb ? 'Tối đa' : 'Đến'}
+      placeholder={singleThumb ? "Tối đa" : "Đến"}
       ariaLabel={singleThumb ? label : `${label} - giá trị cao nhất`}
       onCommit={(next) => apply([lowPos, Math.max(next ?? limit, lowPos)])}
     />
@@ -262,7 +240,7 @@ const RangeSliderField = ({
       <div>
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="min-w-0 truncate text-theme-sm font-medium text-gray-700">
-            {highValue === null ? 'Tất cả' : `Từ 0 đến ${format(highValue)}`}
+            {highValue === null ? "Tất cả" : `Từ 0 đến ${format(highValue)}`}
           </span>
           <div className="w-28 shrink-0">{maxBox}</div>
         </div>
