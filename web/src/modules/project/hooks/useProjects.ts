@@ -39,6 +39,20 @@ export const useProjectHighlights = () =>
   });
 
 /**
+ * Tong quy can cua moi du an - dung cho badge "Quy can" tren card.
+ *
+ * Mot lan goi cho ca trang, tat ca ProjectCard cung chia se cache qua cung
+ * queryKey - neu co 24 card thi van chi goi service 1 lan.
+ */
+export const useUnitsCountBySlug = () =>
+  useQuery({
+    queryKey: ['project-units-count-by-slug'],
+    queryFn: () => ProjectService.unitsCountBySlug(),
+    // So luong thay doi cham, cho phep cache lau de trang khong phai dem lai
+    staleTime: 5 * 60 * 1000,
+  });
+
+/**
  * `initialProject` do route (server component) doc san va truyen xuong, nen
  * HTML tra ve tu server da co du noi dung - quan trong voi SEO trang chi tiet.
  * Khong co no thi lan tai dau chi ra khung xuong.

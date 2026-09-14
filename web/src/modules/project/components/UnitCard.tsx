@@ -7,25 +7,19 @@ import ThumbCarousel from "@/common/components/ThumbCarousel";
 import { formatBillion } from "@/common/utils/format";
 import type { UnitWithProject } from "@/modules/project/models/project-detail.model";
 
-/**
- * Card san pham/căn - redesigned theo mau UX/UI don gian.
- *
- * Layout moi:
- *   - Anh bia voi carousel (giong ProjectCard) + badge HOT o goc tren trai
- *   - Ten du an overlay o duoi anh (gradient toi dan, giong ProjectCard) -
- *     nguoi xem quy can nhieu du an khac nhau can biet ngay can nay cua du an nao
- *   - Nhan trang thai (Còn hàng/Giữ chỗ/Đã bán) overlay tren anh
- *   - Thong tin chinh: ma can, gia
- *   - Divider ngang
- *   - Danh sach thong tin: dien tich, huong, phan khu, loai hinh (dung icon)
- *   - Nut lien he + xem chi tiet
- */
 type UnitCardProps = {
   unit: UnitWithProject;
+  /**
+   * Khi truyen: click vao card se goi callback nay thay vi navigate sang trang
+   * du an. Dung tren trang Quy can (/quy-can) de mo popup chi tiet can. Neu
+   * khong truyen, card giu hanh vi mac dinh (click -> sang /du-an/[slug]).
+   */
+  onUnitClick?: (unit: UnitWithProject) => void;
 };
 
-const UnitCard = ({ unit }: UnitCardProps) => {
+const UnitCard = ({ unit, onUnitClick }: UnitCardProps) => {
   const detailHref = `/du-an/${unit.projectSlug}?tab=quy-can`;
+  const isInteractive = Boolean(onUnitClick);
 
   // Ro chuot len the thi dung chuyen anh, de con kip nhin tam dang xem
   const [isHovered, setIsHovered] = useState(false);
@@ -33,16 +27,46 @@ const UnitCard = ({ unit }: UnitCardProps) => {
   // Chi hien thi badge HOT cho quy doc quyen
   const isHot = unit.fundType === 'doc-quyen';
 
+  /**
+   * Click vao card: neu co onUnitClick thi mo popup chi tiet can; neu khong
+   * thi giu nguyen hanh vi mac dinh (Link navigate sang trang du an).
+   *
+   * Nut trai tim (favorite) phai stopPropagation de click chi toggle yeu
+   * thich ma khong nhay trang / khong mo modal.
+   */
+  const handleCardClick = () => {
+    if (onUnitClick) onUnitClick(unit);
+  };
+
+  // Khi card o che do "click de mo modal" thi khong the inline <Link> nua,
+  // vi <a> long <a> khong hop le HTML. Click se do role cua article xu ly.
+  const Wrapper = isInteractive ? 'div' : Link;
+  const wrapperProps = isInteractive
+    ? { role: 'button' as const, tabIndex: 0, onClick: handleCardClick }
+    : { href: detailHref, 'aria-label': `Xem căn ${unit.code}` };
+
   return (
     <article
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md hover:border-brand-400"
+      onClick={isInteractive ? handleCardClick : undefined}
+      onKeyDown={
+        isInteractive
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                handleCardClick();
+              }
+            }
+          : undefined
+      }
+      className={`group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md hover:border-brand-400 ${
+        isInteractive ? 'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500' : ''
+      }`}
     >
         {/* ── Anh bia ────────────────────────────────────────────────── */}
-        <Link
-          href={detailHref}
-          aria-label={`Xem căn ${unit.code}`}
+        <Wrapper
+          {...(wrapperProps as any)}
           className="relative block aspect-[16/10] w-full overflow-hidden"
         >
           <ThumbCarousel
@@ -81,29 +105,36 @@ const UnitCard = ({ unit }: UnitCardProps) => {
             aria-label="Yêu thích"
             className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-2 shadow-sm transition hover:bg-white hover:scale-110"
             onClick={(event) => {
-              // Nut nam trong <Link> bao quanh thumbnail, can chan ca mac dinh
-              // (Link navigate) lan bubble de click chi toggle favorite ma
-              // khong nhay trang / cuon len dau.
+              // Chan ca mac dinh (Link navigate neu co) lan bubble de click
+              // chi toggle favorite ma khong nhay trang / khong mo modal.
               event.preventDefault();
               event.stopPropagation();
             }}
           >
             <FiHeart className="h-5 w-5 text-error-500" />
           </button>
-        </Link>
+        </Wrapper>
 
         {/* ── Noi dung ────────────────────────────────────────────────── */}
         <div className="flex flex-1 flex-col p-4">
           {/* Ma can + gia */}
           <div className="mb-2 flex flex-row items-center justify-between gap-3">
-            <Link
-              href={`/du-an/${unit.projectSlug}`}
-              className="group/link block flex-1 truncate"
-            >
-              <p className="text-sm font-medium text-gray-600 truncate">
-                <span className="font-semibold text-gray-900">{unit.code}</span>
-              </p>
-            </Link>
+            {isInteractive ? (
+              <span className="block flex-1 truncate">
+                <p className="text-sm font-medium text-gray-600 truncate">
+                  <span className="font-semibold text-gray-900">{unit.code}</span>
+                </p>
+              </span>
+            ) : (
+              <Link
+                href={`/du-an/${unit.projectSlug}`}
+                className="group/link block flex-1 truncate"
+              >
+                <p className="text-sm font-medium text-gray-600 truncate">
+                  <span className="font-semibold text-gray-900">{unit.code}</span>
+                </p>
+              </Link>
+            )}
             <p className="text-sm font-medium text-gray-600 flex-shrink-0 whitespace-nowrap">{formatBillion(unit.netPrice)}</p>
           </div>
 
