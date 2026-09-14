@@ -38,11 +38,11 @@ export type UseFilterSelectReturn = {
   close: (refocus?: boolean) => void;
   select: (option: SelectOption) => void;
   clearSelection: () => void;
-  setActiveIndex: (index: number) => void;
+  setActiveIndex: (index: number | ((prev: number) => number)) => void;
 
   // Refs
-  triggerRef: React.RefObject<HTMLButtonElement>;
-  menuRef: React.RefObject<HTMLDivElement>;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
+  menuRef: React.RefObject<HTMLDivElement | null>;
   searchRef: React.RefObject<HTMLInputElement | null>;
   optionRefs: React.MutableRefObject<(HTMLLIElement | null)[]>;
 };
@@ -60,7 +60,11 @@ export const useFilterSelect = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, _setActiveIndex] = useState(0);
+
+  const setActiveIndex = useCallback((index: number | ((prev: number) => number)) => {
+    _setActiveIndex((prev) => (typeof index === 'function' ? (index as (prev: number) => number)(prev) : index));
+  }, []);
   const [position, setPosition] = useState<MenuPosition | null>(null);
 
   const selected = useMemo(

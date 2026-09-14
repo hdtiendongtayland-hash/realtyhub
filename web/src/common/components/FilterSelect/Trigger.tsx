@@ -15,7 +15,7 @@ export type TriggerProps = {
   variant: FilterSelectVariant;
   onClick: () => void;
   onKeyDown: (event: React.KeyboardEvent) => void;
-  buttonRef: React.RefObject<HTMLButtonElement>;
+  buttonRef: React.RefObject<HTMLButtonElement | null>;
 };
 
 const Trigger = ({
