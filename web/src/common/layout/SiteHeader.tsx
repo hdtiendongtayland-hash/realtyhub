@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -8,6 +8,7 @@ import { FiBell, FiChevronDown, FiMenu, FiMessageSquare, FiX } from 'react-icons
 import { FaRegHeart } from 'react-icons/fa';
 import AccountMenu from '@/common/components/AccountMenu';
 import FavoriteButton from '@/common/layout/FavoriteButton';
+import NotificationsPopover from '@/common/layout/NotificationsPopover';
 
 // Route dung chung cho trang "DANH SÁCH DỰ ÁN". Cả nav "DỰ ÁN" lẫn logo
 // "REALTY HUB" deu phai tro ve day de khong tao them route moi va tranh
@@ -26,7 +27,6 @@ const NAV_ITEMS = [
   // sau "Dự án" de nguoi dung tim can nhanh hon qua tung du an rieng le.
   { label: 'Quỹ căn', href: '/quy-can' },
   { label: 'Sự kiện', href: '/su-kien' },
-  { label: 'Tiện ích', href: '/tien-ich' },
 
   //{ label: 'Trở thành môi giới', href: '/tro-thanh-moi-gioi' },
 ];
@@ -34,12 +34,14 @@ const NAV_ITEMS = [
 /** Nhom "Khac" hien thi dropdown o desktop. 3 muc con nay cu cung duoc
     an tu header (chi truy cap qua dropdown) de tranh lap 2 lan. */
 const MORE_MENU = {
-  label: 'mục Khác',
+  label: 'Mục Khác',
   children: [
     // Trang gioi thieu da duoc chuyen tu menu chinh xuong day de nhuong
     // cho "Chu dau tu" va "Quy can". Giu nguyen route /gioi-thieu va
     // chuc nang (trang gioi thieu ve RealtyHub).
     { label: 'Giới thiệu', href: '/gioi-thieu' },
+
+    { label: 'Tiện ích', href: '/tien-ich' },
 
     //{ label: 'So sánh dự án & căn hộ', href: '/so-sanh' },
     { label: 'Tin tức', href: '/tin-tuc' },
@@ -114,6 +116,33 @@ const SiteHeader = () => {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   const moreRef = useRef<HTMLLIElement>(null);
+  // Track xem dropdown "Khac" duoc mo bang click (khoa) hay chi bang
+  // hover (khong khoa). Khi khoa = true, mouseleave se KHONG dong panel -
+  // chi click tiep theo / click ra ngoai / Esc / chuyen trang moi mo khoa.
+  // Ref thay vi state vi chi can ghi nho flag, khong can re-render.
+  const isMoreClickLocked = useRef(false);
+  // Timer delay mo/dong dropdown "Khac" - tranh popup nhap nhay khi chi
+  // luot chuot ngang, va cho user kip di chuyen tu button xuong panel qua
+  // khoang gap `mt-3`. Cung pattern voi NotificationsPopover.
+  const moreOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const moreCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelMoreTimers = useCallback(() => {
+    if (moreOpenTimerRef.current) {
+      clearTimeout(moreOpenTimerRef.current);
+      moreOpenTimerRef.current = null;
+    }
+    if (moreCloseTimerRef.current) {
+      clearTimeout(moreCloseTimerRef.current);
+      moreCloseTimerRef.current = null;
+    }
+  }, []);
+
+  const closeMore = useCallback(() => {
+    cancelMoreTimers();
+    setIsMoreOpen(false);
+    isMoreClickLocked.current = false;
+  }, [cancelMoreTimers]);
 
   const isActive = (href: string) => {
     // Route goc ("/") phai so sanh chinh xac - moi path deu bat dau bang "/"
@@ -150,6 +179,53 @@ const SiteHeader = () => {
     };
   }, [pathname]);
 
+  const onMoreToggleClick = () => {
+    cancelMoreTimers();
+    setIsMoreOpen((open) => {
+      // Lan click tiep theo se mo khoa / khoa lai tuy trang thai hien tai.
+      isMoreClickLocked.current = !open;
+      return !open;
+    });
+  };
+  const onMoreMouseEnter = () => {
+    // Hover vao button hoac panel: huy timer dong dang doi (neu co) de panel
+    // khong bi dong giua chung, roi sau 100ms moi mo popup - dam bao user
+    // that su muon xem, khong phai chi luot chuot ngang.
+    if (moreCloseTimerRef.current) {
+      clearTimeout(moreCloseTimerRef.current);
+      moreCloseTimerRef.current = null;
+    }
+    if (!isMoreOpen && !moreOpenTimerRef.current) {
+      moreOpenTimerRef.current = setTimeout(() => {
+        moreOpenTimerRef.current = null;
+        setIsMoreOpen(true);
+      }, 100);
+    }
+  };
+  const onMoreMouseLeave = () => {
+    // Huy timer mo dang doi (neu chuot roi di truoc khi popup mo) de tranh
+    // popup bat len khi user da di cho khac.
+    if (moreOpenTimerRef.current) {
+      clearTimeout(moreOpenTimerRef.current);
+      moreOpenTimerRef.current = null;
+    }
+    // Neu dang bi khoa (user da click) thi dong ngay + reset lock de lan
+    // sau hover vao lai hoat dong binh thuong.
+    if (isMoreClickLocked.current) {
+      setIsMoreOpen(false);
+      isMoreClickLocked.current = false;
+      return;
+    }
+    // Hover ra ngoai (chua khoa): cho 200ms truoc khi dong - du thoi gian
+    // di chuyen chuot qua khoang gap `mt-3` giua button va dropdown.
+    if (isMoreOpen && !moreCloseTimerRef.current) {
+      moreCloseTimerRef.current = setTimeout(() => {
+        moreCloseTimerRef.current = null;
+        setIsMoreOpen(false);
+      }, 200);
+    }
+  };
+
   // Dong dropdown "Khac" khi:
   //  - click ra ngoai
   //  - nhan Esc
@@ -157,10 +233,10 @@ const SiteHeader = () => {
   useEffect(() => {
     if (!isMoreOpen) return undefined;
     const onClick = (e: MouseEvent) => {
-      if (!moreRef.current?.contains(e.target as Node)) setIsMoreOpen(false);
+      if (!moreRef.current?.contains(e.target as Node)) closeMore();
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsMoreOpen(false);
+      if (e.key === 'Escape') closeMore();
     };
     document.addEventListener('mousedown', onClick);
     document.addEventListener('keydown', onKey);
@@ -168,7 +244,19 @@ const SiteHeader = () => {
       document.removeEventListener('mousedown', onClick);
       document.removeEventListener('keydown', onKey);
     };
-  }, [isMoreOpen]);
+  }, [isMoreOpen, closeMore]);
+
+  // Khi pathname thay doi -> dong dropdown va reset khoa (click item con
+  // cung da setIsMoreOpen(false) nhung can dam bao ref cung duoc reset).
+  useEffect(() => {
+    isMoreClickLocked.current = false;
+    cancelMoreTimers();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMoreOpen(false);
+  }, [pathname, cancelMoreTimers]);
+
+  // Cleanup timers khi unmount de tranh setState tren component da bi thao.
+  useEffect(() => cancelMoreTimers, [cancelMoreTimers]);
 
   // Ngan keo phu kin man hinh: khoa cuon nen va cho Escape dong lai
   useEffect(() => {
@@ -253,11 +341,19 @@ const SiteHeader = () => {
               </li>
             ))}
 
-            {/* Dropdown "Khac" - desktop */}
-            <li className="relative" ref={moreRef}>
+            {/* Dropdown "Khac" - desktop. Hover vao nut se mo panel (rat
+                thuong thay trong nav web), click vao nut se KHOA panel lai
+                de chuot di ra ngoai khong bi dong. Click lan nua / click ra
+                ngoai / Esc / chuyen trang se mo khoa. */}
+            <li
+              className="relative"
+              ref={moreRef}
+              onMouseEnter={onMoreMouseEnter}
+              onMouseLeave={onMoreMouseLeave}
+            >
               <button
                 type="button"
-                onClick={() => setIsMoreOpen((open) => !open)}
+                onClick={onMoreToggleClick}
                 aria-haspopup="menu"
                 aria-expanded={isMoreOpen}
                 aria-current={isMoreActive ? 'page' : undefined}
@@ -316,16 +412,11 @@ const SiteHeader = () => {
               SSR (khong badge lan dau) + hydrate sau mount. */}
           <FavoriteButton iconClass={`hidden lg:flex ${iconColor}`} />
 
-          <Link
-            href="/thong-bao"
-            aria-label="Thông báo"
-            className={`relative hidden lg:flex h-9 w-9 items-center justify-center rounded-full transition ${iconColor}`}
-          >
-            <FiBell aria-hidden />
-            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-error-500 px-1 text-[10px] font-bold text-white">
-              3
-            </span>
-          </Link>
+          {/* Popover thong bao: hover/click de mo popup nho hien thi 5
+              muc gan nhat + tong so chua doc. Click "Doc tat ca" hoac
+              click vao tung muc de dong. Pattern giong dropdown "Muc Khac"
+              (hover de mo, click de khoa, click ngoai/Esc de dong). */}
+          <NotificationsPopover variant={variant} iconClass={iconColor} />
 
           {/* Account popover: avatar + ten neu da dang nhap, hoac nut "Dang nhap"
               neu chua. Click mo menu xo ra voi cac tuy chon tai khoan. */}

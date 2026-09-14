@@ -192,9 +192,9 @@ export type PhaseDetail = {
 export type UnitFundType = 'doc-quyen' | 'an-cheo' | 'thuong';
 
 export const UNIT_FUND_LABELS: Record<UnitFundType, string> = {
-  'doc-quyen': 'Quỹ Hàng HOT',
-  'an-cheo': 'Quỹ Hàng Chung',
-  thuong: 'Quỹ Hàng Ẩn',
+  'doc-quyen': 'HOT',
+  'an-cheo': 'Chung',
+  thuong: 'Ẩn',
 };
 
 /** Mot pin gia gan tren anh mat bang */

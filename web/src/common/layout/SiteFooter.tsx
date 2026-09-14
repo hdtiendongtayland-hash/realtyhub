@@ -314,7 +314,7 @@ const SiteFooter = () => (
         <p>
           © 2026.{' '}
           <span className="font-semibold uppercase text-gray-700">{COMPANY.name}.</span>{' '}
-          GPĐKKD: {COMPANY.license}, thành lập vào tháng{COMPANY.firstRegistered}.
+          GPĐKKD: {COMPANY.license}, thành lập vào tháng {COMPANY.firstRegistered}.
         </p>
         <p>
           Địa chỉ: {COMPANY.address}. Điện thoại:{' '}

@@ -355,7 +355,7 @@ const HuongDanPage = async ({ searchParams }: { searchParams: Promise<PageSearch
                         >
                           <Link
                             href={`#article-${article.publicId}`}
-                            className="relative block aspect-[16/10] overflow-hidden"
+                            className="relative block aspect-[16/9] overflow-hidden"
                             aria-label={article.title}
                           >
                             <PlaceholderThumb

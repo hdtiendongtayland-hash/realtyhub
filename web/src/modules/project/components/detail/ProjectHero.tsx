@@ -10,7 +10,6 @@ import {
   STATUS_LABELS,
   type ProjectStatus,
 } from '../../models/project.model';
-import ProjectGallery from './ProjectGallery';
 
 /**
  * Mau nhan trang thai. Dang mo ban la trang thai "hanh dong duoc" nen dung mau

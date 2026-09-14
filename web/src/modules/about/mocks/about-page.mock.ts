@@ -136,7 +136,7 @@ export const MOCK_ABOUT_PAGE: AboutPageContent = {
   trusted: {
     title: 'ĐƯỢC KHÁCH HÀNG TIN TƯỞNG VÀ LỰA CHỌN',
     subtitle:
-      'Môi giới và khách hàng sử dụng RealtyHub vì giá trị thực tế mà nền tảng mang lại — không phải lời hứa suông.',
+      '"Realty Hub - Giá trị thực, hiệu quả thật"',
     values: [
       {
         iconKey: 'shield',
@@ -154,7 +154,7 @@ export const MOCK_ABOUT_PAGE: AboutPageContent = {
         iconKey: 'checkBadge',
         title: 'Quỹ căn thuận tiện tìm kiếm',
         description:
-          'Tìm đúng căn – Đúng nhu cầu khác',
+          'Đúng nhu cầu khách hàng',
       },
       {
         iconKey: 'wrench',
