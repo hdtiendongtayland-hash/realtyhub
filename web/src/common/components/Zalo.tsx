@@ -30,7 +30,7 @@ export function StickyContact() {
           className="fixed bottom-24 right-6 z-35 flex flex-col items-center gap-3"
         >
           <motion.a
-            href="https://zalo.me/0123456789"
+            href="https://zalo.me/0939653777"
             target="_blank"
             rel="nofollow noopener noreferrer"
             whileTap={{ scale: 0.94 }}

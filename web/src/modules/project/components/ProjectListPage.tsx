@@ -3,13 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Pagination from '@/common/components/Pagination';
-import NewsSection from '@/modules/news/components/NewsSection';
 import ProjectCard from './ProjectCard';
 import ProjectFilterBar, {
   type ProjectFilterValues,
   type ProjectViewMode,
 } from './ProjectFilterBar';
-import ProjectHighlightPanel from './ProjectHighlightPanel';
 import ProjectMapView from './ProjectMapView';
 import { useFavorites } from '../hooks/useFavorites';
 import {
@@ -106,16 +104,16 @@ const toParam = (value: ProjectFilterValues[keyof ProjectFilterValues]) => {
 };
 
 
-const GRID_CLASS = 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3';
+const GRID_CLASS = 'grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3';
 
 /** Phai giu dung hinh dang ProjectCard (anh - hang 3 nut) de luc du lieu ve
     khong bi nhay layout */
 const CardSkeleton = () => (
   <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
-    <div className="aspect-16/10 w-full animate-pulse bg-gray-100" />
-    <div className="grid grid-cols-3 gap-2 p-5">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="h-16 animate-pulse rounded-lg bg-gray-100" />
+    <div className="aspect-video w-full animate-pulse bg-gray-100" />
+    <div className="grid grid-cols-2 gap-1.5 p-4">
+      {Array.from({ length: 2 }).map((_, index) => (
+        <div key={index} className="h-12 animate-pulse rounded-lg bg-gray-100" />
       ))}
     </div>
   </div>

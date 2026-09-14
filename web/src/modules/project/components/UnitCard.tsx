@@ -43,7 +43,7 @@ const UnitCard = ({ unit }: UnitCardProps) => {
         <Link
           href={detailHref}
           aria-label={`Xem căn ${unit.code}`}
-          className="relative block aspect-[4/3] w-full overflow-hidden"
+          className="relative block aspect-[16/10] w-full overflow-hidden"
         >
           <ThumbCarousel
             seed={unit.publicId}

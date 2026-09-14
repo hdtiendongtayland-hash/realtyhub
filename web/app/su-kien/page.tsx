@@ -397,7 +397,7 @@ const FeaturedEventCard = ({ event }: { event: EventItem }) => {
       {/* Thumbnail */}
       <Link
         href={`/su-kien/${event.slug}`}
-        className="relative block aspect-[16/10] overflow-hidden md:aspect-auto"
+        className="relative block aspect-[16/9] overflow-hidden md:aspect-auto"
         aria-label={event.title}
       >
         <PlaceholderThumb
@@ -565,7 +565,7 @@ const EventCard = ({ event, mode }: EventCardProps) => {
       {/* Thumbnail */}
       <Link
         href={`/su-kien/${event.slug}`}
-        className="relative block aspect-[16/10] overflow-hidden"
+        className="relative block aspect-[16/9] overflow-hidden"
         aria-label={event.title}
       >
         <PlaceholderThumb

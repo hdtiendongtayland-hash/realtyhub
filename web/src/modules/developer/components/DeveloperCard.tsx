@@ -32,7 +32,7 @@ const DeveloperCard = ({ developer }: DeveloperCardProps) => {
       <Link
         href={detailHref}
         aria-label={`Xem chi tiết chủ đầu tư ${developer.name}`}
-        className="group relative block aspect-16/10 w-full overflow-hidden"
+        className="group relative block aspect-16/9 w-full overflow-hidden"
       >
         <PlaceholderThumb
           seed={developer.publicId}

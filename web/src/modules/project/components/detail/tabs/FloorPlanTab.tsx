@@ -1,10 +1,18 @@
-'use client';
+"use client";
 
-import 'leaflet/dist/leaflet.css';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Map as LeafletMap, LayerGroup } from 'leaflet';
-import { FiFilter, FiMaximize, FiMinus, FiPlus, FiSearch, FiX } from 'react-icons/fi';
-import { formatBillion, formatBillionShort } from '@/common/utils/format';
+import "leaflet/dist/leaflet.css";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { Map as LeafletMap, LayerGroup } from "leaflet";
+import {
+  FiFilter,
+  FiLayers,
+  FiMaximize,
+  FiMinus,
+  FiPlus,
+  FiSearch,
+  FiX,
+} from "react-icons/fi";
+import { formatBillion, formatBillionShort } from "@/common/utils/format";
 import {
   UNIT_FUND_LABELS,
   UNIT_STATUS_LABELS,
@@ -12,15 +20,15 @@ import {
   type PlanMarker,
   type UnitFundType,
   type UnitStatus,
-} from '../../../models/project-detail.model';
+} from "../../../models/project-detail.model";
 
 const FUND_TYPES = Object.keys(UNIT_FUND_LABELS) as UnitFundType[];
 
 /** Mau cham trong chu thich - phai khop bien --pin cua .plan-pin--* */
 const FUND_DOT_TONES: Record<UnitFundType, string> = {
-  'doc-quyen': 'text-error-600',
-  'an-cheo': 'text-[#b45309]',
-  thuong: 'text-success-500',
+  "doc-quyen": "text-error-600",
+  "an-cheo": "text-[#b45309]",
+  thuong: "text-success-500",
 };
 
 /** Chuoi tu mock la an toan, nhung popup ghep bang HTML tho nen van phai thoat */
@@ -28,8 +36,9 @@ const escapeHtml = (value: string) =>
   value.replace(
     /[&<>"']/g,
     (char) =>
-      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char] ??
-      char,
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        char
+      ] ?? char,
   );
 
 const MapButton = ({
@@ -62,32 +71,30 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
   const layerRef = useRef<LayerGroup | null>(null);
-  const leafletRef = useRef<typeof import('leaflet') | null>(null);
+  const leafletRef = useRef<typeof import("leaflet") | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const [isMapReady, setIsMapReady] = useState(false);
   const [canFullscreen, setCanFullscreen] = useState(false);
   const [funds, setFunds] = useState<UnitFundType[]>(FUND_TYPES);
-  const [displayMode, setDisplayMode] = useState<'code' | 'name' | 'price'>('price');
+  const [isFundLegendOpen, setIsFundLegendOpen] = useState(false);
+  const [displayMode, setDisplayMode] = useState<"code" | "name" | "price">(
+    "price",
+  );
   const [displayOpen, setDisplayOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [phaseName, setPhaseName] = useState<string | null>(null);
   const [status, setStatus] = useState<UnitStatus | null>(null);
 
   const displayOptions = useMemo(
-    () =>
-      [
-        { value: 'code' as const, label: 'Mã căn' },
-        { value: 'name' as const, label: 'Không tên' },
-        { value: 'price' as const, label: 'Giá' },
-      ],
+    () => [
+      { value: "code" as const, label: "Mã căn" },
+      { value: "name" as const, label: "Không tên" },
+      { value: "price" as const, label: "Giá" },
+    ],
     [],
-  );
-  const activeDisplayIndex = useMemo(
-    () => displayOptions.findIndex((option) => option.value === displayMode),
-    [displayOptions, displayMode],
   );
 
   const phaseNames = useMemo(
@@ -101,7 +108,10 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
         if (!funds.includes(marker.fundType)) return false;
         if (phaseName && marker.phaseName !== phaseName) return false;
         if (status && marker.status !== status) return false;
-        if (search.trim() && !marker.code.toLowerCase().includes(search.trim().toLowerCase()))
+        if (
+          search.trim() &&
+          !marker.code.toLowerCase().includes(search.trim().toLowerCase())
+        )
           return false;
         return true;
       }),
@@ -125,7 +135,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
     // Leaflet doc `window` ngay khi nap nen phai import dong trong effect,
     // khong duoc import tinh o dau file (se vo khi Next render tren server).
     void (async () => {
-      const leaflet = await import('leaflet');
+      const leaflet = await import("leaflet");
       if (cancelled || !containerRef.current) return;
 
       const L = leaflet.default ?? leaflet;
@@ -149,7 +159,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
       });
 
       L.imageOverlay(planMap.imageUrl, bounds, {
-        attribution: 'RealtyHub',
+        attribution: "RealtyHub",
       }).addTo(map);
 
       map.fitBounds(bounds);
@@ -158,7 +168,6 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
       layerRef.current = L.layerGroup().addTo(map);
       mapRef.current = map;
       setIsMapReady(true);
-
 
       const observer = new ResizeObserver(() => {
         map?.invalidateSize({ animate: false });
@@ -191,24 +200,27 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
       // Ghim la diem neo 0x0 nam dung toa do, o gia nam trong <span>: xem
       // .plan-pin trong globals.css. Nho vay o gia rong theo do dai tung muc
       // gia, va Leaflet khong giat mat transform cua hieu ung phong to.
-      const isDot = displayMode !== 'price';
+      const isDot = displayMode !== "price";
       const label =
-        displayMode === 'code'
+        displayMode === "code"
           ? escapeHtml(marker.code)
-          : displayMode === 'name'
-            ? '' // chế độ tên: chỉ hiện dấu chấm, không text
+          : displayMode === "name"
+            ? "" // chế độ tên: chỉ hiện dấu chấm, không text
             : escapeHtml(formatBillionShort(marker.price));
       const icon = L.divIcon({
-        className: `plan-pin plan-pin--${marker.fundType}${isDot ? ' plan-pin--dot' : ''}`,
+        className: `plan-pin plan-pin--${marker.fundType}${isDot ? " plan-pin--dot" : ""}`,
         html: `<span>${label}</span>`,
         iconSize: [0, 0],
         iconAnchor: [0, 0],
       });
 
-      const markerInstance = L.marker(toLatLng(marker), { icon, title: marker.code });
+      const markerInstance = L.marker(toLatLng(marker), {
+        icon,
+        title: marker.code,
+      });
 
       // displayMode === 'name' → không hiện popup khi click
-      if (displayMode !== 'name') {
+      if (displayMode !== "name") {
         markerInstance.bindPopup(
           `<div style="min-width:180px">
             <p style="font-weight:700;color:#101828;margin-bottom:6px">${escapeHtml(marker.code)}</p>
@@ -233,21 +245,25 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
       window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
     };
 
-    document.addEventListener('fullscreenchange', onFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, []);
 
   // Safari tren iPhone khong cho <div> vao toan man hinh - an nut di thay vi de
   // no bam khong len gi. Phai do o effect vi server khong co `document`.
   useEffect(() => {
     setCanFullscreen(
-      document.fullscreenEnabled && typeof wrapperRef.current?.requestFullscreen === 'function',
+      document.fullscreenEnabled &&
+        typeof wrapperRef.current?.requestFullscreen === "function",
     );
   }, []);
 
   const toggleFund = (fund: UnitFundType) =>
     setFunds((current) =>
-      current.includes(fund) ? current.filter((item) => item !== fund) : [...current, fund],
+      current.includes(fund)
+        ? current.filter((item) => item !== fund)
+        : [...current, fund],
     );
 
   /**
@@ -256,7 +272,8 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
    * `catch` la co mot TypeError chua bat van ra console.
    */
   const toggleFullscreen = () => {
-    if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+    if (document.fullscreenElement)
+      void document.exitFullscreen().catch(() => {});
     else void wrapperRef.current?.requestFullscreen().catch(() => {});
   };
 
@@ -281,8 +298,8 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
           aria-expanded={isFilterOpen}
           className={`flex h-10 items-center gap-2 rounded-md border px-4 text-theme-sm font-medium transition ${
             isFilterOpen || activeFilterCount > 0
-              ? 'border-brand-400 bg-brand-50 text-brand-600'
-              : 'border-gray-300 bg-white text-gray-700 hover:border-brand-400'
+              ? "border-brand-400 bg-brand-50 text-brand-600"
+              : "border-gray-300 bg-white text-gray-700 hover:border-brand-400"
           }`}
         >
           <FiFilter aria-hidden />
@@ -303,7 +320,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
                 Phân khu
               </span>
               <select
-                value={phaseName ?? ''}
+                value={phaseName ?? ""}
                 onChange={(event) => setPhaseName(event.target.value || null)}
                 className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-theme-sm text-gray-700 outline-none transition focus:border-brand-400 focus:shadow-focus-ring"
               >
@@ -322,8 +339,10 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
               Tình trạng
             </span>
             <select
-              value={status ?? ''}
-              onChange={(event) => setStatus((event.target.value || null) as UnitStatus | null)}
+              value={status ?? ""}
+              onChange={(event) =>
+                setStatus((event.target.value || null) as UnitStatus | null)
+              }
               className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-theme-sm text-gray-700 outline-none transition focus:border-brand-400 focus:shadow-focus-ring"
             >
               <option value="">Tất cả</option>
@@ -351,54 +370,68 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
         </div>
       )}
 
-      {/* Chu thich loai quy, bam de bat/tat tung nhom pin */}
-      <div className="mb-3 flex flex-wrap items-center justify-center gap-2">
-        {FUND_TYPES.map((fund) => {
-          const isOn = funds.includes(fund);
-
-          return (
-            <button
-              key={fund}
-              type="button"
-              onClick={() => toggleFund(fund)}
-              aria-pressed={isOn}
-              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-theme-sm font-medium transition ${
-                isOn
-                  ? 'border-gray-300 bg-white text-gray-700 shadow-card'
-                  : 'border-gray-200 bg-gray-50 text-gray-400'
-              }`}
-            >
-              <span
-                aria-hidden
-                className={`text-base leading-none ${isOn ? FUND_DOT_TONES[fund] : 'text-gray-300'}`}
-              >
-                ●
-              </span>
-              {UNIT_FUND_LABELS[fund]}
-            </button>
-          );
-        })}
-
-        {/* <button
-          type="button"
-          onClick={() => setFunds(FUND_TYPES)}
-          aria-label="Hiện tất cả loại quỹ"
-          title="Hiện tất cả loại quỹ"
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-500 transition hover:border-brand-400 hover:text-brand-600"
-        >
-          <FiPlus aria-hidden />
-        </button> */}
-      </div>
-
-
       <div
         ref={wrapperRef}
         className="plan-map-shell relative isolate overflow-hidden rounded-lg border border-gray-200 bg-gray-100 shadow-card"
       >
-        <div ref={containerRef} className="plan-map-canvas h-140 w-full sm:h-170" />
+        <div
+          ref={containerRef}
+          className="plan-map-canvas h-140 w-full sm:h-170"
+        />
 
         {/* Dieu khien tu ve de bam dung thiet ke; Leaflet control mac dinh da tat */}
         <div className="absolute left-3 top-3 z-900 flex flex-col gap-2">
+          <div
+            className="group/display relative mt-2 inline-flex h-8 w-20 items-center rounded-full border border-gray-300 bg-white shadow-card mb-2"
+            title={
+              displayOptions.find((option) => option.value === displayMode)
+                ?.label
+            }
+          >
+            <span
+              aria-hidden
+              className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card transition-[left] duration-300 ease-out ${
+                displayMode === "code"
+                  ? ""
+                  : displayMode === "name"
+                    ? "-translate-x-1/2"
+                    : "-translate-x-full"
+              }`}
+              style={{
+                left:
+                  displayMode === "code"
+                    ? "7%"
+                    : displayMode === "name"
+                      ? "50%"
+                      : "93%",
+              }}
+            />
+            {displayOptions.map((option) => {
+              const isActive = option.value === displayMode;
+              const isNameMode = option.value === "name";
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setDisplayMode(option.value)}
+                  aria-label={isNameMode ? undefined : option.label}
+                  title={isNameMode ? undefined : option.label}
+                  aria-pressed={isActive}
+                  className="relative z-10 inline-flex h-full w-1/3 items-center justify-center transition"
+                >
+                  {!isNameMode && (
+                    <span
+                      className={`pointer-events-none absolute top-full left-1/2 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium text-white opacity-0 shadow-card transition-opacity duration-150 group-hover/display:opacity-100 ${
+                        isActive ? "" : "delay-150"
+                      }`}
+                    >
+                      {option.label}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
           <MapButton label="Phóng to" onClick={() => mapRef.current?.zoomIn()}>
             <FiPlus aria-hidden />
           </MapButton>
@@ -410,61 +443,9 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
               <FiMaximize aria-hidden />
             </MapButton>
           )}
-
-          <div className="flex flex-col">
-            <button
-              type="button"
-              onClick={() => setDisplayOpen((open) => !open)}
-              aria-expanded={displayOpen}
-              aria-label={displayOpen ? 'Ẩn tùy chọn hiển thị' : 'Hiện tùy chọn hiển thị'}
-              className={`flex h-9 w-9 items-center justify-center rounded-md border bg-white shadow-card transition ${
-                displayOpen
-                  ? 'border-brand-400 text-brand-600'
-                  : 'border-gray-300 text-gray-700 hover:border-brand-400 hover:text-brand-600'
-              }`}
-            >
-              {displayOpen ? (
-                <FiMinus aria-hidden className="h-4 w-4" />
-              ) : (
-                <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
-                  <circle cx="3.5" cy="8" r="1.5" />
-                  <circle cx="8" cy="8" r="1.5" />
-                  <circle cx="12.5" cy="8" r="1.5" />
-                </svg>
-              )}
-            </button>
-            {displayOpen && (
-              <div className="plan-display-switch relative mt-2 inline-flex h-9 items-center rounded-md border border-gray-300 bg-white p-0.5 shadow-card">
-                {displayOptions.map((option) => {
-                  const isActive = option.value === displayMode;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setDisplayMode(option.value)}
-                      aria-pressed={isActive}
-                      className={`relative z-10 inline-flex h-full min-w-20 items-center justify-center rounded-sm px-5 text-theme-xs font-medium transition ${
-                        isActive ? 'text-white' : 'text-gray-700 hover:text-brand-600'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  );
-                })}
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute top-0.5 bottom-0.5 left-0.5 rounded-sm bg-brand-500 shadow-card transition-transform duration-300 ease-out"
-                  style={{
-                    width: `calc((100% - 0.25rem) / ${displayOptions.length})`,
-                    transform: `translateX(${activeDisplayIndex * 100}%)`,
-                  }}
-                />
-              </div>
-            )}
-          </div>
         </div>
 
-        <div className="absolute right-3 top-3 z-900 flex items-start gap-2">
+        <div className="absolute right-3 top-3 z-900 flex flex-col items-end gap-2">
           {isSearchOpen && (
             <form
               onSubmit={(event) => {
@@ -485,22 +466,54 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
           )}
 
           <MapButton
-            label={isSearchOpen ? 'Đóng tìm kiếm' : 'Tìm mã căn'}
+            label={isSearchOpen ? "Đóng tìm kiếm" : "Tìm mã căn"}
             onClick={() => {
               setIsSearchOpen((open) => !open);
-              if (isSearchOpen) setSearch('');
+              if (isSearchOpen) setSearch("");
             }}
           >
             {isSearchOpen ? <FiX aria-hidden /> : <FiSearch aria-hidden />}
           </MapButton>
 
-          <span
-            aria-hidden
-            className="flex h-9 w-9 flex-col items-center justify-center rounded-md border border-gray-300 bg-white text-gray-500 shadow-card"
+          <MapButton
+            label={
+              isFundLegendOpen ? "Đóng chú thích quỹ căn" : "Chú thích quỹ căn"
+            }
+            onClick={() => setIsFundLegendOpen((open) => !open)}
           >
-            <span className="text-[9px] leading-none">▲</span>
-            <span className="text-[10px] font-bold leading-none">N</span>
-          </span>
+            <FiLayers aria-hidden />
+          </MapButton>
+
+          {/* Popover chu thich loai quy - flex cot doc, nam ngay sat duoi nut FiLayers */}
+          {isFundLegendOpen && (
+            <div className="flex w-28 flex-col items-stretch gap-1.5 rounded-md border border-gray-200 p-2 shadow-card backdrop-blur">
+              {FUND_TYPES.map((fund) => {
+                const isOn = funds.includes(fund);
+
+                return (
+                  <button
+                    key={fund}
+                    type="button"
+                    onClick={() => toggleFund(fund)}
+                    aria-pressed={isOn}
+                    className={`flex items-center gap-2 rounded-md border px-3 py-1.5 text-theme-sm font-medium transition ${
+                      isOn
+                        ? "border-gray-300 bg-white text-gray-700 shadow-card"
+                        : "border-gray-200 bg-gray-50 text-gray-400"
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`text-base leading-none ${isOn ? FUND_DOT_TONES[fund] : "text-gray-300"}`}
+                    >
+                      ●
+                    </span>
+                    {UNIT_FUND_LABELS[fund]}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

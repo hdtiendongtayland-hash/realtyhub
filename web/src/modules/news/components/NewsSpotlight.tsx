@@ -35,7 +35,7 @@ const formatDots = (iso: string) => {
 const FeaturedArticle = ({ article }: { article: NewsArticle }) => (
   <article className="group">
     <Link href={`/tin-tuc/${article.slug}`} className="block">
-      <div className="relative aspect-16/10 w-full overflow-hidden rounded-xl bg-gray-100">
+      <div className="relative aspect-16/9 w-full overflow-hidden rounded-xl bg-gray-100">
         <PlaceholderThumb
           seed={article.publicId}
           src={article.thumbnailUrl || undefined}

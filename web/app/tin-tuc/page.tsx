@@ -313,7 +313,7 @@ const FeaturedArticle = ({ article }: { article: NewsArticle }) => (
     {/* Thumbnail */}
     <Link
       href={`/tin-tuc/${article.slug}`}
-      className="relative block aspect-[16/10] overflow-hidden md:aspect-auto"
+      className="relative block aspect-[16/9] overflow-hidden md:aspect-auto"
       aria-label={article.title}
     >
       <PlaceholderThumb
@@ -379,7 +379,7 @@ const ArticleCard = ({ article }: { article: NewsArticle }) => (
     {/* Thumbnail */}
     <Link
       href={`/tin-tuc/${article.slug}`}
-      className="relative block aspect-[16/10] overflow-hidden"
+      className="relative block aspect-[16/9] overflow-hidden"
       aria-label={article.title}
     >
       <PlaceholderThumb

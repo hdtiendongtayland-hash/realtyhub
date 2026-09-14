@@ -336,7 +336,7 @@ const LienHeChungToiPage = () => (
               className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-theme-xs transition hover:-translate-y-1 hover:shadow-theme-md"
             >
               {/* Map embed */}
-              <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+              <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
                 <iframe
                   src={branch.mapEmbed}
                   title={`Bản đồ ${branch.city}`}

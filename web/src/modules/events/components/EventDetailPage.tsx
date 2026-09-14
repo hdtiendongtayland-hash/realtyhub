@@ -259,7 +259,7 @@ const EventDetailPage = ({ slug, initialEvent }: EventDetailPageProps) => {
                 src={event.coverImage}
                 label={event.title}
                 alt={event.title}
-                className="aspect-[16/10] w-full"
+                className="aspect-[16/9] w-full"
               />
             </div>
 
