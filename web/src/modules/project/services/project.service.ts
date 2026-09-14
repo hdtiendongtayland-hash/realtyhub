@@ -253,6 +253,25 @@ export const ProjectService = {
   },
 
   /**
+   * Tong so can (quy can) cua moi du an - mot lan goi cho ca trang.
+   *
+   * Tra ve `Map<slug, count>` de card chi can `map.get(project.slug)` ma khong
+   * phai loop. Bat buoc phai tra ve Map thay vi object vi key co the trung
+   * nhau trong tuong lai (vi du them "versioned" slug).
+   *
+   * KHI CO BACKEND: GET /units/count-by-project tra ve Record<string, number>
+   * nen chi can `new Map(Object.entries(record))`.
+   */
+  unitsCountBySlug: async (): Promise<Map<string, number>> => {
+    const all = getAllUnitsAcrossProjects();
+    const counts = new Map<string, number>();
+    for (const unit of all) {
+      counts.set(unit.projectSlug, (counts.get(unit.projectSlug) ?? 0) + 1);
+    }
+    return delay(counts);
+  },
+
+  /**
    * Chi tiet mot du an. Tra ve null khi khong co slug do - trang goi
    * notFound() de Next tra dung 404 thay vi trang trong.
    *

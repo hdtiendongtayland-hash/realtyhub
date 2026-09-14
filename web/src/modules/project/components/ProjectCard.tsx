@@ -7,6 +7,7 @@ import { TbLayoutGrid, TbMap2, TbView360 } from 'react-icons/tb';
 import ThumbCarousel from '@/common/components/ThumbCarousel';
 import ShineSweep from '@/common/components/ShineSweep';
 import { useFavorites } from '../hooks/useFavorites';
+import { useUnitsCountBySlug } from '../hooks/useProjects';
 import type { ProjectDetailTabKey } from '../models/project-detail.model';
 import {
   SEGMENT_BADGE_LABELS,
@@ -52,11 +53,14 @@ type ProjectCardProps = {
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
   const { isFavorite: checkFavorite, toggle } = useFavorites();
+  const { data: unitsCountMap } = useUnitsCountBySlug();
   // Ro chuot len the thi dung chuyen anh, de con kip nhin tam dang xem
   const [isHovered, setIsHovered] = useState(false);
   const isFavorite = checkFavorite(project.publicId);
 
   const badge = SEGMENT_BADGES[project.segment];
+  const unitsCount = unitsCountMap?.get(project.slug);
+  const hasUnits = typeof unitsCount === 'number' && unitsCount > 0;
 
   return (
     <article
@@ -82,6 +86,13 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           <span className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-2.5 text-center text-xs md:text-base font-bold uppercase leading-tight tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
             {project.name}
           </span>
+
+          {/* So quy can - top center, nam tren lop phu nen de doc */}
+          {hasUnits && (
+            <span className="pointer-events-none absolute top-0 left-1/2 z-10 -translate-x-1/2 flex items-center gap-1 px-2 py-1 text-[10px] md:text-xs font-semibold text-white">
+              <span><strong className="text-2xl">{unitsCount}</strong> CĂN</span>
+            </span>
+          )}
         </Link>
 
         {/* overflow-hidden de vet sang khong tran ra ngoai vien bo tron.

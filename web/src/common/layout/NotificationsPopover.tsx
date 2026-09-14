@@ -8,7 +8,9 @@ import {
   FiBell,
   FiCheck,
   FiChevronRight,
+  FiCircle,
   FiInbox,
+  FiX,
 } from 'react-icons/fi';
 
 import {
@@ -76,17 +78,45 @@ export const useNotifications = () => {
     setOverrides((prev) => ({ ...prev, [id]: true }));
   }, []);
 
-  const markAllAsRead = useCallback(() => {
+  /** Toggle trang thai doc/chua doc cua 1 notification. Neu dang doc -> danh
+   * la chua doc, neu dang chua doc -> danh la da doc. Dung cho nut cham
+   * tron ben trai moi row trong popover. */
+  const toggleRead = useCallback((id: string) => {
     setOverrides((prev) => {
       const next = { ...prev };
-      items.forEach((item) => {
-        if (!item.isRead) next[item.publicId] = true;
-      });
+      const current = next[id];
+      if (current === undefined) {
+        // Chua co override: lay trang thai hien tai tu mock roi dao nguoc.
+        const original = items.find((it) => it.publicId === id);
+        next[id] = !(original?.isRead ?? false);
+      } else {
+        next[id] = !current;
+      }
       return next;
     });
   }, [items]);
 
-  return { items: itemsWithRead, unreadCount, markAsRead, markAllAsRead };
+  /** Mark all as read hoac reverse (toggle) — phu thuoc vao coUnread. */
+  const toggleAllRead = useCallback(() => {
+    setOverrides((prev) => {
+      const next = { ...prev };
+      const allRead = itemsWithRead.every((item) => item.isRead);
+      if (allRead) {
+        // Tat ca da doc -> danh la chua doc.
+        items.forEach((item) => {
+          next[item.publicId] = false;
+        });
+      } else {
+        // Con muc chua doc -> danh tat ca la da doc.
+        items.forEach((item) => {
+          if (!item.isRead) next[item.publicId] = true;
+        });
+      }
+      return next;
+    });
+  }, [items, itemsWithRead]);
+
+  return { items: itemsWithRead, unreadCount, markAsRead, toggleAllRead, toggleRead };
 };
 
 /** Popover noi dung - dung chung cho ca hover-locked va hover-only. */
@@ -95,13 +125,15 @@ const PopoverPanel = ({
   unreadCount,
   transparent,
   close,
-  onMarkAllAsRead,
+  onToggleAllRead,
+  onToggleRead,
 }: {
   items: NotificationItem[];
   unreadCount: number;
   transparent: boolean;
   close: () => void;
-  onMarkAllAsRead: () => void;
+  onToggleAllRead: () => void;
+  onToggleRead: (id: string) => void;
 }) => {
   // Chi lay 5 muc gan nhat de vua popup (380px chieu cao toi da). Nguon du
   // lieu day du o trang /thong-bao (link "Xem tat ca" ben duoi).
@@ -137,19 +169,30 @@ const PopoverPanel = ({
           </div>
         </div>
         <div className="flex items-center gap-1">
+          {/* Toggle all read/unread — icon-only, aria-label thay doi theo trang thai. */}
           <button
             type="button"
-            onClick={onMarkAllAsRead}
-            disabled={unreadCount === 0}
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-theme-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+            onClick={onToggleAllRead}
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
               transparent
-                ? 'text-white/85 hover:bg-white/15 hover:text-white'
-                : 'text-gray-600 hover:bg-brand-50 hover:text-brand-700'
+                ? 'text-white/70 hover:bg-white/15 hover:text-white'
+                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
             }`}
-            aria-label="Đánh dấu tất cả đã đọc"
+            aria-label={unreadCount > 0 ? 'Đánh dấu tất cả đã đọc' : 'Đánh dấu tất cả chưa đọc'}
           >
-            <FiCheck aria-hidden className="h-3.5 w-3.5" />
-            Đọc tất cả
+            <FiCheck aria-hidden className="h-4 w-4" strokeWidth={2.5} />
+          </button>
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Đóng thông báo"
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
+              transparent
+                ? 'text-white/70 hover:bg-white/15 hover:text-white'
+                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+            }`}
+          >
+            <FiX aria-hidden className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -183,6 +226,7 @@ const PopoverPanel = ({
               subtleClass={subtleClass}
               mutedClass={mutedClass}
               onActivate={() => close()}
+              onToggleRead={onToggleRead}
             />
           ))}
         </ul>
@@ -201,7 +245,9 @@ const PopoverPanel = ({
   );
 };
 
-/** Mot dong thong bao trong popup. Click vao se mo link dich va dong popup. */
+/** Mot dong thong bao trong popup. Click vao link se mo href va dong popup.
+ * Click vao cham tron ben trai se toggle trang thai doc/chua doc ma khong
+ * dong popup (dung de user danh la chua doc lai mot muc da doc qua). */
 const NotificationRow = ({
   item,
   transparent,
@@ -210,6 +256,7 @@ const NotificationRow = ({
   subtleClass,
   mutedClass,
   onActivate,
+  onToggleRead,
 }: {
   item: NotificationItem;
   transparent: boolean;
@@ -218,6 +265,7 @@ const NotificationRow = ({
   subtleClass: string;
   mutedClass: string;
   onActivate: () => void;
+  onToggleRead: (id: string) => void;
 }) => {
   const toneClass = transparent
     ? 'bg-white/15 text-white'
@@ -225,13 +273,48 @@ const NotificationRow = ({
   const priorityClass = transparent
     ? 'bg-white/15 text-white'
     : PRIORITY_TONE[item.priority];
+  // Dot unread: mau brand-500 khi chua doc, mau muted/outline khi da doc.
+  // Tren nen transparent dung white/85 vs white/40 de van noi bat.
+  const dotBg = item.isRead
+    ? transparent
+      ? 'bg-white/40'
+      : 'bg-gray-300'
+    : transparent
+      ? 'bg-white'
+      : 'bg-brand-500';
 
   return (
-    <li>
+    <li className="group/row relative">
+      {/* Cham tron toggle unread: dat absolute ben trai row, click de dao
+       * trang thai ma khong trigger Link. e.stopPropagation + preventDefault
+       * de khong bi Link.navigate ngam. */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onToggleRead(item.publicId);
+        }}
+        aria-label={item.isRead ? 'Đánh dấu chưa đọc' : 'Đánh dấu đã đọc'}
+        aria-pressed={!item.isRead}
+        className={`absolute left-1.5 top-1/2 z-10 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full transition ${
+          item.isRead
+            ? transparent
+              ? 'opacity-0 group-hover/row:opacity-100 hover:bg-white/15'
+              : 'opacity-0 group-hover/row:opacity-100 hover:bg-gray-100'
+            : ''
+        }`}
+      >
+        <FiCircle
+          aria-hidden
+          className={`h-2.5 w-2.5 ${dotBg}`}
+        />
+      </button>
+
       <Link
         href={item.href}
         onClick={onActivate}
-        className={`group flex items-start gap-3 border-l-2 px-4 py-3 transition ${
+        className={`group flex items-start gap-3 border-l-2 pl-7 pr-4 py-3 transition ${
           item.isRead ? 'border-transparent' : 'border-brand-500'
         } ${itemClass}`}
       >
@@ -245,7 +328,7 @@ const NotificationRow = ({
 
         {/* Noi dung */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
+          {/* <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
             <span className={mutedClass}>{item.source}</span>
             {item.priority !== 'normal' && (
               <span
@@ -254,7 +337,7 @@ const NotificationRow = ({
                 {PRIORITY_LABELS[item.priority]}
               </span>
             )}
-          </div>
+          </div> */}
 
           <div
             className={`mt-0.5 line-clamp-1 text-theme-sm font-semibold transition group-hover:underline ${
@@ -282,7 +365,7 @@ const NotificationRow = ({
 
 const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps) => {
   const pathname = usePathname();
-  const { items, unreadCount, markAllAsRead } = useNotifications();
+  const { items, unreadCount, toggleAllRead, toggleRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const isClickLocked = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -422,7 +505,8 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
           unreadCount={unreadCount}
           transparent={transparent}
           close={close}
-          onMarkAllAsRead={markAllAsRead}
+          onToggleAllRead={toggleAllRead}
+          onToggleRead={toggleRead}
         />
       )}
     </div>

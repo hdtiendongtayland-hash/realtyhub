@@ -14,9 +14,11 @@ import {
 import FilterSelect from '@/common/components/FilterSelect';
 import Pagination from '@/common/components/Pagination';
 import UnitCard from './UnitCard';
+import UnitDetailModal from './UnitDetailModal';
 import { useAllUnits } from '../hooks/useProjects';
 import {
   type AllUnitsQuery,
+  type UnitWithProject,
   UNIT_STATUS_LABELS,
   type UnitSort,
 } from '../models/project-detail.model';
@@ -234,6 +236,14 @@ const UnitInventoryPage = () => {
     router.replace(pathname, { scroll: false });
   }, [pathname, router, setSearchInput]);
 
+  // ── Modal chi tiet can ─────────────────────────────────────────────
+  // Click card -> mo popup thong tin can (khong navigate sang trang du an).
+  // UnitCard da la UnitWithProject nen truyen thang vao modal duoc luon.
+  const [selectedUnit, setSelectedUnit] = useState<UnitWithProject | null>(null);
+  const handleUnitClick = useCallback((unit: UnitWithProject) => {
+    setSelectedUnit(unit);
+  }, []);
+
   // ── Render ─────────────────────────────────────────────────────────────
   const total = listQuery.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -243,8 +253,6 @@ const UnitInventoryPage = () => {
   const units = listQuery.data?.units ?? [];
   const queryKey = JSON.stringify(query);
 
-  // Grid dung queryKey de reset animation khi filter thay doi.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const animatedGrid = useMemo(() => units, [queryKey, units]);
 
   return (
@@ -254,10 +262,6 @@ const UnitInventoryPage = () => {
         <h1 className="text-center text-3xl font-bold uppercase tracking-wide text-gray-900">
           Danh sách Quỹ căn
         </h1>
-        {/* <p className="mx-auto mt-2 max-w-2xl text-center text-theme-sm text-gray-500">
-          Tổng hợp toàn bộ căn/sản phẩm đang có trên tất cả dự án của RealtyHub.
-          Lọc theo dự án, khu vực, phân khu, loại hình, khoảng giá và diện tích.
-        </p> */}
       </div>
 
       {/* ── Hang 1: tim kiem + sap xep ─────────────────────────────────── */}
@@ -520,9 +524,18 @@ const UnitInventoryPage = () => {
           }`}
         >
           {animatedGrid.map((unit) => (
-            <UnitCard key={unit.publicId} unit={unit} />
+            <UnitCard key={unit.publicId} unit={unit} onUnitClick={handleUnitClick} />
           ))}
         </div>
+      )}
+
+      {/* ── Popup chi tiet can (click card mo len) ─────────────────── */}
+      {selectedUnit && (
+        <UnitDetailModal
+          unit={selectedUnit}
+          open={selectedUnit !== null}
+          onClose={() => setSelectedUnit(null)}
+        />
       )}
 
       {/* ── Phan trang ─────────────────────────────────────────────────── */}

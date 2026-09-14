@@ -32,7 +32,7 @@ const HomePage = ({ initialContent }: HomePageProps) => {
         <FeaturedProjects projects={content.featuredProjects} />
         <FeaturedUnits initialUnits={content.featuredUnits} />
         <FeaturedEvents />
-        <Doitac initialInvestors={content.investors} />
+        {/* <Doitac initialInvestors={content.investors} /> */}
         <div className="bg-white">
           <div className="site-container">
             <NewsSpotlight />
