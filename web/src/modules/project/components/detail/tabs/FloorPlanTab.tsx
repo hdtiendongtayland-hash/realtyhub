@@ -90,7 +90,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
 
   const displayOptions = useMemo(
     () => [
-      { value: "code" as const, label: "Mã căn" },
+      { value: "code" as const, label: "Mã" },
       { value: "name" as const, label: "Không tên" },
       { value: "price" as const, label: "Giá" },
     ],

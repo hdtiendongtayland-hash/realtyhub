@@ -1,9 +1,3 @@
-/**
- * Anh bia tam thoi: sinh gradient tu chinh chuoi `seed` nen moi du an
- * luon ra cung mot mau, khong can file anh nao trong repo.
- * Khi co anh that: truyen `src` -> component render <img> thay vi gradient.
- */
-
 const PALETTES: [string, string, string][] = [
   ['#0e3a6b', '#1c74c4', '#5bb3f0'],
   ['#0b4f4a', '#12866f', '#5fc79f'],
@@ -28,7 +22,7 @@ type PlaceholderThumbProps = {
   label?: string;
   src?: string;
   alt?: string;
-  
+
   fit?: 'cover' | 'contain';
   className?: string;
 };

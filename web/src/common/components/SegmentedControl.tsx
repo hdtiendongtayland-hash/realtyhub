@@ -12,23 +12,10 @@ type SegmentedControlProps = {
   options: SegmentedOption[];
   value: string | null;
   onChange: (value: string | null) => void;
-  /**
-   * Nhan dai thi bat cai nay: nhom tach thanh cac o rieng biet xuong dong duoc,
-   * thay vi mot day lien nhau bop chu lai cho vua mot hang.
-   */
   wrap?: boolean;
   className?: string;
 };
 
-/**
- * Day nut lien nhau, chon mot trong nhieu.
- *
- * Dung thay o xo xuong khi so lua chon it (<= 7): thay het phuong an ma khong
- * phai bam mo, va chon xong la loc chay ngay.
- *
- * radiogroup chu khong phai nhom <button>: trinh doc man hinh doc duoc "1 trong
- * 5" va phim mui ten di chuyen dung nhu mot bo radio that.
- */
 const SegmentedControl = ({
   label,
   options,
