@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
     root: path.join(__dirname),
   },
 
+  // Allow access from local network IP addresses during development
+  allowedDevOrigins: ['localhost', '127.0.0.1', '::1', '192.168.11.150'],
+
   images: {
     remotePatterns: [
       { protocol: "http", hostname: "localhost", pathname: "**" },

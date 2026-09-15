@@ -19,7 +19,6 @@ import {
   type UnitStatus,
   type UnitWithProject,
 } from '../../../models/project-detail.model';
-import UnitDetailModal from '../../UnitDetailModal';
 
 const PAGE_SIZE_OPTIONS = [24, 48, 96];
 
@@ -401,15 +400,6 @@ const UnitsTab = ({ slug, lockedPhaseName }: UnitsTabProps) => {
       <p className="mt-3 text-theme-xs text-gray-400">
         Tổng {formatNumber(total)} căn khớp điều kiện hiện tại.
       </p>
-
-      {/* Modal chi tiết căn */}
-      {selectedUnit && (
-        <UnitDetailModal
-          unit={selectedUnit}
-          open={selectedUnit !== null}
-          onClose={() => setSelectedUnit(null)}
-        />
-      )}
     </div>
   );
 };

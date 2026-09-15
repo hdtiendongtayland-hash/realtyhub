@@ -12,6 +12,7 @@ import CleanModeToggle from '@/common/components/CleanModeToggle';
 import FavoriteButton from '@/common/layout/FavoriteButton';
 import LanguageSwitcher from '@/i18n/components/LanguageSwitcher';
 import NotificationsPopover from '@/common/layout/NotificationsPopover';
+import { useCleanMode } from '@/common/providers/CleanModeProvider';
 
 /**
  * SiteHeader (locale-aware).
@@ -51,12 +52,21 @@ type NavItem = {
 
 const DU_AN_HREF = '/gio-hang';
 
-const NAV_ITEMS: NavItem[] = [
+// Navigation items for normal mode
+const NAV_ITEMS_NORMAL: NavItem[] = [
   { labelKey: 'home', href: '/' },
   { labelKey: 'investors', href: '/chu-dau-tu' },
   { labelKey: 'projects', href: DU_AN_HREF, aliases: ['/du-an'] },
   { labelKey: 'cart', href: '/quy-can' },
   { labelKey: 'events', href: '/su-kien' },
+];
+
+// Navigation items for clean mode - only 4 items: Chủ đầu tư, Dự án, Quỹ căn, Tiện ích
+const NAV_ITEMS_CLEAN: NavItem[] = [
+  { labelKey: 'investors', href: '/chu-dau-tu' },
+  { labelKey: 'projects', href: DU_AN_HREF, aliases: ['/du-an'] },
+  { labelKey: 'cart', href: '/quy-can' },
+  { labelKey: 'utility', href: '/tien-ich' },
 ];
 
 const MORE_MENU_ITEMS: NavItem[] = [
@@ -136,6 +146,12 @@ const SiteHeader = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+
+  // Get clean mode state
+  const { isCleanMode } = useCleanMode();
+
+  // Choose nav items based on clean mode
+  const navItems = isCleanMode ? NAV_ITEMS_CLEAN : NAV_ITEMS_NORMAL;
 
   const moreRef = useRef<HTMLLIElement>(null);
   const isMoreClickLocked = useRef(false);
@@ -312,11 +328,15 @@ const SiteHeader = () => {
           {isMobileOpen ? <FiX aria-hidden /> : <FiMenu aria-hidden />}
         </button>
 
-        <BrandMark />
+        <div data-clean-hide="brand-logo" className="contents">
+          <BrandMark />
+        </div>
+
+        <nav aria-label={tHeader('home')} className="hidden xl:block" />
 
         <nav aria-label={tHeader('home')} className="hidden xl:block">
           <ul className="flex items-center gap-5">
-            {NAV_ITEMS.map((item) => (
+            {navItems.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
@@ -330,54 +350,57 @@ const SiteHeader = () => {
               </li>
             ))}
 
-            <li
-              className="relative"
-              ref={moreRef}
-              onMouseEnter={onMoreMouseEnter}
-              onMouseLeave={onMoreMouseLeave}
-              data-clean-hide="secondary-nav"
-            >
-              <button
-                type="button"
-                onClick={onMoreToggleClick}
-                aria-haspopup="menu"
-                aria-expanded={isMoreOpen}
-                aria-current={isMoreActive ? 'page' : undefined}
-                className={`inline-flex items-center gap-1 whitespace-nowrap text-theme-sm font-semibold uppercase tracking-wide transition ${moreBtnActive}`}
+            {/* Hide "More" menu in clean mode */}
+            {!isCleanMode && (
+              <li
+                className="relative"
+                ref={moreRef}
+                onMouseEnter={onMoreMouseEnter}
+                onMouseLeave={onMoreMouseLeave}
+                data-clean-hide="secondary-nav"
               >
-                {tHeader('more')}
-                <FiChevronDown
-                  aria-hidden
-                  className={`h-4 w-4 transition-transform ${isMoreOpen ? 'rotate-180' : ''}`}
-                />
-              </button>
-
-              {isMoreOpen && (
-                <div
-                  role="menu"
-                  aria-label={tHeader('more')}
-                  className={`absolute right-0 top-full z-50 mt-3 min-w-56 overflow-hidden rounded-xl py-2 ${dropdownPanelClass}`}
+                <button
+                  type="button"
+                  onClick={onMoreToggleClick}
+                  aria-haspopup="menu"
+                  aria-expanded={isMoreOpen}
+                  aria-current={isMoreActive ? 'page' : undefined}
+                  className={`inline-flex items-center gap-1 whitespace-nowrap text-theme-sm font-semibold uppercase tracking-wide transition ${moreBtnActive}`}
                 >
-                  {MORE_MENU_ITEMS.map((child) => {
-                    const active = isActive(child.href);
-                    return (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        role="menuitem"
-                        aria-current={active ? 'page' : undefined}
-                        onClick={() => setIsMoreOpen(false)}
-                        className={`block px-4 py-2.5 text-theme-sm font-medium transition ${
-                          active ? dropdownItemActiveClass : dropdownItemClass
-                        }`}
-                      >
-                        {tHeader(child.labelKey)}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </li>
+                  {tHeader('more')}
+                  <FiChevronDown
+                    aria-hidden
+                    className={`h-4 w-4 transition-transform ${isMoreOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {isMoreOpen && (
+                  <div
+                    role="menu"
+                    aria-label={tHeader('more')}
+                    className={`absolute right-0 top-full z-50 mt-3 min-w-56 overflow-hidden rounded-xl py-2 ${dropdownPanelClass}`}
+                  >
+                    {MORE_MENU_ITEMS.map((child) => {
+                      const active = isActive(child.href);
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          role="menuitem"
+                          aria-current={active ? 'page' : undefined}
+                          onClick={() => setIsMoreOpen(false)}
+                          className={`block px-4 py-2.5 text-theme-sm font-medium transition ${
+                            active ? dropdownItemActiveClass : dropdownItemClass
+                          }`}
+                        >
+                          {tHeader(child.labelKey)}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </li>
+            )}
           </ul>
         </nav>
 
@@ -397,12 +420,12 @@ const SiteHeader = () => {
             <NotificationsPopover variant={variant} iconClass={iconColor} />
           </div>
 
-          <CleanModeToggle size="regular" />
+          <CleanModeToggle size="regular" className={iconColor} />
 
           {/* Language switcher (dropdown): vi <-> en, preserve
               pathname + params + query hien tai. Hien thi o xl tro len;
               o mobile drawer se co phien ban rieng (neu can). */}
-          <LanguageSwitcher />
+          <LanguageSwitcher iconClass={iconColor} />
 
           <div data-clean-hide="account" className="contents">
             <AccountMenu />
@@ -423,7 +446,7 @@ const SiteHeader = () => {
             className="absolute inset-y-0 left-0 flex w-[86%] max-w-sm flex-col bg-white shadow-panel"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3">
-              <span onClick={() => setIsMobileOpen(false)}>
+              <span onClick={() => setIsMobileOpen(false)} data-clean-hide="brand-logo">
                 <BrandMark />
               </span>
               <button
@@ -485,7 +508,7 @@ const SiteHeader = () => {
             </ul>
 
             <ul className="flex-1 overflow-y-auto">
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <li key={item.href} className="border-b border-gray-100">
                   <Link
                     href={item.href}
@@ -500,40 +523,43 @@ const SiteHeader = () => {
                 </li>
               ))}
 
-              <li className="border-b border-gray-100" data-clean-hide="secondary-nav">
-                <details open={isMoreActive} className="group">
-                  <summary
-                    className={`flex cursor-pointer list-none items-center justify-between px-5 py-4 text-base font-medium capitalize transition hover:bg-gray-50 ${
-                      isMoreActive ? 'text-brand-600' : 'text-gray-800'
-                    }`}
-                  >
-                    {tHeader('more')}
-                    <FiChevronDown
-                      aria-hidden
-                      className="h-5 w-5 shrink-0 text-gray-400 transition-transform group-open:rotate-180"
-                    />
-                  </summary>
-                  <ul className="bg-gray-50 pb-1">
-                    {MORE_MENU_ITEMS.map((child) => {
-                      const active = isActive(child.href);
-                      return (
-                        <li key={child.href}>
-                          <Link
-                            href={child.href}
-                            onClick={() => setIsMobileOpen(false)}
-                            aria-current={active ? 'page' : undefined}
-                            className={`block py-3 pl-9 pr-5 text-theme-sm transition hover:text-brand-600 ${
-                              active ? 'font-semibold text-brand-600' : 'text-gray-600'
-                            }`}
-                          >
-                            {tHeader(child.labelKey)}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </details>
-              </li>
+              {/* Hide "More" menu in clean mode on mobile */}
+              {!isCleanMode && (
+                <li className="border-b border-gray-100" data-clean-hide="secondary-nav">
+                  <details open={isMoreActive} className="group">
+                    <summary
+                      className={`flex cursor-pointer list-none items-center justify-between px-5 py-4 text-base font-medium capitalize transition hover:bg-gray-50 ${
+                        isMoreActive ? 'text-brand-600' : 'text-gray-800'
+                      }`}
+                    >
+                      {tHeader('more')}
+                      <FiChevronDown
+                        aria-hidden
+                        className="h-5 w-5 shrink-0 text-gray-400 transition-transform group-open:rotate-180"
+                      />
+                    </summary>
+                    <ul className="bg-gray-50 pb-1">
+                      {MORE_MENU_ITEMS.map((child) => {
+                        const active = isActive(child.href);
+                        return (
+                          <li key={child.href}>
+                            <Link
+                              href={child.href}
+                              onClick={() => setIsMobileOpen(false)}
+                              aria-current={active ? 'page' : undefined}
+                              className={`block py-3 pl-9 pr-5 text-theme-sm transition hover:text-brand-600 ${
+                                active ? 'font-semibold text-brand-600' : 'text-gray-600'
+                              }`}
+                            >
+                              {tHeader(child.labelKey)}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </details>
+                </li>
+              )}
             </ul>
           </nav>
         </div>
