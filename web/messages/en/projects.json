@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "title": "Project listings",
+    "description": "Search and filter real-estate projects by developer, area, type and status."
+  },
+  "title": "Project listings",
+  "search": {
+    "placeholder": "Search by project, area, or developer...",
+    "label": "Search"
+  },
+  "filters": {
+    "title": "Filters",
+    "reset": "Reset",
+    "apply": "Apply",
+    "close": "Close filters",
+    "open": "Open filters",
+    "propertyType": "Property type",
+    "segment": "Segment",
+    "region": "Area",
+    "price": "Price",
+    "area": "Area",
+    "bedrooms": "Bedrooms",
+    "view": "View",
+    "legal": "Legal",
+    "investor": "Developer",
+    "status": "Status"
+  },
+  "results": {
+    "count": "{count} projects",
+    "empty": "No projects match the current filters.",
+    "loading": "Loading project listings..."
+  },
+  "sort": {
+    "label": "Sort",
+    "newest": "Newest",
+    "priceAsc": "Price ascending",
+    "priceDesc": "Price descending",
+    "areaAsc": "Area ascending",
+    "areaDesc": "Area descending"
+  },
+  "view": {
+    "grid": "Grid view",
+    "list": "List view"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "actions": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "create": "Tạo mới",
+    "search": "Tìm kiếm",
+    "submit": "Gửi",
+    "back": "Quay lại",
+    "close": "Đóng",
+    "viewMore": "Xem thêm",
+    "viewDetail": "Xem chi tiết",
+    "viewAll": "Xem tất cả",
+    "loading": "Đang tải...",
+    "retry": "Thử lại"
+  },
+  "labels": {
+    "empty": "Không có dữ liệu",
+    "required": "Bắt buộc",
+    "optional": "Tùy chọn"
+  },
+  "status": {
+    "loading": "Đang tải",
+    "error": "Có lỗi xảy ra",
+    "success": "Thành công",
+    "notFound": "Không tìm thấy"
+  },
+  "errors": {
+    "generic": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+    "notFound": "Không tìm thấy dữ liệu",
+    "loadFailed": "Tải dữ liệu thất bại",
+    "saveFailed": "Lưu thất bại",
+    "deleteFailed": "Xóa thất bại",
+    "networkError": "Lỗi kết nối. Vui lòng kiểm tra mạng.",
+    "unauthorized": "Bạn cần đăng nhập để tiếp tục",
+    "forbidden": "Bạn không có quyền truy cập"
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "switchTo": "Chuyển sang ngôn ngữ"
+  }
+}

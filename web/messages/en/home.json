@@ -1,0 +1,37 @@
+{
+  "hero": {
+    "searchPlaceholder": "Project, area, or developer name...",
+    "suggestionPrompts": [
+      "house under 4 billion VND",
+      "lake-view apartments",
+      "red-book villas",
+      "low-rise in Hanoi"
+    ],
+    "ariaSearch": "Search projects",
+    "searchButton": "Search"
+  },
+  "featured": {
+    "projects": {
+      "title": "Featured projects",
+      "viewAll": "View all projects"
+    },
+    "units": {
+      "title": "Featured units",
+      "viewAll": "View all units"
+    },
+    "events": {
+      "title": "Upcoming events",
+      "viewAll": "View all events"
+    },
+    "news": {
+      "title": "Latest news",
+      "viewAll": "View all news"
+    }
+  },
+  "thongbao": {
+    "title": "Announcements"
+  },
+  "quickUtilities": {
+    "title": "Quick utilities"
+  }
+}

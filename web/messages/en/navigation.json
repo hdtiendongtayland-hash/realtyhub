@@ -1,0 +1,41 @@
+{
+  "header": {
+    "home": "Home",
+    "projects": "Projects",
+    "investors": "Developers",
+    "cart": "Cart",
+    "compare": "Compare",
+    "about": "About",
+    "contact": "Contact",
+    "news": "News",
+    "training": "Training",
+    "events": "Events",
+    "utility": "Utilities",
+    "favorite": "Favorites",
+    "messages": "Messages",
+    "notification": "Notifications",
+    "account": "Account",
+    "login": "Sign in",
+    "register": "Sign up",
+    "more": "More",
+    "feedback": "Feedback",
+    "guide": "User guide",
+    "cartMenu": {
+      "title": "Cart",
+      "compare": "Compare",
+      "favorites": "Favorites"
+    }
+  },
+  "footer": {
+    "about": "About RealtyHub",
+    "services": "Services",
+    "support": "Support",
+    "contact": "Contact",
+    "quickLinks": "Quick links",
+    "followUs": "Follow us",
+    "copyright": "All rights reserved by RealtyHub"
+  },
+  "breacrumb": {
+    "home": "Home"
+  }
+}

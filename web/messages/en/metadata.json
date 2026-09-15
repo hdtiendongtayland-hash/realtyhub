@@ -1,0 +1,30 @@
+{
+  "site": {
+    "name": "RealtyHub",
+    "title": "Realty Hub - The technology platform built for real estate agents",
+    "description": "A technology platform built for real estate agents, providing project information and sales support tools to consult faster and close deals more efficiently.",
+    "shortTitle": "RealtyHub"
+  },
+  "openGraph": {
+    "title": "Realty Hub - The technology platform built for real estate agents",
+    "description": "Project information, price lists, floor plans and sales tools — all in one place.",
+    "imageAlt": "RealtyHub - The technology platform built for real estate agents"
+  },
+  "twitter": {
+    "title": "Realty Hub - The technology platform built for real estate agents",
+    "description": "Project information, price lists, floor plans and sales tools — all in one place."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "heading": "Oops, this page has \"evaporated\"!",
+    "description": "The link may be wrong, or this apartment has been sold. Don't worry — RealtyHub still has many other great options waiting for you.",
+    "backHome": "Back home",
+    "explore": "Explore projects",
+    "popular": "Or try popular pages",
+    "help": "Still need help?"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "Please try again later or contact us if the issue persists."
+  }
+}

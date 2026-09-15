@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ComponentType, type SVGAttributes } from 'react';
 import {
-  FiBookOpen,
   FiCalendar,
   FiCamera,
   FiFileText,
@@ -14,6 +13,7 @@ import {
   HiOutlineAcademicCap,
   HiOutlineBookOpen,
   HiOutlineChartBar,
+  HiOutlineFire,
   HiOutlineHomeModern,
   HiOutlineNewspaper,
   HiOutlineSquares2X2,
@@ -24,21 +24,35 @@ import {
   type ProjectDetailTabKey,
 } from '../../models/project-detail.model';
 
-/** Icon nam o day chu khong o model: model la hop dong du lieu, khong chua JSX */
-const TAB_ICONS: Record<ProjectDetailTabKey, ReactNode> = {
-  'tong-quan': <FiGlobe aria-hidden />,
-  'vi-tri': <FiMapPin aria-hidden />,
-  'phan-khu': <HiOutlineSquares2X2 aria-hidden />,
-  'mat-bang-quy-can': <FiBookOpen aria-hidden />,
-  'quy-can': <HiOutlineHomeModern aria-hidden />,
-  'anh-360': <FiCamera aria-hidden />,
-  'dao-tao': <HiOutlineAcademicCap aria-hidden />,
-  'chinh-sach-ban-hang': <FiFileText aria-hidden />,
-  'tien-do': <FiCalendar aria-hidden />,
-  'tai-lieu': <HiOutlineBookOpen aria-hidden />,
-  'tin-tuc': <HiOutlineNewspaper aria-hidden />,
-  'phan-tich': <HiOutlineChartBar aria-hidden />,
+/** Icon react-icons: component SVG nhan className + cac attrs SVG.
+ *  Dat type len truoc vi TAB_ICONS dung IconType ngay ben duoi - mot so parser
+ *  (vd Turbopack/SWC khi cache cu bi stale) khong hoisting type nhanh bang TS. */
+type IconType = ComponentType<SVGAttributes<SVGSVGElement>>;
+
+/** Icon nam o day chu khong o model: model la hop dong du lieu, khong chua JSX.
+ *  Value la component vi: can chen class responsive cho moi icon.
+ *  Tab `mat-bang-quy-can` luon hien icon (ca desktop) vi no la hot-feature;
+ *  cac tab khac chi hien icon o duoi lg (chuan goc cua file nay). */
+const TAB_ICONS: Record<ProjectDetailTabKey, IconType> = {
+  'tong-quan': FiGlobe,
+  'vi-tri': FiMapPin,
+  'phan-khu': HiOutlineSquares2X2,
+  'mat-bang-quy-can': HiOutlineFire,
+  'quy-can': HiOutlineHomeModern,
+  'anh-360': FiCamera,
+  'dao-tao': HiOutlineAcademicCap,
+  'chinh-sach-ban-hang': FiFileText,
+  'tien-do': FiCalendar,
+  'tai-lieu': HiOutlineBookOpen,
+  'tin-tuc': HiOutlineNewspaper,
+  'phan-tich': HiOutlineChartBar,
 };
+
+/** Tab luon hien icon (icon "nong" can hien o moi breakpoint de noi bat dong deu) */
+const ALWAYS_VISIBLE_ICON_TABS = new Set<ProjectDetailTabKey>(['mat-bang-quy-can']);
+
+/** Tab HOT can hieu ung pulse noi bat */
+const HOT_TAB = 'mat-bang-quy-can';
 
 const telHref = (phone: string) => `tel:${phone.replace(/\s/g, '')}`;
 
@@ -102,6 +116,8 @@ const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) =
         >
           {PROJECT_DETAIL_TABS.map((tab) => {
             const isActive = tab.key === current;
+            const Icon = TAB_ICONS[tab.key];
+            const alwaysShowIcon = ALWAYS_VISIBLE_ICON_TABS.has(tab.key);
 
             return (
               <li key={tab.key} className="shrink-0">
@@ -116,14 +132,21 @@ const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) =
                       : 'text-gray-600 hover:bg-gray-100 hover:text-brand-600'
                   }`}
                 >
-                  {/* Icon chi hien duoi lg. Tu lg tro len phai nhuong ~240px cho
-                      11 nhan tab o co chu 16px - nhan da du ro nghia, bo icon la
-                      cach re nhat de tat ca tab cung nam mot hang. */}
-                  <span
-                    className={`lg:hidden ${isActive ? 'text-white' : 'text-gray-400'}`}
-                  >
-                    {TAB_ICONS[tab.key]}
-                  </span>
+                  {/* Tab `mat-bang-quy-can` luon hien icon de noi bat dong deu
+                      moi breakpoint. Cac tab khac: duoi lg thi hien icon; tu lg
+                      tro len phai nhuong ~240px cho 11 nhan tab o co chu 16px -
+                      nhan da du ro nghia, bo icon la cach re nhat de tat ca
+                      tab cung nam mot hang. */}
+                  <Icon
+                    aria-hidden
+                    className={
+                      alwaysShowIcon
+                        ? `shrink-0 ${
+                            isActive ? 'text-white' : 'text-error-500'
+                          } ${tab.key === HOT_TAB ? 'animate-pulse-fire' : ''}`
+                        : `shrink-0 lg:hidden ${isActive ? 'text-white' : 'text-gray-400'}`
+                    }
+                  />
                   {tab.label}
                 </button>
               </li>

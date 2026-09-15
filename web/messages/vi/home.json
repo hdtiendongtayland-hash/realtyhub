@@ -1,0 +1,37 @@
+{
+  "hero": {
+    "searchPlaceholder": "Tên dự án, khu vực, chủ đầu tư...",
+    "suggestionPrompts": [
+      "nhà dưới 4 tỷ",
+      "căn hộ view hồ",
+      "biệt thự sổ đỏ",
+      "thấp tầng Hà Nội"
+    ],
+    "ariaSearch": "Tìm kiếm dự án",
+    "searchButton": "Tìm kiếm"
+  },
+  "featured": {
+    "projects": {
+      "title": "Dự án nổi bật",
+      "viewAll": "Xem tất cả dự án"
+    },
+    "units": {
+      "title": "Quỹ căn nổi bật",
+      "viewAll": "Xem tất cả quỹ căn"
+    },
+    "events": {
+      "title": "Sự kiện sắp diễn ra",
+      "viewAll": "Xem tất cả sự kiện"
+    },
+    "news": {
+      "title": "Tin tức mới nhất",
+      "viewAll": "Xem tất cả tin tức"
+    }
+  },
+  "thongbao": {
+    "title": "Thông báo"
+  },
+  "quickUtilities": {
+    "title": "Tiện ích nhanh"
+  }
+}

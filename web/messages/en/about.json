@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "title": "About RealtyHub",
+    "description": "RealtyHub is the technology platform built for real estate agents — providing project information, a centralized unit inventory (especially in the South) and a dedicated sales toolkit."
+  },
+  "hero": {
+    "headline": "A TECHNOLOGY PLATFORM BUILT FOR REAL ESTATE AGENTS",
+    "lead": "RealtyHub combines data, AI and sales technology in one platform built for agents — optimizing every consultation step and elevating transaction performance.",
+    "primaryCta": "REGISTER AS A COLLABORATOR",
+    "secondaryCta": "Explore inventory"
+  },
+  "intro": {
+    "title": "ONE PLATFORM – ALL THE TOOLS YOU NEED TO BOOST SALES",
+    "body": "More than a place to look up information, RealtyHub provides a toolkit designed for each step of the real-estate sales process — from product discovery to consulting, customer care and deal tracking."
+  }
+}

@@ -1,4 +1,7 @@
 
+'use client';
+
+import { useTranslations } from 'next-intl';
 
 const ANNOUNCEMENTS: { label: string }[] = [
   {
@@ -30,10 +33,13 @@ const Thongbao = () => {
   // vào, lặp lại liền mạch. CSS translate(-50%) của 1 lần chiều rộng danh sách
   // gốc = đúng đến đầu danh sách thứ 2.
   const items = [...ANNOUNCEMENTS, ...ANNOUNCEMENTS];
+  // Section title (label for screen reader). Nội dung text chạy marquee
+  // là DATA (tên người + dự án booking) - không migrate.
+  const t = useTranslations('home.thongbao');
 
   return (
     <section
-      aria-label="Thông báo"
+      aria-label={t('title')}
       data-clean-hide="announcement"
       className="relative w-full border-b border-slate-200 bg-slate-50"
     >

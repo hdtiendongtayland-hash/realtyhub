@@ -1,0 +1,30 @@
+{
+  "site": {
+    "name": "RealtyHub",
+    "title": "Realty Hub - Nền tảng công nghệ dành riêng cho môi giới bất động sản",
+    "description": "Nền tảng công nghệ dành riêng cho môi giới, cung cấp thông tin dự án và công cụ hỗ trợ bán hàng, giúp tư vấn nhanh và chốt giao dịch hiệu quả.",
+    "shortTitle": "RealtyHub"
+  },
+  "openGraph": {
+    "title": "Realty Hub - Nền tảng công nghệ dành riêng cho môi giới bất động sản",
+    "description": "Thông tin dự án, bảng giá, mặt bằng và công cụ hỗ trợ bán hàng — tất cả ở một nơi.",
+    "imageAlt": "RealtyHub - Nền tảng công nghệ dành riêng cho môi giới bất động sản"
+  },
+  "twitter": {
+    "title": "Realty Hub - Nền tảng công nghệ dành riêng cho môi giới bất động sản",
+    "description": "Thông tin dự án, bảng giá, mặt bằng và công cụ hỗ trợ bán hàng — tất cả ở một nơi."
+  },
+  "notFound": {
+    "title": "Trang không tồn tại",
+    "heading": "Ôi, trang này đã \"bốc hơi\"!",
+    "description": "Có thể đường dẫn bị sai, hoặc căn hộ này đã được bán. Đừng lo — RealtyHub vẫn còn rất nhiều lựa chọn tuyệt vời khác đang chờ bạn.",
+    "backHome": "Về trang chủ",
+    "explore": "Khám phá dự án",
+    "popular": "Hoặc thử những trang phổ biến",
+    "help": "Vẫn cần giúp?"
+  },
+  "error": {
+    "title": "Đã có lỗi xảy ra",
+    "description": "Vui lòng thử lại sau hoặc liên hệ với chúng tôi nếu sự cố tiếp tục."
+  }
+}

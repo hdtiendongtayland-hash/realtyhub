@@ -1,0 +1,45 @@
+{
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "submit": "Submit",
+    "back": "Back",
+    "close": "Close",
+    "viewMore": "View more",
+    "viewDetail": "View detail",
+    "viewAll": "View all",
+    "loading": "Loading...",
+    "retry": "Retry"
+  },
+  "labels": {
+    "empty": "No data",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "status": {
+    "loading": "Loading",
+    "error": "An error occurred",
+    "success": "Success",
+    "notFound": "Not found"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "notFound": "Data not found",
+    "loadFailed": "Failed to load data",
+    "saveFailed": "Failed to save",
+    "deleteFailed": "Failed to delete",
+    "networkError": "Network error. Please check your connection.",
+    "unauthorized": "You need to sign in to continue",
+    "forbidden": "You don't have access"
+  },
+  "language": {
+    "label": "Language",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "switchTo": "Switch language"
+  }
+}

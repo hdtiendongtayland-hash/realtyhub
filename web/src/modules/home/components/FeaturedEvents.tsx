@@ -1,8 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
+import { useTranslations } from 'next-intl';
 import {
   FiCalendar,
   FiMapPin,
@@ -89,6 +90,10 @@ const FeaturedEvents = ({ events, limit = 6 }: FeaturedEventsProps) => {
   const allEvents = events ?? MOCK_EVENTS;
   const featuredEvents = useFeaturedEvents(allEvents, limit);
 
+  // `home.featured.events.*` chứa title + label "Xem tất cả" của section
+  // này. Đặt ở component để không đẩy logic lên page cha.
+  const t = useTranslations('home.featured.events');
+
   // `loop: true` khi > slidesPerView de khong bi gap.
   const canLoop = featuredEvents.length > 3;
 
@@ -151,14 +156,14 @@ const FeaturedEvents = ({ events, limit = 6 }: FeaturedEventsProps) => {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900 md:text-2xl">
-              Sự kiện sắp diễn ra
+              {t('title')}
             </h2>
           </div>
           <Link
             href="/su-kien"
             className="inline-flex items-center gap-1 text-theme-sm font-medium text-brand-600 transition hover:text-brand-700"
           >
-            Xem tất cả
+            {t('viewAll')}
             <FiChevronRight aria-hidden />
           </Link>
         </div>
@@ -187,7 +192,7 @@ const FeaturedEvents = ({ events, limit = 6 }: FeaturedEventsProps) => {
                 setIsAutoPlaying(false);
               }}
               disabled={!canLoop && selectedIndex === 0}
-              aria-label="Sự kiện trước"
+              aria-label={t('title')}
               className="absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
             >
               <FiChevronLeft aria-hidden className="h-5 w-5" />
@@ -201,7 +206,7 @@ const FeaturedEvents = ({ events, limit = 6 }: FeaturedEventsProps) => {
                 setIsAutoPlaying(false);
               }}
               disabled={!canLoop && selectedIndex === scrollSnaps.length - 1}
-              aria-label="Sự kiện tiếp theo"
+              aria-label={t('title')}
               className="absolute right-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
             >
               <FiChevronRight aria-hidden className="h-5 w-5" />
@@ -219,7 +224,7 @@ const FeaturedEvents = ({ events, limit = 6 }: FeaturedEventsProps) => {
                     emblaApi?.scrollTo(idx);
                     setIsAutoPlaying(false);
                   }}
-                  aria-label={`Đi đến sự kiện ${idx + 1}`}
+                  aria-label={`${idx + 1}`}
                   aria-current={idx === selectedIndex ? 'true' : undefined}
                   className={`h-2 rounded-full transition-all ${
                     idx === selectedIndex
@@ -355,7 +360,7 @@ const EventCard = ({ event }: { event: EventItem }) => {
         <div className="mt-auto pt-2">
           <Link
             href={href}
-            aria-label={`Xem chi tiết sự kiện ${event.title}`}
+            aria-label={event.title}
             className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-4 py-2.5 text-theme-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
           >
             Xem chi tiết
