@@ -8,9 +8,14 @@ import { useFavorites } from '@/common/hooks/useFavorites';
 type FavoriteButtonProps = {
   /** Color classes cho icon khi header o trang thai transparent / solid. */
   iconClass: string;
+  /**
+   * Extra classes cho wrapper <Link>. Dung de cac layout khac (Header,
+   * Drawer) co the an nut trong Clean Mode ma khong phai sua component.
+   */
+  wrapperClassName?: string;
 };
 
-const FavoriteButton = ({ iconClass }: FavoriteButtonProps) => {
+const FavoriteButton = ({ iconClass, wrapperClassName }: FavoriteButtonProps) => {
   const { favorites, isHydrated } = useFavorites();
   const count = favorites.length;
 
@@ -25,7 +30,8 @@ const FavoriteButton = ({ iconClass }: FavoriteButtonProps) => {
           ? `Yêu thích - ${count} dự án đã lưu`
           : 'Yêu thích'
       }
-      className={`relative flex h-9 w-9 items-center justify-center rounded-full transition ${iconClass}`}
+      data-clean-hide="utility-link"
+      className={`relative flex h-9 w-9 items-center justify-center rounded-full transition ${iconClass} ${wrapperClassName ?? ''}`.trim()}
     >
       <FaHeart aria-hidden className="h-[18px] w-[18px]" />
       {showBadge && (

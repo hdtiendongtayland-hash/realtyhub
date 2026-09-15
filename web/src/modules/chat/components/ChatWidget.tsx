@@ -152,6 +152,7 @@ const ChatWidget = () => {
           type="button"
           onClick={() => setIsOpen(true)}
           aria-label={`Mở ${BOT_NAME}`}
+          data-clean-hide="floating-widget"
           className="group brand-gradient fixed bottom-44 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-[0_8px_24px_-6px_rgba(15,111,209,0.8)] transition-transform duration-300 ease-out hover:scale-110 active:scale-95"
         >
           {/* Vong sang lan toa - nam duoi anh nen dung -z-10 */}

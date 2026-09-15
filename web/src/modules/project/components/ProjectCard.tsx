@@ -66,7 +66,10 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
     <article
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card transition hover:shadow-card-hover"
+      // project-card-clean-focus: hook class cho CSS clean mode (xem
+      // globals.css). Khong co logic if-else o day - CSS attribute selector
+      // tren <html> se tu dong ap dung khi user bat Clean Mode.
+      className="project-card-clean-focus group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card transition hover:shadow-card-hover"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden">
         <Link href={project.detailUrl} className="block h-full w-full">

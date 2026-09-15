@@ -8,6 +8,7 @@ import BackToTop from '@/common/components/BackToTop';
 import ChatWidget from '@/modules/chat/components/ChatWidget';
 import HideOnPaths from '@/common/layout/HideOnPaths';
 import QueryProvider from '@/common/providers/QueryProvider';
+import { CleanModeProvider } from '@/common/providers/CleanModeProvider';
 import { StickyContact } from '@/common/components/Zalo';
 
 
@@ -95,23 +96,29 @@ export default function RootLayout({
       lang="vi"
       className={openSans.variable}
       data-scroll-behavior="smooth"
+      // SSR default cho Clean Mode (phase 1: luon normal). Provider se
+      // cap nhat attribute client-side khi user toggle. Dat san o day de
+      // HTML tra ve luon match va tranh hydration warning.
+      data-view-mode="normal"
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col" suppressHydrationWarning>
         <QueryProvider>
-          <SiteHeader />
-          {/* pb-16 = 64px: du cho thanh tabs (56px) + safe-area inset (8px).
-              Tren desktop pb-16 khong co tac dung vi tabs an (lg:hidden). */}
-          <main className="flex-1">{children}</main>
-          <HideOnPaths paths={FULLSCREEN_PATHS}>
-            <SiteFooter />
-          </HideOnPaths>
-          <MobileBottomTabs />
-          <StickyContact />
-          <HideOnPaths paths={FULLSCREEN_PATHS}>
-            <ChatWidget />
-          </HideOnPaths>
-          <BackToTop />
+          <CleanModeProvider>
+            <SiteHeader />
+            {/* pb-16 = 64px: du cho thanh tabs (56px) + safe-area inset (8px).
+                Tren desktop pb-16 khong co tac dung vi tabs an (lg:hidden). */}
+            <main className="flex-1">{children}</main>
+            <HideOnPaths paths={FULLSCREEN_PATHS}>
+              <SiteFooter />
+            </HideOnPaths>
+            <MobileBottomTabs />
+            <StickyContact />
+            <HideOnPaths paths={FULLSCREEN_PATHS}>
+              <ChatWidget />
+            </HideOnPaths>
+            <BackToTop />
+          </CleanModeProvider>
         </QueryProvider>
       </body>
     </html>
