@@ -255,6 +255,30 @@
       transform: scale(1.12);
     }
   }
+
+  /* Icon lua "HOT" - dap tung nhip de goi mat, ket hop scale + do trong
+     nhe de khong nhay qua manh nhung van noi bat giua cac tab tinh. */
+  --animate-pulse-fire: pulse-fire 1.4s ease-in-out infinite;
+
+  @keyframes pulse-fire {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: drop-shadow(0 0 0 rgb(240 68 56 / 0));
+    }
+    50% {
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 6px rgb(240 68 56 / 0.55));
+    }
+  }
+}
+
+/* `@theme` cua Tailwind v4 chi chap nhan custom property + @keyframes;
+   rule responsive phai ra ngoai block do. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-fire {
+    animation: none;
+  }
 }
 
 @layer base {

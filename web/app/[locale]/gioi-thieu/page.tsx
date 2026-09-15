@@ -24,6 +24,9 @@
  *  - Khong import MOCK_ABOUT_CONTENT cu de tranh nham lan.
  *  - Route dang ky ctv: /tro-thanh-moi-gioi (AgentOnboardingView da co).
  *  - Route dang nhap: /login.
+ *
+ * Locale-aware: metadata `title`/`description` lấy từ namespace `about.metadata`
+ * qua `generateMetadata` (Next 16 cần `params` là Promise).
  */
 
 import type { Metadata } from 'next';
@@ -35,35 +38,51 @@ import AboutInventorySection from '@/modules/about/components/AboutInventorySect
 import AboutJourneySection from '@/modules/about/components/AboutJourneySection';
 import AboutTrustedSection from '@/modules/about/components/AboutTrustedSection';
 import { MOCK_ABOUT_PAGE } from '@/modules/about/mocks/about-page.mock';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: 'Giới thiệu RealtyHub',
-  description:
-    'RealtyHub là nền tảng công nghệ dành riêng cho môi giới bất động sản — cung cấp thông tin dự án, quỹ căn tập trung (đặc biệt tại miền Nam) và bộ công cụ hỗ trợ bán hàng chuyên dụng.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'about.metadata' });
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
 
-const ABOUT = MOCK_ABOUT_PAGE;
+export default async function GioiThieuPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  // Bật static rendering cho sub-tree này - yêu cầu của next-intl.
+  setRequestLocale(locale);
 
-const GioiThieuPage = () => (
-  <main className="bg-white">
-    {/* 1. HERO */}
-    <AboutHeroSection hero={ABOUT.hero} />
+  const ABOUT = MOCK_ABOUT_PAGE;
 
-    {/* 2. VỀ REALTYHUB - nền tảng cho môi giới */}
-    <AboutIntroSection intro={ABOUT.intro} />
+  return (
+    <main className="bg-white">
+      {/* 1. HERO - hiện đã self-contained, đọc text từ `about.hero` */}
+      <AboutHeroSection />
 
-    {/* 3. QUỸ CĂN PHONG PHÚ - tập trung miền Nam */}
-    <AboutInventorySection inventory={ABOUT.inventory} />
+      {/* 2. VỀ REALTYHUB - nền tảng cho môi giới */}
+      <AboutIntroSection intro={ABOUT.intro} />
 
-    {/* 4. ĐƯỢC KHÁCH HÀNG TIN TƯỞNG VÀ LỰA CHỌN */}
-    <AboutTrustedSection trusted={ABOUT.trusted} />
+      {/* 3. QUỸ CĂN PHONG PHÚ - tập trung miền Nam */}
+      <AboutInventorySection inventory={ABOUT.inventory} />
 
-    {/* 5. ĐỒNG HÀNH CÙNG BẠN TỪ A ĐẾN Z */}
-    <AboutJourneySection journey={ABOUT.journey} />
+      {/* 4. ĐƯỢC KHÁCH HÀNG TIN TƯỞNG VÀ LỰA CHỌN */}
+      <AboutTrustedSection trusted={ABOUT.trusted} />
 
-    {/* 6. CTA - Trở thành cộng tác viên */}
-    <AboutCtaSection cta={ABOUT.cta} />
-  </main>
-);
+      {/* 5. ĐỒNG HÀNH CÙNG BẠN TỪ A ĐẾN Z */}
+      <AboutJourneySection journey={ABOUT.journey} />
 
-export default GioiThieuPage;
+      {/* 6. CTA - Trở thành cộng tác viên */}
+      <AboutCtaSection cta={ABOUT.cta} />
+    </main>
+  );
+}

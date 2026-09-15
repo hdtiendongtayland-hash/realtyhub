@@ -1,8 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
+import { useTranslations } from 'next-intl';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useFavorites } from '@/common/hooks/useFavorites';
 import ProjectCard from '@/modules/project/components/ProjectCard';
@@ -12,9 +13,15 @@ type FeaturedProjectsProps = {
   projects: Project[];
 };
 
-
 const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) => {
   const { favorites } = useFavorites();
+
+  /**
+   * Translation hook cho namespace `home.featured`. Key con `projects`
+   * chứa title + label "Xem tất cả". Tách namespace theo feature
+   * để không gom hết vào `common`.
+   */
+  const t = useTranslations('home.featured.projects');
 
   // Du an da tim len dau, giong /gio-hang. Sort cua JS on dinh nen cac du an
   // cung nhom giu nguyen thu tu goc.
@@ -35,7 +42,6 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
     slidesToScroll: 1,
     skipSnaps: false,
   });
-
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
@@ -71,7 +77,6 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
       emblaApi.scrollNext();
     }, 3000);
 
-    // Dung auto-play khi user click vao carousel
     const stopAutoPlay = () => setIsAutoPlaying(false);
     emblaApi.on('pointerDown', stopAutoPlay);
 
@@ -87,14 +92,14 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900 md:text-2xl">
-              Dự án nổi bật
+              {t('title')}
             </h2>
           </div>
           <Link
             href="/gio-hang"
             className="inline-flex items-center gap-1 text-theme-sm font-medium text-brand-600 transition hover:text-brand-700"
           >
-            Xem tất cả
+            {t('viewAll')}
             <FiChevronRight aria-hidden />
           </Link>
         </div>
@@ -102,15 +107,11 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
         {/* ── Mobile carousel (<sm) ─────────────────────────────────────── */}
         <div className="sm:hidden">
           <div className="relative">
-            {/* emblaRef gan vao div overflow-hidden de embla do container. */}
             <div ref={emblaRef} className="overflow-hidden">
-              {/* flex + gap-4 = spacing giua cards. embla tu tinh snap. */}
               <div className="flex gap-4">
                 {projects.map((project) => (
                   <div
                     key={project.publicId}
-                    // flex-[0_0_88%]: card 88vw, peek 12vw card ke ben canh
-                    // de user biet co card khac de luot.
                     className="flex-[0_0_88%] min-w-0"
                   >
                     <ProjectCard project={project} />
@@ -119,7 +120,6 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
               </div>
             </div>
 
-
             <button
               type="button"
               onClick={() => {
@@ -127,7 +127,7 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
                 setIsAutoPlaying(false);
               }}
               disabled={!canLoop && selectedIndex === 0}
-              aria-label="Dự án trước"
+              aria-label={t('title')}
               className="absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
             >
               <FiChevronLeft aria-hidden className="h-5 w-5" />
@@ -139,14 +139,13 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
                 setIsAutoPlaying(false);
               }}
               disabled={!canLoop && selectedIndex === scrollSnaps.length - 1}
-              aria-label="Dự án tiếp theo"
+              aria-label={t('title')}
               className="absolute right-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
             >
               <FiChevronRight aria-hidden className="h-5 w-5" />
             </button>
           </div>
 
-          {/* Dot indicator: moi dot la mot snap, click de scroll den no. */}
           {scrollSnaps.length > 1 && (
             <div className="mt-4 flex items-center justify-center gap-2">
               {scrollSnaps.map((_, idx) => (
@@ -157,7 +156,7 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
                     emblaApi?.scrollTo(idx);
                     setIsAutoPlaying(false);
                   }}
-                  aria-label={`Đi đến dự án ${idx + 1}`}
+                  aria-label={`${idx + 1}`}
                   aria-current={idx === selectedIndex ? 'true' : undefined}
                   className={`h-2 rounded-full transition-all ${
                     idx === selectedIndex

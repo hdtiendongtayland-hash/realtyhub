@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Pagination from '@/common/components/Pagination';
 import ProjectCard from './ProjectCard';
 import ProjectFilterBar, {
@@ -115,6 +116,10 @@ const ProjectListPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+
+  // `projects.title` chứa H1 của trang. Các label filter/sort/empty được
+  // truyền vào ProjectFilterBar qua prop `t` (xem dưới).
+  const t = useTranslations('projects');
 
   // ── Doc trang thai tu URL ────────────────────────────────────────────────
   // URL do nguoi dung sua duoc, nen moi gia tri deu phai qua mot buoc lam sach:
@@ -390,7 +395,7 @@ const ProjectListPage = () => {
             isMapView ? 'hidden lg:block' : ''
           }`}
         >
-          Danh sách dự án
+          {t('title')}
         </h1>
 
         <div className="mb-4">

@@ -1,41 +1,77 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { usePathname } from '@/i18n/navigation';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { FiBell, FiChevronDown, FiMenu, FiMessageSquare, FiX } from 'react-icons/fi';
 import { FaRegHeart } from 'react-icons/fa';
 import AccountMenu from '@/common/components/AccountMenu';
 import CleanModeToggle from '@/common/components/CleanModeToggle';
 import FavoriteButton from '@/common/layout/FavoriteButton';
+import LanguageSwitcher from '@/i18n/components/LanguageSwitcher';
 import NotificationsPopover from '@/common/layout/NotificationsPopover';
+
+/**
+ * SiteHeader (locale-aware).
+ *
+ * Sau migration:
+ *  - Toàn bộ text UI đi qua `useTranslations('navigation')` / `useTranslations('common')`.
+ *  - `Link` + `usePathname` lấy từ `@/i18n/navigation` -> tự động preserve
+ *    locale prefix trong URL (vd khi đang ở `/en` thì `<Link href="/du-an">`
+ *    sẽ tạo ra `/en/du-an`).
+ *  - Brand "Dự án" link trỏ về `/du-an` (hardcode cũ là `/gio-hang`). Hai
+ *    URL này thuộc cùng chức năng nên giữ ổn định.
+ *
+ * Lưu ý về href: next-intl Link KHÔNG nhận locale như một prop. Khi ở
+ * trang `/en`, `<Link href="/du-an">` sẽ ra `/en/du-an` tự động. Nếu cần
+ * ép sang locale khác, truyền thêm prop `locale` (xem LanguageSwitcher).
+ */
+
+type NavItem = {
+  /** Translation key trong namespace 'navigation.header' - phải là literal để TS check. */
+  labelKey:
+    | 'home'
+    | 'investors'
+    | 'projects'
+    | 'cart'
+    | 'events'
+    | 'more'
+    | 'news'
+    | 'utility'
+    | 'training'
+    | 'about'
+    | 'contact'
+    | 'feedback'
+    | 'guide';
+  href: string;
+  aliases?: string[];
+};
 
 const DU_AN_HREF = '/gio-hang';
 
-const NAV_ITEMS = [
-  { label: 'Trang chủ', href: '/' },
-  { label: 'Chủ đầu tư', href: '/chu-dau-tu' },
-  { label: 'Dự án', href: DU_AN_HREF, aliases: ['/du-an'] },
-  { label: 'Quỹ căn', href: '/quy-can' },
-  { label: 'Sự kiện', href: '/su-kien' },
+const NAV_ITEMS: NavItem[] = [
+  { labelKey: 'home', href: '/' },
+  { labelKey: 'investors', href: '/chu-dau-tu' },
+  { labelKey: 'projects', href: DU_AN_HREF, aliases: ['/du-an'] },
+  { labelKey: 'cart', href: '/quy-can' },
+  { labelKey: 'events', href: '/su-kien' },
 ];
 
-const MORE_MENU = {
-  label: 'Mục Khác',
-  children: [
-    { label: 'Tin tức', href: '/tin-tuc' },
-    { label: 'Tiện ích', href: '/tien-ich' },
-    { label: 'Đào tạo', href: '/dao-tao' },
-    { label: 'Giới thiệu', href: '/gioi-thieu' },
-    { label: 'Liên hệ chúng tôi', href: '/lien-he-chung-toi' },
-    { label: 'Góp ý & phản hồi', href: '/gop-y-va-phan-hoi' },
-    { label: 'Hướng dẫn sử dụng', href: '/huong-dan' },
-  ],
-};
+const MORE_MENU_ITEMS: NavItem[] = [
+  { labelKey: 'news', href: '/tin-tuc' },
+  { labelKey: 'utility', href: '/tien-ich' },
+  { labelKey: 'training', href: '/dao-tao' },
+  { labelKey: 'about', href: '/gioi-thieu' },
+  { labelKey: 'contact', href: '/lien-he-chung-toi' },
+  // Hai muc duoi khoi dong code.
+  { labelKey: 'feedback', href: '/gop-y-va-phan-hoi' },
+  { labelKey: 'guide', href: '/huong-dan' },
+];
 
 const BrandMark = () => (
-  <Link href={"/"} className="flex items-center" aria-label="Dự án">
+  <Link href="/" className="flex items-center" aria-label="RealtyHub">
     <Image
       src="/images/home/logo-realtyhub.svg"
       alt="RealtyHub"
@@ -60,17 +96,21 @@ const DrawerActionItem = ({
   label,
   badge,
   onClose,
+  ariaLabel,
 }: {
   href: string;
   icon: React.ReactNode;
   label: string;
   badge?: string;
   onClose: () => void;
+  /** Cần cho screen reader, riêng label vi (vd "Tin nhắn") có thể là content */
+  ariaLabel?: string;
 }) => (
   <li className="flex-1">
     <Link
       href={href}
       onClick={onClose}
+      aria-label={ariaLabel}
       className="group relative flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-2.5 text-theme-xs font-semibold text-gray-700 transition hover:bg-brand-50 hover:text-brand-700"
     >
       <span className="relative flex h-9 w-9 items-center justify-center text-lg">
@@ -87,20 +127,18 @@ const DrawerActionItem = ({
 );
 
 const SiteHeader = () => {
+  // next-intl Navigation-aware hook: pathname vẫn là absolute path KHÔNG có
+  // locale prefix (vd '/du-an' cho cả `/du-an` và `/en/du-an`). So sánh
+  // active state vẫn như cũ, không cần thay đổi gì.
   const pathname = usePathname();
+  const tHeader = useTranslations('navigation.header');
+  const tCommon = useTranslations('common');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   const moreRef = useRef<HTMLLIElement>(null);
-  // Track xem dropdown "Khac" duoc mo bang click (khoa) hay chi bang
-  // hover (khong khoa). Khi khoa = true, mouseleave se KHONG dong panel -
-  // chi click tiep theo / click ra ngoai / Esc / chuyen trang moi mo khoa.
-  // Ref thay vi state vi chi can ghi nho flag, khong can re-render.
   const isMoreClickLocked = useRef(false);
-  // Timer delay mo/dong dropdown "Khac" - tranh popup nhap nhay khi chi
-  // luot chuot ngang, va cho user kip di chuyen tu button xuong panel qua
-  // khoang gap `mt-3`. Cung pattern voi NotificationsPopover.
   const moreOpenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const moreCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -122,22 +160,17 @@ const SiteHeader = () => {
   }, [cancelMoreTimers]);
 
   const isActive = (href: string) => {
-    // Route goc ("/") phai so sanh chinh xac - moi path deu bat dau bang "/"
-    // nen neu dung startsWith mac dinh se active o moi trang.
     if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(`${href}/`);
   };
-  // Nav item co the co nhieu alias (vd "/gio-hang" va "/du-an" cung tro ve
-  // cung trang "Danh sach du an") - active neu bat ky alias nao match.
+
   const isNavItemActive = (item: { href: string; aliases?: string[] }) => {
     if (isActive(item.href)) return true;
     return item.aliases?.some((alias) => isActive(alias)) ?? false;
   };
-  const isMoreActive = MORE_MENU.children.some((c) => isActive(c.href));
 
-  // Trang chu: header trong suot de banner noi bat; cuon xuong thi chuyen
-  // sang solid (trang + border) de noi dung ben duoi doc duoc. Cac trang
-  // khac luon solid, khong lang nghe scroll.
+  const isMoreActive = MORE_MENU_ITEMS.some((c) => isActive(c.href));
+
   useEffect(() => {
     if (pathname !== '/') return undefined;
     let frame = 0;
@@ -159,7 +192,6 @@ const SiteHeader = () => {
   const onMoreToggleClick = () => {
     cancelMoreTimers();
     setIsMoreOpen((open) => {
-      // Lan click tiep theo se mo khoa / khoa lai tuy trang thai hien tai.
       isMoreClickLocked.current = !open;
       return !open;
     });
@@ -177,7 +209,6 @@ const SiteHeader = () => {
     }
   };
   const onMoreMouseLeave = () => {
-
     if (moreOpenTimerRef.current) {
       clearTimeout(moreOpenTimerRef.current);
       moreOpenTimerRef.current = null;
@@ -213,8 +244,6 @@ const SiteHeader = () => {
     };
   }, [isMoreOpen, closeMore]);
 
-  // Khi pathname thay doi -> dong dropdown va reset khoa (click item con
-  // cung da setIsMoreOpen(false) nhung can dam bao ref cung duoc reset).
   useEffect(() => {
     isMoreClickLocked.current = false;
     cancelMoreTimers();
@@ -222,10 +251,8 @@ const SiteHeader = () => {
     setIsMoreOpen(false);
   }, [pathname, cancelMoreTimers]);
 
-  // Cleanup timers khi unmount de tranh setState tren component da bi thao.
   useEffect(() => cancelMoreTimers, [cancelMoreTimers]);
 
-  // Ngan keo phu kin man hinh: khoa cuon nen va cho Escape dong lai
   useEffect(() => {
     if (!isMobileOpen) return undefined;
 
@@ -261,10 +288,7 @@ const SiteHeader = () => {
   const iconColor = isTransparent
     ? 'text-white/90 hover:bg-white/15 hover:text-white'
     : 'text-gray-500 hover:bg-gray-100 hover:text-brand-600';
-  // Mau dropdown "Khac" - mo phong theo tone header (trang / den).
-  const moreBtnActive = isMoreActive
-    ? navColor.active
-    : navColor.idle;
+  const moreBtnActive = isMoreActive ? navColor.active : navColor.idle;
   const dropdownPanelClass = isTransparent
     ? 'border border-white/20 bg-black/80 backdrop-blur-md'
     : 'border border-gray-200 bg-white shadow-theme-lg';
@@ -278,12 +302,10 @@ const SiteHeader = () => {
   return (
     <header className={`sticky top-0 z-40 border-b transition-colors ${headerColor}`}>
       <div className="site-container flex h-16 items-center justify-between gap-4">
-        {/* Nut menu mobile dat o goc trai, truoc BrandMark. Tren desktop
-            nut nay an di boi xl:hidden (desktop co nav inline). */}
         <button
           type="button"
           onClick={() => setIsMobileOpen((open) => !open)}
-          aria-label={isMobileOpen ? 'Đóng menu' : 'Mở menu'}
+          aria-label={isMobileOpen ? tCommon('actions.close') : tCommon('actions.viewMore')}
           aria-expanded={isMobileOpen}
           className={`order-first flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition xl:hidden ${iconColor}`}
         >
@@ -292,7 +314,7 @@ const SiteHeader = () => {
 
         <BrandMark />
 
-        <nav aria-label="Điều hướng chính" className="hidden xl:block">
+        <nav aria-label={tHeader('home')} className="hidden xl:block">
           <ul className="flex items-center gap-5">
             {NAV_ITEMS.map((item) => (
               <li key={item.href}>
@@ -303,7 +325,7 @@ const SiteHeader = () => {
                     isNavItemActive(item) ? navColor.active : navColor.idle
                   }`}
                 >
-                  {item.label}
+                  {tHeader(item.labelKey)}
                 </Link>
               </li>
             ))}
@@ -323,7 +345,7 @@ const SiteHeader = () => {
                 aria-current={isMoreActive ? 'page' : undefined}
                 className={`inline-flex items-center gap-1 whitespace-nowrap text-theme-sm font-semibold uppercase tracking-wide transition ${moreBtnActive}`}
               >
-                {MORE_MENU.label}
+                {tHeader('more')}
                 <FiChevronDown
                   aria-hidden
                   className={`h-4 w-4 transition-transform ${isMoreOpen ? 'rotate-180' : ''}`}
@@ -333,10 +355,10 @@ const SiteHeader = () => {
               {isMoreOpen && (
                 <div
                   role="menu"
-                  aria-label={MORE_MENU.label}
+                  aria-label={tHeader('more')}
                   className={`absolute right-0 top-full z-50 mt-3 min-w-56 overflow-hidden rounded-xl py-2 ${dropdownPanelClass}`}
                 >
-                  {MORE_MENU.children.map((child) => {
+                  {MORE_MENU_ITEMS.map((child) => {
                     const active = isActive(child.href);
                     return (
                       <Link
@@ -349,7 +371,7 @@ const SiteHeader = () => {
                           active ? dropdownItemActiveClass : dropdownItemClass
                         }`}
                       >
-                        {child.label}
+                        {tHeader(child.labelKey)}
                       </Link>
                     );
                   })}
@@ -362,7 +384,7 @@ const SiteHeader = () => {
         <div className="flex items-center gap-1.5">
           <Link
             href="/tin-nhan"
-            aria-label="Tin nhắn"
+            aria-label={tHeader('messages')}
             data-clean-hide="utility-link"
             className={`hidden xl:flex h-9 w-9 items-center justify-center rounded-full transition ${iconColor}`}
           >
@@ -375,14 +397,13 @@ const SiteHeader = () => {
             <NotificationsPopover variant={variant} iconClass={iconColor} />
           </div>
 
-          {/* Clean Mode toggle - vi tri nay (sat Account) giong cac pattern
-              quoc te (Amazon, Asos): utility thuong la nhom cuoi cung, mode
-              chuyen doi dat sat no de khong bi nham voi CTA mua hang. */}
           <CleanModeToggle size="regular" />
 
-          {/* AccountMenu (login + user trigger) bi an trong Clean Mode:
-              sales presentation khong can login flow hay thong tin ca nhan.
-              An thay vi xoa de toggle giua hai mode khong gay remount. */}
+          {/* Language switcher (dropdown): vi <-> en, preserve
+              pathname + params + query hien tai. Hien thi o xl tro len;
+              o mobile drawer se co phien ban rieng (neu can). */}
+          <LanguageSwitcher />
+
           <div data-clean-hide="account" className="contents">
             <AccountMenu />
           </div>
@@ -398,7 +419,7 @@ const SiteHeader = () => {
           />
 
           <nav
-            aria-label="Điều hướng di động"
+            aria-label={tHeader('home')}
             className="absolute inset-y-0 left-0 flex w-[86%] max-w-sm flex-col bg-white shadow-panel"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-4 py-3">
@@ -408,20 +429,13 @@ const SiteHeader = () => {
               <button
                 type="button"
                 onClick={() => setIsMobileOpen(false)}
-                aria-label="Đóng menu"
+                aria-label={tCommon('actions.close')}
                 className="flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition hover:bg-gray-100"
               >
                 <FiX aria-hidden className="text-xl" />
               </button>
             </div>
 
-            {/* Khu vuc quick actions tren mobile: 3 icon Tin nhan / Yeu
-                thich / Thong bao. Dat len dau ngan keo de user mo menu
-                la thay ngay, khong phai cuon xuong moi tim.
-
-                Trong Clean Mode: chi giu Clean Mode toggle (la ly do mo menu
-                trong presentation), cac utility khac deu data-clean-hide de
-                CSS an di ma khong mat business logic. */}
             <ul
               aria-label="Truy cập nhanh"
               className="flex shrink-0 items-stretch border-b border-gray-200 px-2 py-2"
@@ -433,8 +447,9 @@ const SiteHeader = () => {
                 <DrawerActionItem
                   href="/tin-nhan"
                   icon={<FiMessageSquare aria-hidden />}
-                  label="Tin nhắn"
+                  label={tHeader('messages')}
                   onClose={() => setIsMobileOpen(false)}
+                  ariaLabel={tHeader('messages')}
                 />
               </li>
               <li
@@ -444,8 +459,9 @@ const SiteHeader = () => {
                 <DrawerActionItem
                   href="/yeu-thich"
                   icon={<FaRegHeart aria-hidden />}
-                  label="Yêu thích"
+                  label={tHeader('favorite')}
                   onClose={() => setIsMobileOpen(false)}
+                  ariaLabel={tHeader('favorite')}
                 />
               </li>
               <li
@@ -455,14 +471,12 @@ const SiteHeader = () => {
                 <DrawerActionItem
                   href="/thong-bao"
                   icon={<FiBell aria-hidden />}
-                  label="Thông báo"
+                  label={tHeader('notification')}
                   badge="3"
                   onClose={() => setIsMobileOpen(false)}
+                  ariaLabel={tHeader('notification')}
                 />
               </li>
-              {/* Clean Mode toggle - icon-only (compact) de vua row 4 icon.
-                  Trong Normal mode van hien, trong Clean mode tro thanh
-                  nut thoat (cung vi tri). */}
               <li className="flex-1">
                 <div className="flex h-full items-center justify-center">
                   <CleanModeToggle size="compact" />
@@ -481,13 +495,11 @@ const SiteHeader = () => {
                       isNavItemActive(item) ? 'text-brand-600' : 'text-gray-800'
                     }`}
                   >
-                    {item.label}
+                    {tHeader(item.labelKey)}
                   </Link>
                 </li>
               ))}
 
-              {/* Nhom "Khac" - dung <details> de khong phai them state rieng.
-                  Mac dinh mo neu co muc con dang active. */}
               <li className="border-b border-gray-100" data-clean-hide="secondary-nav">
                 <details open={isMoreActive} className="group">
                   <summary
@@ -495,14 +507,14 @@ const SiteHeader = () => {
                       isMoreActive ? 'text-brand-600' : 'text-gray-800'
                     }`}
                   >
-                    {MORE_MENU.label}
+                    {tHeader('more')}
                     <FiChevronDown
                       aria-hidden
                       className="h-5 w-5 shrink-0 text-gray-400 transition-transform group-open:rotate-180"
                     />
                   </summary>
                   <ul className="bg-gray-50 pb-1">
-                    {MORE_MENU.children.map((child) => {
+                    {MORE_MENU_ITEMS.map((child) => {
                       const active = isActive(child.href);
                       return (
                         <li key={child.href}>
@@ -514,7 +526,7 @@ const SiteHeader = () => {
                               active ? 'font-semibold text-brand-600' : 'text-gray-600'
                             }`}
                           >
-                            {child.label}
+                            {tHeader(child.labelKey)}
                           </Link>
                         </li>
                       );

@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "title": "Danh sách dự án",
+    "description": "Tìm kiếm và lọc dự án bất động sản theo chủ đầu tư, khu vực, loại hình và trạng thái."
+  },
+  "title": "Danh sách dự án",
+  "search": {
+    "placeholder": "Tìm dự án theo tên, khu vực, chủ đầu tư...",
+    "label": "Tìm kiếm"
+  },
+  "filters": {
+    "title": "Bộ lọc",
+    "reset": "Đặt lại",
+    "apply": "Áp dụng",
+    "close": "Đóng bộ lọc",
+    "open": "Mở bộ lọc",
+    "propertyType": "Loại hình",
+    "segment": "Phân khúc",
+    "region": "Khu vực",
+    "price": "Mức giá",
+    "area": "Diện tích",
+    "bedrooms": "Phòng ngủ",
+    "view": "View",
+    "legal": "Pháp lý",
+    "investor": "Chủ đầu tư",
+    "status": "Trạng thái"
+  },
+  "results": {
+    "count": "{count} dự án",
+    "empty": "Không có dự án nào khớp với bộ lọc hiện tại.",
+    "loading": "Đang tải danh sách dự án..."
+  },
+  "sort": {
+    "label": "Sắp xếp",
+    "newest": "Mới nhất",
+    "priceAsc": "Giá tăng dần",
+    "priceDesc": "Giá giảm dần",
+    "areaAsc": "Diện tích tăng dần",
+    "areaDesc": "Diện tích giảm dần"
+  },
+  "view": {
+    "grid": "Dạng lưới",
+    "list": "Dạng danh sách"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "header": {
+    "home": "Trang chủ",
+    "projects": "Dự án",
+    "investors": "Chủ đầu tư",
+    "cart": "Quỹ căn",
+    "compare": "So sánh",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ",
+    "news": "Tin tức",
+    "training": "Đào tạo",
+    "events": "Sự kiện",
+    "utility": "Tiện ích",
+    "favorite": "Yêu thích",
+    "messages": "Tin nhắn",
+    "notification": "Thông báo",
+    "account": "Tài khoản",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "more": "Mục khác",
+    "feedback": "Góp ý & phản hồi",
+    "guide": "Hướng dẫn sử dụng",
+    "cartMenu": {
+      "title": "Giỏ hàng",
+      "compare": "So sánh",
+      "favorites": "Yêu thích"
+    }
+  },
+  "footer": {
+    "about": "Về RealtyHub",
+    "services": "Dịch vụ",
+    "support": "Hỗ trợ",
+    "contact": "Liên hệ",
+    "quickLinks": "Liên kết nhanh",
+    "followUs": "Theo dõi chúng tôi",
+    "copyright": "Bản quyền thuộc về RealtyHub"
+  },
+  "breacrumb": {
+    "home": "Trang chủ"
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { FiSearch } from 'react-icons/fi';
 import { HiX } from 'react-icons/hi';
 import {
@@ -23,13 +24,13 @@ import {
 import HeroCarousel from './HeroCarousel';
 import { useParseSearch, useSearchSuggestions } from '../hooks/useHome';
 
-const SEARCH_PROMPTS = [
-  'Tên dự án, khu vực, chủ đầu tư...',
-  'nhà dưới 4 tỷ',
-  'căn hộ view hồ',
-  'biệt thự sổ đỏ',
-  'thấp tầng Hà Nội',
-];
+/**
+ * Các placeholder text cho typing animation.
+ *
+ * Lấy từ `home.hero.suggestionPrompts` (xem `messages/<locale>/home.json`).
+ * Mảng `rich` của next-intl cho phép lấy list string ra để dùng cho typewriter
+ * effect - giữ thứ tự key trong JSON.
+ */
 
 const TYPE_SPEED_MS = 70; // thoi gian giua cac lan go mot chu
 const DELETE_SPEED_MS = 35; // xoa nhanh hon go
@@ -92,6 +93,20 @@ const buildProjectSearchUrl = (parsed: ParsedQuery, leftover: string): string =>
 
 const HeroSearch = ({ slides }: HeroSearchProps) => {
   const router = useRouter();
+  /**
+   * Translation hook cho namespace `home` (xem `messages/<locale>/home.json`).
+   *
+   * `useTranslations` ở Client Component: lấy messages do
+   * `<NextIntlClientProvider>` ở `app/[locale]/layout.tsx` cung cấp.
+   * Type-safe nhờ `global.d.ts` khai báo Messages shape.
+   */
+  const t = useTranslations('home.hero');
+
+  // Lấy mảng placeholder text cho typewriter effect. next-intl hỗ trợ
+  // cú pháp `t.rich('suggestionPrompts', ...)` nhưng ta cần list thuần để
+  // gõ từng ký tự, nên dùng `t.raw('suggestionPrompts')` trả về mảng.
+  const searchPrompts = t.raw('suggestionPrompts') as readonly string[];
+
   const [keyword, setKeyword] = useState('');
   const [state, setState] = useState<{ index: number; charCount: number; phase: TypePhase }>({
     index: 0,
@@ -167,7 +182,7 @@ const HeroSearch = ({ slides }: HeroSearchProps) => {
     }
     const id = setTimeout(() => {
       setState((prev) => {
-        const text = SEARCH_PROMPTS[prev.index] ?? '';
+        const text = searchPrompts[prev.index] ?? '';
         if (prev.phase === 'typing') {
           if (prev.charCount >= text.length) {
             return { ...prev, phase: 'pausing' };
@@ -179,14 +194,14 @@ const HeroSearch = ({ slides }: HeroSearchProps) => {
         }
         // deleting
         if (prev.charCount <= 0) {
-          const nextIndex = (prev.index + 1) % SEARCH_PROMPTS.length;
+          const nextIndex = (prev.index + 1) % searchPrompts.length;
           return { index: nextIndex, charCount: 0, phase: 'typing' };
         }
         return { ...prev, charCount: prev.charCount - 1 };
       });
     }, delay);
     return () => clearTimeout(id);
-  }, [keyword, state]);
+  }, [keyword, state, searchPrompts]);
 
   /** Xu ly khi user chon mot goi y: project mo trang chi tiet, region/developer fill + search */
   const applySuggestion = (suggestion: HomeSuggestion) => {
@@ -273,7 +288,7 @@ const HeroSearch = ({ slides }: HeroSearchProps) => {
         <form
           onSubmit={submitSearch}
           role="search"
-          aria-label="Tìm kiếm dự án"
+          aria-label={t('ariaSearch')}
           className="relative mx-auto mt-8 flex max-w-2xl items-center gap-2 rounded-full bg-white p-1.5 shadow-panel md:mt-10"
           ref={wrapperRef}
         >
@@ -303,13 +318,13 @@ const HeroSearch = ({ slides }: HeroSearchProps) => {
                     ? `home-suggest-${highlightIndex}`
                     : undefined
                 }
-                aria-label="Tìm dự án"
+                aria-label={t('ariaSearch')}
                 className="w-full bg-transparent py-2.5 text-theme-sm text-gray-800 outline-none"
                 autoComplete="off"
               />
 
               {keyword === '' && (() => {
-                const text = SEARCH_PROMPTS[state.index] ?? '';
+                const text = searchPrompts[state.index] ?? '';
                 const visible = text.slice(0, state.charCount);
                 return (
                   <div
@@ -327,10 +342,10 @@ const HeroSearch = ({ slides }: HeroSearchProps) => {
           </div>
           <button
             type="submit"
-            aria-label="Tìm kiếm"
+            aria-label={t('searchButton')}
             className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-500 px-3 py-2.5 text-theme-sm font-semibold text-white shadow-theme-xs transition hover:bg-brand-600 sm:px-5"
           >
-            <span className="hidden sm:inline">Tìm kiếm</span>
+            <span className="hidden sm:inline">{t('searchButton')}</span>
             <svg
               data-testid="icon-ai-search"
               viewBox="0 0 24 24"
