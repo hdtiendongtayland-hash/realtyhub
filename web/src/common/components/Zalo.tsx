@@ -27,6 +27,7 @@ export function StickyContact() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.2 }}
+          data-clean-hide="floating-widget"
           className="fixed bottom-24 right-6 z-35 flex flex-col items-center gap-3"
         >
           <motion.a

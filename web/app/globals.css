@@ -629,3 +629,130 @@
   --ob-muted: #707070;
   --ob-disabled-ink: #a3a3a3;
 }
+
+/* ── Clean Mode ──────────────────────────────────────────────────────────
+   Presentation-only mode (spec #6). The provider sets
+   `data-view-mode="clean"` on <html>; everything below hides / reduces
+   the matching elements via CSS so individual components stay ignorant of
+   the mode and don't carry extra ifs. Default state is `data-view-mode="normal"`
+   which keeps the existing layout intact — these rules only kick in when
+   the attribute equals `clean`.
+
+   Notes:
+   • `display: none` is intentional for genuinely distracting chrome
+     (announcement bar, marketing widgets, secondary nav) — spec #8 / #12.
+   • `visibility: hidden` + `height: 0` is used when the parent is a flex
+     row and we want siblings to recenter without a layout flash.
+   • Animation reduction is scoped to elements that have `animate-…` custom
+     utilities or `transition` rules; we don't blanket-disable transitions on
+     interactive controls (focus rings, hover scale) — that would break
+     feedback (spec #14 caveat). */
+[data-view-mode='clean'] [data-clean-hide='announcement'],
+[data-view-mode='clean'] [data-clean-hide='secondary-nav'],
+[data-view-mode='clean'] [data-clean-hide='utility-link'],
+[data-view-mode='clean'] [data-clean-hide='drawer-utility'],
+[data-view-mode='clean'] [data-clean-hide='floating-widget'],
+[data-view-mode='clean'] [data-clean-hide='popular-searches'],
+[data-view-mode='clean'] [data-clean-hide='footer-secondary-links'],
+[data-view-mode='clean'] [data-clean-hide='footer-secondary'],
+[data-view-mode='clean'] [data-clean-hide='social-links'],
+[data-view-mode='clean'] [data-clean-hide='cert-badges'],
+[data-view-mode='clean'] [data-clean-hide='app-store'],
+[data-view-mode='clean'] [data-clean-hide='account'] {
+  display: none !important;
+}
+
+/* Smooth fade cho moi clean-hide element. transition duration ngan (180ms)
+   theo spec #16, ease-out de khong cam giac giat. Khong transition toan
+   trang - chi nhung phan bi an/hien. */
+[data-view-mode='normal'] [data-clean-hide] {
+  animation: none;
+}
+
+/* Reduce decorative animation (spec #14). Apply to marquee track, chat
+   halo/bob/blink/in, message-in, fade-up, slow-zoom - KHONG apply to
+   transition-duration cua interactive controls. */
+[data-view-mode='clean'] .marquee-track,
+[data-view-mode='clean'] .animate-chat-halo,
+[data-view-mode='clean'] .animate-chat-bob,
+[data-view-mode='clean'] .animate-chat-blink,
+[data-view-mode='clean'] .animate-chat-in,
+[data-view-mode='clean'] .animate-message-in,
+[data-view-mode='clean'] .animate-typing-dot,
+[data-view-mode='clean'] .animate-zalo-shake,
+[data-view-mode='clean'] .animate-fade-up,
+[data-view-mode='clean'] .animate-slow-zoom {
+  animation: none !important;
+}
+
+/* Reduce hover scale / shine sweeps tren project card - giu shadow + color
+   transition cho feedback nhe nhung bo transform trang tri (spec #11). */
+[data-view-mode='clean'] .animate-heart-pop,
+[data-view-mode='clean'] .animate-shine-sweep {
+  animation: none !important;
+}
+
+/* Marketing widget bat ky: trang tat ca `.floating-widget`-like selectors
+   khong match data-clean-hide, bat cung de phong (spec #12: defensive). */
+[data-view-mode='clean'] .floating-widget,
+[data-view-mode='clean'] .promotion-banner,
+[data-view-mode='clean'] .popup-promo,
+[data-view-mode='clean'] .announcement-bar {
+  display: none !important;
+}
+
+/* Footer spacing giam trong clean mode (spec #13). Ap dung cho khoi grid
+   chinh va padding section cua footer. */
+[data-view-mode='clean'] footer .site-container.grid {
+  padding-top: 2rem !important;
+  padding-bottom: 2rem !important;
+  gap-top: 1rem !important;
+}
+
+/* Header giam shadow + border trong clean mode (spec #7.1) — giao dien
+   phai "im" hon de khong canh tranh voi product. Selector theo vi tri DOM
+   thay vi theo class de khong phu thuoc vao cach Header duoc style. */
+[data-view-mode='clean'] body > div header.sticky {
+  box-shadow: none;
+}
+
+/* Product card (spec #10, #11): giam metadata phu, dich card ra center, tang
+   khoang trang, dam bao gia ten va CTA la trung tam. Qui uoc class nay
+   duoc dung boi ProjectCard — neu sau nay doi ten class, cap nhat lai
+   selector nay. */
+[data-view-mode='clean'] .project-card-clean-focus {
+  /* Bien thanh card rat lon, it padding ben, drop shadow nhe. */
+  box-shadow: 0 1px 2px rgb(16 24 40 / 0.04);
+}
+
+[data-view-mode='clean'] .project-card-clean-focus .project-card__metadata,
+[data-view-mode='clean'] .project-card-clean-focus .project-card__description {
+  opacity: 0.55;
+  transition: opacity 180ms ease;
+}
+
+[data-view-mode='clean'] .project-card-clean-focus .project-card__tags {
+  display: none;
+}
+
+/* Grid product list: tang gap va max-width trong clean mode de moi card
+   co khong gian thoang (spec #10). Override GRID_CLASS trong
+   ProjectListPage qua :where() neu co the, nhung Tailwind class da inline,
+   nen tao them selector dua vao data-view-mode. */
+[data-view-mode='clean'] .project-grid-clean {
+  gap: 1.5rem !important;
+}
+
+/* Sidebar/filter giam visual weight (spec #9) — van hien, chi reduce
+   border/background de khong canh tranh voi product. */
+[data-view-mode='clean'] aside[data-clean-section='filter-sidebar'],
+[data-view-mode='clean'] .filter-sidebar-clean {
+  opacity: 0.7;
+  transition: opacity 180ms ease;
+}
+
+/* Body smooth transition cho attribute flip (spec #16). Chi transition
+   background/color de khong gay giat layout. Khong transition transform. */
+html {
+  transition: background-color 180ms ease;
+}

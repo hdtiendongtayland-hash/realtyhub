@@ -98,7 +98,7 @@ const toParam = (value: ProjectFilterValues[keyof ProjectFilterValues]) => {
   return String(value);
 };
 
-const GRID_CLASS = 'grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-3';
+const GRID_CLASS = 'grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 project-grid-clean';
 
 const CardSkeleton = () => (
   <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">

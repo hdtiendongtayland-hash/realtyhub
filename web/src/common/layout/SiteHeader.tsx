@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { FiBell, FiChevronDown, FiMenu, FiMessageSquare, FiX } from 'react-icons/fi';
 import { FaRegHeart } from 'react-icons/fa';
 import AccountMenu from '@/common/components/AccountMenu';
+import CleanModeToggle from '@/common/components/CleanModeToggle';
 import FavoriteButton from '@/common/layout/FavoriteButton';
 import NotificationsPopover from '@/common/layout/NotificationsPopover';
 
@@ -312,6 +313,7 @@ const SiteHeader = () => {
               ref={moreRef}
               onMouseEnter={onMoreMouseEnter}
               onMouseLeave={onMoreMouseLeave}
+              data-clean-hide="secondary-nav"
             >
               <button
                 type="button"
@@ -361,6 +363,7 @@ const SiteHeader = () => {
           <Link
             href="/tin-nhan"
             aria-label="Tin nhắn"
+            data-clean-hide="utility-link"
             className={`hidden xl:flex h-9 w-9 items-center justify-center rounded-full transition ${iconColor}`}
           >
             <FiMessageSquare aria-hidden />
@@ -368,9 +371,21 @@ const SiteHeader = () => {
 
           <FavoriteButton iconClass={`hidden xl:flex ${iconColor}`} />
 
-          <NotificationsPopover variant={variant} iconClass={iconColor} />
+          <div data-clean-hide="utility-link" className="contents">
+            <NotificationsPopover variant={variant} iconClass={iconColor} />
+          </div>
 
-          <AccountMenu />
+          {/* Clean Mode toggle - vi tri nay (sat Account) giong cac pattern
+              quoc te (Amazon, Asos): utility thuong la nhom cuoi cung, mode
+              chuyen doi dat sat no de khong bi nham voi CTA mua hang. */}
+          <CleanModeToggle size="regular" />
+
+          {/* AccountMenu (login + user trigger) bi an trong Clean Mode:
+              sales presentation khong can login flow hay thong tin ca nhan.
+              An thay vi xoa de toggle giua hai mode khong gay remount. */}
+          <div data-clean-hide="account" className="contents">
+            <AccountMenu />
+          </div>
         </div>
       </div>
 
@@ -402,30 +417,57 @@ const SiteHeader = () => {
 
             {/* Khu vuc quick actions tren mobile: 3 icon Tin nhan / Yeu
                 thich / Thong bao. Dat len dau ngan keo de user mo menu
-                la thay ngay, khong phai cuon xuong moi tim. */}
+                la thay ngay, khong phai cuon xuong moi tim.
+
+                Trong Clean Mode: chi giu Clean Mode toggle (la ly do mo menu
+                trong presentation), cac utility khac deu data-clean-hide de
+                CSS an di ma khong mat business logic. */}
             <ul
               aria-label="Truy cập nhanh"
               className="flex shrink-0 items-stretch border-b border-gray-200 px-2 py-2"
             >
-              <DrawerActionItem
-                href="/tin-nhan"
-                icon={<FiMessageSquare aria-hidden />}
-                label="Tin nhắn"
-                onClose={() => setIsMobileOpen(false)}
-              />
-              <DrawerActionItem
-                href="/yeu-thich"
-                icon={<FaRegHeart aria-hidden />}
-                label="Yêu thích"
-                onClose={() => setIsMobileOpen(false)}
-              />
-              <DrawerActionItem
-                href="/thong-bao"
-                icon={<FiBell aria-hidden />}
-                label="Thông báo"
-                badge="3"
-                onClose={() => setIsMobileOpen(false)}
-              />
+              <li
+                data-clean-hide="drawer-utility"
+                className="flex-1"
+              >
+                <DrawerActionItem
+                  href="/tin-nhan"
+                  icon={<FiMessageSquare aria-hidden />}
+                  label="Tin nhắn"
+                  onClose={() => setIsMobileOpen(false)}
+                />
+              </li>
+              <li
+                data-clean-hide="drawer-utility"
+                className="flex-1"
+              >
+                <DrawerActionItem
+                  href="/yeu-thich"
+                  icon={<FaRegHeart aria-hidden />}
+                  label="Yêu thích"
+                  onClose={() => setIsMobileOpen(false)}
+                />
+              </li>
+              <li
+                data-clean-hide="drawer-utility"
+                className="flex-1"
+              >
+                <DrawerActionItem
+                  href="/thong-bao"
+                  icon={<FiBell aria-hidden />}
+                  label="Thông báo"
+                  badge="3"
+                  onClose={() => setIsMobileOpen(false)}
+                />
+              </li>
+              {/* Clean Mode toggle - icon-only (compact) de vua row 4 icon.
+                  Trong Normal mode van hien, trong Clean mode tro thanh
+                  nut thoat (cung vi tri). */}
+              <li className="flex-1">
+                <div className="flex h-full items-center justify-center">
+                  <CleanModeToggle size="compact" />
+                </div>
+              </li>
             </ul>
 
             <ul className="flex-1 overflow-y-auto">
@@ -446,7 +488,7 @@ const SiteHeader = () => {
 
               {/* Nhom "Khac" - dung <details> de khong phai them state rieng.
                   Mac dinh mo neu co muc con dang active. */}
-              <li className="border-b border-gray-100">
+              <li className="border-b border-gray-100" data-clean-hide="secondary-nav">
                 <details open={isMoreActive} className="group">
                   <summary
                     className={`flex cursor-pointer list-none items-center justify-between px-5 py-4 text-base font-medium capitalize transition hover:bg-gray-50 ${

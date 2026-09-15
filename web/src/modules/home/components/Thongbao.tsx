@@ -34,6 +34,7 @@ const Thongbao = () => {
   return (
     <section
       aria-label="Thông báo"
+      data-clean-hide="announcement"
       className="relative w-full border-b border-slate-200 bg-slate-50"
     >
         <div className="site-container flex items-center overflow-hidden py-2.5 md:py-3">
