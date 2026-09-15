@@ -10,11 +10,6 @@ on:
       - 'admin/**'
   workflow_dispatch:
 
-# Cho phép huỷ job cũ khi push lại cùng branch
-concurrency:
-  group: cicd-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   # 1. Phát hiện thư mục nào có sự thay đổi
   changes:
@@ -59,13 +54,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'web/package-lock.json'
 
-      # CI-only smoke check: cài đặt + build ngay trên runner Linux trước khi
-      # build Docker image. Nếu thiếu native binary nào (lightningcss, swc...)
-      # thì fail ở đây trước, không phải đợi tới lúc Docker build.
-      - name: Verify Web (npm ci + build)
+      - name: Build Web
         run: |
           cd web
-          npm ci --no-audit --no-fund
+          npm ci --no-audit --no-fund --include=optional
           npm run build
 
       - name: Deploy Web via SSH
