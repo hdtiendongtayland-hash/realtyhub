@@ -474,6 +474,7 @@ const DOCUMENTS: ProjectDocument[] = [
   { publicId: 'igp-doc-3', order: 3, name: 'Brochure dự án', url: '#' },
   { publicId: 'igp-doc-4', order: 4, name: 'Chính sách bán hàng', url: '#' },
   { publicId: 'igp-doc-5', order: 5, name: 'Tiện ích đẳng cấp', url: '#' },
+  { publicId: 'igp-doc-6', order: 6, name: 'Pháp lý', url: '#' },
 ];
 
 // ── Stats & Specs ─────────────────────────────────────────────────────────────

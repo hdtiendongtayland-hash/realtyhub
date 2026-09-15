@@ -10,6 +10,11 @@ on:
       - 'admin/**'
   workflow_dispatch:
 
+# Cho phép huỷ job cũ khi push lại cùng branch
+concurrency:
+  group: cicd-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # 1. Phát hiện thư mục nào có sự thay đổi
   changes:
@@ -54,10 +59,13 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'web/package-lock.json'
 
-      - name: Build Web
+      # CI-only smoke check: cài đặt + build ngay trên runner Linux trước khi
+      # build Docker image. Nếu thiếu native binary nào (lightningcss, swc...)
+      # thì fail ở đây trước, không phải đợi tới lúc Docker build.
+      - name: Verify Web (npm ci + build)
         run: |
           cd web
-          npm install
+          npm ci --no-audit --no-fund
           npm run build
 
       - name: Deploy Web via SSH
@@ -72,8 +80,8 @@ jobs:
             cd web
             eval $(ssh-agent -s)
             ssh-add ~/.ssh/id_rsa
-            docker compose up -d --build 
-            docker ps 
+            docker compose up -d --build
+            docker ps
 
   # ==========================================
   # BACKEND SERVICE (Port 8827)
@@ -97,7 +105,7 @@ jobs:
       - name: Build Backend
         run: |
           cd backend
-          npm install
+          npm ci --no-audit --no-fund
           npm run build
 
       - name: Deploy Backend via SSH
@@ -112,8 +120,8 @@ jobs:
             cd backend
             eval $(ssh-agent -s)
             ssh-add ~/.ssh/id_rsa
-            docker compose up -d --build 
-            docker ps 
+            docker compose up -d --build
+            docker ps
 
   # ==========================================
   # ADMIN SERVICE (Port 8828)
@@ -139,7 +147,7 @@ jobs:
           NEXT_PUBLIC_API_URL: http://localhost:8011
         run: |
           cd admin
-          npm install
+          npm ci --no-audit --no-fund
           npm run build
 
       - name: Deploy Admin via SSH
@@ -154,5 +162,5 @@ jobs:
             cd admin
             eval $(ssh-agent -s)
             ssh-add ~/.ssh/id_rsa
-            docker compose up -d --build 
-            docker ps 
+            docker compose up -d --build
+            docker ps

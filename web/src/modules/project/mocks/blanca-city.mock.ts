@@ -472,6 +472,7 @@ const DOCUMENTS: ProjectDocument[] = [
   { publicId: 'bc-doc-3', order: 3, name: 'Mặt bằng căn hộ Beacon Tower', url: '#' },
   { publicId: 'bc-doc-4', order: 4, name: 'Chính sách bán hàng', url: '#' },
   { publicId: 'bc-doc-5', order: 5, name: 'Tiện ích dự án', url: '#' },
+  { publicId: 'bc-doc-6', order: 6, name: 'Pháp lý', url: '#' },
 ];
 
 // ── Stats & Specs ─────────────────────────────────────────────────────────────

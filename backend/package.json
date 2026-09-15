@@ -12,7 +12,9 @@
     "dev": "cross-env NODE_ENV=development nest start --watch",
     "debug": "cross-env NODE_ENV=development nest start --debug --watch",
     "start:prod": "cross-env NODE_ENV=production node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "reinstall": "pwsh ../scripts/reinstall.ps1",
+    "reinstall:bash": "bash ../scripts/reinstall.sh"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1051.0",
