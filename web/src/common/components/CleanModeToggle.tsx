@@ -52,18 +52,21 @@ const CleanModeToggle = ({
     // dat 44px cho touch target. xl: tra ve 36px khi desktop theo row icon.
     : 'h-11 min-h-[44px] px-3 text-theme-sm font-semibold uppercase tracking-wide xl:h-9 xl:min-h-0';
 
+  // variantClass chỉ chứa state-specific classes
+  // Khi active: dùng style riêng (brand background)
+  // Khi idle: dùng className từ parent (iconColor để đồng bộ với các icon khác)
   const variantClass = isCleanMode
     ? // Active state: solid brand so users see the mode is on at a glance.
-      'bg-brand-500 text-white shadow-card hover:bg-brand-600'
-    : // Idle state: matches the other header icons.
-      'text-gray-500 hover:bg-gray-100 hover:text-brand-600';
+      'bg-brand-500 text-white hover:bg-brand-600'
+    : // Idle state: use parent's className (iconColor)
+      className;
 
-  const Icon = isCleanMode ? FiMinimize2 : FiMaximize2;
+  const Icon = isCleanMode ? FiMaximize2 : FiMinimize2;
   const label = isCleanMode ? 'Normal View' : '';
   const ariaLabel = isCleanMode
-    ? 'Exit clean view'
-    : 'Enable clean view – focus on products';
-  const tooltip = isCleanMode ? 'Exit clean view' : 'Clean view – focus on products';
+    ? 'Exit present mode'
+    : 'Enable present mode – focus on products';
+  const tooltip = isCleanMode ? 'Exit present mode' : 'Present mode – focus on products';
 
   return (
     <button
@@ -76,10 +79,10 @@ const CleanModeToggle = ({
       // Make sure the toggle never shows the browser's default focus ring
       // colour — we override with brand-300 above.
       style={{ '--tw-ring-color': 'var(--color-brand-300)' } as CSSProperties}
-      className={`${baseClass} ${sizeClass} ${variantClass} ${className}`.trim()}
+      className={`${baseClass} ${sizeClass} ${variantClass}`.trim()}
     >
       <Icon aria-hidden className={compact ? 'h-5 w-5' : 'h-4 w-4'} />
-      {!compact && <span className="leading-none">{label}</span>}
+      {/* {!compact && <span className="leading-none">{label}</span>} */}
     </button>
   );
 };

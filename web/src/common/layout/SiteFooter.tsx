@@ -133,7 +133,7 @@ const COMPANY = {
 };
 
 const SiteFooter = () => (
-  <footer className="border-t border-gray-200 bg-white">
+  <footer className="border-t border-gray-200 bg-white" data-clean-hide="footer">
     {/* ── Tu khoa tim nhieu ─────────────────────────────────────────────
         Dong khung thanh mot the rieng dat tren cung, tach han khoi cac cot
         lien ket ben duoi: day la dieu huong tim kiem, khong phai chan trang.
@@ -141,7 +141,6 @@ const SiteFooter = () => (
         Trong Clean Mode: an "tu khoa tim nhieu" - chi con giu cac cot lien
         ket toi thieu (chinh sach, lien he, ...). Marketing tag la phu,
         khong can thiet cho presentation. */}
-    <div data-clean-hide="popular-searches">
     <div className="site-container pt-10">
       <section
         aria-labelledby="footer-popular"
@@ -171,7 +170,6 @@ const SiteFooter = () => (
         </ul>
       </section>
     </div>
-    </div>
 
     {/* ── Cac cot lien ket ──────────────────────────────────────────────
         Luoi 12 cot: 3 cho thuong hieu (du rong cho doan mo ta), 2 cho moi cot
@@ -199,16 +197,11 @@ const SiteFooter = () => (
         </p>
         {/* Nen chan trang la mau trang nen huy hieu phai dung ban vien sang;
             ban den goc chi hop khi nen dam. */}
-        <div data-clean-hide="app-store">
-          <AppStoreBadges variant="light" />
-        </div>
+        <AppStoreBadges variant="light" />
       </div>
 
       <FooterLinkList title="Về Realty Hub" links={ABOUT_LINKS} className="lg:col-span-2" />
-      <div
-        data-clean-hide="footer-secondary-links"
-        className="contents"
-      >
+      <div className="contents">
         <FooterLinkList
           title="Dành cho môi giới"
           links={BROKER_LINKS}
@@ -223,7 +216,7 @@ const SiteFooter = () => (
         />
       </div>
 
-      <div className="sm:col-span-2 lg:col-span-3" data-clean-hide="footer-secondary">
+      <div className="sm:col-span-2 lg:col-span-3">
         <FooterHeading>Website cùng tập đoàn</FooterHeading>
         {/* The logo: ghim chieu cao anh de hai logo khac ti le van thang hang,
             ten don vi chi con o `alt` va tooltip - de ca chu lan logo la doc
@@ -257,7 +250,7 @@ const SiteFooter = () => (
             canh. Mau truyen qua bien CSS `--tone` chu khong ghep thang vao ten
             class: Tailwind quet class luc build nen `bg-${color}` ghep dong se
             khong bao gio duoc sinh ra CSS. */}
-        <ul className="mb-6 grid grid-cols-4 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5" data-clean-hide="social-links">
+        <ul className="mb-6 grid grid-cols-4 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5">
           {SOCIAL_LINKS.map((social) => (
             <li key={social.label} className="sm:flex-1">
               <a
@@ -276,7 +269,7 @@ const SiteFooter = () => (
           ))}
         </ul>
 
-        <ul className="flex flex-wrap items-center gap-3" data-clean-hide="cert-badges">
+        <ul className="flex flex-wrap items-center gap-3">
           <li>
             <a
               href="#"

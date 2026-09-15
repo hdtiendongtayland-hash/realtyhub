@@ -14,7 +14,7 @@ import {
 import FilterSelect from '@/common/components/FilterSelect';
 import Pagination from '@/common/components/Pagination';
 import UnitCard from './UnitCard';
-import UnitDetailModal from './UnitDetailModal';
+import UnitModal from './UnitModal';
 import { useAllUnits } from '../hooks/useProjects';
 import {
   type AllUnitsQuery,
@@ -529,15 +529,6 @@ const UnitInventoryPage = () => {
         </div>
       )}
 
-      {/* ── Popup chi tiet can (click card mo len) ─────────────────── */}
-      {selectedUnit && (
-        <UnitDetailModal
-          unit={selectedUnit}
-          open={selectedUnit !== null}
-          onClose={() => setSelectedUnit(null)}
-        />
-      )}
-
       {/* ── Phan trang ─────────────────────────────────────────────────── */}
       {total > 0 && (
         <div className="mt-8">
@@ -557,6 +548,9 @@ const UnitInventoryPage = () => {
           />
         </div>
       )}
+
+      {/* ── Modal chi tiet can ─────────────────────────────────────────── */}
+      <UnitModal unit={selectedUnit} onClose={() => setSelectedUnit(null)} />
     </div>
   );
 };

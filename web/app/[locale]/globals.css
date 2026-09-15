@@ -9,7 +9,7 @@
 
 @theme {
   --font-*: initial;
-  
+
   --font-sans: var(--font-open-sans), "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
 
   --breakpoint-*: initial;
@@ -271,12 +271,27 @@
       filter: drop-shadow(0 0 6px rgb(240 68 56 / 0.55));
     }
   }
+
+  /* Badge HOT nhap nhay manh me - goi su chu y */
+  --animate-hot-pulse: hot-pulse 1s ease-in-out infinite;
+
+  @keyframes hot-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.08);
+    }
+  }
 }
 
 /* `@theme` cua Tailwind v4 chi chap nhan custom property + @keyframes;
    rule responsive phai ra ngoai block do. */
 @media (prefers-reduced-motion: reduce) {
   .animate-pulse-fire {
+    animation: none;
+  }
+  .animate-hot-pulse {
     animation: none;
   }
 }
@@ -303,7 +318,7 @@
     @apply bg-gray-50 font-sans text-gray-800 antialiased;
   }
 
-  
+
   html:has(.fullscreen-page) {
     overflow: hidden;
   }
@@ -676,13 +691,9 @@
 [data-view-mode='clean'] [data-clean-hide='utility-link'],
 [data-view-mode='clean'] [data-clean-hide='drawer-utility'],
 [data-view-mode='clean'] [data-clean-hide='floating-widget'],
-[data-view-mode='clean'] [data-clean-hide='popular-searches'],
-[data-view-mode='clean'] [data-clean-hide='footer-secondary-links'],
-[data-view-mode='clean'] [data-clean-hide='footer-secondary'],
-[data-view-mode='clean'] [data-clean-hide='social-links'],
-[data-view-mode='clean'] [data-clean-hide='cert-badges'],
-[data-view-mode='clean'] [data-clean-hide='app-store'],
-[data-view-mode='clean'] [data-clean-hide='account'] {
+[data-view-mode='clean'] [data-clean-hide='brand-logo'],
+[data-view-mode='clean'] [data-clean-hide='account'],
+[data-view-mode='clean'] [data-clean-hide='footer'] {
   display: none !important;
 }
 
@@ -727,6 +738,7 @@
 
 /* Footer spacing giam trong clean mode (spec #13). Ap dung cho khoi grid
    chinh va padding section cua footer. */
+/* Clean Mode: footer da bi an hoan toan nen khong can spacing override. */
 [data-view-mode='clean'] footer .site-container.grid {
   padding-top: 2rem !important;
   padding-bottom: 2rem !important;

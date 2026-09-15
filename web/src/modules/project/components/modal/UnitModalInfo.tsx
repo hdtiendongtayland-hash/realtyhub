@@ -1,0 +1,195 @@
+import React, { useState } from 'react';
+import {
+  FiDollarSign,
+  FiMaximize2,
+  FiGift,
+  FiFileText,
+  FiShield,
+  FiShare2,
+  FiSend,
+  FiMessageSquare,
+  FiZap,
+  FiCompass,
+  FiHome,
+  FiSearch,
+  FiCreditCard
+} from 'react-icons/fi';
+
+export default function PropertyDetailCard() {
+  const [chatMessage, setChatMessage] = useState('');
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatMessage.trim()) return;
+    console.log("Gửi tin nhắn:", chatMessage);
+    setChatMessage('');
+  };
+
+  return (
+    <div className="mx-auto bg-white rounded-2xl font-sans text-slate-800 space-y-3">
+      {/* 1. GIÁ */}
+      <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-2xs">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+              <FiDollarSign className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-base text-slate-900">Giá</span>
+          </div>
+          <button className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50/60 hover:bg-blue-100 px-2.5 py-1 rounded-full border border-blue-100 transition-colors">
+            <FiShare2 className="w-3 h-3" />
+            Chi tiết
+          </button>
+        </div>
+
+        <div className="bg-slate-50/80 p-2.5 rounded-lg grid grid-cols-2 gap-y-1.5 gap-x-2 text-xs">
+          <div className="flex justify-between items-center pr-2 border-r border-slate-200">
+            <span className="text-slate-500">Giá vay:</span>
+            <span className="font-semibold text-slate-800">Đang cập nhật</span>
+          </div>
+          <div className="flex justify-between items-center pl-1">
+            <span className="text-slate-500">Giá TTTĐ:</span>
+            <span className="font-bold text-slate-900">2.97 tỷ</span>
+          </div>
+          <div className="flex justify-between items-center pr-2 border-r border-slate-200">
+            <span className="text-slate-500">Giá TTS:</span>
+            <span className="font-semibold text-slate-800">Đang cập nhật</span>
+          </div>
+          <div className="flex justify-between items-center pl-1">
+            <span className="text-slate-500">Đơn giá:</span>
+            <span className="font-bold text-slate-900">54.92 triệu/m²</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. DIỆN TÍCH */}
+      <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-2xs">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+              <FiMaximize2 className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-base text-slate-900">Diện tích</span>
+          </div>
+          <button className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50/60 hover:bg-blue-100 px-2.5 py-1 rounded-full border border-blue-100 transition-colors">
+            <FiShare2 className="w-3 h-3" />
+            Chi tiết
+          </button>
+        </div>
+
+        <div className="bg-slate-50/80 p-2.5 rounded-lg grid grid-cols-2 text-xs divide-x divide-slate-200">
+          <div className="pr-2">
+            <p className="text-slate-500 mb-0.5">DT đất</p>
+            <p className="font-bold text-sm text-slate-900">237.7 m²</p>
+          </div>
+          <div className="pl-3">
+            <p className="text-slate-500 mb-0.5">DT xây dựng</p>
+            <p className="font-bold text-sm text-slate-900">377.3 m²</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. CSBH & QUÀ TẶNG */}
+      <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-2xs">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+              <FiGift className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-base text-slate-900">CSBH & Quà tặng</span>
+          </div>
+          <button className="flex items-center gap-1 text-xs text-blue-600 font-medium bg-blue-50/60 hover:bg-blue-100 px-2.5 py-1 rounded-full border border-blue-100 transition-colors">
+            <FiShare2 className="w-3 h-3" />
+            Chi tiết
+          </button>
+        </div>
+
+        <div className="bg-slate-50/80 p-2.5 rounded-lg grid grid-cols-2 text-xs divide-x divide-slate-200">
+          <div className="pr-2">
+            <p className="text-slate-500 mb-0.5">CSBH áp dụng</p>
+            <p className="font-bold text-xs text-slate-900">13/08/2026</p>
+          </div>
+          <div className="pl-3">
+            <p className="text-slate-500 mb-0.5">Ưu đãi đặc biệt</p>
+            <p className="font-bold text-xs text-slate-900">3 chỉ vàng - 45tr</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. THÔNG TIN BÀN GIAO */}
+      <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-2xs">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+            <FiFileText className="w-5 h-5" />
+          </div>
+          <span className="font-bold text-base text-slate-900">Thông tin bàn giao</span>
+        </div>
+
+        <div className="bg-slate-50/80 p-2.5 rounded-lg space-y-1 text-xs">
+          <div className="flex justify-between items-center">
+            <span className="text-slate-500">Tiêu chuẩn bàn giao</span>
+            <span className="font-medium text-slate-900">Giản xây</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-slate-500">Quy cách:</span>
+            <span className="font-medium text-slate-900">Thứ cấp</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. PHÁP LÝ */}
+      <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg">
+            <FiShield className="w-5 h-5" />
+          </div>
+          <span className="font-bold text-base text-slate-900">Pháp lý</span>
+        </div>
+        <div className="flex items-center gap-1.5 bg-blue-50/60 text-blue-700 px-3 py-1 rounded-lg border border-blue-100 text-xs font-semibold">
+          <FiShield className="w-3.5 h-3.5 text-blue-600" />
+          Sở hữu lâu dài
+        </div>
+      </div>
+
+      {/* 6. CHAT INPUT & QUICK SUGGESTIONS */}
+      <div className="pt-1 space-y-2">
+        <form onSubmit={handleSendMessage} className="relative flex items-center">
+          <div className="absolute left-3 text-blue-500">
+            <FiMessageSquare className="w-4 h-4" />
+          </div>
+          <input
+            type="text"
+            value={chatMessage}
+            onChange={(e) => setChatMessage(e.target.value)}
+            placeholder="Nhắn tin với Admin..."
+            className="w-full bg-white border border-slate-200 rounded-full py-4 pl-9 pr-10 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-2xs"
+          />
+          <button
+            type="submit"
+            className="absolute right-1 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors shadow-xs"
+          >
+            <FiSend className="w-5 h-5" />
+          </button>
+
+        </form>
+
+        {/* Thanh gợi ý nhanh phía dưới */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px]">
+          <button className="flex items-center gap-1 bg-white border border-slate-200 hover:bg-blue-50 hover:border-blue-200 px-3 py-1.5 rounded-full shrink-0 shadow-2xs text-slate-700 transition-colors">
+            <FiDollarSign className="w-3.5 h-3.5 text-blue-500" />
+            Chính sách bán hàng hiện tại
+          </button>
+          <button className="flex items-center gap-1 bg-white border border-slate-200 hover:bg-blue-50 hover:border-blue-200 px-3 py-1.5 rounded-full shrink-0 shadow-2xs text-slate-700 transition-colors">
+            <FiZap className="w-3.5 h-3.5 text-blue-500" />
+            Giá/m² và giá sau chiết khấu
+          </button>
+          <button className="flex items-center gap-1 bg-white border border-slate-200 hover:bg-blue-50 hover:border-blue-200 px-3 py-1.5 rounded-full shrink-0 shadow-2xs text-slate-700 transition-colors">
+            <FiShield className="w-3.5 h-3.5 text-blue-500" />
+            Pháp lý dự án
+          </button>
+        </div>
+      </div>
+
+    </div>
+  );
+}

@@ -51,9 +51,14 @@ export const SectionHeading = ({
           </div>
         </div>
 
+        {/*
+          URL tĩnh tu NEXT_PUBLIC_SITE_URL de khong lech giua server va client
+          (typeof window tra ve "" o server va hostname that o client gay ra
+          hydration mismatch). Neu chua khai bao env thi fallback ve trang chu
+          localhost de van chay duoc trong dev.
+        */}
         <a
-          href={`https://${typeof window !== "undefined" ? window.location.hostname : ""}`}
-          target="_blank"
+          href={`${process.env.NEXT_PUBLIC_SITE_URL ?? "#"}`}
           rel="noopener noreferrer"
           className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-navy-800/15 bg-white px-4 py-2 text-sm font-semibold text-navy-800 shadow-card transition hover:-translate-y-0.5 hover:border-navy-800/30 hover:bg-navy-800 hover:text-white hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 sm:text-base"
         >

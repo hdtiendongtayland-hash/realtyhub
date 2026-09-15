@@ -32,10 +32,13 @@ import { FiChevronDown, FiGlobe } from 'react-icons/fi';
 type LanguageSwitcherProps = {
   /** className tuỳ chỉnh, vd để đặt vào header kích thước w-9 */
   className?: string;
+  /** Icon color class từ parent - thường là iconColor */
+  iconClass?: string;
 };
 
 export default function LanguageSwitcher({
   className = '',
+  iconClass = '',
 }: LanguageSwitcherProps) {
   const currentLocale = useLocale();
   const router = useRouter();
@@ -152,18 +155,11 @@ export default function LanguageSwitcher({
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-label={`Đổi ngôn ngữ, hiện tại: ${localeLabels[currentLocale as Locale]}`}
-        className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-theme-xs font-semibold uppercase transition ${
-          isOpen
-            ? 'bg-brand-100 text-brand-700'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-brand-600'
+        className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition ${iconClass} ${
+          isOpen ? 'bg-gray-100' : ''
         } ${isPending ? 'opacity-60' : ''}`}
       >
         <FiGlobe aria-hidden className="h-4 w-4" />
-        <span>{currentLocale}</span>
-        <FiChevronDown
-          aria-hidden
-          className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-        />
       </button>
 
       {isOpen && (
