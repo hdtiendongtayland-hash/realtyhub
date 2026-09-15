@@ -6,7 +6,9 @@
     "dev": "next dev --port 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "reinstall": "pwsh ../scripts/reinstall.ps1",
+    "reinstall:bash": "bash ../scripts/reinstall.sh"
   },
   "dependencies": {
     "@tailwindcss/forms": "0.5.10",

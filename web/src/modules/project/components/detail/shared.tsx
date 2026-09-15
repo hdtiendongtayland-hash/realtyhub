@@ -11,9 +11,9 @@
  *  - Mang mau toi chi danh cho panel ke chuyen (JadePanel), va la dai chuyen mau
  *    navy -> jade cho co chieu sau thay vi mot mau xanh phang.
  */
-import type { ReactNode } from 'react';
-import { FiPlay } from 'react-icons/fi';
-import PlaceholderThumb from '@/common/components/PlaceholderThumb';
+import type { ReactNode } from "react";
+import { FiArrowUpRight, FiPlay } from "react-icons/fi";
+import PlaceholderThumb from "@/common/components/PlaceholderThumb";
 
 /**
  * Tieu de muc.
@@ -27,22 +27,42 @@ import PlaceholderThumb from '@/common/components/PlaceholderThumb';
 export const SectionHeading = ({
   title,
   subtitle,
-  align = 'center',
+  align = "center",
 }: {
   title: string;
   subtitle?: string;
-  align?: 'center' | 'left';
+  align?: "center" | "left";
 }) => {
-  if (align === 'left') {
+  if (align === "left") {
     return (
-      <div className="mb-6 flex items-start gap-3">
-        <span aria-hidden className="brand-gradient mt-1 h-9 w-1 shrink-0 rounded-full" />
-        <div className="min-w-0">
-          <h2 className="text-2xl font-bold tracking-tight text-navy-800 sm:text-3xl">
-            {title}
-          </h2>
-          {subtitle && <p className="mt-1.5 text-base text-gray-500">{subtitle}</p>}
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-start gap-3">
+          <span
+            aria-hidden
+            className="brand-gradient mt-1 h-9 w-1 shrink-0 rounded-full"
+          />
+          <div className="min-w-0">
+            <h2 className="text-2xl font-bold tracking-tight text-navy-800 sm:text-3xl">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="mt-1.5 text-base text-gray-500">{subtitle}</p>
+            )}
+          </div>
         </div>
+
+        <a
+          href={`https://${typeof window !== "undefined" ? window.location.hostname : ""}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-navy-800/15 bg-white px-4 py-2 text-sm font-semibold text-navy-800 shadow-card transition hover:-translate-y-0.5 hover:border-navy-800/30 hover:bg-navy-800 hover:text-white hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 sm:text-base"
+        >
+          <span>Tạo Landing Page</span>
+          <FiArrowUpRight
+            aria-hidden
+            className="text-base transition-transform duration-300 group-hover:rotate-45"
+          />
+        </a>
       </div>
     );
   }
@@ -69,7 +89,7 @@ export const SectionHeading = ({
  */
 export const JadePanel = ({
   children,
-  className = '',
+  className = "",
 }: {
   children: ReactNode;
   className?: string;
@@ -103,9 +123,9 @@ export const MediaFrame = ({
   src,
   alt,
   label,
-  ratio = 'aspect-16/9',
-  fit = 'cover',
-  className = '',
+  ratio = "aspect-16/9",
+  fit = "cover",
+  className = "",
 }: {
   seed: string;
   src?: string;
@@ -113,13 +133,19 @@ export const MediaFrame = ({
   label?: string;
   ratio?: string;
   /** `contain` cho ban ve mat bang - xem chu thich trong PlaceholderThumb */
-  fit?: 'cover' | 'contain';
+  fit?: "cover" | "contain";
   className?: string;
 }) => (
   <div
     className={`relative ${ratio} w-full overflow-hidden rounded-xl bg-gray-100 ${className}`}
   >
-    <PlaceholderThumb seed={seed} src={src || undefined} alt={alt} label={label} fit={fit} />
+    <PlaceholderThumb
+      seed={seed}
+      src={src || undefined}
+      alt={alt}
+      label={label}
+      fit={fit}
+    />
   </div>
 );
 
@@ -169,7 +195,9 @@ export const CarouselDots = ({
           aria-label={`Trang ${index + 1}`}
           onClick={() => onSelect(index)}
           className={`h-2 rounded-full transition-all duration-300 ${
-            index === current ? 'brand-gradient w-8' : 'w-2 bg-gray-300 hover:bg-gray-400'
+            index === current
+              ? "brand-gradient w-8"
+              : "w-2 bg-gray-300 hover:bg-gray-400"
           }`}
         />
       ))}

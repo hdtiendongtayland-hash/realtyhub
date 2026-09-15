@@ -126,7 +126,7 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
             ))}
           </div>
 
-         
+
           <MediaFrame
             seed={`${project.publicId}-plan-${activeSheet.key}`}
             src={activeSheet.imageUrl}
