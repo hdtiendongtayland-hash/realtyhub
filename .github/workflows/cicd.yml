@@ -10,11 +10,6 @@ on:
       - 'admin/**'
   workflow_dispatch:
 
-# Cho phép huỷ job cũ khi push lại cùng branch
-concurrency:
-  group: cicd-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   # 1. Phát hiện thư mục nào có sự thay đổi
   changes:
@@ -59,13 +54,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'web/package-lock.json'
 
-      # CI-only smoke check: cài đặt + build ngay trên runner Linux trước khi
-      # build Docker image. Nếu thiếu native binary nào (lightningcss, swc...)
-      # thì fail ở đây trước, không phải đợi tới lúc Docker build.
-      - name: Verify Web (npm ci + build)
+      - name: Build Web
         run: |
           cd web
-          npm ci --no-audit --no-fund
+          npm ci --no-audit --no-fund --include=optional
           npm run build
 
       - name: Deploy Web via SSH
@@ -84,83 +76,83 @@ jobs:
             docker ps
 
   # ==========================================
-  # BACKEND SERVICE (Port 8827)
+  # BACKEND SERVICE (Port 8827) - TEMPORARILY DISABLED
   # ==========================================
-  backend:
-    name: Build & Deploy Backend
-    needs: changes
-    if: needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: 'backend/package-lock.json'
-
-      - name: Build Backend
-        run: |
-          cd backend
-          npm ci --no-audit --no-fund
-          npm run build
-
-      - name: Deploy Backend via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          command_timeout: 30m
-          script: |
-            cd /home/realtyhub
-            cd backend
-            eval $(ssh-agent -s)
-            ssh-add ~/.ssh/id_rsa
-            docker compose up -d --build
-            docker ps
+  # backend:
+  #   name: Build & Deploy Backend
+  #   needs: changes
+  #   if: false && (needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch')
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Node.js 22
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: 'npm'
+  #         cache-dependency-path: 'backend/package-lock.json'
+  #
+  #     - name: Build Backend
+  #       run: |
+  #         cd backend
+  #         npm ci --no-audit --no-fund
+  #         npm run build
+  #
+  #     - name: Deploy Backend via SSH
+  #       uses: appleboy/ssh-action@v1.2.0
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: ${{ secrets.SSH_USERNAME }}
+  #         password: ${{ secrets.SSH_PASSWORD }}
+  #         command_timeout: 30m
+  #         script: |
+  #           cd /home/realtyhub
+  #           cd backend
+  #           eval $(ssh-agent -s)
+  #           ssh-add ~/.ssh/id_rsa
+  #           docker compose up -d --build
+  #           docker ps
 
   # ==========================================
-  # ADMIN SERVICE (Port 8828)
+  # ADMIN SERVICE (Port 8828) - TEMPORARILY DISABLED
   # ==========================================
-  admin:
-    name: Build & Deploy Admin
-    needs: changes
-    if: needs.changes.outputs.admin == 'true' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: 'admin/package-lock.json'
-
-      - name: Build Admin
-        env:
-          NEXT_PUBLIC_API_URL: http://localhost:8011
-        run: |
-          cd admin
-          npm ci --no-audit --no-fund
-          npm run build
-
-      - name: Deploy Admin via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          command_timeout: 30m
-          script: |
-            cd /home/realtyhub
-            cd admin
-            eval $(ssh-agent -s)
-            ssh-add ~/.ssh/id_rsa
-            docker compose up -d --build
-            docker ps
+  # admin:
+  #   name: Build & Deploy Admin
+  #   needs: changes
+  #   if: false && (needs.changes.outputs.admin == 'true' || github.event_name == 'workflow_dispatch')
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Node.js 22
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: 'npm'
+  #         cache-dependency-path: 'admin/package-lock.json'
+  #
+  #     - name: Build Admin
+  #       env:
+  #         NEXT_PUBLIC_API_URL: http://localhost:8011
+  #       run: |
+  #         cd admin
+  #         npm ci --no-audit --no-fund
+  #         npm run build
+  #
+  #     - name: Deploy Admin via SSH
+  #       uses: appleboy/ssh-action@v1.2.0
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: ${{ secrets.SSH_USERNAME }}
+  #         password: ${{ secrets.SSH_PASSWORD }}
+  #         command_timeout: 30m
+  #         script: |
+  #           cd /home/realtyhub
+  #           cd admin
+  #           eval $(ssh-agent -s)
+  #           ssh-add ~/.ssh/id_rsa
+  #           docker compose up -d --build
+  #           docker ps
