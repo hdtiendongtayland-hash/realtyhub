@@ -1,7 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useFavoriteUnits } from "@/common/hooks/useFavoriteUnits";
+import { useBookings } from "@/common/hooks/useBookings";
 import UnitModalDetail from "./UnitModalDetail";
+import UnitBookingLockModal from "./modal/UnitBookingLockModal";
+import UnitShareModal from "./modal/UnitShareModal";
+import { UNIT_STATUS_LABELS } from "../models/project-detail.model";
 import type { UnitWithProject } from "../models/project-detail.model";
 
 type UnitModalProps = {
@@ -12,6 +17,21 @@ type UnitModalProps = {
 const UnitModal = ({ unit, onClose }: UnitModalProps) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const { isFavorite, toggle } = useFavoriteUnits();
+  const { create: createBooking } = useBookings();
+
+  // Hai bang phu cua popup: lock can va chia se. Doi sang can khac thi dong
+  // ca hai - so sanh voi can dang xem ngay trong than render, re hon mot vong
+  // useEffect va khong nhap nhay mot khung hinh.
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [lastUnitId, setLastUnitId] = useState(unit?.publicId);
+
+  if (lastUnitId !== unit?.publicId) {
+    setLastUnitId(unit?.publicId);
+    if (isBookingOpen) setIsBookingOpen(false);
+    if (isShareOpen) setIsShareOpen(false);
+  }
 
   // Phím Escape đóng modal + focus trap đơn giản
   const handleKeyDown = useCallback(
@@ -80,7 +100,7 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 max-md:items-end max-md:p-0"
       role="dialog"
       aria-modal="true"
       aria-labelledby="unit-modal-title"
@@ -97,27 +117,18 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="relative z-10 flex h-[95vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none"
+        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[100dvh] max-md:rounded-none"
       >
-        {/* Close button fixed ở góc trên phải */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Đóng"
-          className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-500 shadow-sm backdrop-blur transition hover:bg-white hover:text-gray-700"
-        >
-          ✕
-        </button>
-
         {/* Content */}
-        <div className="h-full w-full overflow-auto px-4 pt-2">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-2 max-md:px-3 max-md:pb-[env(safe-area-inset-bottom)]">
           <UnitModalDetail
             code={unit.code}
             phaseName={unit.phaseName ?? "Phân khu mặc định"}
             price={unit.listedPrice ?? 0}
             isStock={unit.status === "con-hang"}
             isHot={true}
-            isFavorite={false}
+            isFavorite={isFavorite(unit.publicId)}
+            onToggleFavorite={() => toggle(unit.publicId)}
             time="15/09/2026 09:43"
             propertyTypeLabel={unit.propertyTypeLabel ?? "Liền kề"}
             direction={unit.direction ?? "Đông"}
@@ -127,8 +138,10 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
             advisors={advisors}
             onClose={onClose}
             onCompareUnit={() => console.log("So sánh căn")}
-            onComparePolicy={() => console.log("So sánh chính sách")}
-            onShare={() => console.log("Chia sẻ")}
+            onPriceSheet={() => console.log("Phiếu tính giá")}
+            onLoanCalculator={() => console.log("Tính lãi vay")}
+            onBookingLock={() => setIsBookingOpen(true)}
+            onShare={() => setIsShareOpen(true)}
             onMore={() => console.log("Menu thêm")}
             onCopyImage={() => console.log("Copy ảnh")}
             onDownloadImage={() => console.log("Download ảnh")}
@@ -139,6 +152,48 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
           />
         </div>
       </div>
+
+      {isBookingOpen && (
+        <UnitBookingLockModal
+          code={unit.code}
+          projectName={unit.projectName}
+          statusLabel={UNIT_STATUS_LABELS[unit.status]}
+          isAvailable={unit.status === "con-hang"}
+          direction={unit.direction ?? "Đang cập nhật"}
+          propertyTypeLabel={unit.propertyTypeLabel ?? "Đang cập nhật"}
+          landArea={unit.landArea ?? 0}
+          // Bang nay ghi ro "gia chua bao gom VAT + KPBT" nen phai la gia niem
+          // yet, khong phai fullVatPrice nhu o cho chia se
+          price={unit.listedPrice ?? 0}
+          advisor={advisors[0]}
+          onClose={() => setIsBookingOpen(false)}
+          onConfirm={() => {
+            // Ghi vao danh sach "Don hang cua toi". KHONG dong bang o day:
+            // bang tu doi sang man hinh bao thanh cong, nguoi dung dong no
+            // bang nut "Chuc ban may man!".
+            createBooking({
+              unitId: unit.publicId,
+              unitCode: unit.code,
+              projectName: unit.projectName,
+              assignee: advisors[0]?.name,
+            });
+          }}
+        />
+      )}
+
+      {isShareOpen && (
+        <UnitShareModal
+        code={unit.code}
+        projectName={unit.projectName}
+        phaseName={unit.phaseName ?? "Đang cập nhật"}
+        propertyTypeLabel={unit.propertyTypeLabel ?? "Đang cập nhật"}
+        direction={unit.direction ?? "Đang cập nhật"}
+        landArea={unit.landArea ?? 0}
+        price={unit.fullVatPrice ?? unit.listedPrice ?? 0}
+        image={unit.thumbnailUrls?.[0]}
+        onClose={() => setIsShareOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -1,9 +1,7 @@
 "use client";
 
 import {
-  FiX,
   FiClock,
-  FiStar,
   FiLayers,
   FiMapPin,
   FiHeart,
@@ -53,23 +51,53 @@ const UnitModalHeader = ({
   isHot = false,
   isFavorite = false,
   time,
+  onClose,
   onToggleFavorite,
 }: UnitModalHeaderProps) => {
+  const actionBtn =
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all";
+
+  const actionButtons = (
+    <div className="flex h-9 shrink-0 items-center gap-2">
+      {onToggleFavorite && (
+        <button
+          type="button"
+          onClick={onToggleFavorite}
+          aria-label={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
+          title={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
+          className={`${actionBtn} ${
+            isFavorite
+              ? "border-error-500 bg-error-50 text-error-500 hover:bg-error-100"
+              : "border-gray-200 bg-white text-gray-400 hover:border-error-300 hover:text-error-500"
+          }`}
+        >
+          <FiHeart
+            className={`h-4 w-4 ${isFavorite ? "animate-heart-pop fill-current" : ""}`}
+          />
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Đóng"
+        className={`${actionBtn} border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700`}
+      >
+        ✕
+      </button>
+    </div>
+  );
+
   return (
-    <div className="border-b border-gray-200 bg-white pb-4">
-      <div className="flex items-start justify-between gap-4">
-        {/* ── Thông tin bên trái ─────────────────────────────────────── */}
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          {/* Hàng 1: badges + mã căn */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Badge HOT */}
+    <div className="border-b border-gray-200 bg-white pb-4 max-md:pb-3 laptop:pb-2">
+      <div className="flex flex-col gap-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             {isHot && (
-              <span className="inline-flex animate-hot-pulse items-center gap-1 rounded-md pr-2 pl-1 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
-                <Image src="/images/hot.png" alt="HOT" width={60} height={20} />
+              <span className="inline-flex animate-hot-pulse items-center gap-1 rounded-md py-0.5 pr-2 pl-1 text-xs font-bold uppercase tracking-wider text-white">
+                <Image src="/images/hot.png" alt="HOT" width={60} height={20} className="max-md:h-4 max-md:w-auto" />
               </span>
             )}
 
-            {/* Badge CÒN HÀNG */}
             {isStock && (
               <span className="inline-flex items-center gap-1 rounded-md bg-jade-500 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
                 <FiLayers className="h-3 w-3" />
@@ -77,78 +105,37 @@ const UnitModalHeader = ({
               </span>
             )}
 
-            {/* Hàng 3: thời gian cập nhật */}
             {time && (
-              <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <div className="flex items-center gap-1.5 text-xs text-gray-600">
                 <FiClock className="h-3.5 w-3.5 shrink-0" />
                 <span>{time}</span>
               </div>
             )}
-
-            {/* Mã căn */}
           </div>
+          {actionButtons}
+        </div>
 
-          {/* Hàng 2: phân khu + giá */}
-          <div className="flex items-start justify-between gap-4">
-            {/* Cột trái: code + phaseName */}
-            <div className="flex flex-col gap-1">
-              {/* Mã căn */}
-              <div className="flex items-center gap-1.5">
-                <h2 className="text-3xl font-bold text-gray-900">{code}</h2>
-              </div>
-
-              {/* Phân khu */}
-              <div className="flex items-center gap-1.5">
-                <FiMapPin className="h-4 w-4 shrink-0 text-gray-400" />
-                <span className="text-sm font-medium text-gray-600">
-                  {phaseName}
-                </span>
-              </div>
-            </div>
-
-            {/* Cột phải: giá */}
-            <div className="flex flex-col items-end">
-              <p className="text-3xl font-semibold text-brand-600">
-                {formatBillion(price)}
-              </p>
-              <span className="text-xs font-medium text-gray-600 mt-1">
-                (Giá FULL đã bao gồm VAT và KPBT)
+        <div className="flex items-start justify-between gap-3 max-md:gap-2">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <h2 className="text-3xl font-bold text-gray-900 max-md:text-xl max-md:leading-tight">
+              {code}
+            </h2>
+            <div className="flex items-center gap-1.5">
+              <FiMapPin className="h-4 w-4 shrink-0 text-gray-400" />
+              <span className="truncate text-sm font-medium text-gray-600">
+                {phaseName}
               </span>
             </div>
           </div>
-        </div>
 
-        {/* ── Nút hành động bên phải ───────────────────────────────── */}
-        <div className="flex shrink-0 items-center gap-2">
-          {/* Nút yêu thích */}
-          {onToggleFavorite && (
-            <button
-              type="button"
-              onClick={onToggleFavorite}
-              aria-label={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
-              title={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
-              className={`flex h-9 w-9 items-center justify-center rounded-full border transition-all ${
-                isFavorite
-                  ? "border-error-500 bg-error-50 text-error-500 hover:bg-error-100"
-                  : "border-gray-200 bg-white text-gray-400 hover:border-error-300 hover:text-error-500"
-              }`}
-            >
-              <FiHeart
-                className={`h-4 w-4 ${isFavorite ? "animate-heart-pop fill-current" : ""}`}
-              />
-            </button>
-          )}
-
-          {/* Nút đóng modal */}
-          {/* <button
-            type="button"
-            onClick={onClose}
-            aria-label="Đóng"
-            title="Đóng (Esc)"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700"
-          >
-            <FiX className="h-4 w-4" />
-          </button> */}
+          <div className="flex max-w-[50%] shrink-0 flex-col items-end text-right">
+            <p className="text-3xl font-semibold text-brand-600 max-md:text-xl">
+              {formatBillion(price)}
+            </p>
+            <span className="mt-1 text-xs font-medium text-gray-600 max-md:mt-0.5 max-md:text-xs max-md:leading-snug max-md:text-gray-600">
+              (Giá FULL đã bao gồm VAT và KPBT)
+            </span>
+          </div>
         </div>
       </div>
     </div>

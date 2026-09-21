@@ -1,12 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { usePathname } from '@/i18n/navigation';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { FiBell, FiChevronDown, FiMenu, FiMessageSquare, FiX } from 'react-icons/fi';
-import { FaRegHeart } from 'react-icons/fa';
+import { FiChevronDown, FiMenu, FiMessageSquare, FiX } from 'react-icons/fi';
 import AccountMenu from '@/common/components/AccountMenu';
 import CleanModeToggle from '@/common/components/CleanModeToggle';
 import FavoriteButton from '@/common/layout/FavoriteButton';
@@ -50,7 +49,7 @@ type NavItem = {
   aliases?: string[];
 };
 
-const DU_AN_HREF = '/gio-hang';
+const DU_AN_HREF = '/du-an';
 
 // Navigation items for normal mode
 const NAV_ITEMS_NORMAL: NavItem[] = [
@@ -81,59 +80,24 @@ const MORE_MENU_ITEMS: NavItem[] = [
 ];
 
 const BrandMark = () => (
-  <Link href="/" className="flex items-center" aria-label="RealtyHub">
+  <Link href="/" className="flex min-w-0 items-center" aria-label="RealtyHub">
+    <Image
+      src="/images/home/logo-realtyhub-mark.svg"
+      alt=""
+      priority
+      width={32}
+      height={32}
+      className="h-8 w-8 md:hidden"
+    />
     <Image
       src="/images/home/logo-realtyhub.svg"
-      alt="RealtyHub"
+      alt=""
       priority
       width={140}
       height={40}
-      className="h-8 w-auto"
+      className="hidden h-8 w-auto md:block"
     />
   </Link>
-);
-
-/**
- * Mot quick action trong ngan keo mobile (Tin nhan / Yeu thich / Thong bao).
- *
- * Layout: icon + label ngan phia duoi - phu hop voi chieu rong ngan keo
- * (khoang 360px max-w-sm). Icon co badge neu co. Bam se auto-close drawer
- * de nguoi dung thay ngay trang dich dang load.
- */
-const DrawerActionItem = ({
-  href,
-  icon,
-  label,
-  badge,
-  onClose,
-  ariaLabel,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  label: string;
-  badge?: string;
-  onClose: () => void;
-  /** Cần cho screen reader, riêng label vi (vd "Tin nhắn") có thể là content */
-  ariaLabel?: string;
-}) => (
-  <li className="flex-1">
-    <Link
-      href={href}
-      onClick={onClose}
-      aria-label={ariaLabel}
-      className="group relative flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-2.5 text-theme-xs font-semibold text-gray-700 transition hover:bg-brand-50 hover:text-brand-700"
-    >
-      <span className="relative flex h-9 w-9 items-center justify-center text-lg">
-        {icon}
-        {badge && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-error-500 px-1 text-[10px] font-bold leading-none text-white">
-            {badge}
-          </span>
-        )}
-      </span>
-      <span className="leading-none">{label}</span>
-    </Link>
-  </li>
 );
 
 const SiteHeader = () => {
@@ -317,19 +281,24 @@ const SiteHeader = () => {
 
   return (
     <header className={`sticky top-0 z-40 border-b transition-colors ${headerColor}`}>
-      <div className="site-container flex h-16 items-center justify-between gap-4">
-        <button
-          type="button"
-          onClick={() => setIsMobileOpen((open) => !open)}
-          aria-label={isMobileOpen ? tCommon('actions.close') : tCommon('actions.viewMore')}
-          aria-expanded={isMobileOpen}
-          className={`order-first flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition xl:hidden ${iconColor}`}
-        >
-          {isMobileOpen ? <FiX aria-hidden /> : <FiMenu aria-hidden />}
-        </button>
+      <div className="site-container relative flex h-14 items-center justify-between gap-2 md:h-16 md:gap-4">
+        {/* iPad: hamburger + logo di chung mot cum ben trai.
+         * Desktop (xl): `contents` bung cum ra, layout header giong ban cu
+         * (logo | spacer | nav | icon) — khong doi giao dien desktop. */}
+        <div className="flex min-w-0 items-center gap-2 xl:contents">
+          <button
+            type="button"
+            onClick={() => setIsMobileOpen((open) => !open)}
+            aria-label={isMobileOpen ? tCommon('actions.close') : tCommon('actions.viewMore')}
+            aria-expanded={isMobileOpen}
+            className={`order-first flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition xl:hidden ${iconColor}`}
+          >
+            {isMobileOpen ? <FiX aria-hidden className="h-5 w-5" /> : <FiMenu aria-hidden className="h-5 w-5" />}
+          </button>
 
-        <div data-clean-hide="brand-logo" className="contents">
-          <BrandMark />
+          <div data-clean-hide="brand-logo" className="min-w-0 shrink">
+            <BrandMark />
+          </div>
         </div>
 
         <nav aria-label={tHeader('home')} className="hidden xl:block" />
@@ -404,28 +373,44 @@ const SiteHeader = () => {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-1.5">
+        {/* Dien thoai va may tinh bang: cac icon co huy hieu dem (tim, chuong)
+            nam sat nhau qua nen huy hieu lan sang icon ben canh - noi khoang
+            cach ra. Desktop con thanh nav day du nen van gap-1 nhu cu. */}
+        <div className="relative z-10 flex shrink-0 items-center gap-2 md:gap-2.5 xl:gap-1">
+          {/*
+            LanguageSwitcher doc useSearchParams de giu nguyen query khi doi
+            ngon ngu. Header nam trong layout nen neu khong boc Suspense, MOI
+            trang tinh deu bi Next tu choi prerender ("useSearchParams() should
+            be wrapped in a suspense boundary") va `next build` dung lai o trang
+            dau tien - dung loi vua gap tren CI.
+
+            Fallback la mot o trong dung bang nut that (36x36) de header khong
+            giat mot nhip luc client nha ra.
+          */}
+          <Suspense fallback={<span className="h-9 w-9 shrink-0" aria-hidden />}>
+            <LanguageSwitcher iconClass={iconColor} />
+          </Suspense>
+
           <Link
             href="/tin-nhan"
             aria-label={tHeader('messages')}
             data-clean-hide="utility-link"
-            className={`hidden xl:flex h-9 w-9 items-center justify-center rounded-full transition ${iconColor}`}
+            className={`flex h-9 w-9 items-center justify-center rounded-full transition ${iconColor}`}
           >
-            <FiMessageSquare aria-hidden />
+            <FiMessageSquare aria-hidden className="h-5 w-5" />
           </Link>
 
-          <FavoriteButton iconClass={`hidden xl:flex ${iconColor}`} />
+          <FavoriteButton iconClass={iconColor} />
 
           <div data-clean-hide="utility-link" className="contents">
-            <NotificationsPopover variant={variant} iconClass={iconColor} />
+            <NotificationsPopover iconClass={iconColor} />
           </div>
 
-          <CleanModeToggle size="regular" className={iconColor} />
-
-          {/* Language switcher (dropdown): vi <-> en, preserve
-              pathname + params + query hien tai. Hien thi o xl tro len;
-              o mobile drawer se co phien ban rieng (neu can). */}
-          <LanguageSwitcher iconClass={iconColor} />
+          {/* Present mode chi co y nghia tren man hinh desktop (nav day du).
+              Tu tablet tro xuong header da rat gon nen an han cho do roi. */}
+          <span className="hidden xl:flex">
+            <CleanModeToggle size="regular" className={iconColor} />
+          </span>
 
           <div data-clean-hide="account" className="contents">
             <AccountMenu />
@@ -458,54 +443,6 @@ const SiteHeader = () => {
                 <FiX aria-hidden className="text-xl" />
               </button>
             </div>
-
-            <ul
-              aria-label="Truy cập nhanh"
-              className="flex shrink-0 items-stretch border-b border-gray-200 px-2 py-2"
-            >
-              <li
-                data-clean-hide="drawer-utility"
-                className="flex-1"
-              >
-                <DrawerActionItem
-                  href="/tin-nhan"
-                  icon={<FiMessageSquare aria-hidden />}
-                  label={tHeader('messages')}
-                  onClose={() => setIsMobileOpen(false)}
-                  ariaLabel={tHeader('messages')}
-                />
-              </li>
-              <li
-                data-clean-hide="drawer-utility"
-                className="flex-1"
-              >
-                <DrawerActionItem
-                  href="/yeu-thich"
-                  icon={<FaRegHeart aria-hidden />}
-                  label={tHeader('favorite')}
-                  onClose={() => setIsMobileOpen(false)}
-                  ariaLabel={tHeader('favorite')}
-                />
-              </li>
-              <li
-                data-clean-hide="drawer-utility"
-                className="flex-1"
-              >
-                <DrawerActionItem
-                  href="/thong-bao"
-                  icon={<FiBell aria-hidden />}
-                  label={tHeader('notification')}
-                  badge="3"
-                  onClose={() => setIsMobileOpen(false)}
-                  ariaLabel={tHeader('notification')}
-                />
-              </li>
-              <li className="flex-1">
-                <div className="flex h-full items-center justify-center">
-                  <CleanModeToggle size="compact" />
-                </div>
-              </li>
-            </ul>
 
             <ul className="flex-1 overflow-y-auto">
               {navItems.map((item) => (

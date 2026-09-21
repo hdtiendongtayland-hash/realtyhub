@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { FiPhone, FiMessageSquare } from 'react-icons/fi';
+import { FiPhone } from 'react-icons/fi';
 
 interface Advisor {
   id: string | number;
@@ -51,48 +51,52 @@ const UnitModalAdvisor = ({
   // Giới hạn tối đa 3 advisors
   const displayAdvisors = advisors.slice(0, 3);
 
+  // Duoi 1024px (dien thoai + iPad) ba the tu van vien nam tren MOT hang va
+  // vuot ngang; truoc day tu iPad da doi sang luoi 2 cot nen the thu ba rot
+  // xuong hang duoi, day cao ca khoi va sinh ra thanh cuon doc.
+  // no-scrollbar: van vuot duoc, chi la khong ve thanh cuon.
+  //
+  // Rieng iPad: moi the rong dung mot nua hang (tru mot nua khoang cach), nen
+  // hai the dau hien TRON VEN, the thu ba vuot sang moi thay - thay vi bat de
+  // rong co dinh 210px lam the thu hai bi cat dang do.
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div className="no-scrollbar grid grid-cols-1 gap-3 lg:grid-cols-3 max-lg:flex max-lg:overflow-x-auto max-lg:pb-1 laptop:gap-1.5">
       {displayAdvisors.map((advisor) => (
         <div
           key={advisor.id}
-          className="bg-gradient-to-b from-blue-50/40 to-slate-50/80 border border-blue-100/80 rounded-2xl p-3 flex items-center gap-3 shadow-2xs hover:shadow-xs transition-shadow"
+          className="flex items-center gap-3 rounded-2xl border border-blue-100/80 bg-gradient-to-b from-blue-50/40 to-slate-50/80 p-3 shadow-2xs transition-shadow hover:shadow-xs max-lg:min-w-[210px] md:max-lg:min-w-0 md:max-lg:w-[calc(50%-6px)] md:max-lg:shrink-0 laptop:min-w-0 laptop:gap-2 laptop:rounded-xl laptop:p-1.5"
         >
-          {/* Avatar + Name */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="flex flex-col items-center gap-1">
-              <h4 className="font-bold text-slate-900 text-xs" title={advisor.name}>
+          <div className="flex min-w-0 shrink-0 items-center gap-3 laptop:w-full laptop:shrink">
+            <div className="flex flex-col items-center gap-1 max-lg:items-start laptop:w-full laptop:items-start laptop:gap-0.5">
+              <h4 className="max-w-full truncate text-sm font-bold text-slate-900" title={advisor.name}>
                 {advisor.name}
               </h4>
               {advisor.role && (
-                <span className="text-[10px] text-blue-600 font-medium">
+                <span className="text-xs font-medium text-blue-600">
                   {advisor.role}
                 </span>
               )}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 laptop:gap-1">
                 <img
                   src={advisor.avatar}
                   alt={advisor.name}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-2xs"
+                  className="h-12 w-12 rounded-full object-cover border-2 border-white shadow-2xs laptop:h-8 laptop:w-8"
                 />
-                {/* Nút Gọi thoại */}
                 <button
                   type="button"
                   onClick={() => onCall ? onCall(advisor) : window.open(`tel:${advisor.phone}`)}
-                  className="w-9 h-9 rounded-lg bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white flex items-center justify-center transition-all shadow-xs"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95 laptop:h-7 laptop:w-7"
                   title="Gọi điện"
                 >
-                  <FiPhone className="w-4 h-4 fill-white" />
+                  <FiPhone className="h-4 w-4 fill-white laptop:h-3.5 laptop:w-3.5" />
                 </button>
-
-                {/* Nút Nhắn tin */}
                 <button
                   type="button"
                   onClick={() => onMessage && onMessage(advisor)}
-                  className="w-12 h-12 left-[-5px] rounded-lg active:scale-95 text-white flex items-center justify-center transition-all"
+                  className="flex h-12 w-12 items-center justify-center rounded-lg transition-all active:scale-95 laptop:h-8 laptop:w-8"
                   title="Nhắn tin"
                 >
-                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={32} height={32} />
+                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={32} height={32} className="laptop:h-6 laptop:w-6" />
                 </button>
               </div>
             </div>

@@ -2,31 +2,21 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  FiBell,
-  FiCheck,
-  FiChevronRight,
-  FiCircle,
-  FiInbox,
-  FiX,
-} from 'react-icons/fi';
+import { FiBell, FiInbox, FiX } from 'react-icons/fi';
+import { HiMail } from 'react-icons/hi';
+
+import { Link, useRouter } from '@/i18n/navigation';
+
+import OpenMailboxIcon from '@/common/components/OpenMailboxIcon';
+import { formatNotificationTime } from '@/common/utils/format';
 
 import {
-  CATEGORY_ICONS,
-  CATEGORY_TONE,
   MOCK_NOTIFICATIONS,
-  PRIORITY_LABELS,
-  PRIORITY_TONE,
   type NotificationItem,
 } from '@/modules/notifications/mocks/notifications.mock';
 
-type Variant = 'solid' | 'transparent';
-
 type NotificationsPopoverProps = {
-  /** 'solid' (nen trang) hoac 'transparent' (header trong suot o trang chu). */
-  variant: Variant;
   /** Class cho icon bell - truyen tu SiteHeader de giong cac icon khac. */
   iconClass: string;
 };
@@ -119,112 +109,83 @@ export const useNotifications = () => {
   return { items: itemsWithRead, unreadCount, markAsRead, toggleAllRead, toggleRead };
 };
 
-/** Popover noi dung - dung chung cho ca hover-locked va hover-only. */
+/** Panel luon nen trang + chu toi, ke ca khi header trang chu dang
+ * `text-white`. `isolate` + mau chu tuong minh de khong ke thua mau tu header. */
 const PopoverPanel = ({
   items,
-  unreadCount,
-  transparent,
   close,
-  onToggleAllRead,
   onToggleRead,
 }: {
   items: NotificationItem[];
-  unreadCount: number;
-  transparent: boolean;
   close: () => void;
-  onToggleAllRead: () => void;
   onToggleRead: (id: string) => void;
 }) => {
-  // Chi lay 5 muc gan nhat de vua popup (380px chieu cao toi da). Nguon du
-  // lieu day du o trang /thong-bao (link "Xem tat ca" ben duoi).
-  const preview = useMemo(() => items.slice(0, 5), [items]);
-
-  const panelClass = transparent
-    ? 'border border-white/20 bg-black/85 backdrop-blur-md text-white'
-    : 'border border-gray-200 bg-white shadow-theme-lg';
-  const itemClass = transparent
-    ? 'border-white/10 hover:bg-white/10'
-    : 'border-gray-100 hover:bg-gray-50';
-  const mutedClass = transparent ? 'text-white/70' : 'text-gray-500';
-  const titleClass = transparent ? 'text-white' : 'text-gray-900';
-  const subtleClass = transparent ? 'text-white/65' : 'text-gray-600';
-  const footerClass = transparent
-    ? 'border-white/15 text-white/80 hover:bg-white/10 hover:text-white'
-    : 'border-gray-100 text-gray-600 hover:bg-brand-50 hover:text-brand-700';
+  const router = useRouter();
+  const [unreadOnly, setUnreadOnly] = useState(false);
+  const visibleItems = useMemo(
+    () => (unreadOnly ? items.filter((item) => !item.isRead) : items),
+    [items, unreadOnly],
+  );
+  const preview = useMemo(() => visibleItems.slice(0, 5), [visibleItems]);
 
   return (
     <div
       role="dialog"
       aria-label="Thông báo"
-      className={`absolute right-0 top-full z-50 mt-3 w-[380px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl ${panelClass}`}
+      className="isolate absolute right-0 top-full z-50 mt-3 w-[380px] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-theme-lg max-md:fixed max-md:left-3 max-md:right-3 max-md:top-14 max-md:z-[60] max-md:w-auto max-md:max-w-none"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <div>
-          <div className={`text-theme-sm font-bold ${titleClass}`}>Thông báo</div>
-          <div className={`mt-0.5 text-theme-xs ${mutedClass}`}>
-            {unreadCount > 0
-              ? `${unreadCount} mục chưa đọc`
-              : 'Bạn đã đọc hết thông báo'}
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
-          {/* Toggle all read/unread — icon-only, aria-label thay doi theo trang thai. */}
-          <button
-            type="button"
-            onClick={onToggleAllRead}
-            className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
-              transparent
-                ? 'text-white/70 hover:bg-white/15 hover:text-white'
-                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-            }`}
-            aria-label={unreadCount > 0 ? 'Đánh dấu tất cả đã đọc' : 'Đánh dấu tất cả chưa đọc'}
-          >
-            <FiCheck aria-hidden className="h-4 w-4" strokeWidth={2.5} />
-          </button>
+      <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
+        <div className="text-theme-lg font-bold text-gray-900">Thông báo</div>
+
+        <div className="flex items-center gap-3">
+          <label className="flex cursor-pointer items-center gap-2">
+            <span className="text-theme-sm text-gray-500">
+              {unreadOnly ? 'Chưa đọc' : 'Tất cả'}
+            </span>
+            <input
+              type="checkbox"
+              checked={unreadOnly}
+              onChange={() => setUnreadOnly((on) => !on)}
+              aria-label={unreadOnly ? 'Hiện tất cả thông báo' : 'Chỉ hiện thông báo chưa đọc'}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden
+              className="relative h-6 w-11 shrink-0 rounded-full bg-gray-200 transition peer-checked:bg-brand-500 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-300 after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-card after:transition-transform peer-checked:after:translate-x-5"
+            />
+          </label>
+
           <button
             type="button"
             onClick={close}
             aria-label="Đóng thông báo"
-            className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
-              transparent
-                ? 'text-white/70 hover:bg-white/15 hover:text-white'
-                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-            }`}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
           >
             <FiX aria-hidden className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {/* List */}
       {preview.length === 0 ? (
         <div className="flex flex-col items-center px-6 py-10 text-center">
-          <span
-            className={`inline-flex h-12 w-12 items-center justify-center rounded-full ${
-              transparent ? 'bg-white/10 text-white/70' : 'bg-gray-100 text-gray-400'
-            }`}
-          >
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
             <FiInbox aria-hidden className="h-6 w-6" />
           </span>
-          <div className={`mt-3 text-theme-sm font-semibold ${titleClass}`}>
-            Chưa có thông báo
+          <div className="mt-3 text-theme-sm font-semibold text-gray-900">
+            {unreadOnly ? 'Không còn thông báo chưa đọc' : 'Chưa có thông báo'}
           </div>
-          <div className={`mt-1 text-theme-xs ${mutedClass}`}>
-            Mọi cập nhật sẽ xuất hiện ở đây.
+          <div className="mt-1 text-theme-xs text-gray-500">
+            {unreadOnly
+              ? 'Bạn đã đọc hết các thông báo gần đây.'
+              : 'Mọi cập nhật sẽ xuất hiện ở đây.'}
           </div>
         </div>
       ) : (
-        <ul className="max-h-[60vh] divide-y divide-white/10 overflow-y-auto">
+        <ul className="max-h-[min(60vh,420px)] overflow-y-auto">
           {preview.map((item) => (
             <NotificationRow
               key={item.publicId}
               item={item}
-              transparent={transparent}
-              itemClass={itemClass}
-              titleClass={titleClass}
-              subtleClass={subtleClass}
-              mutedClass={mutedClass}
               onActivate={() => close()}
               onToggleRead={onToggleRead}
             />
@@ -232,149 +193,106 @@ const PopoverPanel = ({
         </ul>
       )}
 
-      {/* Footer */}
       <Link
-        href="#"
-        onClick={close}
-        className={`flex items-center justify-between border-t px-4 py-3 text-theme-xs font-semibold transition ${footerClass}`}
+        href="/thong-bao"
+        onClick={() => {
+          router.push('/thong-bao');
+          close();
+        }}
+        className="block border-t border-gray-100 px-4 py-3 text-center text-theme-sm font-semibold text-brand-500 transition hover:bg-gray-50 hover:text-brand-600"
       >
-        <span>Xem tất cả thông báo</span>
-        <FiChevronRight aria-hidden className="h-4 w-4" />
+        Xem tất cả
       </Link>
     </div>
   );
 };
 
-/** Mot dong thong bao trong popup. Click vao link se mo href va dong popup.
- * Click vao cham tron ben trai se toggle trang thai doc/chua doc ma khong
- * dong popup (dung de user danh la chua doc lai mot muc da doc qua). */
+/** Mot dong: nguon in dam + cau "đã gửi cho bạn một thông báo" chay lien,
+ * tieu de ben duoi, thoi gian mau brand neu chua doc, nut phong bi ben phai. */
 const NotificationRow = ({
   item,
-  transparent,
-  itemClass,
-  titleClass,
-  subtleClass,
-  mutedClass,
   onActivate,
   onToggleRead,
 }: {
   item: NotificationItem;
-  transparent: boolean;
-  itemClass: string;
-  titleClass: string;
-  subtleClass: string;
-  mutedClass: string;
   onActivate: () => void;
   onToggleRead: (id: string) => void;
 }) => {
-  const toneClass = transparent
-    ? 'bg-white/15 text-white'
-    : CATEGORY_TONE[item.category];
-  const priorityClass = transparent
-    ? 'bg-white/15 text-white'
-    : PRIORITY_TONE[item.priority];
-  // Dot unread: mau brand-500 khi chua doc, mau muted/outline khi da doc.
-  // Tren nen transparent dung white/85 vs white/40 de van noi bat.
-  const dotBg = item.isRead
-    ? transparent
-      ? 'bg-white/40'
-      : 'bg-gray-300'
-    : transparent
-      ? 'bg-white'
-      : 'bg-brand-500';
+  const MailIcon = item.isRead ? OpenMailboxIcon : HiMail;
 
   return (
-    <li className="group/row relative">
-      {/* Cham tron toggle unread: dat absolute ben trai row, click de dao
-       * trang thai ma khong trigger Link. e.stopPropagation + preventDefault
-       * de khong bi Link.navigate ngam. */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onToggleRead(item.publicId);
-        }}
-        aria-label={item.isRead ? 'Đánh dấu chưa đọc' : 'Đánh dấu đã đọc'}
-        aria-pressed={!item.isRead}
-        className={`absolute left-1.5 top-1/2 z-10 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full transition ${
-          item.isRead
-            ? transparent
-              ? 'opacity-0 group-hover/row:opacity-100 hover:bg-white/15'
-              : 'opacity-0 group-hover/row:opacity-100 hover:bg-gray-100'
-            : ''
-        }`}
-      >
-        <FiCircle
-          aria-hidden
-          className={`h-2.5 w-2.5 ${dotBg}`}
-        />
-      </button>
-
+    <li
+      className={`relative border-b border-gray-100 last:border-b-0 ${
+        item.isRead ? 'bg-white hover:bg-gray-50' : 'bg-brand-25 hover:bg-brand-50'
+      }`}
+    >
       <Link
         href={item.href}
         onClick={onActivate}
-        className={`group flex items-start gap-3 border-l-2 pl-7 pr-4 py-3 transition ${
-          item.isRead ? 'border-transparent' : 'border-brand-500'
-        } ${itemClass}`}
+        className="block py-3 pl-4 pr-12"
       >
-        {/* Icon theo category */}
-        <span
-          aria-hidden
-          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base ${toneClass}`}
-        >
-          {item.icon || CATEGORY_ICONS[item.category]}
-        </span>
-
-        {/* Noi dung */}
-        <div className="min-w-0 flex-1">
-          {/* <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
-            <span className={mutedClass}>{item.source}</span>
-            {item.priority !== 'normal' && (
-              <span
-                className={`inline-flex items-center rounded-full px-1.5 py-0.5 text-[9px] font-bold tracking-wider ${priorityClass}`}
-              >
-                {PRIORITY_LABELS[item.priority]}
-              </span>
-            )}
-          </div> */}
-
-          <div
-            className={`mt-0.5 line-clamp-1 text-theme-sm font-semibold transition group-hover:underline ${
-              item.isRead ? subtleClass : titleClass
-            }`}
-          >
-            {item.title}
-          </div>
-          <p className={`mt-0.5 line-clamp-2 text-theme-xs leading-relaxed ${mutedClass}`}>
-            {item.excerpt}
-          </p>
-        </div>
-
-        {/* Chevron nho o ben phai */}
-        <FiChevronRight
-          aria-hidden
-          className={`mt-2 h-4 w-4 shrink-0 self-start transition ${
-            transparent ? 'text-white/50 group-hover:text-white' : 'text-gray-300 group-hover:text-brand-500'
+        <p
+          className={`text-theme-sm leading-snug ${
+            item.isRead ? 'text-gray-600' : 'text-gray-800'
           }`}
-        />
+        >
+          <span className={`font-bold ${item.isRead ? 'text-gray-800' : 'text-gray-900'}`}>
+            {item.source}
+          </span>{' '}
+          đã gửi cho bạn một thông báo
+        </p>
+        <p
+          className={`mt-0.5 line-clamp-1 text-theme-sm leading-snug ${
+            item.isRead ? 'text-gray-500' : 'text-gray-700'
+          }`}
+        >
+          {item.title}
+        </p>
+        <time
+          dateTime={item.createdAt}
+          suppressHydrationWarning
+          className={`mt-1 block text-theme-xs ${
+            item.isRead ? 'text-gray-400' : 'font-semibold text-brand-500'
+          }`}
+        >
+          {formatNotificationTime(item.createdAt)}
+        </time>
       </Link>
+
+      <button
+        type="button"
+        onClick={() => onToggleRead(item.publicId)}
+        aria-label={item.isRead ? 'Đánh dấu chưa đọc' : 'Đánh dấu đã đọc'}
+        aria-pressed={!item.isRead}
+        className={`absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full transition ${
+          item.isRead
+            ? 'text-gray-300 hover:bg-gray-100 hover:text-gray-500'
+            : 'text-brand-500 hover:bg-brand-100'
+        }`}
+      >
+        <MailIcon aria-hidden className="h-[18px] w-[18px]" />
+      </button>
     </li>
   );
 };
 
-const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps) => {
+/** Chuot that (desktop) moi dung hover. Dien thoai/iPad tao mouseenter/leave
+ * gia khi tap — neu van listen se mo roi dong ngay, nut chuong "khong an". */
+const canHoverOpen = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+const NotificationsPopover = ({ iconClass }: NotificationsPopoverProps) => {
   const pathname = usePathname();
-  const { items, unreadCount, toggleAllRead, toggleRead } = useNotifications();
+  const { items, unreadCount, toggleRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
-  const isClickLocked = useRef(false);
+  const openedByClick = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   // Timer de mo/dong co delay - tranh popup nhap nhay khi user chi luot
   // chuot ngang icon, va cho user kip di chuyen tu icon xuong panel qua
   // khoang gap giua button va dropdown.
   const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const transparent = variant === 'transparent';
 
   const cancelTimers = useCallback(() => {
     if (openTimerRef.current) {
@@ -389,13 +307,12 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
 
   const close = useCallback(() => {
     cancelTimers();
+    openedByClick.current = false;
     setIsOpen(false);
-    isClickLocked.current = false;
   }, [cancelTimers]);
 
-  // Hover: sau 100ms moi mo - dam bao user that su muon xem, khong phai
-  // luot chuot ngang. Neu user bo di truoc khi timer chay thi huy.
   const onMouseEnter = () => {
+    if (!canHoverOpen() || openedByClick.current) return;
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
@@ -407,18 +324,12 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
       }, 100);
     }
   };
-  // Mouse leave: sau 200ms moi dong - du thoi gian di chuyen chuot tu icon
-  // xuong panel (qua khoang gap `mt-3` giua button va dropdown). Khi da
-  // khoa (user da click) thi dong ngay, khong can doi.
+
   const onMouseLeave = () => {
+    if (!canHoverOpen() || openedByClick.current) return;
     if (openTimerRef.current) {
       clearTimeout(openTimerRef.current);
       openTimerRef.current = null;
-    }
-    if (isClickLocked.current) {
-      setIsOpen(false);
-      isClickLocked.current = false;
-      return;
     }
     if (isOpen && !closeTimerRef.current) {
       closeTimerRef.current = setTimeout(() => {
@@ -428,12 +339,12 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
     }
   };
 
-  // Click vao nut chuong de mo/khoa. Click khi dang mo -> mo khoa + dong.
   const onToggleClick = () => {
     cancelTimers();
     setIsOpen((open) => {
-      isClickLocked.current = !open;
-      return !open;
+      const next = !open;
+      openedByClick.current = next;
+      return next;
     });
   };
 
@@ -459,7 +370,7 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
   // nay cung xuat hien o userStore.ts (line 85) va FavoriteList.tsx trong
   // cung codebase.
   useEffect(() => {
-    isClickLocked.current = false;
+    openedByClick.current = false;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(false);
   }, [pathname]);
@@ -474,7 +385,7 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
   return (
     <div
       ref={containerRef}
-      className="relative hidden items-center xl:flex"
+      className="relative flex items-center"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -488,7 +399,7 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
         aria-expanded={isOpen}
         className={`relative flex h-9 w-9 items-center justify-center rounded-full transition ${iconClass}`}
       >
-        <FiBell aria-hidden className="text-xl" />
+        <FiBell aria-hidden className="h-5 w-5" />
         {showBadge && (
           <span
             aria-hidden
@@ -500,14 +411,7 @@ const NotificationsPopover = ({ variant, iconClass }: NotificationsPopoverProps)
       </button>
 
       {isOpen && (
-        <PopoverPanel
-          items={items}
-          unreadCount={unreadCount}
-          transparent={transparent}
-          close={close}
-          onToggleAllRead={toggleAllRead}
-          onToggleRead={toggleRead}
-        />
+        <PopoverPanel items={items} close={close} onToggleRead={toggleRead} />
       )}
     </div>
   );
