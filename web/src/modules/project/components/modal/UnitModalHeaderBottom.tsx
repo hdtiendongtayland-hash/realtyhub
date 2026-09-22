@@ -15,6 +15,11 @@ type UnitModalHeaderBottomProps = {
   onShare?: () => void;
   /** Mở menu thêm */
   onMore?: () => void;
+  /**
+   * "bar": bon o roi nhau, be ngang bang nhau - dung o bo cuc desktop, noi
+   * thanh nay nam dau cot thong tin chu khong trai ngang ca popup.
+   */
+  variant?: "default" | "bar";
 };
 
 /**
@@ -42,7 +47,63 @@ const UnitModalHeaderBottom = ({
   onCompareUnit,
   onShare,
   onMore,
+  variant = "default",
 }: UnitModalHeaderBottomProps) => {
+  if (variant === "bar") {
+    // Ba the thong tin + nut so sanh can, bon o tach roi va bang be ngang nhau
+    const box =
+      "flex min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-brand-200 bg-white px-3 py-2 shadow-2xs";
+
+    return (
+      <div className="flex items-stretch gap-2.5">
+        <div className={box}>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white">
+            <FiHome className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500">Loại hình</p>
+            <p className="truncate text-sm font-bold uppercase text-gray-900">
+              {propertyTypeLabel}
+            </p>
+          </div>
+        </div>
+
+        <div className={box}>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white">
+            <FiCompass className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500">Hướng</p>
+            <p className="truncate text-sm font-bold uppercase text-gray-900">
+              {direction}
+            </p>
+          </div>
+        </div>
+
+        <div className={box}>
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-brand-500 bg-white text-brand-500">
+            <FiMaximize className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500">Diện tích</p>
+            <p className="truncate text-sm font-bold uppercase text-gray-900">
+              {landArea} m²
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onCompareUnit}
+          className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600"
+        >
+          <FiCopy className="h-4 w-4 shrink-0" />
+          <span className="truncate">So sánh căn</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="border-b border-gray-200 py-2 laptop:py-1.5">
       <div className="flex flex-wrap items-stretch gap-2 max-md:grid max-md:grid-cols-2">
@@ -52,7 +113,7 @@ const UnitModalHeaderBottom = ({
           </span>
           <div className="flex min-w-0 flex-1 flex-col justify-center">
             <p className="text-xs font-medium text-gray-600">Loại hình</p>
-            <p className="truncate text-sm font-bold uppercase text-gray-900">
+            <p className="truncate text-sm font-bold uppercase leading-tight text-gray-900">
               {propertyTypeLabel}
             </p>
           </div>
@@ -64,7 +125,7 @@ const UnitModalHeaderBottom = ({
           </span>
           <div className="flex min-w-0 flex-1 flex-col justify-center">
             <p className="text-xs font-medium text-gray-600">Hướng</p>
-            <p className="truncate text-sm font-bold uppercase text-gray-900">
+            <p className="truncate text-sm font-bold uppercase leading-tight text-gray-900">
               {direction}
             </p>
           </div>
@@ -76,19 +137,28 @@ const UnitModalHeaderBottom = ({
           </span>
           <div className="flex min-w-0 flex-1 flex-col justify-center">
             <p className="text-xs font-medium text-gray-600">Diện tích</p>
-            <p className="truncate text-sm font-bold uppercase text-gray-900">
+            <p className="truncate text-sm font-bold uppercase leading-tight text-gray-900">
               {landArea} m²
             </p>
           </div>
         </div>
 
+        {/* Dien thoai: o thu TU cua luoi 2x2, khoac dung kieu the nhu ba o
+            thong tin ben canh (nen sang, vien brand, icon vuong) - de nguyen
+            thanh xanh trai ngang hai cot thi no lech han ra khoi bo luoi.
+            Tu iPad tro len van la nut xanh nam cung hang nhu cu. */}
         <button
           type="button"
           onClick={onCompareUnit}
-          className="flex min-w-[130px] flex-1 items-center justify-center gap-2 rounded-lg bg-brand-500 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-600 max-md:col-span-2 max-md:min-w-0 max-md:text-xs"
+          className="flex min-w-[130px] flex-1 items-center justify-center gap-2 rounded-lg bg-brand-500 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-600 max-md:min-w-0 max-md:justify-start max-md:border max-md:border-brand-200 max-md:bg-brand-50 max-md:text-brand-700 max-md:shadow-none"
         >
-          <FiCopy className="h-4 w-4 shrink-0" />
-          <span>So sánh căn</span>
+          <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand-500 text-white max-md:flex">
+            <FiCopy className="h-4 w-4" />
+          </span>
+          <FiCopy className="h-4 w-4 shrink-0 max-md:hidden" />
+          <span className="max-md:truncate max-md:text-sm max-md:font-bold max-md:uppercase max-md:leading-tight">
+            So sánh căn
+          </span>
         </button>
       </div>
     </div>

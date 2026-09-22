@@ -55,10 +55,10 @@ const UnitModalHeader = ({
   onToggleFavorite,
 }: UnitModalHeaderProps) => {
   const actionBtn =
-    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all";
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all lg:h-8 lg:w-8";
 
   const actionButtons = (
-    <div className="flex h-9 shrink-0 items-center gap-2">
+    <div className="flex h-9 shrink-0 items-center gap-2 lg:h-8">
       {onToggleFavorite && (
         <button
           type="button"
@@ -88,13 +88,13 @@ const UnitModalHeader = ({
   );
 
   return (
-    <div className="border-b border-gray-200 bg-white pb-4 max-md:pb-3 laptop:pb-2">
-      <div className="flex flex-col gap-1">
+    <div className="border-b border-gray-200 bg-white pb-4 max-md:pb-3 laptop:pb-2 lg:pb-1.5">
+      <div className="flex flex-col gap-1 lg:gap-0.5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             {isHot && (
               <span className="inline-flex animate-hot-pulse items-center gap-1 rounded-md py-0.5 pr-2 pl-1 text-xs font-bold uppercase tracking-wider text-white">
-                <Image src="/images/hot.png" alt="HOT" width={60} height={20} className="max-md:h-4 max-md:w-auto" />
+                <Image src="/images/hot.png" alt="HOT" width={60} height={20} className="max-md:h-4 max-md:w-auto lg:h-4 lg:w-auto" />
               </span>
             )}
 
@@ -116,8 +116,8 @@ const UnitModalHeader = ({
         </div>
 
         <div className="flex items-start justify-between gap-3 max-md:gap-2">
-          <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <h2 className="text-3xl font-bold text-gray-900 max-md:text-xl max-md:leading-tight">
+          <div className="flex min-w-0 flex-1 flex-col gap-1 lg:gap-0">
+            <h2 className="text-3xl font-bold text-gray-900 max-md:text-xl max-md:leading-tight lg:text-xl lg:leading-tight">
               {code}
             </h2>
             <div className="flex items-center gap-1.5">
@@ -129,11 +129,11 @@ const UnitModalHeader = ({
           </div>
 
           <div className="flex max-w-[50%] shrink-0 flex-col items-end text-right">
-            <p className="text-3xl font-semibold text-brand-600 max-md:text-xl">
+            <p className="text-3xl font-semibold text-brand-600 max-md:text-xl lg:text-xl lg:leading-tight">
               {formatBillion(price)}
             </p>
-            <span className="mt-1 text-xs font-medium text-gray-600 max-md:mt-0.5 max-md:text-xs max-md:leading-snug max-md:text-gray-600">
-              (Giá FULL đã bao gồm VAT và KPBT)
+            <span className="mt-1 text-xs font-medium text-gray-600 lg:mt-0 lg:text-[11px] lg:leading-tight max-md:mt-0.5 max-md:text-xs max-md:leading-snug max-md:text-gray-600">
+              (Giá FULL VAT và KPBT)
             </span>
           </div>
         </div>

@@ -14,6 +14,12 @@ interface UnitModalAdvisorProps {
   advisors?: Advisor[];
   onCall?: (advisor: Advisor) => void;
   onMessage?: (advisor: Advisor) => void;
+  /**
+   * "band": ba the nam ngang mot hang, avatar ben trai - ten/chuc danh ben
+   * phai, hai nut goi & Zalo o duoi. Dung cho dai "Lien he tu van" chay ngang
+   * day popup o bo cuc desktop.
+   */
+  variant?: "column" | "band";
 }
 
 const DEFAULT_ADVISORS: Advisor[] = [
@@ -46,10 +52,62 @@ const DEFAULT_ADVISORS: Advisor[] = [
 const UnitModalAdvisor = ({
   advisors = DEFAULT_ADVISORS,
   onCall,
-  onMessage
+  onMessage,
+  variant = "column",
 }: UnitModalAdvisorProps) => {
   // Giới hạn tối đa 3 advisors
   const displayAdvisors = advisors.slice(0, 3);
+
+  if (variant === "band") {
+    return (
+      <div className="flex h-full w-full flex-col gap-1.5">
+        {displayAdvisors.map((advisor) => (
+          <div
+            key={advisor.id}
+            className="flex flex-1 items-center gap-2 rounded-xl border border-blue-100/80 bg-gradient-to-b from-blue-50/40 to-slate-50/80 px-2 py-1.5 shadow-2xs"
+          >
+            <img
+              src={advisor.avatar}
+              alt={advisor.name}
+              className="h-8 w-8 shrink-0 rounded-full border-2 border-white object-cover shadow-2xs"
+            />
+            {/* Xep doc mot cot nen moi the duoc ca be ngang: ten, chuc danh va
+                hai nut deu nam tron tren MOT hang */}
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <h4 className="truncate text-[13px] font-bold leading-tight text-slate-900" title={advisor.name}>
+                  {advisor.name}
+                </h4>
+                {advisor.role && (
+                  <p className="truncate text-xs font-medium leading-tight text-blue-600">
+                    {advisor.role}
+                  </p>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => (onCall ? onCall(advisor) : window.open(`tel:${advisor.phone}`))}
+                  className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95"
+                  title="Gọi điện"
+                >
+                  <FiPhone className="h-3.5 w-3.5 fill-white" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onMessage && onMessage(advisor)}
+                  className="flex h-6 w-6 items-center justify-center rounded-lg transition-all active:scale-95"
+                  title="Nhắn tin"
+                >
+                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={24} height={24} className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   // Duoi 1024px (dien thoai + iPad) ba the tu van vien nam tren MOT hang va
   // vuot ngang; truoc day tu iPad da doi sang luoi 2 cot nen the thu ba rot

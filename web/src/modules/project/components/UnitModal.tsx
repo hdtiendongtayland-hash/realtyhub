@@ -113,14 +113,16 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
       />
 
-      {/* Dialog */}
+      {/* Dialog. Tu 1024px tro len la khung chu nhat nam ngang, rong hon va cao
+          vua man hinh: toan bo thong tin nam tron trong khung, mot cu bam la
+          thay het, khong con phai cuon. Duoi 1024px giu nguyen nhu cu. */}
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[100dvh] max-md:rounded-none"
+        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[100dvh] max-md:rounded-none lg:h-[min(94vh,900px)] lg:max-w-[1280px]"
       >
         {/* Content */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-2 max-md:px-3 max-md:pb-[env(safe-area-inset-bottom)]">
+        <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-2 max-md:overflow-y-auto max-md:px-3 max-md:pb-[env(safe-area-inset-bottom)]">
           <UnitModalDetail
             code={unit.code}
             phaseName={unit.phaseName ?? "Phân khu mặc định"}
