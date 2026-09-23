@@ -255,6 +255,13 @@ export type ProjectUnit = {
   propertyTypeLabel: string;
   direction: string;
   landArea: number;
+  /**
+   * Mat tien (m) - be ngang lo dat giap duong.
+   *
+   * Moi gioi loc theo con so nay gan nhu ngang voi dien tich: cung 100m2
+   * nhung mat tien 5m va 8m la hai loai san pham khac han ve gia.
+   */
+  frontage?: number;
   buildArea: number;
   phaseName: string;
   status: UnitStatus;
@@ -442,6 +449,8 @@ export type AllUnitsQuery = {
   code: string | null;
   /** Truc can - khop chinh xac */
   unitLine: string | null;
+  /** Cac muc mat tien dang chon (m) - rong la khong loc */
+  frontages: number[];
   /** Loc theo khoang gia (VND) */
   priceMin: number | null;
   priceMax: number | null;
@@ -465,6 +474,7 @@ export const DEFAULT_ALL_UNITS_QUERY: AllUnitsQuery = {
   floorRange: null,
   code: null,
   unitLine: null,
+  frontages: [],
   priceMin: null,
   priceMax: null,
   areaMax: null,
@@ -489,6 +499,8 @@ export type PaginatedAllUnits = {
     /** Chi cac khoang tang thuc su co can - tranh bam vao o rong */
     floorRanges: { value: string; label: string }[];
     unitLines: string[];
+    /** Cac muc mat tien co that trong du lieu, da sap tang dan */
+    frontages: number[];
   };
 };
 

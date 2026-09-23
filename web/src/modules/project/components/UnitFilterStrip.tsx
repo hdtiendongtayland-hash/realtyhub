@@ -43,6 +43,8 @@ export type UnitFilterValues = {
   direction: string | null;
   code: string | null;
   unitLine: string | null;
+  /** Cac muc mat tien dang chon (m) - rong la khong loc */
+  frontages: number[];
   status: string | null;
   /** Khoang gia tinh bang VND (khong phai ty) - o nhap doi don vi khi hien */
   priceMin: number | null;
@@ -385,6 +387,58 @@ const CollapsibleRows = ({
 };
 
 /**
+ * Nhom lua chon CHON NHIEU - dung cho "Mat tien".
+ *
+ * Khac cac o loc con lai (chon mot): moi gioi thuong chap nhan vai muc mat
+ * tien chu khong khoa dung mot so, nen bat chon mot la phai loc lai nhieu lan.
+ */
+const MultiChipRow = ({
+  options,
+  values,
+  onChange,
+  format,
+}: {
+  options: number[];
+  values: number[];
+  onChange: (next: number[]) => void;
+  format: (value: number) => string;
+}) => {
+  if (options.length === 0) {
+    return <p className="text-theme-sm text-gray-400">Chưa có lựa chọn nào</p>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2.5">
+      {options.map((option) => {
+        const isSelected = values.includes(option);
+
+        return (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={isSelected}
+            onClick={() =>
+              onChange(
+                isSelected
+                  ? values.filter((item) => item !== option)
+                  : [...values, option].sort((a, b) => a - b),
+              )
+            }
+            className={`min-w-14 rounded-lg border px-3 py-2 text-theme-sm font-medium transition sm:px-4 sm:py-2.5 ${
+              isSelected
+                ? 'border-brand-500 bg-brand-25 text-brand-700'
+                : 'border-gray-200 bg-white text-gray-700 hover:border-brand-300 hover:bg-gray-25'
+            }`}
+          >
+            {format(option)}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+/**
  * Mot nhom lua chon chon-mot.
  *
  * Bam lai dung muc dang chon thi bo chon - nhanh hon bat nguoi dung di tim nut
@@ -517,6 +571,12 @@ const describeActiveFilters = (
   if (values.code) entries.push({ key: 'code', label: `Mã ${values.code}` });
   if (values.unitLine) {
     entries.push({ key: 'unitLine', label: `Trục ${values.unitLine}` });
+  }
+  if (values.frontages.length > 0) {
+    entries.push({
+      key: 'frontages',
+      label: `Mặt tiền ${values.frontages.map((w) => String(w).replace('.', ',')).join(', ')} m`,
+    });
   }
   if (values.status) {
     entries.push({
@@ -811,6 +871,28 @@ const FilterPanel = ({
             onSelect={(next) => onChange({ unitLine: next })}
           />
         </Section>
+
+        {(facets?.frontages?.length ?? 0) > 0 && (
+          <Section title="Mặt tiền (m)">
+            {/* enabledFrom=640: DIEN THOAI hien het cac muc mat tien, khong
+                co nut "Xem them". Bang loc tren dien thoai von da cuon doc ca
+                man hinh, giau mot hang chip sau mot lan bam chi lam kho tim
+                trong khi khong tiet kiem duoc bao nhieu. */}
+            <CollapsibleRows
+              collapsedHeight={TWO_ROWS_CHIPS_PX}
+              measureKey={facets?.frontages.length ?? 0}
+              defaultExpanded={values.frontages.length > 0}
+              enabledFrom={640}
+            >
+              <MultiChipRow
+                options={facets?.frontages ?? []}
+                values={values.frontages}
+                onChange={(next) => onChange({ frontages: next })}
+                format={(width) => String(width).replace('.', ',')}
+              />
+            </CollapsibleRows>
+          </Section>
+        )}
 
         <Section title="Trạng thái">
           <ChoiceRow

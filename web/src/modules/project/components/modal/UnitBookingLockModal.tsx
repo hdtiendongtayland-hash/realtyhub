@@ -23,10 +23,6 @@ import { formatBillion } from "@/common/utils/format";
  * Chua co API booking nen `onConfirm` chi bao len tren; khi backend co, doi
  * mot cho do thanh mot lan goi service.
  */
-type BookingAdvisor = {
-  name: string;
-};
-
 type UnitBookingLockModalProps = {
   /** Ma can - VD 'S6.0502.13' */
   code: string;
@@ -40,8 +36,6 @@ type UnitBookingLockModalProps = {
   landArea: number;
   /** Gia CHUA bao gom VAT + KPBT, don vi VND */
   price: number;
-  /** Nguoi phu trach - chi hien o man hinh bao da nhan yeu cau */
-  advisor?: BookingAdvisor;
   onClose: () => void;
   onConfirm?: () => void;
 };
@@ -55,7 +49,6 @@ const UnitBookingLockModal = ({
   propertyTypeLabel,
   landArea,
   price,
-  advisor,
   onClose,
   onConfirm,
 }: UnitBookingLockModalProps) => {
@@ -135,14 +128,6 @@ const UnitBookingLockModal = ({
                 <dt className="font-bold text-gray-900">Trạng thái:</dt>
                 <dd className="min-w-0 flex-1 text-gray-700">Đang chờ xử lý</dd>
               </div>
-              {advisor && (
-                <div className="flex gap-2">
-                  <dt className="font-bold text-gray-900">Người phụ trách:</dt>
-                  <dd className="min-w-0 flex-1 text-gray-700">
-                    {advisor.name}
-                  </dd>
-                </div>
-              )}
             </dl>
 
             <p className="text-theme-xs leading-relaxed text-gray-500">

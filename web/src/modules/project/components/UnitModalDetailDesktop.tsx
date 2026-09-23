@@ -144,10 +144,10 @@ const UnitModalDetailDesktop = ({
                 vien, thay vi the tu van vien roi hai nut tha noi ben ngoai. */}
             <div className="flex w-[30%] min-h-0 shrink-0 flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
               <div className="flex shrink-0 items-center gap-2">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <FiUsers className="h-4 w-4" />
+                <span className="shrink-0 rounded-md bg-blue-50 p-1 text-blue-600">
+                  <FiUsers className="h-3.5 w-3.5" />
                 </span>
-                <p className="min-w-0 truncate text-sm font-bold leading-tight text-slate-900">
+                <p className="min-w-0 truncate text-[11px] font-bold leading-tight text-slate-900">
                   Liên hệ tư vấn
                 </p>
               </div>
@@ -169,7 +169,7 @@ const UnitModalDetailDesktop = ({
                 <button
                   type="button"
                   onClick={onBookingLock}
-                  className="flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 active:scale-[0.98]"
+                  className="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 active:scale-[0.98]"
                 >
                   <FiCalendar className="h-4 w-4 shrink-0" />
                   <span className="truncate">BOOKING LOCK</span>
@@ -178,7 +178,7 @@ const UnitModalDetailDesktop = ({
                 <button
                   type="button"
                   onClick={onShare}
-                  className="flex h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-3 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
+                  className="flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-3 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
                 >
                   <FiShare2 className="h-4 w-4 shrink-0" />
                   <span className="truncate">Chia sẻ</span>

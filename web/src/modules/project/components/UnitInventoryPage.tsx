@@ -42,6 +42,7 @@ const PARAM = {
   direction: 'huong',
   code: 'ma',
   unitLine: 'truc',
+  frontages: 'mat-tien',
   status: 'tt',
   priceMin: 'gia-tu',
   priceMax: 'gia-den',
@@ -115,6 +116,19 @@ const UnitInventoryPage = () => {
   const direction = searchParams.get(PARAM.direction);
   const code = searchParams.get(PARAM.code);
   const unitLine = searchParams.get(PARAM.unitLine);
+  /**
+   * Mat tien: nhieu muc, noi bang dau phay tren URL (mat-tien=5,6.5).
+   * Lay thang tu URL nhu cac o loc khac nen bang loc va ket qua khong lech.
+   */
+  const frontagesParam = searchParams.get(PARAM.frontages);
+  const frontages = useMemo(
+    () =>
+      (frontagesParam ?? '')
+        .split(',')
+        .map((part) => Number(part))
+        .filter((value) => Number.isFinite(value) && value > 0),
+    [frontagesParam],
+  );
   const status = searchParams.get(PARAM.status);
   const priceMin = readNumber(PARAM.priceMin);
   const priceMax = readNumber(PARAM.priceMax);
@@ -202,6 +216,7 @@ const UnitInventoryPage = () => {
       floorRange,
       code,
       unitLine,
+      frontages,
       priceMin,
       priceMax,
       areaMax,
@@ -221,6 +236,7 @@ const UnitInventoryPage = () => {
       direction,
       code,
       unitLine,
+      frontages,
       status,
       priceMin,
       priceMax,
@@ -249,7 +265,12 @@ const UnitInventoryPage = () => {
       unitLine,
       status,
     ].filter((value) => value !== null && value !== '').length +
-    [priceMin !== null, priceMax !== null, areaMax !== null].filter(Boolean).length;
+    [
+      priceMin !== null,
+      priceMax !== null,
+      areaMax !== null,
+      frontages.length > 0,
+    ].filter(Boolean).length;
 
   /**
    * Gia tri cua 9 o loc trong bang - lay thang tu URL nen bang loc va ket qua
@@ -265,6 +286,7 @@ const UnitInventoryPage = () => {
     direction,
     code,
     unitLine,
+    frontages,
     status,
     priceMin,
     priceMax,
@@ -282,6 +304,7 @@ const UnitInventoryPage = () => {
     direction: PARAM.direction,
     code: PARAM.code,
     unitLine: PARAM.unitLine,
+    frontages: PARAM.frontages,
     status: PARAM.status,
     priceMin: PARAM.priceMin,
     priceMax: PARAM.priceMax,
@@ -297,8 +320,13 @@ const UnitInventoryPage = () => {
     (updates: Partial<UnitFilterValues>) => {
       const params: Record<string, string | null> = {};
       for (const [key, value] of Object.entries(updates)) {
-        params[PARAM_OF[key as keyof UnitFilterValues]] =
-          value === null || value === undefined ? null : String(value);
+        const param = PARAM_OF[key as keyof UnitFilterValues];
+        if (Array.isArray(value)) {
+          // Mang rong = khong loc -> xoa han tham so cho URL sach
+          params[param] = value.length > 0 ? value.join(',') : null;
+        } else {
+          params[param] = value === null || value === undefined ? null : String(value);
+        }
       }
       if (Object.keys(params).length > 0) applyParams(params);
     },

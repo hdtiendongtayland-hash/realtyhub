@@ -179,7 +179,6 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
           // Bang nay ghi ro "gia chua bao gom VAT + KPBT" nen phai la gia niem
           // yet, khong phai fullVatPrice nhu o cho chia se
           price={unit.listedPrice ?? 0}
-          advisor={advisors[0]}
           onClose={() => setIsBookingOpen(false)}
           onConfirm={() => {
             // Ghi vao danh sach "Don hang cua toi". KHONG dong bang o day:

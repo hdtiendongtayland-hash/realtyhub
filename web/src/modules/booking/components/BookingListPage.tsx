@@ -19,13 +19,13 @@ import {
 
 /** Mau chu theo trang thai - do cho tu choi/huy, xanh cho da duyet */
 /**
- * Mau cua the ma can: xanh brand la binh thuong, chuyen DO khi yeu cau da bi
- * huy hoac bi tu choi - liec qua danh sach la thay ngay cai nao khong con
- * hieu luc, khong phai doc cot trang thai.
+ * Mau cua the ma can: XANH LA la yeu cau con hieu luc, chuyen DO khi da bi huy
+ * hoac bi tu choi - liec qua danh sach la thay ngay cai nao khong con hieu
+ * luc, khong phai doc cot trang thai.
  */
 const CODE_TONE: Record<BookingStatus, string> = {
-  'cho-xu-ly': 'bg-brand-50 text-brand-600',
-  'da-duyet': 'bg-brand-50 text-brand-600',
+  'cho-xu-ly': 'bg-success-50 text-success-600',
+  'da-duyet': 'bg-success-50 text-success-600',
   'da-tu-choi': 'bg-error-50 text-error-600',
   'da-huy': 'bg-error-50 text-error-600',
 };

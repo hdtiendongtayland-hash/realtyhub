@@ -462,6 +462,13 @@ const buildUnits = (
     const floor = isHighRise ? intBetween(rng, 1, 34) : null;
     const unitLine = String(((slot - 1) % 12) + 1).padStart(2, '0');
 
+    // Mat tien chi co nghia voi san pham thap tang (lo dat giap duong); can
+    // ho cao tang khong co khai niem nay nen de trong - bo loc se tu an.
+    // Bam theo dien tich dat, lam tron buoc 0.5m nhu cach bang hang van ghi.
+    const frontage = isHighRise
+      ? undefined
+      : Math.round(Math.min(12, Math.max(4, landArea / 12)) * 2) / 2;
+
     units.push({
       publicId: `${project.publicId}-unit-${String(index + 1).padStart(4, '0')}`,
       code: `${initialsOf(phaseName)}${block}-${String(slot).padStart(2, '0')}`,
@@ -473,6 +480,7 @@ const buildUnits = (
       propertyTypeLabel: typeLabels[typeIndex],
       direction: pickOne(rng, DIRECTIONS),
       landArea,
+      ...(frontage !== undefined ? { frontage } : {}),
       buildArea,
       phaseName,
       status,

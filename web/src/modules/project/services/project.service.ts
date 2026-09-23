@@ -389,6 +389,13 @@ export const ProjectService = {
       if (query.status && unit.status !== query.status) return false;
       if (!matchesFloorRange(unit.floor, query.floorRange)) return false;
       if (query.unitLine && unit.unitLine !== query.unitLine) return false;
+      // Chon nhieu muc mat tien: can phai roi vao MOT trong cac muc do
+      if (
+        query.frontages.length > 0 &&
+        (unit.frontage === undefined || !query.frontages.includes(unit.frontage))
+      ) {
+        return false;
+      }
 
       // Ma can go tay nen khop mot phan va bo dau/hoa thuong - moi gioi hay
       // nho mang may "A12" chu it khi nho du "BT-1205".
@@ -502,6 +509,13 @@ export const ProjectService = {
               .filter((line): line is string => Boolean(line)),
           ),
         ].sort(),
+        frontages: [
+          ...new Set(
+            all
+              .map((unit) => unit.frontage)
+              .filter((width): width is number => typeof width === 'number'),
+          ),
+        ].sort((a, b) => a - b),
       },
     });
   },

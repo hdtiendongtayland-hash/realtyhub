@@ -26,10 +26,16 @@ const MobileBottomTabs = () => {
   return (
     // Bottom nav: fixed bottom, z-30 (thap hon drawer menu z-50 de drawer
     // phu len khi mo) + env(safe-area-inset-bottom) cho iPhone co "vu khuyet".
+    //
+    // Chan tren 20px: tren iPhone inset la 34px (vung thanh Home) nen chua
+    // 20px la du thoang; nhung mot so trinh duyet nhung trong ung dung
+    // (Zalo, Facebook tren Android) bao inset lon hon han va khong dung voi
+    // thuc te -> de nguyen thi day thanh tab len, ho ra mot dai trang o day
+    // man hinh. Lay so nho hon giua hai gia tri la an toan cho ca hai phia.
     <nav
       aria-label="Điều hướng nhanh"
       className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:hidden"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}
+      style={{ paddingBottom: 'min(env(safe-area-inset-bottom, 0px), 20px)' }}
     >
       <ul className="flex items-stretch justify-around">
         {TABS.map(({ label, href, icon: Icon, exact }) => {
