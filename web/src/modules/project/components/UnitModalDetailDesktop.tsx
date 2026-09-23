@@ -139,42 +139,37 @@ const UnitModalDetailDesktop = ({
               <LegalCard className="h-11 self-start" />
             </div>
 
-            {/* Cột tư vấn viên + hành động.
-                Dung LUOI 3 HANG y het luoi so lieu ben trai (cung so hang,
-                cung gap) thay vi chia flex 2:1 - hai cach tinh khac nhau thi
-                duong ke ngang o "nga tu" lech nhau vai px. */}
-            <div className="grid w-[30%] min-h-0 shrink-0 grid-rows-3 gap-1.5">
-              {/* Tu van vien an tron hai hang dau -> day no trung voi day o
-                  "CSBH & Qua tang" ben trai */}
-              <div className="row-span-2 flex min-h-0 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
-                <div className="flex shrink-0 items-center gap-2">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                    <FiUsers className="h-4 w-4" />
-                  </span>
-                  <p className="min-w-0 truncate text-sm font-bold leading-tight text-slate-900">
-                    Liên hệ tư vấn
-                  </p>
-                </div>
-
-                {/* Chi vua khoang hai nguoi - con lai keo thanh truot xuong
-                    xem tiep. slim-scrollbar: thanh cuon manh 5px thay vi thanh
-                    ~17px mac dinh cua he dieu hanh (van hien, chi nho lai). */}
-                <div className="slim-scrollbar min-h-0 flex-1 overflow-y-auto pr-1">
-                  <UnitModalAdvisor
-                    variant="band"
-                    advisors={advisors}
-                    onCall={onCallAdvisor}
-                    onMessage={onMessageAdvisor}
-                  />
-                </div>
+            {/* Cột tư vấn viên + hành động - GOM TRONG MOT THE:
+                tieu de, danh sach tu van vien va hai nut nam chung mot khung
+                vien, thay vi the tu van vien roi hai nut tha noi ben ngoai. */}
+            <div className="flex w-[30%] min-h-0 shrink-0 flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                  <FiUsers className="h-4 w-4" />
+                </span>
+                <p className="min-w-0 truncate text-sm font-bold leading-tight text-slate-900">
+                  Liên hệ tư vấn
+                </p>
               </div>
 
-              {/* BOOKING LOCK la hanh dong chinh nen to va noi bat hon */}
-              <div className="flex min-h-0 flex-col justify-start gap-1.5">
+              {/* Chi vua khoang hai nguoi - con lai keo thanh truot xuong xem
+                  tiep. slim-scrollbar: thanh cuon manh 5px thay vi thanh ~17px
+                  mac dinh cua he dieu hanh (van hien, chi nho lai). */}
+              <div className="slim-scrollbar min-h-0 flex-1 overflow-y-auto pr-1">
+                <UnitModalAdvisor
+                  variant="band"
+                  advisors={advisors}
+                  onCall={onCallAdvisor}
+                  onMessage={onMessageAdvisor}
+                />
+              </div>
+
+              {/* BOOKING LOCK la hanh dong chinh nen noi bat hon nut chia se */}
+              <div className="flex shrink-0 flex-col gap-1.5">
                 <button
                   type="button"
                   onClick={onBookingLock}
-                  className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 active:scale-[0.98]"
+                  className="flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 active:scale-[0.98]"
                 >
                   <FiCalendar className="h-4 w-4 shrink-0" />
                   <span className="truncate">BOOKING LOCK</span>
@@ -183,7 +178,7 @@ const UnitModalDetailDesktop = ({
                 <button
                   type="button"
                   onClick={onShare}
-                  className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-3 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
+                  className="flex h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-3 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
                 >
                   <FiShare2 className="h-4 w-4 shrink-0" />
                   <span className="truncate">Chia sẻ</span>

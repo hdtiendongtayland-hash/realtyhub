@@ -72,7 +72,7 @@ const UnitModalAdvisor = ({
         {visible.map((advisor) => (
           <div
             key={advisor.id}
-            className="flex shrink-0 items-start gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-2 py-1.5"
+            className="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-2 py-1.5"
           >
             <img
               src={advisor.avatar}
@@ -133,14 +133,6 @@ const UnitModalAdvisor = ({
     );
   }
 
-  // Duoi 1024px (dien thoai + iPad) ba the tu van vien nam tren MOT hang va
-  // vuot ngang; truoc day tu iPad da doi sang luoi 2 cot nen the thu ba rot
-  // xuong hang duoi, day cao ca khoi va sinh ra thanh cuon doc.
-  // no-scrollbar: van vuot duoc, chi la khong ve thanh cuon.
-  //
-  // Rieng iPad: moi the rong dung mot nua hang (tru mot nua khoang cach), nen
-  // hai the dau hien TRON VEN, the thu ba vuot sang moi thay - thay vi bat de
-  // rong co dinh 210px lam the thu hai bi cat dang do.
   return (
     <div className="no-scrollbar grid grid-cols-1 gap-3 lg:grid-cols-3 max-lg:flex max-lg:overflow-x-auto max-lg:pb-1 laptop:gap-1.5">
       {displayAdvisors.map((advisor) => (
