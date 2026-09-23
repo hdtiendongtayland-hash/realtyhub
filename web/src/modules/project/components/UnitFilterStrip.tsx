@@ -643,10 +643,17 @@ const FilterPanel = ({
     const update = () => {
       const el = panelRef.current;
       if (!el) return;
+
+      // visualViewport la vung nguoi dung THUC SU nhin thay. Trinh duyet nhung
+      // trong ung dung (Zalo, Facebook) bao innerHeight bang ca phan bi thanh
+      // cong cu cua no che, lay theo do thi day bang bi khuat.
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+
       // Dien thoai (<640px): bang phu TRON man hinh (fixed inset-0) va nam
-      // tren ca thanh tab, nen khong khoa chieu cao - de inset-0 lo.
+      // tren ca thanh tab. Van khoa theo chieu cao nhin thay de hai nut o chan
+      // bang khong bi thanh cong cu cua trinh duyet nhung che mat.
       if (window.innerWidth < 640) {
-        setMaxHeight(undefined);
+        setMaxHeight(Math.round(viewportHeight));
         return;
       }
 
@@ -655,16 +662,20 @@ const FilterPanel = ({
       // vung an toan), phai chua cho cho no neu khong chan bang bi no de len.
       const reserved = window.innerWidth < 1024 ? 76 : 16;
       // Chua 320px thi bang qua be de dung, luc do cho no tran va tu cuon
-      setMaxHeight(Math.max(320, window.innerHeight - top - reserved));
+      setMaxHeight(Math.max(320, Math.round(viewportHeight) - top - reserved));
     };
 
     update();
     window.addEventListener('resize', update);
     // capture: bat ca khi cuon ben trong cac khung cuon long nhau
     window.addEventListener('scroll', update, true);
+    window.visualViewport?.addEventListener('resize', update);
+    window.visualViewport?.addEventListener('scroll', update);
     return () => {
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
+      window.visualViewport?.removeEventListener('resize', update);
+      window.visualViewport?.removeEventListener('scroll', update);
     };
   }, []);
 

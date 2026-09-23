@@ -9,6 +9,7 @@ import './globals.css';
 import SiteHeader from '@/common/layout/SiteHeader';
 import SiteFooter from '@/common/layout/SiteFooter';
 import MobileBottomTabs from '@/common/layout/MobileBottomTabs';
+import ViewportHeightSync from '@/common/layout/ViewportHeightSync';
 import BackToTop from '@/common/components/BackToTop';
 import ChatWidget from '@/modules/chat/components/ChatWidget';
 import HideOnPaths from '@/common/layout/HideOnPaths';
@@ -146,6 +147,8 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col" suppressHydrationWarning>
+        {/* Ghi chieu cao that cua khung nhin vao --app-vh (xem component) */}
+        <ViewportHeightSync />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>
             <CleanModeProvider>

@@ -215,13 +215,14 @@ const UnitModalDetail = ({
           </div>
         </div>
 
-        {/* ── Footer (cố định phía dưới) ─────────────────────────── */}
-        {/* Dien thoai: ca popup la MOT vung cuon duy nhat (khong cuon long
-            nhau nua), nen thanh nut phai dinh day de luon bam duoc.
-            -mx-3 de thanh TRAN het be ngang: khung ngoai co le px-3, neu khong
-            bu lai thi hai ben ho 12px va noi dung dang cuon lo ra sau thanh.
-            Bong do tren canh cho thay ro phan noi dung dang truot ben duoi. */}
-        <div className="md:max-lg:sticky md:max-lg:bottom-0 md:max-lg:z-10 md:max-lg:-mx-4 md:max-lg:bg-white md:max-lg:px-4 md:max-lg:shadow-[0_-6px_16px_rgba(15,23,42,0.08)] max-md:sticky max-md:bottom-0 max-md:z-10 max-md:-mx-3 max-md:bg-white max-md:px-3 max-md:shadow-[0_-6px_16px_rgba(15,23,42,0.08)]">
+        {/* ── Footer ─────────────────────────────────────────────
+            iPad: dinh day khung (sticky) de luon bam duoc; -mx-4 cho thanh
+            tran het be ngang, neu khong hai ben ho 16px va noi dung dang cuon
+            lo ra sau thanh.
+            Dien thoai: KHONG dinh - thanh nut cuon theo noi dung xuong tan
+            cuoi trang, de mat khong bi mot dai nut an mat mot phan man hinh
+            von da hep. */}
+        <div className="md:max-lg:sticky md:max-lg:bottom-0 md:max-lg:z-10 md:max-lg:-mx-4 md:max-lg:bg-white md:max-lg:px-4 md:max-lg:shadow-[0_-6px_16px_rgba(15,23,42,0.08)]">
           <UnitModalBottom onShare={onShare} onBookingLock={onBookingLock} />
         </div>
       </div>

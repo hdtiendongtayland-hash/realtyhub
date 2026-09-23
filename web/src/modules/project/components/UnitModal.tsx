@@ -131,7 +131,7 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[100dvh] max-md:rounded-none lg:h-[540px] lg:max-h-[94vh] lg:w-[1000px] lg:max-w-[92vw] lg:max-w-none lg:bg-[#f3f7fd]"
+        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[var(--app-vh,100dvh)] max-md:rounded-none lg:h-[540px] lg:max-h-[94vh] lg:w-[1000px] lg:max-w-[92vw] lg:bg-[#f3f7fd]"
       >
         {/* Content */}
         <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-2 md:max-lg:overflow-y-auto lg:px-3 lg:pt-1.5 max-md:overflow-y-auto max-md:px-3 max-md:pb-[env(safe-area-inset-bottom)]">
