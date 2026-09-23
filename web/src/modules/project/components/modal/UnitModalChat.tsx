@@ -23,11 +23,21 @@ type UnitModalChatProps = {
   /** Lop ngoai - dung de chon hien o breakpoint nao */
   className?: string;
   /**
-   * "bar": o nhap va ba goi y nam CUNG mot hang trong mot the vien mong, chay
-   * ngang day popup - dung o bo cuc desktop. "stacked" (mac dinh) la o nhap
-   * tren, goi y duoi.
+   * - "stacked" (mac dinh): o nhap tren, goi y duoi.
+   * - "bar": o nhap va ba goi y cung mot hang.
+   * - "input": chi rieng o nhap.
+   * - "chips": chi rieng ba goi y.
+   *
+   * Bo cuc may tinh dat o nhap o day cot anh, con ba goi y o day cot thong tin
+   * (hai cot khac nhau) nen can tach lam hai manh. Luc do cha giu chu dang go
+   * va truyen xuong qua `value`/`onValueChange` de bam goi y van dien duoc vao
+   * o nhap dang nam o cot ben kia.
    */
-  variant?: "stacked" | "bar";
+  variant?: "stacked" | "bar" | "input" | "chips";
+  /** Chu dang go - truyen vao khi cha muon tu giu (hai manh dung chung) */
+  value?: string;
+  /** Bao cho cha khi chu thay doi */
+  onValueChange?: (value: string) => void;
 };
 
 /**
@@ -37,8 +47,19 @@ type UnitModalChatProps = {
  * va nguoi nhan tin dung canh nhau), con duoi 1024px no van o cuoi cot thong
  * tin nhu cu. Vi vay no duoc goi o hai cho, moi cho an/hien theo breakpoint.
  */
-const UnitModalChat = ({ className = "", variant = "stacked" }: UnitModalChatProps) => {
-  const [chatMessage, setChatMessage] = useState("");
+const UnitModalChat = ({
+  className = "",
+  variant = "stacked",
+  value,
+  onValueChange,
+}: UnitModalChatProps) => {
+  const [innerMessage, setInnerMessage] = useState("");
+  // Cha co truyen `value` thi nghe theo cha, khong thi tu giu lay
+  const chatMessage = value ?? innerMessage;
+  const setChatMessage = (next: string) => {
+    if (onValueChange) onValueChange(next);
+    else setInnerMessage(next);
+  };
   const chatInputRef = useRef<HTMLInputElement>(null);
 
   /**
@@ -63,6 +84,66 @@ const UnitModalChat = ({ className = "", variant = "stacked" }: UnitModalChatPro
     console.log("Gửi tin nhắn:", chatMessage);
     setChatMessage("");
   };
+
+  const inputBox = (
+    <form
+      onSubmit={handleSendMessage}
+      className="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5"
+    >
+      <FiMessageSquare className="h-4 w-4 shrink-0 text-blue-500" />
+      <input
+        ref={chatInputRef}
+        type="text"
+        value={chatMessage}
+        onChange={(e) => setChatMessage(e.target.value)}
+        placeholder="Nhắn tin với Admin..."
+        className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
+      />
+      {/* Nut gui chi hien khi da go chu - luc trong o thi thanh nay gon het
+          muc, dung nhu mockup */}
+      {chatMessage.trim() && (
+        <button
+          type="submit"
+          aria-label="Gửi"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700"
+        >
+          <FiSend className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </form>
+  );
+
+  const suggestionButtons = QUICK_SUGGESTIONS.map(({ icon: Icon, text }) => (
+    <button
+      key={text}
+      type="button"
+      onClick={() => handleSuggestion(text)}
+      className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-2 py-1.5 text-[11px] font-medium text-slate-600 transition-colors hover:bg-blue-50/60 hover:text-blue-700"
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+      <span className="truncate">{text}</span>
+    </button>
+  ));
+
+  if (variant === "input") {
+    return (
+      <div
+        className={`flex items-stretch rounded-xl border border-slate-200 bg-white shadow-2xs ${className}`}
+      >
+        {inputBox}
+      </div>
+    );
+  }
+
+  if (variant === "chips") {
+    return (
+      <div
+        className={`flex items-stretch divide-x divide-slate-100 rounded-xl border border-slate-200 bg-white shadow-2xs ${className}`}
+      >
+        {suggestionButtons}
+      </div>
+    );
+  }
 
   if (variant === "bar") {
     return (
@@ -100,7 +181,7 @@ const UnitModalChat = ({ className = "", variant = "stacked" }: UnitModalChatPro
             key={text}
             type="button"
             onClick={() => handleSuggestion(text)}
-            className="flex min-w-0 flex-1 items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50/60 hover:text-blue-700"
+            className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-2 py-1.5 text-[11px] font-medium text-slate-600 transition-colors hover:bg-blue-50/60 hover:text-blue-700"
           >
             <Icon className="h-3.5 w-3.5 shrink-0 text-blue-500" />
             <span className="truncate">{text}</span>

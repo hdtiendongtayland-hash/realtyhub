@@ -20,6 +20,11 @@ type UnitModalHeaderBottomProps = {
    * thanh nay nam dau cot thong tin chu khong trai ngang ca popup.
    */
   variant?: "default" | "bar";
+  /**
+   * false: khong ve nut "So sanh can" trong thanh nay - dung khi bo cuc dat
+   * nut do o cho khac (bo cuc may tinh dat no o dau cot hanh dong ben phai).
+   */
+  showCompare?: boolean;
 };
 
 /**
@@ -48,58 +53,72 @@ const UnitModalHeaderBottom = ({
   onShare,
   onMore,
   variant = "default",
+  showCompare = true,
 }: UnitModalHeaderBottomProps) => {
   if (variant === "bar") {
-    // Ba the thong tin + nut so sanh can, bon o tach roi va bang be ngang nhau
-    const box =
-      "flex min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-brand-200 bg-white px-3 py-2 shadow-2xs";
+    // Kieu dang chung cua bon o - KHONG chua lop chia be ngang (flex-1 /
+    // w-[...]), cho nao dung thi tu them, tranh hai lop da nhau.
+    const boxLook =
+      "flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-2.5 py-1.5 shadow-2xs";
+    const box = `${boxLook} min-w-0 flex-1`;
 
     return (
-      <div className="flex items-stretch gap-2.5">
-        <div className={box}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white">
-            <FiHome className="h-4 w-4" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-xs text-gray-500">Loại hình</p>
-            <p className="truncate text-sm font-bold uppercase text-gray-900">
-              {propertyTypeLabel}
-            </p>
+      <div className="flex min-w-0 items-stretch gap-1.5">
+        {/* Ba o thong tin chia deu phan ben trai - dung bang be rong cot so
+            lieu ben duoi, nen mep phai o "Dien tich" thang voi mep phai the
+            "Gia". */}
+        <div className="flex min-w-0 flex-1 items-stretch gap-1.5">
+          <div className={box}>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white">
+              <FiHome className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500">Loại hình</p>
+              <p className="truncate text-sm font-bold uppercase text-gray-900">
+                {propertyTypeLabel}
+              </p>
+            </div>
+          </div>
+
+          <div className={box}>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white">
+              <FiCompass className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500">Hướng</p>
+              <p className="truncate text-sm font-bold uppercase text-gray-900">
+                {direction}
+              </p>
+            </div>
+          </div>
+
+          <div className={box}>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-brand-500 bg-white text-brand-500">
+              <FiMaximize className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500">Diện tích</p>
+              <p className="truncate text-sm font-bold uppercase text-gray-900">
+                {landArea} m²
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className={box}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white">
-            <FiCompass className="h-4 w-4" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-xs text-gray-500">Hướng</p>
-            <p className="truncate text-sm font-bold uppercase text-gray-900">
-              {direction}
-            </p>
-          </div>
-        </div>
-
-        <div className={box}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-brand-500 bg-white text-brand-500">
-            <FiMaximize className="h-4 w-4" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-xs text-gray-500">Diện tích</p>
-            <p className="truncate text-sm font-bold uppercase text-gray-900">
-              {landArea} m²
-            </p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={onCompareUnit}
-          className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600"
-        >
-          <FiCopy className="h-4 w-4 shrink-0" />
-          <span className="truncate">So sánh căn</span>
-        </button>
+        {/* "So sanh can": nen xanh dac cho noi bat (day la hanh dong, khong
+            phai o hien thong tin), nhung van rong dung bang cot "Lien he tu
+            van" ben duoi (30% + cung gap 6px) va cao bang ba o kia nho
+            items-stretch cua hang. */}
+        {showCompare && (
+          <button
+            type="button"
+            onClick={onCompareUnit}
+            className="flex w-[30%] min-w-0 shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 active:scale-[0.98]"
+          >
+            <FiCopy className="h-4 w-4 shrink-0" />
+            <span className="truncate">So sánh căn</span>
+          </button>
+        )}
       </div>
     );
   }

@@ -88,7 +88,7 @@ const UnitModalHeader = ({
   );
 
   return (
-    <div className="border-b border-gray-200 bg-white pb-4 max-md:pb-3 laptop:pb-2 lg:pb-1.5">
+    <div className="border-b border-gray-200 bg-white pb-4 max-md:pb-3 laptop:pb-2 lg:border-0 lg:bg-transparent lg:pb-1">
       <div className="flex flex-col gap-1 lg:gap-0.5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">

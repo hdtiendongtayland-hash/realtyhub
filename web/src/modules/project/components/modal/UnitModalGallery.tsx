@@ -254,7 +254,7 @@ const UnitModalGallery = ({
                 <FiChevronRight className="h-4 w-4" />
               </button>
 
-              <span className="pointer-events-none absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">
+              <span className="pointer-events-none absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">
                 <FiImage className="h-3.5 w-3.5" />
                 {activeIndex + 1}/{total}
               </span>
@@ -310,7 +310,7 @@ const UnitModalGallery = ({
 
       {/* ── Dải ảnh nhỏ: bấm để nhảy thẳng tới ảnh đó ──────────── */}
         {withThumbnails && canNavigate && (
-          <div className="flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5">
+          <div className="flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5">
             <div className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto">
               {images.map((image, index) => (
                 <button
@@ -318,7 +318,7 @@ const UnitModalGallery = ({
                   type="button"
                   onClick={() => setActiveIndex(index)}
                   aria-label={`Xem ảnh ${index + 1}`}
-                  className={`h-14 w-[4.5rem] shrink-0 overflow-hidden rounded-lg border-2 transition ${
+                  className={`h-12 w-[4rem] shrink-0 overflow-hidden rounded-lg border-2 transition ${
                     index === activeIndex
                       ? "border-brand-500 shadow-sm"
                       : "border-transparent opacity-70 hover:opacity-100"
@@ -336,7 +336,7 @@ const UnitModalGallery = ({
               onClick={handleNext}
               aria-label="Ảnh tiếp"
               title="Ảnh tiếp"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-gray-600 shadow-sm transition hover:border-brand-200 hover:text-brand-500"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-gray-600 shadow-sm transition hover:border-brand-200 hover:text-brand-500"
             >
               <FiChevronRight className="h-4 w-4" />
             </button>

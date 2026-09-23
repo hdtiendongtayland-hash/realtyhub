@@ -412,6 +412,31 @@
   }
 }
 
+/* Thanh cuon manh - dung cho cac khung cuon nho ben trong popup. Thanh cuon
+   mac dinh cua he dieu hanh rong ~17px, chiem gan het be ngang mot the nho. */
+@utility slim-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-300) transparent;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: var(--color-gray-300);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gray-400);
+  }
+}
+
 /* Thanh thong bao chay ngang: dich toan bo noi dung tu 0 den -50% (do
    items[] da nhan doi nen phan B ghep lien phan A). Hover vao parent
    `.group` se dung lai (animation-play-state: paused). */

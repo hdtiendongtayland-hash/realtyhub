@@ -38,14 +38,14 @@ export const PriceCard = ({
         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg lg:p-1">
           <FiDollarSign className="w-5 h-5 lg:w-4 lg:h-4" />
         </div>
-        <span className="font-bold text-base text-slate-900 lg:text-sm lg:leading-tight">Giá</span>
+        <span className="font-bold text-base text-slate-900 lg:text-xs lg:leading-tight">Giá</span>
       </div>
 
       <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={onPriceSheet}
-          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 lg:px-2 lg:py-1 lg:text-[11px] transition-colors hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
         >
           Phiếu tính giá
           <FiFileText className="w-3.5 h-3.5 text-blue-500" />
@@ -53,7 +53,7 @@ export const PriceCard = ({
         <button
           type="button"
           onClick={onLoanCalculator}
-          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
+          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 lg:px-2 lg:py-1 lg:text-[11px] transition-colors hover:border-blue-200 hover:bg-blue-50/60 hover:text-blue-700"
         >
           Tính lãi vay
           <FiPercent className="w-3.5 h-3.5 text-blue-500" />
@@ -61,22 +61,22 @@ export const PriceCard = ({
       </div>
     </div>
 
-    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 rounded-lg bg-slate-50/80 p-2.5 text-sm lg:content-center lg:flex-1 lg:gap-y-1 lg:p-2 max-md:grid-cols-1 max-md:gap-2 md:max-lg:gap-x-1 md:max-lg:p-2 md:max-lg:text-xs">
+    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 rounded-lg bg-slate-50/80 p-2.5 text-sm lg:content-center lg:text-[11px] lg:flex-1 lg:gap-y-1 lg:p-2 max-md:grid-cols-1 max-md:gap-2 md:max-lg:gap-x-1 md:max-lg:p-2 md:max-lg:text-xs">
       <div className="flex items-center justify-between gap-2 border-r border-slate-200 pr-2 max-md:border-r-0 max-md:pr-0 md:max-lg:gap-1 md:max-lg:pr-1.5">
         <span className="shrink-0 text-slate-600">Giá TTTĐ</span>
-        <span className="whitespace-nowrap text-right font-bold text-slate-900">2.97 tỷ</span>
+        <span className="whitespace-nowrap text-right font-bold text-slate-900 lg:text-xs">2.97 tỷ</span>
       </div>
       <div className="flex items-center justify-between gap-2 pl-1 max-md:pl-0 md:max-lg:gap-1 md:max-lg:pl-0.5">
         <span className="shrink-0 text-slate-600">Giá vay</span>
-        <span className="whitespace-nowrap text-right font-semibold text-slate-800">Đang cập nhật</span>
+        <span className="whitespace-nowrap text-right font-semibold text-slate-800 lg:text-xs">Đang cập nhật</span>
       </div>
       <div className="flex items-center justify-between gap-2 border-r border-slate-200 pr-2 max-md:border-r-0 max-md:pr-0 md:max-lg:gap-1 md:max-lg:pr-1.5">
         <span className="shrink-0 text-slate-600">Đơn giá</span>
-        <span className="whitespace-nowrap text-right font-bold text-slate-900">54.92 triệu/m²</span>
+        <span className="whitespace-nowrap text-right font-bold text-slate-900 lg:text-xs">54.92 triệu/m²</span>
       </div>
       <div className="flex items-center justify-between gap-2 pl-1 max-md:pl-0 md:max-lg:gap-1 md:max-lg:pl-0.5">
         <span className="shrink-0 text-slate-600">Giá TTS</span>
-        <span className="whitespace-nowrap text-right font-semibold text-slate-800">Đang cập nhật</span>
+        <span className="whitespace-nowrap text-right font-semibold text-slate-800 lg:text-xs">Đang cập nhật</span>
       </div>
     </div>
   </div>
@@ -95,26 +95,26 @@ export const AreaCard = ({
         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg lg:p-1">
           <FiMaximize2 className="w-5 h-5 lg:w-4 lg:h-4" />
         </div>
-        <span className="font-bold text-base text-slate-900 lg:text-sm lg:leading-tight">Diện tích</span>
+        <span className="font-bold text-base text-slate-900 lg:text-xs lg:leading-tight">Diện tích</span>
       </div>
 
       {/* Dung y het kieu nut "Phieu tinh gia" ben khoi Gia: cung o mot cot,
           hai nhan nay canh nhau nen lech kieu la thay ngay */}
-      <span className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700">
+      <span className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 lg:px-2 lg:py-1 lg:text-[11px]">
         Layout
         {layout && <span className="text-slate-500">{layout}</span>}
         <FiGrid className="w-3.5 h-3.5 text-blue-500" />
       </span>
     </div>
 
-    <div className="bg-slate-50/80 p-2.5 rounded-lg lg:p-2 lg:flex-1 grid grid-cols-2 text-sm divide-x divide-slate-200 lg:flex lg:flex-col lg:justify-center lg:gap-1 lg:divide-x-0">
+    <div className="bg-slate-50/80 p-2.5 rounded-lg lg:p-2 lg:flex-1 grid grid-cols-2 text-sm lg:text-[11px] divide-x divide-slate-200 lg:flex lg:flex-col lg:justify-center lg:gap-1 lg:divide-x-0">
       <div className="pr-2 lg:flex lg:items-center lg:justify-between lg:gap-2 lg:pr-0">
         <p className="text-slate-600 mb-0.5 lg:mb-0 lg:shrink-0">DT đất</p>
-        <p className="font-bold text-base text-slate-900 lg:whitespace-nowrap lg:text-right lg:text-sm lg:leading-tight">237.7 m²</p>
+        <p className="font-bold text-base text-slate-900 lg:whitespace-nowrap lg:text-right lg:text-xs lg:leading-tight">237.7 m²</p>
       </div>
       <div className="pl-3 lg:flex lg:items-center lg:justify-between lg:gap-2 lg:pl-0">
         <p className="text-slate-600 mb-0.5 lg:mb-0 lg:shrink-0">DT xây dựng</p>
-        <p className="font-bold text-base text-slate-900 lg:whitespace-nowrap lg:text-right lg:text-sm lg:leading-tight">377.3 m²</p>
+        <p className="font-bold text-base text-slate-900 lg:whitespace-nowrap lg:text-right lg:text-xs lg:leading-tight">377.3 m²</p>
       </div>
     </div>
   </div>
@@ -127,18 +127,18 @@ export const PolicyCard = ({ className = "" }: CardProps) => (
         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg lg:p-1">
           <FiGift className="w-5 h-5 lg:w-4 lg:h-4" />
         </div>
-        <span className="font-bold text-base text-slate-900 lg:text-sm lg:leading-tight">CSBH & Quà tặng</span>
+        <span className="font-bold text-base text-slate-900 lg:text-xs lg:leading-tight">CSBH & Quà tặng</span>
       </div>
     </div>
 
-    <div className="bg-slate-50/80 p-2.5 rounded-lg lg:p-2 lg:flex-1 grid grid-cols-2 text-sm divide-x divide-slate-200 lg:flex lg:flex-col lg:justify-center lg:gap-1 lg:divide-x-0">
+    <div className="bg-slate-50/80 p-2.5 rounded-lg lg:p-2 lg:flex-1 grid grid-cols-2 text-sm lg:text-[11px] divide-x divide-slate-200 lg:flex lg:flex-col lg:justify-center lg:gap-1 lg:divide-x-0">
       <div className="pr-2 lg:flex lg:items-center lg:justify-between lg:gap-2 lg:pr-0">
         <p className="text-slate-600 mb-0.5 lg:mb-0 lg:shrink-0">CSBH áp dụng</p>
-        <p className="font-bold text-sm text-slate-900 lg:truncate lg:text-right">13/08/2026</p>
+        <p className="font-bold text-sm text-slate-900 lg:truncate lg:text-right lg:text-xs">13/08/2026</p>
       </div>
       <div className="pl-3 lg:flex lg:items-center lg:justify-between lg:gap-2 lg:pl-0">
         <p className="text-slate-600 mb-0.5 lg:mb-0 lg:shrink-0">Ưu đãi đặc biệt</p>
-        <p className="font-bold text-sm text-slate-900 lg:truncate lg:text-right">3 chỉ vàng - 45tr</p>
+        <p className="font-bold text-sm text-slate-900 lg:truncate lg:text-right lg:text-xs">3 chỉ vàng - 45tr</p>
       </div>
     </div>
   </div>
@@ -150,10 +150,10 @@ export const HandoverCard = ({ className = "" }: CardProps) => (
       <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg lg:p-1">
         <FiFileText className="w-5 h-5 lg:w-4 lg:h-4" />
       </div>
-      <span className="font-bold text-base text-slate-900 lg:text-sm lg:leading-tight">Thông tin bàn giao</span>
+      <span className="font-bold text-base text-slate-900 lg:text-xs lg:leading-tight">Thông tin bàn giao</span>
     </div>
 
-    <div className="bg-slate-50/80 p-2.5 rounded-lg lg:p-2 lg:flex lg:flex-1 lg:flex-col lg:justify-center space-y-1.5 text-sm">
+    <div className="bg-slate-50/80 p-2.5 rounded-lg lg:p-2 lg:flex lg:flex-1 lg:flex-col lg:justify-center space-y-1.5 text-sm lg:text-[11px]">
       <div className="flex justify-between items-center">
         <span className="text-slate-600">Tiêu chuẩn bàn giao</span>
         <span className="font-medium text-slate-900">Giản xây</span>
@@ -172,9 +172,9 @@ export const LegalCard = ({ className = "" }: CardProps) => (
       <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg lg:p-1">
         <FiShield className="w-5 h-5 lg:w-4 lg:h-4" />
       </div>
-      <span className="font-bold text-base text-slate-900 lg:text-sm lg:leading-tight">Pháp lý</span>
+      <span className="font-bold text-base text-slate-900 lg:text-xs lg:leading-tight">Pháp lý</span>
     </div>
-    <div className="flex items-center gap-1.5 bg-blue-50/60 text-blue-700 px-3 py-1 rounded-lg border border-blue-100 text-sm font-semibold lg:text-xs">
+    <div className="flex items-center gap-1.5 bg-blue-50/60 text-blue-700 px-3 py-1 rounded-lg border border-blue-100 text-sm font-semibold lg:px-2.5 lg:text-[11px]">
       <FiShield className="w-3.5 h-3.5 text-blue-600" />
       Sở hữu lâu dài
     </div>

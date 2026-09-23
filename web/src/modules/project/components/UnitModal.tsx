@@ -113,16 +113,25 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
       />
 
-      {/* Dialog. Tu 1024px tro len la khung chu nhat nam ngang, rong hon va cao
-          vua man hinh: toan bo thong tin nam tron trong khung, mot cu bam la
-          thay het, khong con phai cuon. Duoi 1024px giu nguyen nhu cu. */}
+      {/* Dialog. Tu 1024px tro len: khung ngang chia BA COT (anh - so lieu -
+          hanh dong), mot cu bam la thay het, khong phai cuon.
+
+          Kich thuoc dat bang PX CO DINH (1000x540), vh/vw chi la cai chan tren
+          cho man hinh nho.
+
+          540px chon co y: man hinh laptop pho bien (768px, he dieu hanh scale
+          125%) chi con ~590px CSS chieu cao, nen moi con so lon hon se bi
+          `max-h` cat bot o zoom 100% roi lai nha ra o zoom 90% -> cac hang ben
+          trong xe dich, nhin nhu bo cuc bi "be". De 540px thi khong muc zoom
+          nao cham vao chan tren, bo cuc y het nhau, zoom chi lam to/nho deu.
+          Nen xanh rat nhat de cac the trang noi len. Duoi 1024px giu nhu cu. */}
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[100dvh] max-md:rounded-none lg:h-[min(94vh,900px)] lg:max-w-[1280px]"
+        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[100dvh] max-md:rounded-none lg:h-[540px] lg:max-h-[94vh] lg:w-[1000px] lg:max-w-[92vw] lg:max-w-none lg:bg-[#f3f7fd]"
       >
         {/* Content */}
-        <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-2 max-md:overflow-y-auto max-md:px-3 max-md:pb-[env(safe-area-inset-bottom)]">
+        <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-2 md:max-lg:overflow-y-auto lg:px-3 lg:pt-1.5 max-md:overflow-y-auto max-md:px-3 max-md:pb-[env(safe-area-inset-bottom)]">
           <UnitModalDetail
             code={unit.code}
             phaseName={unit.phaseName ?? "Phân khu mặc định"}
