@@ -292,6 +292,9 @@ const COLLAPSE_MIN_OPTIONS = 20;
 /** Hai hang the chu: the cao 42px, khoang cach 10px */
 const TWO_ROWS_CHIPS_PX = 94;
 
+/** Hai hang logo chu dau tu: 2 x h-11 (44px) + mot khoang gap-3 (12px) */
+const TWO_ROWS_LOGOS_PX = 100;
+
 /**
  * Cat noi dung con hai hang dau, phan con lai nam sau nut "Xem them".
  *
@@ -305,16 +308,34 @@ const CollapsibleRows = ({
   defaultExpanded = false,
   /** Doi gia tri nay thi do lai chieu cao (so muc trong nhom) */
   measureKey,
+  /**
+   * Chi thu gon tu be rong nay tro len (px). Bo trong = thu gon o moi man hinh.
+   * Dung cho nhom logo chu dau tu: chi gon hai hang tren may tinh, con dien
+   * thoai/iPad thi cuon doc san roi, giau bot chi lam kho tim.
+   */
+  enabledFrom,
   children,
 }: {
   collapsedHeight: number;
   defaultExpanded?: boolean;
   measureKey: number;
+  enabledFrom?: number;
   children: ReactNode;
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(enabledFrom === undefined);
   const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (enabledFrom === undefined) return undefined;
+
+    const query = window.matchMedia(`(min-width: ${enabledFrom}px)`);
+    const sync = () => setIsEnabled(query.matches);
+    sync();
+    query.addEventListener('change', sync);
+    return () => query.removeEventListener('change', sync);
+  }, [enabledFrom]);
 
   useEffect(() => {
     const element = listRef.current;
@@ -333,17 +354,19 @@ const CollapsibleRows = ({
     // thuoc vao no la dung/huy ResizeObserver mot cach vo ich.
   }, [collapsedHeight, measureKey]);
 
+  const isCollapsed = isEnabled && !isExpanded;
+
   return (
     <>
       <div
         ref={listRef}
         className="overflow-hidden"
-        style={isExpanded ? undefined : { maxHeight: collapsedHeight }}
+        style={isCollapsed ? { maxHeight: collapsedHeight } : undefined}
       >
         {children}
       </div>
 
-      {isOverflowing && (
+      {isEnabled && isOverflowing && (
         <button
           type="button"
           onClick={() => setIsExpanded((open) => !open)}
@@ -544,6 +567,47 @@ const FilterPanel = ({
    */
   const [codeInput, setCodeInput] = useState(values.code ?? '');
 
+  /**
+   * Chieu cao toi da cua bang: do bang CHO TRONG THUC TE tu dinh bang xuong day
+   * man hinh, chu khong phai 80vh.
+   *
+   * Bang bung ra NGAY DUOI nut "Loc" (absolute top-full) nen dinh no da nam
+   * cach dinh man hinh mot doan; lay 80vh thi tong lai vuot qua day man hinh va
+   * hai nut "Bo chon" / "Xem ket qua" o cuoi bi cat - chi con thay o nhung muc
+   * zoom ma man hinh du cao (vi du 90%).
+   */
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [maxHeight, setMaxHeight] = useState<number | undefined>();
+
+  useEffect(() => {
+    const update = () => {
+      const el = panelRef.current;
+      if (!el) return;
+      // Dien thoai (<640px): bang phu TRON man hinh (fixed inset-0) va nam
+      // tren ca thanh tab, nen khong khoa chieu cao - de inset-0 lo.
+      if (window.innerWidth < 640) {
+        setMaxHeight(undefined);
+        return;
+      }
+
+      const { top } = el.getBoundingClientRect();
+      // Tu 640px den duoi 1024px con thanh tab co dinh o day man hinh (~56px +
+      // vung an toan), phai chua cho cho no neu khong chan bang bi no de len.
+      const reserved = window.innerWidth < 1024 ? 76 : 16;
+      // Chua 320px thi bang qua be de dung, luc do cho no tran va tu cuon
+      setMaxHeight(Math.max(320, window.innerHeight - top - reserved));
+    };
+
+    update();
+    window.addEventListener('resize', update);
+    // capture: bat ca khi cuon ben trong cac khung cuon long nhau
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
+  }, []);
+
   const activeFilters = describeActiveFilters(values, facets, investors);
 
   useEffect(() => {
@@ -555,9 +619,11 @@ const FilterPanel = ({
 
   return (
     <div
+      ref={panelRef}
       role="dialog"
       aria-label="Tất cả bộ lọc"
-      className="fixed inset-0 z-40 flex w-full flex-col overflow-hidden border-gray-200 bg-white shadow-panel sm:absolute sm:inset-auto sm:left-0 sm:top-full sm:z-30 sm:mt-2.5 sm:max-h-[80vh] sm:max-w-[940px] sm:rounded-2xl sm:border"
+      style={maxHeight ? { maxHeight } : undefined}
+      className="fixed inset-0 z-40 flex w-full flex-col overflow-hidden border-gray-200 bg-white shadow-panel sm:absolute sm:inset-auto sm:left-0 sm:top-full sm:z-40 sm:mt-2.5 sm:max-h-[80vh] sm:max-w-[940px] sm:rounded-2xl sm:border"
     >
       {/* Mui ten tro ve nut Loc, cho thay bang nay tu dau bung ra */}
       <span
@@ -615,10 +681,16 @@ const FilterPanel = ({
         )}
 
         <Section title="Chủ đầu tư">
-          {/* Hien het 25 logo, khong thu gon: day la o loc duoc dung nhieu
-              nhat, giau di sau mot nut bam chi lam cham tay nguoi dung.
+          {/* May tinh: gon lai hai hang, con lai nam sau nut "Xem them" - 25
+              logo trai het ra chiem gan nua bang loc. Dien thoai/iPad giu
+              nguyen (enabledFrom=1024) vi o do bang von da cuon doc.
               So cot khop so logo tren hang NGOAI (4 / 6 / 7) de o trong bang
               rong bang o ngoai - logo an theo be rong o, lech cot la lech co */}
+          <CollapsibleRows
+            collapsedHeight={TWO_ROWS_LOGOS_PX}
+            measureKey={investors.length}
+            enabledFrom={1024}
+          >
             <div className="grid grid-cols-4 gap-2 sm:gap-3 md:grid-cols-6 lg:grid-cols-7">
             {investors.map(({ investor, developerId }) => {
               const isSelected =
@@ -657,7 +729,8 @@ const FilterPanel = ({
                 </button>
               );
             })}
-          </div>
+            </div>
+          </CollapsibleRows>
         </Section>
 
         <Section title="Loại dự án">
@@ -792,19 +865,19 @@ const FilterPanel = ({
       {/* ── Chan bang ─────────────────────────────────────────────── */}
       {/* Bo loc ap ngay khi bam, nen nut nay chi dong bang lai - nhung van
           phai co: no la cho hien so ket qua va la loi thoat quen thuoc. */}
-      <div className="flex shrink-0 items-center justify-center gap-2.5 border-t border-gray-100 bg-white px-3 py-2.5 sm:gap-4 sm:px-5 sm:py-3.5">
+      <div className="flex shrink-0 items-center justify-center gap-2.5 border-t border-gray-100 bg-white px-3 py-2.5 sm:gap-3 sm:px-5 sm:py-2.5">
         <button
           type="button"
           onClick={onClearAll}
           disabled={activeCount === 0}
-          className="h-11 flex-1 rounded-lg border border-error-500/60 text-theme-sm font-semibold text-error-600 transition hover:bg-error-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent sm:max-w-[260px]"
+          className="h-11 flex-1 rounded-lg border border-error-500/60 text-theme-sm font-semibold text-error-600 transition hover:bg-error-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent sm:h-9 sm:max-w-[200px] sm:text-xs"
         >
           Bỏ chọn
         </button>
         <button
           type="button"
           onClick={onClose}
-          className="h-11 flex-1 rounded-lg bg-brand-500 text-theme-sm font-semibold text-white transition hover:bg-brand-600 sm:max-w-[260px]"
+          className="h-11 flex-1 rounded-lg bg-brand-500 text-theme-sm font-semibold text-white transition hover:bg-brand-600 sm:h-9 sm:max-w-[200px] sm:text-xs"
         >
           {isLoading ? 'Đang đếm...' : `Xem ${resultCount} kết quả`}
         </button>

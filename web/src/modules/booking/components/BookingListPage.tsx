@@ -18,6 +18,18 @@ import {
  */
 
 /** Mau chu theo trang thai - do cho tu choi/huy, xanh cho da duyet */
+/**
+ * Mau cua the ma can: xanh brand la binh thuong, chuyen DO khi yeu cau da bi
+ * huy hoac bi tu choi - liec qua danh sach la thay ngay cai nao khong con
+ * hieu luc, khong phai doc cot trang thai.
+ */
+const CODE_TONE: Record<BookingStatus, string> = {
+  'cho-xu-ly': 'bg-brand-50 text-brand-600',
+  'da-duyet': 'bg-brand-50 text-brand-600',
+  'da-tu-choi': 'bg-error-50 text-error-600',
+  'da-huy': 'bg-error-50 text-error-600',
+};
+
 const STATUS_TONE: Record<BookingStatus, string> = {
   'cho-xu-ly': 'text-accent-600',
   'da-duyet': 'text-success-600',
@@ -78,7 +90,9 @@ const BookingListPage = () => {
                 className="rounded-xl border border-gray-200 bg-white p-4 shadow-card"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="rounded-md bg-error-50 px-2.5 py-1 text-theme-sm font-bold text-error-600">
+                  <span
+                    className={`rounded-md px-2.5 py-1 text-theme-sm font-bold ${CODE_TONE[booking.status]}`}
+                  >
                     {booking.unitCode}
                   </span>
                   <span
@@ -155,7 +169,9 @@ const BookingListPage = () => {
                   className="border-b border-gray-100 last:border-b-0 hover:bg-gray-25"
                 >
                   <td className="px-4 py-3">
-                    <span className="rounded-md bg-error-50 px-2.5 py-1 font-bold text-error-600">
+                    <span
+                      className={`rounded-md px-2.5 py-1 font-bold ${CODE_TONE[booking.status]}`}
+                    >
                       {booking.unitCode}
                     </span>
                   </td>

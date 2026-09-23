@@ -6,6 +6,7 @@ import { useBookings } from "@/common/hooks/useBookings";
 import UnitModalDetail from "./UnitModalDetail";
 import UnitBookingLockModal from "./modal/UnitBookingLockModal";
 import UnitShareModal from "./modal/UnitShareModal";
+import UnitLoanCalculatorModal from "./modal/UnitLoanCalculatorModal";
 import { UNIT_STATUS_LABELS } from "../models/project-detail.model";
 import type { UnitWithProject } from "../models/project-detail.model";
 
@@ -20,17 +21,19 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
   const { isFavorite, toggle } = useFavoriteUnits();
   const { create: createBooking } = useBookings();
 
-  // Hai bang phu cua popup: lock can va chia se. Doi sang can khac thi dong
-  // ca hai - so sanh voi can dang xem ngay trong than render, re hon mot vong
-  // useEffect va khong nhap nhay mot khung hinh.
+  // Cac bang phu cua popup: lock can, chia se, tinh lai vay. Doi sang can
+  // khac thi dong het - so sanh voi can dang xem ngay trong than render, re
+  // hon mot vong useEffect va khong nhap nhay mot khung hinh.
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isLoanOpen, setIsLoanOpen] = useState(false);
   const [lastUnitId, setLastUnitId] = useState(unit?.publicId);
 
   if (lastUnitId !== unit?.publicId) {
     setLastUnitId(unit?.publicId);
     if (isBookingOpen) setIsBookingOpen(false);
     if (isShareOpen) setIsShareOpen(false);
+    if (isLoanOpen) setIsLoanOpen(false);
   }
 
   // Phím Escape đóng modal + focus trap đơn giản
@@ -150,7 +153,7 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
             onClose={onClose}
             onCompareUnit={() => console.log("So sánh căn")}
             onPriceSheet={() => console.log("Phiếu tính giá")}
-            onLoanCalculator={() => console.log("Tính lãi vay")}
+            onLoanCalculator={() => setIsLoanOpen(true)}
             onBookingLock={() => setIsBookingOpen(true)}
             onShare={() => setIsShareOpen(true)}
             onMore={() => console.log("Menu thêm")}
@@ -189,6 +192,16 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
               assignee: advisors[0]?.name,
             });
           }}
+        />
+      )}
+
+      {isLoanOpen && (
+        <UnitLoanCalculatorModal
+          code={unit.code}
+          // Lay gia FULL (da gom VAT + KPBT) lam gia tri bat dong san: do moi
+          // la so tien nguoi mua thuc su phai lo, cung la so ngan hang dinh gia
+          price={unit.fullVatPrice ?? unit.listedPrice ?? 0}
+          onClose={() => setIsLoanOpen(false)}
         />
       )}
 
