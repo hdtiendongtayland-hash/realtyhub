@@ -278,6 +278,36 @@
   /* Badge HOT nhap nhay manh me - goi su chu y */
   --animate-hot-pulse: hot-pulse 0.9s ease-in-out infinite;
 
+  /* Nut hanh dong chinh: quang sang tho nhe. Chi doi BONG DO, khong doi kich
+     thuoc hay vi tri - nut nam trong bo cuc chat, phong to mot chut la xo
+     day cac phan ben canh. */
+  --animate-cta-glow: cta-glow 2.4s ease-in-out infinite;
+
+  /* Vet sang quet ngang qua nut - keo mat nguoi dung ve phia nut ma khong
+     lam no nhay hay doi kich thuoc. Quet nhanh roi nghi, khong quet lien tuc
+     de do gay roi mat. */
+  --animate-cta-shine: cta-shine 3s ease-in-out infinite;
+
+  @keyframes cta-shine {
+    0% {
+      transform: translateX(-120%) skewX(-18deg);
+    }
+    35%,
+    100% {
+      transform: translateX(420%) skewX(-18deg);
+    }
+  }
+
+  @keyframes cta-glow {
+    0%,
+    100% {
+      box-shadow: 0 4px 12px rgb(37 99 235 / 0.25);
+    }
+    50% {
+      box-shadow: 0 8px 24px rgb(37 99 235 / 0.55);
+    }
+  }
+
   /* Nhan HOT phai dap vao mat: phong to manh hon va nhay do sang - chi doi
      kich thuoc thi o co nho nhu tren card gan nhu khong thay gi. */
   @keyframes hot-pulse {
@@ -302,6 +332,13 @@
   }
   .animate-hot-pulse {
     animation: none;
+  }
+  .animate-cta-glow {
+    animation: none;
+  }
+  .animate-cta-shine {
+    animation: none;
+    opacity: 0;
   }
 }
 
@@ -418,9 +455,19 @@
   scrollbar-width: thin;
   scrollbar-color: var(--color-gray-300) transparent;
 
+  /* 3px: mong het muc ma van bat duoc bang chuot. Nho hon nua thi thanh keo
+     gan nhu khong tro vao duoc, luc do nen bo han thanh cuon (no-scrollbar). */
   &::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 3px;
+    height: 3px;
+  }
+
+  /* Chrome/Edge tren Windows ve them hai nut mui ten o hai dau - an di cho
+     thanh chi con dung mot vach mong. */
+  &::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
   }
 
   &::-webkit-scrollbar-track {

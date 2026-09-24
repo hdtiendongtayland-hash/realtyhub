@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FiArrowRight, FiCalendar, FiShare2, FiUsers } from "react-icons/fi";
+import { FiCalendar, FiShare2, FiUsers } from "react-icons/fi";
 import UnitModalHeader from "./modal/UnitModalHeader";
 import UnitModalHeaderBottom from "./modal/UnitModalHeaderBottom";
 import UnitModalGallery from "./modal/UnitModalGallery";
@@ -102,6 +102,7 @@ const UnitModalDetailDesktop = ({
             value={chatMessage}
             onValueChange={setChatMessage}
           />
+
         </div>
 
         {/* ── Khu bên phải: thanh 4 ô trải ngang, dưới là số liệu + hành
@@ -135,27 +136,30 @@ const UnitModalDetailDesktop = ({
               <HandoverCard />
               {/* "Phap ly" chi co mot gia tri nen khong keo dan bang cac the
                   kia: self-start cho no dung o nua o tren. h-12 khoa cung
-                  chieu cao, bang dung nut BOOKING LOCK nam ngang no. */}
+                  chieu cao, bang dung nut nam ngang no. */}
               <LegalCard className="h-12 self-start" />
             </div>
 
             {/* Cột tư vấn viên + hành động - GOM TRONG MOT THE:
                 tieu de, danh sach tu van vien va hai nut nam chung mot khung
                 vien, thay vi the tu van vien roi hai nut tha noi ben ngoai. */}
-            <div className="flex w-[30%] min-h-0 shrink-0 flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
+            {/* Be rong dung bang MOT o cua thanh tren: thanh do co 4 o va 3
+                khoang cach 6px, nen moi o = 25% tru 4.5px. Dat 25% chan se
+                thua mat 4.5px va lech khoi o "So sanh can" phia tren. */}
+            <div className="flex w-[calc(25%-4.5px)] min-h-0 shrink-0 flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
               <div className="flex shrink-0 items-center gap-2">
-                <span className="shrink-0 rounded-md bg-blue-50 p-1 text-blue-600">
+                <span className="shrink-0 rounded-md bg-blue-50 p-0.5 text-blue-600">
                   <FiUsers className="h-3.5 w-3.5" />
                 </span>
-                <p className="min-w-0 truncate text-[11px] font-bold leading-tight text-slate-900">
+                <p className="min-w-0 truncate text-[10px] font-bold leading-tight text-slate-900">
                   Liên hệ tư vấn
                 </p>
               </div>
 
-              {/* Chi vua khoang hai nguoi - con lai keo thanh truot xuong xem
-                  tiep. slim-scrollbar: thanh cuon manh 5px thay vi thanh ~17px
-                  mac dinh cua he dieu hanh (van hien, chi nho lai). */}
-              <div className="slim-scrollbar min-h-0 flex-1 overflow-y-auto pr-1">
+              {/* Van cuon duoc (lan chuot / vuot) nhung KHONG ve thanh truot:
+                  cot nay chi rong ~25% khung, mot vach cuon dung o day lam
+                  phan chu hep them va nhin roi. */}
+              <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
                 <UnitModalAdvisor
                   variant="band"
                   advisors={advisors}
@@ -164,24 +168,33 @@ const UnitModalDetailDesktop = ({
                 />
               </div>
 
-              {/* BOOKING LOCK la hanh dong chinh nen noi bat hon nut chia se */}
-              <div className="flex shrink-0 flex-col gap-1.5">
-                <button
-                  type="button"
-                  onClick={onBookingLock}
-                  className="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-700 active:scale-[0.98]"
-                >
-                  <FiCalendar className="h-4 w-4 shrink-0" />
-                  <span className="truncate">BOOKING LOCK</span>
-                  <FiArrowRight className="h-4 w-4 shrink-0" />
-                </button>
+              {/* Hai nut: "Chia se" o tren, "BOOKING LOCK" (nen xanh dac) o
+                  duoi - nut xanh dat sat day khung cho de bam */}
+              {/* mb-px: cum nut dinh day khung nen khi nut "Chia se" thap di
+                  1px thi ca cum bi tut xuong, tuc la no ngan lai tu TREN.
+                  Them 1px lot duoi de cum giu nguyen mep tren - phan ngan lai
+                  roi vao mep DUOI dung nhu y. */}
+              <div className="mb-px flex shrink-0 flex-col gap-1.5">
                 <button
                   type="button"
                   onClick={onShare}
-                  className="flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-3 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
+                  className="flex h-[47px] items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-2 text-xs font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
                 >
                   <FiShare2 className="h-4 w-4 shrink-0" />
                   <span className="truncate">Chia sẻ</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onBookingLock}
+                  className="relative flex h-12 animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-2 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
+                >
+                  {/* Vet sang quet qua mat nut - nam duoi chu nho z-index */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-y-0 left-0 w-1/4 animate-cta-shine bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                  />
+                  <FiCalendar className="relative z-10 h-4 w-4 shrink-0" />
+                  <span className="relative z-10 truncate">BOOKING LOCK</span>
                 </button>
               </div>
             </div>

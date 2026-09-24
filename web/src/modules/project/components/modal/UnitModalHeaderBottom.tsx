@@ -64,56 +64,50 @@ const UnitModalHeaderBottom = ({
 
     return (
       <div className="flex min-w-0 items-stretch gap-1.5">
-        {/* Ba o thong tin chia deu phan ben trai - dung bang be rong cot so
-            lieu ben duoi, nen mep phai o "Dien tich" thang voi mep phai the
-            "Gia". */}
-        <div className="flex min-w-0 flex-1 items-stretch gap-1.5">
-          <div className={box}>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white">
-              <FiHome className="h-4 w-4" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500">Loại hình</p>
-              <p className="truncate text-sm font-bold uppercase text-gray-900 min-[800px]:max-xl:text-base">
-                {propertyTypeLabel}
-              </p>
-            </div>
-          </div>
-
-          <div className={box}>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white">
-              <FiCompass className="h-4 w-4" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500">Hướng</p>
-              <p className="truncate text-sm font-bold uppercase text-gray-900 min-[800px]:max-xl:text-base">
-                {direction}
-              </p>
-            </div>
-          </div>
-
-          <div className={box}>
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-brand-500 bg-white text-brand-500">
-              <FiMaximize className="h-4 w-4" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500">Diện tích</p>
-              <p className="truncate text-sm font-bold uppercase text-gray-900 min-[800px]:max-xl:text-base">
-                {landArea} m²
-              </p>
-            </div>
+        <div className={box}>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white">
+            <FiHome className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500">Loại hình</p>
+            <p className="truncate text-sm font-bold uppercase text-gray-900">
+              {propertyTypeLabel}
+            </p>
           </div>
         </div>
 
-        {/* "So sanh can": nen xanh dac cho noi bat (day la hanh dong, khong
-            phai o hien thong tin), nhung van rong dung bang cot "Lien he tu
-            van" ben duoi (30% + cung gap 6px) va cao bang ba o kia nho
-            items-stretch cua hang. */}
+        <div className={box}>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white">
+            <FiCompass className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500">Hướng</p>
+            <p className="truncate text-sm font-bold uppercase text-gray-900">
+              {direction}
+            </p>
+          </div>
+        </div>
+
+        <div className={box}>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-brand-500 bg-white text-brand-500">
+            <FiMaximize className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-xs text-gray-500">Diện tích</p>
+            <p className="truncate text-sm font-bold uppercase text-gray-900">
+              {landArea} m²
+            </p>
+          </div>
+        </div>
+
+        {/* "So sanh can" chia deu be rong voi ba o thong tin (cung flex-1),
+            va cot "Lien he tu van" ben duoi cung lay dung mot phan tu do -
+            bon cot thang mot duong doc tu tren xuong. */}
         {showCompare && (
           <button
             type="button"
             onClick={onCompareUnit}
-            className="flex w-[30%] min-w-0 shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 active:scale-[0.98]"
+            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 active:scale-[0.98]"
           >
             <FiCopy className="h-4 w-4 shrink-0" />
             <span className="truncate">So sánh căn</span>

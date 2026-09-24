@@ -90,14 +90,14 @@ const UnitModalChat = ({
       onSubmit={handleSendMessage}
       className="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5"
     >
-      <FiMessageSquare className="h-4 w-4 shrink-0 text-blue-500" />
+      <FiMessageSquare className="h-3.5 w-3.5 shrink-0 text-blue-500" />
       <input
         ref={chatInputRef}
         type="text"
         value={chatMessage}
         onChange={(e) => setChatMessage(e.target.value)}
         placeholder="Nhắn tin với Admin..."
-        className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
+        className="min-w-0 flex-1 bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none"
       />
       {/* Nut gui chi hien khi da go chu - luc trong o thi thanh nay gon het
           muc, dung nhu mockup */}
@@ -154,14 +154,14 @@ const UnitModalChat = ({
           onSubmit={handleSendMessage}
           className="flex min-w-0 flex-[1.4] items-center gap-2 px-3 py-1.5"
         >
-          <FiMessageSquare className="h-4 w-4 shrink-0 text-blue-500" />
+          <FiMessageSquare className="h-3.5 w-3.5 shrink-0 text-blue-500" />
           <input
             ref={chatInputRef}
             type="text"
             value={chatMessage}
             onChange={(e) => setChatMessage(e.target.value)}
             placeholder="Nhắn tin với Admin..."
-            className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
+            className="min-w-0 flex-1 bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none"
           />
           {/* Nut gui chi hien khi da go chu - luc trong o thi thanh nay gon
               het muc, dung nhu mockup */}

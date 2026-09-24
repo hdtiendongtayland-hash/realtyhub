@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from 'react';
 import Image from 'next/image';
-import { FiChevronDown, FiPhone } from 'react-icons/fi';
+import { FiPhone } from 'react-icons/fi';
 
 interface Advisor {
   id: string | number;
@@ -60,16 +59,10 @@ const UnitModalAdvisor = ({
 }: UnitModalAdvisorProps) => {
   // Giới hạn tối đa 3 advisors
   const displayAdvisors = advisors.slice(0, 3);
-  // Bien the "band" chi hien hai nguoi dau cho gon, bam "Xem them" moi mo het
-  const [expanded, setExpanded] = useState(false);
-
   if (variant === "band") {
-    const visible = expanded ? displayAdvisors : displayAdvisors.slice(0, 2);
-    const hiddenCount = displayAdvisors.length - visible.length;
-
     return (
       <div className="flex w-full flex-col gap-1.5">
-        {visible.map((advisor) => (
+        {displayAdvisors.map((advisor) => (
           <div
             key={advisor.id}
             className="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-2 py-1.5"
@@ -77,18 +70,18 @@ const UnitModalAdvisor = ({
             <img
               src={advisor.avatar}
               alt={advisor.name}
-              className="h-9 w-9 shrink-0 rounded-full border-2 border-white object-cover shadow-2xs"
+              className="h-7 w-7 shrink-0 rounded-full border-2 border-white object-cover shadow-2xs"
             />
             {/* Ten + chuc danh o tren, hai nut goi/Zalo o duoi: cot nay chi
                 rong ~205px, xep tat ca tren mot hang thi ten bi cat ("Lan Thi
                 ..."), xuong dong thi phan chu duoc gan gap doi be ngang. */}
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <div className="min-w-0">
-                <h4 className="truncate text-xs font-bold leading-tight text-slate-900" title={advisor.name}>
+                <h4 className="truncate text-[11px] font-bold leading-tight text-slate-900" title={advisor.name}>
                   {advisor.name}
                 </h4>
                 {advisor.role && (
-                  <p className="truncate text-xs font-medium leading-tight text-blue-600">
+                  <p className="truncate text-[10px] font-medium leading-tight text-blue-600">
                     {advisor.role}
                   </p>
                 )}
@@ -97,38 +90,24 @@ const UnitModalAdvisor = ({
                 <button
                   type="button"
                   onClick={() => (onCall ? onCall(advisor) : window.open(`tel:${advisor.phone}`))}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95"
+                  className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95"
                   title="Gọi điện"
                 >
-                  <FiPhone className="h-3.5 w-3.5 fill-white" />
+                  <FiPhone className="h-2.5 w-2.5 fill-white" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onMessage && onMessage(advisor)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg transition-all active:scale-95"
+                  className="flex h-5 w-5 items-center justify-center rounded-md transition-all active:scale-95"
                   title="Nhắn tin"
                 >
-                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={28} height={28} className="h-6 w-6" />
+                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={20} height={20} className="h-4 w-4" />
                 </button>
               </div>
             </div>
           </div>
         ))}
 
-        {/* Chi hien nut khi that su con nguoi bi an - hai nguoi dau da du
-            thong tin lien he, cat bot cho khoi trang mot the nua bi cat doi */}
-        {(hiddenCount > 0 || expanded) && (
-          <button
-            type="button"
-            onClick={() => setExpanded((prev) => !prev)}
-            className="flex items-center justify-center gap-1 rounded-lg py-1 text-[11px] font-medium text-blue-600 transition-colors hover:bg-blue-50/60"
-          >
-            {expanded ? "Thu gọn" : `Xem thêm ${hiddenCount} người`}
-            <FiChevronDown
-              className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`}
-            />
-          </button>
-        )}
       </div>
     );
   }
@@ -142,7 +121,7 @@ const UnitModalAdvisor = ({
         >
           <div className="flex min-w-0 shrink-0 items-center gap-3 laptop:w-full laptop:shrink">
             <div className="flex flex-col items-center gap-1 max-xl:items-start laptop:w-full laptop:items-start laptop:gap-0.5">
-              <h4 className="max-w-full truncate text-sm font-bold text-slate-900 min-[800px]:max-xl:text-base" title={advisor.name}>
+              <h4 className="max-w-full truncate text-sm font-bold text-slate-900 md:max-xl:text-xs min-[800px]:max-xl:text-sm" title={advisor.name}>
                 {advisor.name}
               </h4>
               {advisor.role && (
@@ -159,18 +138,18 @@ const UnitModalAdvisor = ({
                 <button
                   type="button"
                   onClick={() => onCall ? onCall(advisor) : window.open(`tel:${advisor.phone}`)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95 laptop:h-7 laptop:w-7"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95 md:max-xl:h-8 md:max-xl:w-8 laptop:h-7 laptop:w-7"
                   title="Gọi điện"
                 >
-                  <FiPhone className="h-4 w-4 fill-white laptop:h-3.5 laptop:w-3.5" />
+                  <FiPhone className="h-4 w-4 fill-white md:max-xl:h-3.5 md:max-xl:w-3.5 laptop:h-3.5 laptop:w-3.5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onMessage && onMessage(advisor)}
-                  className="flex h-12 w-12 items-center justify-center rounded-lg transition-all active:scale-95 laptop:h-8 laptop:w-8"
+                  className="flex h-12 w-12 items-center justify-center rounded-lg transition-all active:scale-95 md:max-xl:h-11 md:max-xl:w-11 laptop:h-8 laptop:w-8"
                   title="Nhắn tin"
                 >
-                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={32} height={32} className="laptop:h-6 laptop:w-6" />
+                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={32} height={32} className="md:max-xl:h-7 md:max-xl:w-7 laptop:h-6 laptop:w-6" />
                 </button>
               </div>
             </div>

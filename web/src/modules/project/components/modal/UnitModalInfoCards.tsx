@@ -32,8 +32,8 @@ export const PriceCard = ({
   /** Mo bang tinh lai vay */
   onLoanCalculator?: () => void;
 }) => (
-  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-2 ${className}`}>
-    <div className="flex flex-wrap items-center justify-between gap-2 mb-2 xl:mb-1">
+  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-1.5 ${className}`}>
+    <div className="flex flex-wrap items-center justify-between gap-2 mb-2 xl:mb-0.5">
       <div className="flex items-center gap-2">
         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg xl:p-1">
           <FiDollarSign className="w-5 h-5 xl:w-4 xl:h-4" />
@@ -61,22 +61,22 @@ export const PriceCard = ({
       </div>
     </div>
 
-    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 rounded-lg bg-slate-50/80 p-2.5 text-sm max-md:grid-cols-1 max-md:gap-2 md:max-xl:text-xs lg:max-xl:text-sm xl:content-center xl:flex-1 xl:gap-y-1 xl:p-2 xl:text-[11px]">
+    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 rounded-lg bg-slate-50/80 p-2.5 text-sm max-md:grid-cols-1 max-md:gap-2 md:max-xl:text-xs lg:max-xl:text-sm xl:content-center xl:flex-1 xl:gap-y-0.5 xl:p-1.5 xl:text-[11px]">
       <div className="flex items-center justify-between gap-2 border-r border-slate-200 pr-2 max-md:border-r-0 max-md:pr-0 md:max-xl:gap-1 md:max-xl:pr-1.5">
-        <span className="shrink-0 text-slate-600">Giá TTTĐ</span>
+        <span className="shrink-0 text-slate-500">Giá TTTĐ</span>
         <span className="min-w-0 truncate text-right font-bold text-slate-900 xl:text-xs">2.97 tỷ</span>
       </div>
       <div className="flex items-center justify-between gap-2 pl-1 max-md:pl-0 md:max-xl:gap-1 md:max-xl:pl-0.5">
-        <span className="shrink-0 text-slate-600">Giá vay</span>
-        <span className="min-w-0 truncate text-right font-semibold text-slate-800 xl:text-xs">Đang cập nhật</span>
+        <span className="shrink-0 text-slate-500">Giá vay</span>
+        <span className="min-w-0 truncate text-right font-bold text-slate-900 xl:text-xs">Đang cập nhật</span>
       </div>
       <div className="flex items-center justify-between gap-2 border-r border-slate-200 pr-2 max-md:border-r-0 max-md:pr-0 md:max-xl:gap-1 md:max-xl:pr-1.5">
-        <span className="shrink-0 text-slate-600">Đơn giá</span>
+        <span className="shrink-0 text-slate-500">Đơn giá</span>
         <span className="min-w-0 truncate text-right font-bold text-slate-900 xl:text-xs">54.92 triệu/m²</span>
       </div>
       <div className="flex items-center justify-between gap-2 pl-1 max-md:pl-0 md:max-xl:gap-1 md:max-xl:pl-0.5">
-        <span className="shrink-0 text-slate-600">Giá TTS</span>
-        <span className="min-w-0 truncate text-right font-semibold text-slate-800 xl:text-xs">Đang cập nhật</span>
+        <span className="shrink-0 text-slate-500">Giá TTS</span>
+        <span className="min-w-0 truncate text-right font-bold text-slate-900 xl:text-xs">Đang cập nhật</span>
       </div>
     </div>
   </div>
@@ -89,8 +89,8 @@ export const AreaCard = ({
   /** Ma layout/mat bang cua can - hien ngang dong "Dien tich" */
   layout?: string;
 }) => (
-  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-2 ${className}`}>
-    <div className="flex flex-wrap items-center justify-between gap-2 mb-2 xl:mb-1">
+  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-1.5 ${className}`}>
+    <div className="flex flex-wrap items-center justify-between gap-2 mb-2 xl:mb-0.5">
       <div className="flex items-center gap-2">
         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg xl:p-1">
           <FiMaximize2 className="w-5 h-5 xl:w-4 xl:h-4" />
@@ -107,7 +107,7 @@ export const AreaCard = ({
       </span>
     </div>
 
-    <div className="bg-slate-50/80 p-2.5 rounded-lg xl:p-2 xl:flex-1 grid grid-cols-2 text-sm min-[800px]:max-xl:text-base lg:max-xl:text-lg xl:text-[11px] divide-x divide-slate-200 xl:flex xl:flex-col xl:justify-center xl:gap-1 xl:divide-x-0">
+    <div className="bg-slate-50/80 p-2.5 rounded-lg xl:p-1.5 xl:flex-1 grid grid-cols-2 text-sm min-[800px]:max-xl:text-base lg:max-xl:text-lg xl:text-[11px] divide-x divide-slate-200 xl:flex xl:flex-col xl:justify-center xl:gap-1 xl:divide-x-0">
       <div className="pr-2 xl:flex xl:items-center xl:justify-between xl:gap-2 xl:pr-0">
         <p className="text-slate-600 mb-0.5 xl:mb-0 xl:shrink-0">DT đất</p>
         <p className="font-bold text-base text-slate-900 xl:whitespace-nowrap xl:text-right xl:text-xs xl:leading-tight">237.7 m²</p>
@@ -121,8 +121,8 @@ export const AreaCard = ({
 );
 
 export const PolicyCard = ({ className = "" }: CardProps) => (
-  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-2 ${className}`}>
-    <div className="flex items-center mb-2 xl:mb-1">
+  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-1.5 ${className}`}>
+    <div className="flex items-center mb-2 xl:mb-0.5">
       <div className="flex items-center gap-2">
         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg xl:p-1">
           <FiGift className="w-5 h-5 xl:w-4 xl:h-4" />
@@ -131,7 +131,7 @@ export const PolicyCard = ({ className = "" }: CardProps) => (
       </div>
     </div>
 
-    <div className="bg-slate-50/80 p-2.5 rounded-lg xl:p-2 xl:flex-1 grid grid-cols-2 text-sm min-[800px]:max-xl:text-base lg:max-xl:text-lg xl:text-[11px] divide-x divide-slate-200 xl:flex xl:flex-col xl:justify-center xl:gap-1 xl:divide-x-0">
+    <div className="bg-slate-50/80 p-2.5 rounded-lg xl:p-1.5 xl:flex-1 grid grid-cols-2 text-sm min-[800px]:max-xl:text-base lg:max-xl:text-lg xl:text-[11px] divide-x divide-slate-200 xl:flex xl:flex-col xl:justify-center xl:gap-1 xl:divide-x-0">
       <div className="pr-2 xl:flex xl:items-center xl:justify-between xl:gap-2 xl:pr-0">
         <p className="text-slate-600 mb-0.5 xl:mb-0 xl:shrink-0">CSBH áp dụng</p>
         <p className="font-bold text-sm text-slate-900 xl:truncate xl:text-right xl:text-xs">13/08/2026</p>
@@ -145,29 +145,29 @@ export const PolicyCard = ({ className = "" }: CardProps) => (
 );
 
 export const HandoverCard = ({ className = "" }: CardProps) => (
-  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-2 ${className}`}>
-    <div className="flex items-center gap-2 mb-2 xl:mb-1">
+  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-1.5 ${className}`}>
+    <div className="flex items-center gap-2 mb-2 xl:mb-0.5">
       <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg xl:p-1">
         <FiFileText className="w-5 h-5 xl:w-4 xl:h-4" />
       </div>
       <span className="font-bold text-base text-slate-900 min-[800px]:max-xl:text-lg lg:max-xl:text-xl xl:text-xs xl:leading-tight">Thông tin bàn giao</span>
     </div>
 
-    <div className="bg-slate-50/80 p-2.5 rounded-lg xl:p-2 xl:flex xl:flex-1 xl:flex-col xl:justify-center space-y-1.5 text-sm min-[800px]:max-xl:space-y-2 min-[800px]:max-xl:text-base lg:max-xl:text-lg xl:text-[11px]">
+    <div className="bg-slate-50/80 p-2.5 rounded-lg xl:p-1.5 xl:flex xl:flex-1 xl:flex-col xl:justify-center space-y-1.5 text-sm min-[800px]:max-xl:space-y-2 min-[800px]:max-xl:text-base lg:max-xl:text-lg xl:text-[11px]">
       <div className="flex justify-between items-center">
-        <span className="text-slate-600">Tiêu chuẩn bàn giao</span>
-        <span className="font-medium text-slate-900">Giản xây</span>
+        <span className="text-slate-500">Tiêu chuẩn bàn giao</span>
+        <span className="font-bold text-slate-900">Giản xây</span>
       </div>
       <div className="flex justify-between items-center">
-        <span className="text-slate-600">Loại giỏ hàng</span>
-        <span className="font-medium text-slate-900">Thứ cấp</span>
+        <span className="text-slate-500">Loại giỏ hàng</span>
+        <span className="font-bold text-slate-900">Thứ cấp</span>
       </div>
     </div>
   </div>
 );
 
 export const LegalCard = ({ className = "" }: CardProps) => (
-  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center xl:p-2 ${className}`}>
+  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center xl:p-1.5 ${className}`}>
     <div className="flex items-center gap-2">
       <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg xl:p-1">
         <FiShield className="w-5 h-5 xl:w-4 xl:h-4" />
