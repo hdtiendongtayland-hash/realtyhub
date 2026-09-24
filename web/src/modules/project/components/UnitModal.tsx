@@ -116,7 +116,14 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
       />
 
-      {/* Dialog. Tu 1024px tro len: khung ngang chia BA COT (anh - so lieu -
+      {/* Dialog.
+          iPad (768-1279px): chieu cao theo NOI DUNG (h-auto), chan tren 92vh.
+          De 95vh co dinh thi tren iPad man hinh cao (Pro 13 dung cao 1366px)
+          khung bi keo dai ra trong khi noi dung chi chiem mot nua - thua mot
+          mang trang lon o duoi. Khung nay giu dung ti le nhu iPad mini, may
+          to hon chi rong hon chu khong phong het co.
+
+          Tu 1280px tro len: khung ngang chia BA COT (anh - so lieu -
           hanh dong), mot cu bam la thay het, khong phai cuon.
 
           Kich thuoc dat bang PX CO DINH (1000x540), vh/vw chi la cai chan tren
@@ -131,10 +138,10 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[var(--app-vh,100dvh)] max-md:rounded-none lg:h-[540px] lg:max-h-[94vh] lg:w-[1000px] lg:max-w-[92vw] lg:bg-[#f3f7fd]"
+        className="relative z-10 flex h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl focus:outline-none max-md:h-[var(--app-vh,100dvh)] max-md:rounded-none md:max-xl:h-auto md:max-xl:max-h-[92vh] xl:h-[540px] xl:max-h-[94vh] xl:w-[1000px] xl:max-w-[92vw] xl:bg-[#f3f7fd]"
       >
         {/* Content */}
-        <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-2 md:max-lg:overflow-y-auto lg:px-3 lg:pt-1.5 max-md:overflow-y-auto max-md:px-3 max-md:pb-[env(safe-area-inset-bottom)]">
+        <div className="no-scrollbar flex min-h-0 flex-1 flex-col overflow-hidden px-4 pt-2 md:max-xl:overflow-y-auto xl:px-3 xl:pt-1.5 max-md:overflow-y-auto max-md:px-3 max-md:pb-[env(safe-area-inset-bottom)]">
           <UnitModalDetail
             code={unit.code}
             phaseName={unit.phaseName ?? "Phân khu mặc định"}

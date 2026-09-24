@@ -74,7 +74,7 @@ const UnitModalHeaderBottom = ({
             </span>
             <div className="min-w-0">
               <p className="text-xs text-gray-500">Loại hình</p>
-              <p className="truncate text-sm font-bold uppercase text-gray-900">
+              <p className="truncate text-sm font-bold uppercase text-gray-900 min-[800px]:max-xl:text-base">
                 {propertyTypeLabel}
               </p>
             </div>
@@ -86,7 +86,7 @@ const UnitModalHeaderBottom = ({
             </span>
             <div className="min-w-0">
               <p className="text-xs text-gray-500">Hướng</p>
-              <p className="truncate text-sm font-bold uppercase text-gray-900">
+              <p className="truncate text-sm font-bold uppercase text-gray-900 min-[800px]:max-xl:text-base">
                 {direction}
               </p>
             </div>
@@ -98,7 +98,7 @@ const UnitModalHeaderBottom = ({
             </span>
             <div className="min-w-0">
               <p className="text-xs text-gray-500">Diện tích</p>
-              <p className="truncate text-sm font-bold uppercase text-gray-900">
+              <p className="truncate text-sm font-bold uppercase text-gray-900 min-[800px]:max-xl:text-base">
                 {landArea} m²
               </p>
             </div>
@@ -131,7 +131,7 @@ const UnitModalHeaderBottom = ({
             <FiHome className="h-4 w-4" />
           </span>
           <div className="flex min-w-0 flex-1 flex-col justify-center">
-            <p className="text-xs font-medium text-gray-600">Loại hình</p>
+            <p className="text-xs font-medium text-gray-600 min-[800px]:max-xl:text-sm">Loại hình</p>
             <p className="truncate text-sm font-bold uppercase leading-tight text-gray-900">
               {propertyTypeLabel}
             </p>
@@ -143,7 +143,7 @@ const UnitModalHeaderBottom = ({
             <FiCompass className="h-4 w-4" />
           </span>
           <div className="flex min-w-0 flex-1 flex-col justify-center">
-            <p className="text-xs font-medium text-gray-600">Hướng</p>
+            <p className="text-xs font-medium text-gray-600 min-[800px]:max-xl:text-sm">Hướng</p>
             <p className="truncate text-sm font-bold uppercase leading-tight text-gray-900">
               {direction}
             </p>
@@ -155,7 +155,7 @@ const UnitModalHeaderBottom = ({
             <FiMaximize className="h-4 w-4" />
           </span>
           <div className="flex min-w-0 flex-1 flex-col justify-center">
-            <p className="text-xs font-medium text-gray-600">Diện tích</p>
+            <p className="text-xs font-medium text-gray-600 min-[800px]:max-xl:text-sm">Diện tích</p>
             <p className="truncate text-sm font-bold uppercase leading-tight text-gray-900">
               {landArea} m²
             </p>

@@ -66,6 +66,14 @@ const UnitShareModal = ({
     shareUrl,
   ].join('\n');
 
+  /**
+   * Chi sao chep CHU + duong dan, khong kem anh.
+   *
+   * Da thu bo ca anh vao clipboard (image/png va text/html): Word doc duoc ban
+   * HTML nen ra ca anh lan chu, nhung Zalo chi lay anh va vut chu - ma Zalo
+   * moi la cho moi gioi gui hang ngay. Vay nen giu dung mot ban chu: dan vao
+   * dau cung ra day du thong tin, khong bao gio mat.
+   */
   const copyText = async () => {
     try {
       await navigator.clipboard.writeText(shareText);

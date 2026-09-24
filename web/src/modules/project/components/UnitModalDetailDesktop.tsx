@@ -134,9 +134,9 @@ const UnitModalDetailDesktop = ({
               <PolicyCard />
               <HandoverCard />
               {/* "Phap ly" chi co mot gia tri nen khong keo dan bang cac the
-                  kia: self-start cho no dung o nua o tren. h-11 khoa cung
+                  kia: self-start cho no dung o nua o tren. h-12 khoa cung
                   chieu cao, bang dung nut BOOKING LOCK nam ngang no. */}
-              <LegalCard className="h-11 self-start" />
+              <LegalCard className="h-12 self-start" />
             </div>
 
             {/* Cột tư vấn viên + hành động - GOM TRONG MOT THE:

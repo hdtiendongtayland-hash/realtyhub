@@ -114,8 +114,8 @@ const UnitLoanCalculatorModal = ({
   const maxAvg = Math.max(result.avgMonthly, 1);
 
   const field =
-    "w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100 lg:px-2.5 lg:py-1.5 lg:text-xs";
-  const label = "mb-1 block text-xs font-medium text-gray-600 lg:mb-0.5 lg:text-[10px]";
+    "w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100 xl:px-2.5 xl:py-1.5 xl:text-xs";
+  const label = "mb-1 block text-xs font-medium text-gray-600 xl:mb-0.5 xl:text-[10px]";
 
   return (
     <div
@@ -131,17 +131,17 @@ const UnitLoanCalculatorModal = ({
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
       />
 
-      <div className="relative z-10 flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl max-md:h-[92dvh] max-md:max-h-none max-md:rounded-b-none">
+      <div className="relative z-10 flex max-h-[92vh] w-full max-w-3xl md:max-xl:max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl max-md:h-[calc(var(--app-vh,100dvh)*0.92)] max-md:max-h-none max-md:rounded-b-none">
         {/* ── Đầu bảng ──────────────────────────────────────────── */}
         <div className="flex shrink-0 items-center gap-3 border-b border-gray-100 px-4 py-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
             <FiPercent className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h2 className="truncate text-base font-bold text-gray-900 lg:text-sm">
+            <h2 className="truncate text-base font-bold text-gray-900 xl:text-sm">
               Công cụ tính lãi vay
             </h2>
-            <p className="truncate text-xs text-gray-500 lg:text-[11px]">
+            <p className="truncate text-xs text-gray-500 xl:text-[11px]">
               Căn {code} · ước tính khoản vay và lịch trả nợ
             </p>
           </div>
@@ -157,10 +157,10 @@ const UnitLoanCalculatorModal = ({
 
         {/* ── Thân bảng: trái nhập - phải kết quả ───────────────── */}
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
-          <div className="grid gap-4 p-4 md:grid-cols-2 lg:gap-3 lg:p-3.5">
+          <div className="grid gap-4 p-4 md:grid-cols-2 xl:gap-3 xl:p-3.5">
             {/* ── Cột nhập ──────────────────────────────────── */}
-            <div className="space-y-3 lg:space-y-2">
-              <h3 className="text-sm font-bold text-gray-900 lg:text-xs">
+            <div className="space-y-3 xl:space-y-2">
+              <h3 className="text-sm font-bold text-gray-900 xl:text-xs">
                 Thông tin khoản vay
               </h3>
 
@@ -185,7 +185,7 @@ const UnitLoanCalculatorModal = ({
               <div>
                 <div className="mb-1 flex items-center justify-between">
                   <span className={`${label} mb-0`}>Tỷ lệ vay</span>
-                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600 lg:px-1.5 lg:py-px lg:text-[10px]">
+                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600 xl:px-1.5 xl:py-px xl:text-[10px]">
                     {ratio}%
                   </span>
                 </div>
@@ -197,9 +197,9 @@ const UnitLoanCalculatorModal = ({
                   value={ratio}
                   onChange={(event) => setRatio(Number(event.target.value))}
                   aria-label="Tỷ lệ vay"
-                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-brand-500 lg:h-1.5"
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-brand-500 xl:h-1.5"
                 />
-                <div className="mt-2 grid grid-cols-2 gap-2 rounded-lg bg-gray-50 p-2 text-xs lg:mt-1.5 lg:p-1.5 lg:text-[10px]">
+                <div className="mt-2 grid grid-cols-2 gap-2 rounded-lg bg-gray-50 p-2 text-xs xl:mt-1.5 xl:p-1.5 xl:text-[10px]">
                   <div>
                     <p className="text-gray-500">Số tiền vay</p>
                     <p className="font-bold text-gray-900">
@@ -293,14 +293,14 @@ const UnitLoanCalculatorModal = ({
                       onClick={() => setMethod(option.value)}
                       aria-pressed={method === option.value}
                       title={option.hint}
-                      className={`rounded-lg border px-2.5 py-2 text-left transition lg:px-2 lg:py-1.5 ${
+                      className={`rounded-lg border px-2.5 py-2 text-left transition xl:px-2 xl:py-1.5 ${
                         method === option.value
                           ? "border-brand-500 bg-brand-50/60"
                           : "border-gray-200 bg-white hover:border-brand-300"
                       }`}
                     >
                       <span
-                        className={`block text-xs font-bold lg:text-[11px] ${
+                        className={`block text-xs font-bold xl:text-[11px] ${
                           method === option.value
                             ? "text-brand-700"
                             : "text-gray-900"
@@ -308,7 +308,7 @@ const UnitLoanCalculatorModal = ({
                       >
                         {option.label}
                       </span>
-                      <span className="mt-0.5 block text-[11px] leading-tight text-gray-500 lg:text-[10px]">
+                      <span className="mt-0.5 block text-[11px] leading-tight text-gray-500 xl:text-[10px]">
                         {option.hint}
                       </span>
                     </button>
@@ -318,8 +318,8 @@ const UnitLoanCalculatorModal = ({
             </div>
 
             {/* ── Cột kết quả ───────────────────────────────── */}
-            <div className="space-y-3 lg:space-y-2">
-              <h3 className="text-sm font-bold text-gray-900 lg:text-xs">
+            <div className="space-y-3 xl:space-y-2">
+              <h3 className="text-sm font-bold text-gray-900 xl:text-xs">
                 Kết quả ước tính
               </h3>
 
@@ -345,10 +345,10 @@ const UnitLoanCalculatorModal = ({
                   key={item.title}
                   className="rounded-xl border border-gray-100 bg-white p-2 shadow-2xs"
                 >
-                  <p className="text-xs text-gray-500 lg:text-[10px]">{item.title}</p>
-                  <p className="text-lg font-bold leading-tight text-gray-900 lg:text-[15px]">
+                  <p className="text-xs text-gray-500 xl:text-[10px]">{item.title}</p>
+                  <p className="text-lg font-bold leading-tight text-gray-900 xl:text-[15px]">
                     {vnd(item.value)}{" "}
-                    <span className="text-[11px] font-medium text-gray-500 lg:text-[10px]">
+                    <span className="text-[11px] font-medium text-gray-500 xl:text-[10px]">
                       VND
                     </span>
                   </p>
@@ -363,7 +363,7 @@ const UnitLoanCalculatorModal = ({
                 </div>
               ))}
 
-              <div className="space-y-1.5 rounded-xl bg-gray-50 p-2.5 text-xs lg:space-y-1 lg:p-2 lg:text-[10px]">
+              <div className="space-y-1.5 rounded-xl bg-gray-50 p-2.5 text-xs xl:space-y-1 xl:p-2 xl:text-[10px]">
                 {[
                   { title: "Trả tháng đầu", value: result.firstPayment },
                   { title: "Tổng gốc phải trả", value: result.totalPrincipal },
@@ -386,7 +386,7 @@ const UnitLoanCalculatorModal = ({
                 ))}
               </div>
 
-              <p className="flex items-start gap-1.5 text-[11px] leading-snug text-gray-500 lg:text-[10px]">
+              <p className="flex items-start gap-1.5 text-[11px] leading-snug text-gray-500 xl:text-[10px]">
                 <FiInfo className="mt-px h-3.5 w-3.5 shrink-0" />
                 Con số chỉ mang tính ước tính theo lãi suất bạn nhập, không phải
                 cam kết cho vay của ngân hàng.
@@ -452,7 +452,7 @@ const UnitLoanCalculatorModal = ({
             type="button"
             onClick={toggleSchedule}
             aria-expanded={showSchedule}
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-50 py-2.5 text-sm font-semibold text-brand-600 transition hover:bg-brand-100 lg:py-2"
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-50 py-2.5 text-sm font-semibold text-brand-600 transition hover:bg-brand-100 xl:py-2"
           >
             <FiTrendingDown className="h-4 w-4" />
             {showSchedule

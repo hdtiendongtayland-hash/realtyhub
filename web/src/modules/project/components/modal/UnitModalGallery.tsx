@@ -100,7 +100,7 @@ const UnitModalGallery = ({
   // Không có ảnh: hiển thị placeholder gradient
   if (!images.length) {
     return (
-      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-linear-to-br from-gray-100 to-gray-200 lg:aspect-auto lg:h-full lg:min-h-0">
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-linear-to-br from-gray-100 to-gray-200 xl:aspect-auto xl:h-full xl:min-h-0">
         <div className="flex h-full items-center justify-center text-gray-400">
           Đang cập nhật hình ảnh
         </div>
@@ -139,7 +139,7 @@ const UnitModalGallery = ({
         className={`relative w-full overflow-hidden rounded-xl bg-gray-100 ${
           withThumbnails
             ? "min-h-0 flex-1"
-            : "aspect-[4/5] max-md:max-h-[58vh] lg:aspect-auto lg:h-full lg:min-h-0"
+            : "aspect-[4/5] max-md:max-h-[58vh] xl:aspect-auto xl:h-full xl:min-h-0"
         }`}
       >
         {/* ── Ảnh lớn - bấm vào để xem trọn ảnh ────────────────── */}

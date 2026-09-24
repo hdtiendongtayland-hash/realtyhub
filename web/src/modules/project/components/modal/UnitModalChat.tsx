@@ -192,7 +192,7 @@ const UnitModalChat = ({
   }
 
   return (
-    <div className={`pt-1 space-y-2 lg:space-y-1.5 lg:pt-0 ${className}`}>
+    <div className={`pt-1 space-y-2 xl:space-y-1.5 xl:pt-0 ${className}`}>
       <form onSubmit={handleSendMessage} className="relative flex items-center">
         <div className="absolute left-3 text-blue-500">
           <FiMessageSquare className="w-4 h-4" />
@@ -203,13 +203,13 @@ const UnitModalChat = ({
           value={chatMessage}
           onChange={(e) => setChatMessage(e.target.value)}
           placeholder="Nhắn tin với Admin..."
-          className="w-full bg-white border border-slate-200 rounded-full py-4 pl-9 pr-10 lg:py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-2xs"
+          className="w-full bg-white border border-slate-200 rounded-full py-4 pl-9 pr-10 xl:py-2.5 text-sm min-[800px]:max-xl:text-base text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 shadow-2xs"
         />
         <button
           type="submit"
-          className="absolute right-1 p-3 lg:p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors shadow-xs"
+          className="absolute right-1 p-3 xl:p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors shadow-xs"
         >
-          <FiSend className="w-5 h-5 lg:w-4 lg:h-4" />
+          <FiSend className="w-5 h-5 xl:w-4 xl:h-4" />
         </button>
       </form>
 
@@ -220,7 +220,7 @@ const UnitModalChat = ({
             key={text}
             type="button"
             onClick={() => handleSuggestion(text)}
-            className="flex items-center gap-1 bg-white border border-slate-200 hover:bg-blue-50 hover:border-blue-200 px-3 py-1.5 rounded-full shrink-0 shadow-2xs text-slate-700 transition-colors lg:px-2.5 lg:py-1"
+            className="flex items-center gap-1 bg-white border border-slate-200 hover:bg-blue-50 hover:border-blue-200 px-3 py-1.5 rounded-full shrink-0 shadow-2xs text-slate-700 transition-colors xl:px-2.5 xl:py-1"
           >
             <Icon className="w-3.5 h-3.5 text-blue-500" />
             {text}

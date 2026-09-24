@@ -74,7 +74,7 @@ const Badge = ({ href, caption, store, variant, children }: BadgeProps) => (
   <a
     href={href}
     aria-label={`${caption} ${store}`}
-    className={`flex h-10 min-w-32 items-center gap-2 rounded-lg px-3 transition ${VARIANT_CLASSES[variant]}`}
+    className={`flex h-10 min-w-32 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 transition ${VARIANT_CLASSES[variant]}`}
   >
     {children}
     <span className="flex flex-col items-start leading-none">
@@ -87,7 +87,7 @@ const Badge = ({ href, caption, store, variant, children }: BadgeProps) => (
 );
 
 const AppStoreBadges = ({ variant = 'dark' }: { variant?: Variant }) => (
-  <div className="flex flex-nowrap items-center gap-3">
+  <div className="flex flex-wrap items-center gap-3">
     <Badge href={APP_LINKS.ios} caption="Download on the" store="App Store" variant={variant}>
       <AppleIcon className="h-6 w-6 shrink-0" />
     </Badge>
