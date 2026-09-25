@@ -192,7 +192,8 @@ const UnitModalDetail = ({
                   onDownload={onDownloadImage}
                 />
               </div>
-              <div className="mt-2 laptop:mt-1.5 xl:shrink-0">
+              {/* Dien thoai KHONG hien o day - xem khoi cuoi trang ben duoi */}
+              <div className="mt-2 max-md:hidden laptop:mt-1.5 xl:shrink-0">
                 <UnitModalAdvisor
                   advisors={advisors}
                   onCall={onCallAdvisor}
@@ -213,6 +214,19 @@ const UnitModalDetail = ({
               onLoanCalculator={onLoanCalculator}
             />
           </div>
+        </div>
+
+        {/* ── Điện thoại: tư vấn viên + ô nhắn tin ───────────────
+            Dat sau cot thong tin (khong phai ngay duoi anh nhu iPad/may tinh):
+            man hinh mot cot nen nguoi dung doc het thong so can roi moi tinh
+            den chuyen lien he - de o giua thi no chen ngang mach doc. */}
+        <div className="mt-3 md:hidden">
+          <UnitModalAdvisor
+            advisors={advisors}
+            onCall={onCallAdvisor}
+            onMessage={onMessageAdvisor}
+          />
+          <UnitModalChat className="mt-2" />
         </div>
 
         {/* ── Footer ─────────────────────────────────────────────

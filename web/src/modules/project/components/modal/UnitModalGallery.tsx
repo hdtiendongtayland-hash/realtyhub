@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FiCopy, FiDownload, FiChevronLeft, FiChevronRight, FiX, FiMaximize, FiHeart, FiHome, FiImage } from "react-icons/fi";
+import { FiCopy, FiDownload, FiChevronLeft, FiChevronRight, FiX, FiMaximize, FiHeart, FiHome } from "react-icons/fi";
 
 type UnitModalGalleryProps = {
   /** Danh sách URL ảnh. Có 1 ảnh -> chi hiển thị, có nhiều -> có dot + prev/next */
@@ -14,7 +14,7 @@ type UnitModalGalleryProps = {
   onDownload?: () => void;
   /** Nhan goc trai anh (VD: "STUDIO") - dung o bo cuc desktop */
   badge?: string;
-  /** Hien dai anh nho ben duoi + anh lap day chieu cao (bo cuc desktop) */
+  /** Anh lap day chieu cao cot thay vi giu ti le 4:5 (bo cuc desktop) */
   withThumbnails?: boolean;
   /** Da yeu thich - chi hien nut tim tren anh khi co onToggleFavorite */
   isFavorite?: boolean;
@@ -127,18 +127,11 @@ const UnitModalGallery = ({
   return (
     <>
       <div
-        className={
-          withThumbnails
-            ? "flex h-full min-h-0 w-full flex-col gap-2"
-            : "contents"
-        }
-      >
-      <div
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         className={`relative w-full overflow-hidden rounded-xl bg-gray-100 ${
           withThumbnails
-            ? "min-h-0 flex-1"
+            ? "h-full min-h-0"
             : "aspect-[4/5] max-md:max-h-[58vh] xl:aspect-auto xl:h-full xl:min-h-0"
         }`}
       >
@@ -229,37 +222,12 @@ const UnitModalGallery = ({
         )}
 
         {/* ── Điều hướng ảnh ───────────────────────────────────
-            Bo cuc desktop: hai mui ten dat sat hai canh anh, so dem nam goc
-            duoi trai - giua anh khong bi thanh dieu huong che mat.
-            Cac bo cuc khac giu cum prev/dots/next o day anh nhu cu. */}
-        {canNavigate &&
-          (withThumbnails ? (
-            <>
-              <button
-                type="button"
-                onClick={handlePrev}
-                aria-label="Ảnh trước"
-                title="Ảnh trước"
-                className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500"
-              >
-                <FiChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={handleNext}
-                aria-label="Ảnh tiếp"
-                title="Ảnh tiếp"
-                className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500"
-              >
-                <FiChevronRight className="h-4 w-4" />
-              </button>
-
-              <span className="pointer-events-none absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">
-                <FiImage className="h-3.5 w-3.5" />
-                {activeIndex + 1}/{total}
-              </span>
-            </>
-          ) : (
+            Mot cum duy nhat cho MOI bo cuc: prev - dot - so dem - next, noi
+            tren day anh. Bo cuc may tinh truoc day dung dai anh nho ben duoi
+            (an mat mot khuc chieu cao cot) cung hai mui ten sat canh anh; gio
+            anh chiem tron cot, dieu huong noi tren anh nen khong ton them cho
+            nao. */}
+        {canNavigate && (
           <div className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-3">
             {/* Prev */}
             <button
@@ -301,42 +269,6 @@ const UnitModalGallery = ({
               aria-label="Ảnh tiếp"
               title="Ảnh tiếp"
               className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500"
-            >
-              <FiChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          ))}
-      </div>
-
-      {/* ── Dải ảnh nhỏ: bấm để nhảy thẳng tới ảnh đó ──────────── */}
-        {withThumbnails && canNavigate && (
-          <div className="flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5">
-            <div className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto">
-              {images.map((image, index) => (
-                <button
-                  key={image + index}
-                  type="button"
-                  onClick={() => setActiveIndex(index)}
-                  aria-label={`Xem ảnh ${index + 1}`}
-                  className={`h-12 w-[4rem] shrink-0 overflow-hidden rounded-lg border-2 transition ${
-                    index === activeIndex
-                      ? "border-brand-500 shadow-sm"
-                      : "border-transparent opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <img src={image} alt="" className="h-full w-full object-cover" />
-                </button>
-              ))}
-            </div>
-
-            {/* Nut chuyen anh o cuoi dai: dai anh nho co the dai hon cho, nut
-                nay dua nguoi dung sang anh ke tiep ma khong phai vuot */}
-            <button
-              type="button"
-              onClick={handleNext}
-              aria-label="Ảnh tiếp"
-              title="Ảnh tiếp"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-gray-600 shadow-sm transition hover:border-brand-200 hover:text-brand-500"
             >
               <FiChevronRight className="h-4 w-4" />
             </button>

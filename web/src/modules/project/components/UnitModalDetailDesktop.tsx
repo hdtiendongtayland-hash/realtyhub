@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FaHammer } from "react-icons/fa6";
 import { FiCalendar, FiShare2, FiUsers } from "react-icons/fi";
 import UnitModalHeader from "./modal/UnitModalHeader";
 import UnitModalHeaderBottom from "./modal/UnitModalHeaderBottom";
@@ -33,7 +34,7 @@ import type { UnitModalDetailProps } from "./UnitModalDetail";
  * │ [dải ảnh] ›│ │ Diện tích   │ CSBH       │ │ │ [TVV 2]       ││
  * │            │ ├─────────────┼────────────┤ │ │ [TVV 3]       ││
  * │ [💬 Nhắn…] │ │ Bàn giao    │ Pháp lý    │ │ [BOOKING LOCK]   │
- * │            │ [gợi ý][gợi ý][gợi ý]        │ [Chia sẻ]        │
+ * │ (gợi ý)(gợi…│                              │ [Chia sẻ]        │
  * └────────────┴──────────────────────────────┴──────────────────┘
  * ```
  *
@@ -87,7 +88,7 @@ const UnitModalDetailDesktop = ({
       </div>
 
       <div className="flex min-h-0 flex-1 gap-1.5">
-        {/* ── Cột 1: ảnh + dải ảnh nhỏ + ô nhắn tin ────────────── */}
+        {/* ── Cột 1: ảnh + ô nhắn tin + gợi ý nhanh ────────────── */}
         <div className="flex w-[30%] min-w-0 shrink-0 flex-col gap-1.5">
           {/* Khong truyen badge/onCopy/onDownload/onToggleFavorite: mockup de
               anh sach, khong co nhan va cum nut noi tren anh. Muon xem to thi
@@ -103,6 +104,17 @@ const UnitModalDetailDesktop = ({
             onValueChange={setChatMessage}
           />
 
+          {/* Ba goi y nam NGAY DUOI o nhan tin: bam mot cai la cau hoi do
+              duoc dien vao o ngay tren, hai thu di lien nhau thi moi lien he
+              do nhin la hieu. Truoc day chung nam o day cot ben phai - xa o
+              nhan tin ca khung, nguoi dung khong doan ra bam vao thi chu chay
+              di dau. */}
+          <UnitModalChat
+            variant="chips"
+            className="shrink-0"
+            value={chatMessage}
+            onValueChange={setChatMessage}
+          />
         </div>
 
         {/* ── Khu bên phải: thanh 4 ô trải ngang, dưới là số liệu + hành
@@ -174,7 +186,11 @@ const UnitModalDetailDesktop = ({
                   1px thi ca cum bi tut xuong, tuc la no ngan lai tu TREN.
                   Them 1px lot duoi de cum giu nguyen mep tren - phan ngan lai
                   roi vao mep DUOI dung nhu y. */}
-              <div className="mb-px flex shrink-0 flex-col gap-1.5">
+              {/* Khoang ho giua hai nut duoc noi rong co y: "Chia se" nho vay
+                  nhich len ngang hang voi the "Phap ly" ben canh, con
+                  "BOOKING LOCK" van dinh day khung - bon o o khuc nay nhin
+                  thanh hai hang deu nhau. */}
+              <div className="mb-px flex shrink-0 flex-col gap-3">
                 <button
                   type="button"
                   onClick={onShare}
@@ -186,8 +202,21 @@ const UnitModalDetailDesktop = ({
                 <button
                   type="button"
                   onClick={onBookingLock}
-                  className="relative flex h-12 animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-2 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
+                  className="relative flex h-14 animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-2 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
                 >
+                  {/* Cai bua go go vao nut: dat o goc phai, quay quanh DUOI
+                      GOC PHAI (chuoi bua) nen dau bua vung len roi bo xuong
+                      mat nut. Vong song bung ra dung diem cham. Ca cum
+                      aria-hidden + pointer-events-none: chi de nhin, khong
+                      chan cu bam vao nut. */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute right-2 top-1/2 z-10 h-10 w-10 -translate-y-1/2"
+                  >
+                    <span className="absolute bottom-1 left-1 h-6 w-6 animate-cta-knock rounded-full border-2 border-white/80" />
+                    <FaHammer className="absolute bottom-1.5 right-0 h-5 w-5 origin-bottom-right animate-cta-hammer text-white drop-shadow-md" />
+                  </span>
+
                   {/* Vet sang quet qua mat nut - nam duoi chu nho z-index */}
                   <span
                     aria-hidden
@@ -199,17 +228,6 @@ const UnitModalDetailDesktop = ({
               </div>
             </div>
           </div>
-
-          {/* Thanh goi y trai ngang CA hai cot ben phai. Truoc no nam trong
-              cot so lieu nen cot do cao hon cot hanh dong dung mot thanh, keo
-              hai nut BOOKING LOCK / Chia se tut xuong khong thang hang voi
-              the "Phap ly". */}
-          <UnitModalChat
-            variant="chips"
-            className="shrink-0"
-            value={chatMessage}
-            onValueChange={setChatMessage}
-          />
         </div>
       </div>
     </div>

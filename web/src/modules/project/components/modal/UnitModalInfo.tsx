@@ -1,4 +1,3 @@
-import UnitModalChat from './UnitModalChat';
 import {
   AreaCard,
   HandoverCard,
@@ -39,9 +38,6 @@ export default function PropertyDetailCard({
       <HandoverCard />
       <LegalCard />
 
-      {/* O NHAN TIN - tu iPad tro len no chuyen xuong duoi ba the tu van vien
-          o cot trai, nen o day chi con hien tren dien thoai. */}
-      <UnitModalChat className="md:hidden" />
     </div>
   );
 }

@@ -113,18 +113,6 @@ const UnitModalChat = ({
     </form>
   );
 
-  const suggestionButtons = QUICK_SUGGESTIONS.map(({ icon: Icon, text }) => (
-    <button
-      key={text}
-      type="button"
-      onClick={() => handleSuggestion(text)}
-      className="flex min-w-0 flex-1 items-center justify-center gap-1.5 px-2 py-1.5 text-[11px] font-medium text-slate-600 transition-colors hover:bg-blue-50/60 hover:text-blue-700"
-    >
-      <Icon className="h-3.5 w-3.5 shrink-0 text-blue-500" />
-      <span className="truncate">{text}</span>
-    </button>
-  ));
-
   if (variant === "input") {
     return (
       <div
@@ -136,11 +124,26 @@ const UnitModalChat = ({
   }
 
   if (variant === "chips") {
+    // Vien tron roi nhau, nho hon o nhan tin nam tren - giong het iPad/dien
+    // thoai. Truoc day day la mot thanh dai chia ba o bang be ngang khung,
+    // trong nang ngang nhu chinh o nhan tin. Ba cai deu khong vua be ngang
+    // cot nen cho cuon ngang, cai thu ba lo mot nua ra mep - do cung la dau
+    // hieu con the phia sau.
     return (
       <div
-        className={`flex items-stretch divide-x divide-slate-100 rounded-xl border border-slate-200 bg-white shadow-2xs ${className}`}
+        className={`no-scrollbar flex items-center gap-1.5 overflow-x-auto ${className}`}
       >
-        {suggestionButtons}
+        {QUICK_SUGGESTIONS.map(({ icon: Icon, text }) => (
+          <button
+            key={text}
+            type="button"
+            onClick={() => handleSuggestion(text)}
+            className="flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 shadow-2xs transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+          >
+            <Icon className="h-2.5 w-2.5 shrink-0 text-blue-500" />
+            {text}
+          </button>
+        ))}
       </div>
     );
   }

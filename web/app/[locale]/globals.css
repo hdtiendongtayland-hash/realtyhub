@@ -288,6 +288,61 @@
      de do gay roi mat. */
   --animate-cta-shine: cta-shine 3s ease-in-out infinite;
 
+  /* Cai bua go go vao nut: vung len roi bo xuong hai nhip lien nhau, xong
+     nghi mot quang cho mat do moi. Hai cai duoi (bua va vong song) dung
+     CHUNG mot chu ky 2.4s de cu moi nhip go la vong song bung ra dung luc -
+     lech nhau la nhin ra ngay. */
+  --animate-cta-hammer: cta-hammer 2.4s ease-in-out infinite;
+  --animate-cta-knock: cta-knock 2.4s ease-out infinite;
+
+  @keyframes cta-hammer {
+    0%,
+    8% {
+      transform: rotate(-52deg);
+    }
+    /* Go phat thu nhat */
+    16% {
+      transform: rotate(6deg);
+    }
+    22% {
+      transform: rotate(-38deg);
+    }
+    /* Go phat thu hai */
+    30% {
+      transform: rotate(6deg);
+    }
+    38%,
+    100% {
+      transform: rotate(-52deg);
+    }
+  }
+
+  /* Vong song lan ra tu diem bua cham - chi hien dung luc cham roi tat */
+  @keyframes cta-knock {
+    0%,
+    15% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    17% {
+      opacity: 0.85;
+      transform: scale(0.5);
+    }
+    26% {
+      opacity: 0;
+      transform: scale(1.5);
+    }
+    29% {
+      opacity: 0.85;
+      transform: scale(0.5);
+    }
+    40%,
+    100% {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
   @keyframes cta-shine {
     0% {
       transform: translateX(-120%) skewX(-18deg);
@@ -337,6 +392,13 @@
     animation: none;
   }
   .animate-cta-shine {
+    animation: none;
+    opacity: 0;
+  }
+  .animate-cta-hammer {
+    animation: none;
+  }
+  .animate-cta-knock {
     animation: none;
     opacity: 0;
   }

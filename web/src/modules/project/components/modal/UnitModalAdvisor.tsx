@@ -61,27 +61,31 @@ const UnitModalAdvisor = ({
   const displayAdvisors = advisors.slice(0, 3);
   if (variant === "band") {
     return (
-      <div className="flex w-full flex-col gap-1.5">
+      // Ba the CHIA DEU chieu cao cho con lai (h-full + flex-1) thay vi cao
+      // dung bang noi dung: truoc day chung xep sat tu tren xuong roi bo lung
+      // mot mang trong o day, nen the cuoi khong thang hang voi day the "CSBH"
+      // ben canh. Chia deu thi the cuoi luon ket thuc dung o day cot.
+      <div className="flex h-full w-full flex-col gap-1.5">
         {displayAdvisors.map((advisor) => (
           <div
             key={advisor.id}
-            className="flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-2 py-1.5"
+            className="flex min-h-0 flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 bg-slate-50/60 px-2 py-1.5"
           >
             <img
               src={advisor.avatar}
               alt={advisor.name}
-              className="h-7 w-7 shrink-0 rounded-full border-2 border-white object-cover shadow-2xs"
+              className="h-9 w-9 shrink-0 rounded-full border-2 border-white object-cover shadow-2xs"
             />
             {/* Ten + chuc danh o tren, hai nut goi/Zalo o duoi: cot nay chi
                 rong ~205px, xep tat ca tren mot hang thi ten bi cat ("Lan Thi
                 ..."), xuong dong thi phan chu duoc gan gap doi be ngang. */}
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <div className="min-w-0">
-                <h4 className="truncate text-[11px] font-bold leading-tight text-slate-900" title={advisor.name}>
+                <h4 className="truncate text-xs font-bold leading-tight text-slate-900" title={advisor.name}>
                   {advisor.name}
                 </h4>
                 {advisor.role && (
-                  <p className="truncate text-[10px] font-medium leading-tight text-blue-600">
+                  <p className="truncate text-[11px] font-medium leading-tight text-blue-600">
                     {advisor.role}
                   </p>
                 )}
@@ -90,18 +94,18 @@ const UnitModalAdvisor = ({
                 <button
                   type="button"
                   onClick={() => (onCall ? onCall(advisor) : window.open(`tel:${advisor.phone}`))}
-                  className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95"
+                  className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95"
                   title="Gọi điện"
                 >
-                  <FiPhone className="h-2.5 w-2.5 fill-white" />
+                  <FiPhone className="h-3 w-3 fill-white" />
                 </button>
                 <button
                   type="button"
                   onClick={() => onMessage && onMessage(advisor)}
-                  className="flex h-5 w-5 items-center justify-center rounded-md transition-all active:scale-95"
+                  className="flex h-6 w-6 items-center justify-center rounded-md transition-all active:scale-95"
                   title="Nhắn tin"
                 >
-                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={20} height={20} className="h-4 w-4" />
+                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={24} height={24} className="h-5 w-5" />
                 </button>
               </div>
             </div>
