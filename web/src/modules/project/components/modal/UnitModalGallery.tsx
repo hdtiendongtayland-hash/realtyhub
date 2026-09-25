@@ -168,32 +168,20 @@ const UnitModalGallery = ({
           </span>
         )}
 
-      {/* ── Nút top-right: phóng to / copy + tải về + yêu thích ─
-          Chi hien khi duoc truyen handler. Bo cuc desktop khong truyen gi de
-          anh sach bong nhu mockup - muon xem to thi bam thang vao anh. */}
+      {/* ── Nút top-right: copy + tải về + yêu thích ───────────
+          Chi hien khi duoc truyen handler, nen moi bo cuc tu chon lay cai
+          minh can. Muon xem anh to thi bam thang vao anh. */}
         {(onCopy || onDownload || onToggleFavorite) && (
         <div className="absolute right-3 top-3 flex gap-2">
-          {withThumbnails ? (
-            <button
-              type="button"
-              onClick={() => setIsViewerOpen(true)}
-              aria-label="Xem ảnh lớn"
-              title="Xem ảnh lớn"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500"
-            >
-              <FiMaximize className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onCopy}
-              aria-label="Sao chép"
-              title="Sao chép"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500"
-            >
-              <FiCopy className="h-4 w-4" />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={onCopy}
+            aria-label="Sao chép"
+            title="Sao chép"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500"
+          >
+            <FiCopy className="h-4 w-4" />
+          </button>
           <button
             type="button"
             onClick={onDownload}

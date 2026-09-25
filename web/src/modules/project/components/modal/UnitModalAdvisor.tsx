@@ -81,11 +81,11 @@ const UnitModalAdvisor = ({
                 ..."), xuong dong thi phan chu duoc gan gap doi be ngang. */}
             <div className="flex min-w-0 flex-1 flex-col gap-1">
               <div className="min-w-0">
-                <h4 className="truncate text-xs font-bold leading-tight text-slate-900" title={advisor.name}>
+                <h4 className="truncate text-[11px] font-bold leading-tight text-slate-900" title={advisor.name}>
                   {advisor.name}
                 </h4>
                 {advisor.role && (
-                  <p className="truncate text-[11px] font-medium leading-tight text-blue-600">
+                  <p className="truncate text-[10px] font-medium leading-tight text-blue-600">
                     {advisor.role}
                   </p>
                 )}

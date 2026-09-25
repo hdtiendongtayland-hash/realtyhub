@@ -6,6 +6,7 @@ import {
   FiShield,
   FiPercent,
   FiGrid,
+  FiList,
 } from "react-icons/fi";
 
 /**
@@ -122,13 +123,21 @@ export const AreaCard = ({
 
 export const PolicyCard = ({ className = "" }: CardProps) => (
   <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-1.5 ${className}`}>
-    <div className="flex items-center mb-2 xl:mb-0.5">
+    <div className="flex flex-wrap items-center justify-between gap-2 mb-2 xl:mb-0.5">
       <div className="flex items-center gap-2">
         <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg xl:p-1">
           <FiGift className="w-5 h-5 xl:w-4 xl:h-4" />
         </div>
         <span className="font-bold text-base text-slate-900 min-[800px]:max-xl:text-lg lg:max-xl:text-xl xl:text-xs xl:leading-tight">CSBH & Quà tặng</span>
       </div>
+
+      {/* Cung kieu nut "Layout" ben the Dien tich, y het ca o co chu theo
+          tung kich thuoc man hinh - hai the nay luon nam canh nhau nen lech
+          kieu la thay ngay. */}
+      <span className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 min-[800px]:max-xl:text-sm xl:px-2 xl:py-1 xl:text-[11px]">
+        Chi tiết
+        <FiList className="w-3.5 h-3.5 text-blue-500" />
+      </span>
     </div>
 
     <div className="bg-slate-50/80 p-2.5 rounded-lg xl:p-1.5 xl:flex-1 grid grid-cols-2 text-sm min-[800px]:max-xl:text-base lg:max-xl:text-lg xl:text-[11px] divide-x divide-slate-200 xl:flex xl:flex-col xl:justify-center xl:gap-1 xl:divide-x-0">

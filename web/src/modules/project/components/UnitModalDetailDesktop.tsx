@@ -33,8 +33,8 @@ import type { UnitModalDetailProps } from "./UnitModalDetail";
  * │            │ ├─────────────┬────────────┤ │ │ [TVV 1]       ││
  * │ [dải ảnh] ›│ │ Diện tích   │ CSBH       │ │ │ [TVV 2]       ││
  * │            │ ├─────────────┼────────────┤ │ │ [TVV 3]       ││
- * │ [💬 Nhắn…] │ │ Bàn giao    │ Pháp lý    │ │ [BOOKING LOCK]   │
- * │ (gợi ý)(gợi…│                              │ [Chia sẻ]        │
+ * │ [💬 Nhắn…] │ │ Bàn giao    │ Pháp lý    │ │ [TVV 3]       ││
+ * │ (gợi ý)(gợi…│      [Chia sẻ] [BOOKING LOCK]                   │
  * └────────────┴──────────────────────────────┴──────────────────┘
  * ```
  *
@@ -63,6 +63,8 @@ const UnitModalDetailDesktop = ({
   onBookingLock,
   onShare,
   onMore,
+  onCopyImage,
+  onDownloadImage,
   onCallAdvisor,
   onMessageAdvisor,
 }: UnitModalDetailProps) => {
@@ -87,14 +89,42 @@ const UnitModalDetailDesktop = ({
         />
       </div>
 
+      {/* ── Thanh 4 ô (loại hình / hướng / diện tích / so sánh) ─────
+          Nam RIENG mot hang, chua san o trong ben trai dung bang be ngang cot
+          anh. Truoc no nam trong khu ben phai nen day anh bat dau cao hon
+          the "Gia" dung mot thanh - nhin ngang qua la thay lech. Chua cho
+          bang mot o trong thay vi day anh xuong bang px: bao nhieu px thi
+          cung sai khi thanh doi chieu cao, con o trong thi luon bang. */}
+      <div className="flex shrink-0 gap-1.5">
+        <div aria-hidden className="w-[30%] shrink-0" />
+        <div className="min-w-0 flex-1">
+          <UnitModalHeaderBottom
+            variant="bar"
+            propertyTypeLabel={propertyTypeLabel}
+            direction={direction}
+            landArea={landArea}
+            onCompareUnit={onCompareUnit}
+            onShare={onShare}
+            onMore={onMore}
+          />
+        </div>
+      </div>
+
       <div className="flex min-h-0 flex-1 gap-1.5">
         {/* ── Cột 1: ảnh + ô nhắn tin + gợi ý nhanh ────────────── */}
         <div className="flex w-[30%] min-w-0 shrink-0 flex-col gap-1.5">
-          {/* Khong truyen badge/onCopy/onDownload/onToggleFavorite: mockup de
-              anh sach, khong co nhan va cum nut noi tren anh. Muon xem to thi
-              bam thang vao anh. */}
+          {/* Khong truyen badge/onToggleFavorite: nhan loai hinh va nut tim
+              da co o dau trang roi, lap lai tren anh chi lam roi. Rieng hai
+              nut sao chep / tai ve thi giu - do la viec nguoi dung lam ngay
+              tren anh, khong co cho nao khac thay the. */}
           <div className="flex min-h-0 flex-1">
-            <UnitModalGallery images={images} alt={imageAlt} withThumbnails />
+            <UnitModalGallery
+              images={images}
+              alt={imageAlt}
+              onCopy={onCopyImage}
+              onDownload={onDownloadImage}
+              withThumbnails
+            />
           </div>
 
           <UnitModalChat
@@ -117,20 +147,8 @@ const UnitModalDetailDesktop = ({
           />
         </div>
 
-        {/* ── Khu bên phải: thanh 4 ô trải ngang, dưới là số liệu + hành
-            động. Thanh nay phai nam NGOAI cot so lieu thi bon o moi chia deu
-            be rong voi nhau. ───────────────────────────────────────── */}
+        {/* ── Khu bên phải: số liệu + cột tư vấn, dưới cùng là hai nút ── */}
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <UnitModalHeaderBottom
-            variant="bar"
-            propertyTypeLabel={propertyTypeLabel}
-            direction={direction}
-            landArea={landArea}
-            onCompareUnit={onCompareUnit}
-            onShare={onShare}
-            onMore={onMore}
-          />
-
           <div className="flex min-h-0 flex-1 gap-1.5">
             {/* Cột số liệu
                 auto-rows minmax(min-content, 1fr): con du cho thi ba hang giai
@@ -147,18 +165,23 @@ const UnitModalDetailDesktop = ({
               <PolicyCard />
               <HandoverCard />
               {/* "Phap ly" chi co mot gia tri nen khong keo dan bang cac the
-                  kia: self-start cho no dung o nua o tren. h-12 khoa cung
-                  chieu cao, bang dung nut nam ngang no. */}
+                  kia: self-start cho no dung o nua o tren, h-12 khoa cung
+                  chieu cao. */}
               <LegalCard className="h-12 self-start" />
             </div>
 
-            {/* Cột tư vấn viên + hành động - GOM TRONG MOT THE:
-                tieu de, danh sach tu van vien va hai nut nam chung mot khung
-                vien, thay vi the tu van vien roi hai nut tha noi ben ngoai. */}
+            {/* Cột tư vấn viên: tieu de + ba the, gom trong mot khung vien.
+                Hai nut hanh dong da chuyen xuong thanh ngang duoi cung. */}
             {/* Be rong dung bang MOT o cua thanh tren: thanh do co 4 o va 3
                 khoang cach 6px, nen moi o = 25% tru 4.5px. Dat 25% chan se
-                thua mat 4.5px va lech khoi o "So sanh can" phia tren. */}
-            <div className="flex w-[calc(25%-4.5px)] min-h-0 shrink-0 flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
+                thua mat 4.5px va lech khoi o "So sanh can" phia tren.
+
+                Chieu cao dung bang DAY THE "Phap ly" ben canh chu khong keo
+                het hang: luoi ben trai co 3 hang deu nhau va 2 khoang ho 6px
+                (hang = (100%-12px)/3), the "Phap ly" cao 48px nam dau hang 3
+                -> day no o (200%-24px)/3 + 60px. Viet bang calc de hang co
+                gian the nao no cung bam theo, khong phai do tay. */}
+            <div className="flex h-[calc((200%-24px)/3+60px)] w-[calc(25%-4.5px)] min-h-0 shrink-0 flex-col gap-1.5 self-start rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
               <div className="flex shrink-0 items-center gap-2">
                 <span className="shrink-0 rounded-md bg-blue-50 p-0.5 text-blue-600">
                   <FiUsers className="h-3.5 w-3.5" />
@@ -179,54 +202,60 @@ const UnitModalDetailDesktop = ({
                   onMessage={onMessageAdvisor}
                 />
               </div>
-
-              {/* Hai nut: "Chia se" o tren, "BOOKING LOCK" (nen xanh dac) o
-                  duoi - nut xanh dat sat day khung cho de bam */}
-              {/* mb-px: cum nut dinh day khung nen khi nut "Chia se" thap di
-                  1px thi ca cum bi tut xuong, tuc la no ngan lai tu TREN.
-                  Them 1px lot duoi de cum giu nguyen mep tren - phan ngan lai
-                  roi vao mep DUOI dung nhu y. */}
-              {/* Khoang ho giua hai nut duoc noi rong co y: "Chia se" nho vay
-                  nhich len ngang hang voi the "Phap ly" ben canh, con
-                  "BOOKING LOCK" van dinh day khung - bon o o khuc nay nhin
-                  thanh hai hang deu nhau. */}
-              <div className="mb-px flex shrink-0 flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={onShare}
-                  className="flex h-[47px] items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-2 text-xs font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
-                >
-                  <FiShare2 className="h-4 w-4 shrink-0" />
-                  <span className="truncate">Chia sẻ</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={onBookingLock}
-                  className="relative flex h-14 animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-2 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
-                >
-                  {/* Cai bua go go vao nut: dat o goc phai, quay quanh DUOI
-                      GOC PHAI (chuoi bua) nen dau bua vung len roi bo xuong
-                      mat nut. Vong song bung ra dung diem cham. Ca cum
-                      aria-hidden + pointer-events-none: chi de nhin, khong
-                      chan cu bam vao nut. */}
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute right-2 top-1/2 z-10 h-10 w-10 -translate-y-1/2"
-                  >
-                    <span className="absolute bottom-1 left-1 h-6 w-6 animate-cta-knock rounded-full border-2 border-white/80" />
-                    <FaHammer className="absolute bottom-1.5 right-0 h-5 w-5 origin-bottom-right animate-cta-hammer text-white drop-shadow-md" />
-                  </span>
-
-                  {/* Vet sang quet qua mat nut - nam duoi chu nho z-index */}
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-y-0 left-0 w-1/4 animate-cta-shine bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                  />
-                  <FiCalendar className="relative z-10 h-4 w-4 shrink-0" />
-                  <span className="relative z-10 truncate">BOOKING LOCK</span>
-                </button>
-              </div>
             </div>
+          </div>
+
+          {/* ── Hai nút hành động: một hàng ngang dưới cùng ────────
+              Truoc day chung xep doc trong the "Lien he tu van" - cot do chi
+              rong 25% nen nut bi bop hep, con chu "BOOKING LOCK" thi gan cham
+              hai mep. Dua xuong day thanh mot hang ngang can giua: nut rong
+              rai, de thay, va giong het bo cuc iPad/dien thoai.
+              Hang the thong tin phia tren la flex-1 nen tu co lai nhuong cho
+              cho thanh nay. */}
+          <div className="flex shrink-0 items-center gap-2">
+            {/* O nay rong dung bang NUA luoi so lieu, nut nam sat mep phai no
+                -> canh phai nut "Chia se" thang hang voi mep phai the "Thong
+                tin ban giao" ngay tren. Cach tinh: cot tu van chiem 25%-4.5px
+                cua hang, con lai 6px khoang ho, nen nua luoi = 37.5%-0.75px;
+                tru tiep 3px (nua khoang ho giua hai cot the) ra 37.5%-3.75px.
+                Khoa theo mep the nhu vay thi khung co gian the nao cung thang,
+                khong phai do tay bang padding. */}
+            <div className="flex w-[calc(37.5%-3.75px)] shrink-0 justify-end">
+              <button
+                type="button"
+                onClick={onShare}
+                className="flex h-10 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-6 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
+              >
+                <FiShare2 className="h-4 w-4 shrink-0" />
+                <span>Chia sẻ</span>
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={onBookingLock}
+              className="relative flex h-10 animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 pl-6 pr-12 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
+            >
+              {/* Cai bua go go vao nut: dat o goc phai, quay quanh DUOI GOC
+                  PHAI (chuoi bua) nen dau bua vung len roi bo xuong mat nut.
+                  Vong song bung ra dung diem cham. pr-12 chua san cho cho no,
+                  neu khong bua se go trum len chu. Ca cum aria-hidden +
+                  pointer-events-none: chi de nhin, khong chan cu bam. */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute right-1.5 top-1/2 z-10 h-8 w-8 -translate-y-1/2"
+              >
+                <span className="absolute bottom-0.5 left-0.5 h-5 w-5 animate-cta-knock rounded-full border-2 border-white/80" />
+                <FaHammer className="absolute bottom-1 right-0 h-4 w-4 origin-bottom-right animate-cta-hammer text-white drop-shadow-md" />
+              </span>
+
+              {/* Vet sang quet qua mat nut - nam duoi chu nho z-index */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 left-0 w-1/4 animate-cta-shine bg-gradient-to-r from-transparent via-white/40 to-transparent"
+              />
+              <FiCalendar className="relative z-10 h-4 w-4 shrink-0" />
+              <span className="relative z-10">BOOKING LOCK</span>
+            </button>
           </div>
         </div>
       </div>
