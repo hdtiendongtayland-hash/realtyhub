@@ -89,27 +89,6 @@ const UnitModalDetailDesktop = ({
         />
       </div>
 
-      {/* ── Thanh 4 ô (loại hình / hướng / diện tích / so sánh) ─────
-          Nam RIENG mot hang, chua san o trong ben trai dung bang be ngang cot
-          anh. Truoc no nam trong khu ben phai nen day anh bat dau cao hon
-          the "Gia" dung mot thanh - nhin ngang qua la thay lech. Chua cho
-          bang mot o trong thay vi day anh xuong bang px: bao nhieu px thi
-          cung sai khi thanh doi chieu cao, con o trong thi luon bang. */}
-      <div className="flex shrink-0 gap-1.5">
-        <div aria-hidden className="w-[30%] shrink-0" />
-        <div className="min-w-0 flex-1">
-          <UnitModalHeaderBottom
-            variant="bar"
-            propertyTypeLabel={propertyTypeLabel}
-            direction={direction}
-            landArea={landArea}
-            onCompareUnit={onCompareUnit}
-            onShare={onShare}
-            onMore={onMore}
-          />
-        </div>
-      </div>
-
       <div className="flex min-h-0 flex-1 gap-1.5">
         {/* ── Cột 1: ảnh + ô nhắn tin + gợi ý nhanh ────────────── */}
         <div className="flex w-[30%] min-w-0 shrink-0 flex-col gap-1.5">
@@ -147,8 +126,20 @@ const UnitModalDetailDesktop = ({
           />
         </div>
 
-        {/* ── Khu bên phải: số liệu + cột tư vấn, dưới cùng là hai nút ── */}
+        {/* ── Khu bên phải: thanh 4 ô trải ngang, dưới là số liệu + hành
+            động. Thanh nay phai nam NGOAI cot so lieu thi bon o moi chia deu
+            be rong voi nhau. ───────────────────────────────────────── */}
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <UnitModalHeaderBottom
+            variant="bar"
+            propertyTypeLabel={propertyTypeLabel}
+            direction={direction}
+            landArea={landArea}
+            onCompareUnit={onCompareUnit}
+            onShare={onShare}
+            onMore={onMore}
+          />
+
           <div className="flex min-h-0 flex-1 gap-1.5">
             {/* Cột số liệu
                 auto-rows minmax(min-content, 1fr): con du cho thi ba hang giai
