@@ -216,37 +216,37 @@ const UnitModalGallery = ({
             anh chiem tron cot, dieu huong noi tren anh nen khong ton them cho
             nao. */}
         {canNavigate && (
-          <div className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-3">
+          <div className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-3 xl:bottom-2 xl:gap-2">
             {/* Prev */}
             <button
               type="button"
               onClick={handlePrev}
               aria-label="Ảnh trước"
               title="Ảnh trước"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500 xl:h-7 xl:w-7"
             >
-              <FiChevronLeft className="h-4 w-4" />
+              <FiChevronLeft className="h-4 w-4 xl:h-3.5 xl:w-3.5" />
             </button>
 
             {/* Dots */}
-            <div className="flex max-w-[60%] items-center gap-1.5 overflow-hidden rounded-full border border-white/30 bg-white/90 px-3 py-1.5 shadow-sm backdrop-blur">
+            <div className="flex max-w-[60%] items-center gap-1.5 overflow-hidden rounded-full border border-white/30 bg-white/90 px-3 py-1.5 shadow-sm backdrop-blur xl:gap-1 xl:px-2 xl:py-1">
               {Array.from({ length: total }).map((_, index) => (
                 <button
                   key={index}
                   type="button"
                   onClick={() => setActiveIndex(index)}
                   aria-label={`Chuyển tới ảnh ${index + 1}`}
-                  className={`h-1.5 rounded-full transition-all ${
+                  className={`h-1.5 rounded-full transition-all xl:h-1 ${
                     index === activeIndex
-                      ? "w-5 bg-brand-500"
-                      : "w-1.5 bg-gray-300 hover:bg-gray-400"
+                      ? "w-5 bg-brand-500 xl:w-4"
+                      : "w-1.5 bg-gray-300 hover:bg-gray-400 xl:w-1"
                   }`}
                 />
               ))}
             </div>
 
             {/* Counter */}
-            <span className="rounded-full border border-white/30 bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-700 shadow-sm backdrop-blur">
+            <span className="rounded-full border border-white/30 bg-white/90 px-2.5 py-1 text-xs font-semibold text-gray-700 shadow-sm backdrop-blur xl:px-2 xl:py-0.5 xl:text-[11px]">
               {activeIndex + 1}/{total}
             </span>
 
@@ -256,9 +256,9 @@ const UnitModalGallery = ({
               onClick={handleNext}
               aria-label="Ảnh tiếp"
               title="Ảnh tiếp"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition hover:bg-white hover:text-brand-500 xl:h-7 xl:w-7"
             >
-              <FiChevronRight className="h-4 w-4" />
+              <FiChevronRight className="h-4 w-4 xl:h-3.5 xl:w-3.5" />
             </button>
           </div>
         )}
