@@ -64,6 +64,9 @@ const UnitModalHeaderBottom = ({
 
     return (
       <div className="flex min-w-0 items-stretch gap-1.5">
+        {/* Ba o thong tin gom mot nhom, an het be rong con lai sau khi tru
+            o "So sanh can" - khoang ho deu 6px, khong chua trong. */}
+        <div className="flex min-w-0 flex-1 items-stretch gap-1.5">
         <div className={box}>
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white">
             <FiHome className="h-4 w-4" />
@@ -89,7 +92,7 @@ const UnitModalHeaderBottom = ({
         </div>
 
         <div className={box}>
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-brand-500 bg-white text-brand-500">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand-500 text-white">
             <FiMaximize className="h-4 w-4" />
           </span>
           <div className="min-w-0">
@@ -100,14 +103,17 @@ const UnitModalHeaderBottom = ({
           </div>
         </div>
 
-        {/* "So sanh can" chia deu be rong voi ba o thong tin (cung flex-1),
-            va cot "Lien he tu van" ben duoi cung lay dung mot phan tu do -
-            bon cot thang mot duong doc tu tren xuong. */}
+        </div>
+
+        {/* "So sanh can" sat mep phai va rong bang mot phan tu CONG them
+            40px vua lay duoc tu ba o kia: 25% - 4.5px + 40px. Cot "Lien he
+            tu van" ngay duoi dung dung con so nay - hai cai thang mot duong
+            doc. */}
         {showCompare && (
           <button
             type="button"
             onClick={onCompareUnit}
-            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 active:scale-[0.98]"
+            className="flex w-[calc(25%+35.5px)] min-w-0 shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 active:scale-[0.98]"
           >
             <FiCopy className="h-4 w-4 shrink-0" />
             <span className="truncate">So sánh căn</span>

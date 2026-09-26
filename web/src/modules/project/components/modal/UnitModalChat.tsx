@@ -88,28 +88,27 @@ const UnitModalChat = ({
   const inputBox = (
     <form
       onSubmit={handleSendMessage}
-      className="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5"
+      className="flex h-[52px] min-w-0 flex-1 items-center gap-2 px-3"
     >
-      <FiMessageSquare className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+      <FiMessageSquare className="h-4 w-4 shrink-0 text-blue-500" />
       <input
         ref={chatInputRef}
         type="text"
         value={chatMessage}
         onChange={(e) => setChatMessage(e.target.value)}
         placeholder="Nhắn tin với Admin..."
-        className="min-w-0 flex-1 bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none"
+        className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 placeholder:text-xs focus:outline-none"
       />
-      {/* Nut gui chi hien khi da go chu - luc trong o thi thanh nay gon het
-          muc, dung nhu mockup */}
-      {chatMessage.trim() && (
-        <button
-          type="submit"
-          aria-label="Gửi"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700"
-        >
-          <FiSend className="h-3.5 w-3.5" />
-        </button>
-      )}
+      {/* Nut gui LUON hien. Chua go chu thi van bam duoc nhung khong gui gi
+          (handleSendMessage bo qua tin nhan rong) - de nguyen mau sac thay vi
+          lam mo di, nhu vay o chat nhin luc nao cung day du. */}
+      <button
+        type="submit"
+        aria-label="Gửi"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white transition-colors hover:bg-blue-700"
+      >
+        <FiSend className="h-3.5 w-3.5" />
+      </button>
     </form>
   );
 
@@ -138,9 +137,9 @@ const UnitModalChat = ({
             key={text}
             type="button"
             onClick={() => handleSuggestion(text)}
-            className="flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-600 shadow-2xs transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+            className="flex h-5 shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-1.5 text-[9px] font-medium text-slate-600 shadow-2xs transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
           >
-            <Icon className="h-2.5 w-2.5 shrink-0 text-blue-500" />
+            <Icon className="h-2 w-2 shrink-0 text-blue-500" />
             {text}
           </button>
         ))}

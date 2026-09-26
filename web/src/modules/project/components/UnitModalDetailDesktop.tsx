@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { FaHammer } from "react-icons/fa6";
-import { FiCalendar, FiShare2, FiUsers } from "react-icons/fi";
+import { FaHandPointer } from "react-icons/fa6";
+import { FiCalendar, FiShare2 } from "react-icons/fi";
 import UnitModalHeader from "./modal/UnitModalHeader";
 import UnitModalHeaderBottom from "./modal/UnitModalHeaderBottom";
 import UnitModalGallery from "./modal/UnitModalGallery";
@@ -90,12 +90,14 @@ const UnitModalDetailDesktop = ({
       </div>
 
       <div className="flex min-h-0 flex-1 gap-1.5">
-        {/* ── Cột 1: ảnh + ô nhắn tin + gợi ý nhanh ────────────── */}
+        {/* ── Cột 1: ảnh (chiem tron chieu cao cot) ───────────── */}
         <div className="flex w-[30%] min-w-0 shrink-0 flex-col gap-1.5">
           {/* Khong truyen badge/onToggleFavorite: nhan loai hinh va nut tim
               da co o dau trang roi, lap lai tren anh chi lam roi. Rieng hai
               nut sao chep / tai ve thi giu - do la viec nguoi dung lam ngay
               tren anh, khong co cho nao khac thay the. */}
+          {/* Thanh hai nut da nam ngoai hang nen anh va luoi so lieu cung
+              ket thuc o day hang - khong phai chua cho gi them. */}
           <div className="flex min-h-0 flex-1">
             <UnitModalGallery
               images={images}
@@ -106,24 +108,6 @@ const UnitModalDetailDesktop = ({
             />
           </div>
 
-          <UnitModalChat
-            variant="input"
-            className="shrink-0"
-            value={chatMessage}
-            onValueChange={setChatMessage}
-          />
-
-          {/* Ba goi y nam NGAY DUOI o nhan tin: bam mot cai la cau hoi do
-              duoc dien vao o ngay tren, hai thu di lien nhau thi moi lien he
-              do nhin la hieu. Truoc day chung nam o day cot ben phai - xa o
-              nhan tin ca khung, nguoi dung khong doan ra bam vao thi chu chay
-              di dau. */}
-          <UnitModalChat
-            variant="chips"
-            className="shrink-0"
-            value={chatMessage}
-            onValueChange={setChatMessage}
-          />
         </div>
 
         {/* ── Khu bên phải: thanh 4 ô trải ngang, dưới là số liệu + hành
@@ -155,100 +139,117 @@ const UnitModalDetailDesktop = ({
               <AreaCard />
               <PolicyCard />
               <HandoverCard />
-              {/* "Phap ly" chi co mot gia tri nen khong keo dan bang cac the
-                  kia: self-start cho no dung o nua o tren, h-12 khoa cung
-                  chieu cao. */}
-              <LegalCard className="h-12 self-start" />
+              {/* "Phap ly" cao BANG the "Thong tin ban giao" ben canh: no
+                  chi co mot gia tri nen truoc day bi khoa h-12 va day len
+                  nua o tren, nhin ngang qua thi thap hon han the kia. De no
+                  keo dan theo hang, noi dung tu can giua. */}
+              <LegalCard />
             </div>
 
             {/* Cột tư vấn viên: tieu de + ba the, gom trong mot khung vien.
                 Hai nut hanh dong da chuyen xuong thanh ngang duoi cung. */}
-            {/* Be rong dung bang MOT o cua thanh tren: thanh do co 4 o va 3
-                khoang cach 6px, nen moi o = 25% tru 4.5px. Dat 25% chan se
-                thua mat 4.5px va lech khoi o "So sanh can" phia tren.
+            {/* Be rong dung bang o "So sanh can" phia tren: mot phan tu cua
+                thanh (25% - 4.5px) cong 40px ma ba o thong tin nhuong lai.
+                Hai cai phai cung mot cong thuc, lech mot chut la thay ngay.
 
-                Chieu cao dung bang DAY THE "Phap ly" ben canh chu khong keo
-                het hang: luoi ben trai co 3 hang deu nhau va 2 khoang ho 6px
-                (hang = (100%-12px)/3), the "Phap ly" cao 48px nam dau hang 3
-                -> day no o (200%-24px)/3 + 60px. Viet bang calc de hang co
-                gian the nao no cung bam theo, khong phai do tay. */}
-            <div className="flex h-[calc((200%-24px)/3+60px)] w-[calc(25%-4.5px)] min-h-0 shrink-0 flex-col gap-1.5 self-start rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
-              <div className="flex shrink-0 items-center gap-2">
-                <span className="shrink-0 rounded-md bg-blue-50 p-0.5 text-blue-600">
-                  <FiUsers className="h-3.5 w-3.5" />
-                </span>
-                <p className="min-w-0 truncate text-[10px] font-bold leading-tight text-slate-900">
-                  Liên hệ tư vấn
-                </p>
+                Chieu cao bam theo luoi ben trai: 3 hang deu nhau, 2 khoang
+                ho 6px (hang = (100%-12px)/3). Truoc the nay cao den day the
+                "Phap ly" ((200%-24px)/3 + 60px); nay bo dong tieu de "Lien
+                he tu van" (18px chu + 6px khoang ho) nen thap di 24px -
+                phan do nhuong cho o nhan tin ngay duoi. */}
+            {/* Cot phai: the "Lien he tu van" o tren, o nhan tin + goi y
+                nhanh ngay duoi. Truoc chung nam duoi cot anh; dat canh danh
+                sach tu van vien thi nguoi nhan va o go tin o sat nhau, ma
+                phan trong duoi the tu van cung duoc dung den. */}
+            <div className="flex w-[calc(25%+35.5px)] min-h-0 shrink-0 flex-col gap-1.5">
+              <div className="flex h-[calc((200%-24px)/3+36px)] min-h-0 shrink-0 flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
+                {/* Van cuon duoc (lan chuot / vuot) nhung KHONG ve thanh
+                    truot: cot nay chi rong ~25% khung, mot vach cuon dung o
+                    day lam phan chu hep them va nhin roi. */}
+                <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
+                  <UnitModalAdvisor
+                    variant="band"
+                    advisors={advisors}
+                    onCall={onCallAdvisor}
+                    onMessage={onMessageAdvisor}
+                  />
+                </div>
               </div>
 
-              {/* Van cuon duoc (lan chuot / vuot) nhung KHONG ve thanh truot:
-                  cot nay chi rong ~25% khung, mot vach cuon dung o day lam
-                  phan chu hep them va nhin roi. */}
-              <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
-                <UnitModalAdvisor
-                  variant="band"
-                  advisors={advisors}
-                  onCall={onCallAdvisor}
-                  onMessage={onMessageAdvisor}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* ── Hai nút hành động: một hàng ngang dưới cùng ────────
-              Truoc day chung xep doc trong the "Lien he tu van" - cot do chi
-              rong 25% nen nut bi bop hep, con chu "BOOKING LOCK" thi gan cham
-              hai mep. Dua xuong day thanh mot hang ngang can giua: nut rong
-              rai, de thay, va giong het bo cuc iPad/dien thoai.
-              Hang the thong tin phia tren la flex-1 nen tu co lai nhuong cho
-              cho thanh nay. */}
-          <div className="flex shrink-0 items-center gap-2">
-            {/* O nay rong dung bang NUA luoi so lieu, nut nam sat mep phai no
-                -> canh phai nut "Chia se" thang hang voi mep phai the "Thong
-                tin ban giao" ngay tren. Cach tinh: cot tu van chiem 25%-4.5px
-                cua hang, con lai 6px khoang ho, nen nua luoi = 37.5%-0.75px;
-                tru tiep 3px (nua khoang ho giua hai cot the) ra 37.5%-3.75px.
-                Khoa theo mep the nhu vay thi khung co gian the nao cung thang,
-                khong phai do tay bang padding. */}
-            <div className="flex w-[calc(37.5%-3.75px)] shrink-0 justify-end">
-              <button
-                type="button"
-                onClick={onShare}
-                className="flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-6 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
-              >
-                <FiShare2 className="h-4 w-4 shrink-0" />
-                <span>Chia sẻ</span>
-              </button>
-            </div>
-            <button
-              type="button"
-              onClick={onBookingLock}
-              className="relative flex h-12 animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 pl-6 pr-12 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
-            >
-              {/* Cai bua go go vao nut: dat o goc phai, quay quanh DUOI GOC
-                  PHAI (chuoi bua) nen dau bua vung len roi bo xuong mat nut.
-                  Vong song bung ra dung diem cham. pr-12 chua san cho cho no,
-                  neu khong bua se go trum len chu. Ca cum aria-hidden +
-                  pointer-events-none: chi de nhin, khong chan cu bam. */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute right-1.5 top-1/2 z-10 h-8 w-8 -translate-y-1/2"
-              >
-                <span className="absolute bottom-0.5 left-0.5 h-5 w-5 animate-cta-knock rounded-full border-2 border-white/80" />
-                <FaHammer className="absolute bottom-1 right-0 h-4 w-4 origin-bottom-right animate-cta-hammer text-white drop-shadow-md" />
-              </span>
-
-              {/* Vet sang quet qua mat nut - nam duoi chu nho z-index */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-y-0 left-0 w-1/4 animate-cta-shine bg-gradient-to-r from-transparent via-white/40 to-transparent"
+              <UnitModalChat
+                variant="input"
+                className="shrink-0"
+                value={chatMessage}
+                onValueChange={setChatMessage}
               />
-              <FiCalendar className="relative z-10 h-4 w-4 shrink-0" />
-              <span className="relative z-10">BOOKING LOCK</span>
-            </button>
+
+              {/* Ba goi y nam NGAY DUOI o nhan tin: bam mot cai la cau hoi
+                  do duoc dien vao o ngay tren, hai thu di lien nhau thi moi
+                  lien he do nhin la hieu. */}
+              {/* -mt-0.5: hang goi y nhich len 2px */}
+              <UnitModalChat
+                variant="chips"
+                className="-mt-0.5 shrink-0"
+                value={chatMessage}
+                onValueChange={setChatMessage}
+              />
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* ── Hai nút hành động: một hàng ngang dưới cùng ────────
+          Truoc day chung xep doc trong the "Lien he tu van" - cot do chi
+          rong 25% nen nut bi bop hep, con chu "BOOKING LOCK" thi gan cham
+          hai mep. Dua xuong day thanh mot hang ngang: nut rong rai, de
+          thay, va giong het bo cuc iPad/dien thoai.
+          Nam NGOAI hang ba cot nen can giua theo CA KHUNG popup, tinh
+          ca cot anh ben trai. Hang ba cot phia tren la flex-1 nen tu co
+          lai nhuong cho cho thanh nay - do la dung phan cho ma thanh nut
+          chiem khi con nam trong khu ben phai, nen khong o nao xe dich.
+          */}
+      {/* px-[calc(30%+6px)]: chua trong hai ben dung bang be ngang cot anh
+          (30%) cong khoang ho 6px, nen canh trai nut "Chia se" thang hang voi
+          canh trai the "Thong tin ban giao" ngay tren, va canh phai nut xanh
+          doi xung qua tim khung.
+          Hai nut deu `grow` (grow:1, basis giu nguyen be rong noi dung) nen
+          cho thua chia DEU: moi nut no ra dung bang nhau, giu nguyen chenh
+          lech von co giua chung. */}
+      <div className="flex shrink-0 items-center gap-2 px-[calc(30%+6px)]">
+        <button
+          type="button"
+          onClick={onShare}
+          className="flex h-12 grow items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-6 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
+        >
+          <FiShare2 className="h-4 w-4 shrink-0" />
+          <span>Chia sẻ</span>
+        </button>
+        <button
+          type="button"
+          onClick={onBookingLock}
+          className="relative flex h-12 grow animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 pl-6 pr-12 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
+        >
+          {/* Ban tay bam bam vao nut: nhac len roi an xuong mat nut,
+              ngon tay hoi thu lai luc cham cho ra dong tac bam. Vong song
+              bung ra dung diem cham. pr-12 chua san cho cho no, neu khong
+              ban tay se de trum len chu. Ca cum aria-hidden +
+              pointer-events-none: chi de nhin, khong chan cu bam. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-1.5 top-1/2 z-10 h-8 w-8 -translate-y-1/2"
+          >
+            <span className="absolute bottom-0.5 left-0.5 h-5 w-5 animate-cta-knock rounded-full border-2 border-white/80" />
+            <FaHandPointer className="absolute bottom-0.5 right-0.5 h-4 w-4 origin-bottom animate-cta-tap text-white drop-shadow-md" />
+          </span>
+
+          {/* Vet sang quet qua mat nut - nam duoi chu nho z-index */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 left-0 w-1/4 animate-cta-shine bg-gradient-to-r from-transparent via-white/40 to-transparent"
+          />
+          <FiCalendar className="relative z-10 h-4 w-4 shrink-0" />
+          <span className="relative z-10">BOOKING LOCK</span>
+        </button>
       </div>
     </div>
   );

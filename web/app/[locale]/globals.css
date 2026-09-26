@@ -275,6 +275,25 @@
     }
   }
 
+  /* Gia can: dap nhe theo nhip cham. Chi doi TRANSFORM (scale) nen khong
+     chiem them cho - cac dong ben canh dung yen tuyet doi. Bien do 8% va
+     chu ky 1.8s: du de mat bat duoc, khong nhay lien tuc nhu nhan HOT. */
+  --animate-price-pulse: price-pulse 1.8s ease-in-out infinite;
+
+  @keyframes price-pulse {
+    0%,
+    55%,
+    100% {
+      transform: scale(1);
+    }
+    18% {
+      transform: scale(1.08);
+    }
+    36% {
+      transform: scale(1);
+    }
+  }
+
   /* Badge HOT nhap nhay manh me - goi su chu y */
   --animate-hot-pulse: hot-pulse 0.9s ease-in-out infinite;
 
@@ -288,32 +307,32 @@
      de do gay roi mat. */
   --animate-cta-shine: cta-shine 3s ease-in-out infinite;
 
-  /* Cai bua go go vao nut: vung len roi bo xuong hai nhip lien nhau, xong
-     nghi mot quang cho mat do moi. Hai cai duoi (bua va vong song) dung
-     CHUNG mot chu ky 2.4s de cu moi nhip go la vong song bung ra dung luc -
+  /* Ban tay bam bam vao nut: nhac len roi an xuong hai nhip lien nhau, xong
+     nghi mot quang cho mat do moi. Hai cai duoi (ban tay va vong song) dung
+     CHUNG mot chu ky 2.4s de cu moi nhip bam la vong song bung ra dung luc -
      lech nhau la nhin ra ngay. */
-  --animate-cta-hammer: cta-hammer 2.4s ease-in-out infinite;
+  --animate-cta-tap: cta-tap 2.4s ease-in-out infinite;
   --animate-cta-knock: cta-knock 2.4s ease-out infinite;
 
-  @keyframes cta-hammer {
+  @keyframes cta-tap {
     0%,
     8% {
-      transform: rotate(-52deg);
+      transform: translateY(-6px) scale(1);
     }
-    /* Go phat thu nhat */
+    /* Bam phat thu nhat */
     16% {
-      transform: rotate(6deg);
+      transform: translateY(1px) scale(0.92);
     }
     22% {
-      transform: rotate(-38deg);
+      transform: translateY(-4px) scale(1);
     }
-    /* Go phat thu hai */
+    /* Bam phat thu hai */
     30% {
-      transform: rotate(6deg);
+      transform: translateY(1px) scale(0.92);
     }
     38%,
     100% {
-      transform: rotate(-52deg);
+      transform: translateY(-6px) scale(1);
     }
   }
 
@@ -388,6 +407,9 @@
   .animate-hot-pulse {
     animation: none;
   }
+  .animate-price-pulse {
+    animation: none;
+  }
   .animate-cta-glow {
     animation: none;
   }
@@ -395,7 +417,7 @@
     animation: none;
     opacity: 0;
   }
-  .animate-cta-hammer {
+  .animate-cta-tap {
     animation: none;
   }
   .animate-cta-knock {

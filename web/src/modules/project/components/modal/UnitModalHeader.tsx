@@ -129,7 +129,7 @@ const UnitModalHeader = ({
           </div>
 
           <div className="flex max-w-[50%] shrink-0 flex-col items-end text-right">
-            <p className="text-3xl font-semibold text-brand-600 max-md:text-xl min-[800px]:max-xl:text-4xl lg:max-xl:text-5xl xl:text-xl xl:leading-tight">
+            <p className="origin-right animate-price-pulse text-3xl font-semibold text-brand-600 max-md:text-xl min-[800px]:max-xl:text-4xl lg:max-xl:text-5xl xl:text-xl xl:leading-tight">
               {formatBillion(price)}
             </p>
             <span className="mt-1 text-xs font-medium text-gray-600 xl:mt-0 xl:text-[11px] xl:leading-tight max-md:mt-0.5 max-md:text-xs max-md:leading-snug max-md:text-gray-600">
