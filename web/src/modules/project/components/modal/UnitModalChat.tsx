@@ -38,6 +38,13 @@ type UnitModalChatProps = {
   value?: string;
   /** Bao cho cha khi chu thay doi */
   onValueChange?: (value: string) => void;
+  /**
+   * O do chu that su nam (the input). Bo cuc may tinh tach o nhap va ba goi y
+   * thanh hai manh o hai cho khac nhau, nen manh "chips" khong co input cua
+   * rieng no - phai muon ref cua manh "input" thi bam goi y moi dua duoc con
+   * tro ve cuoi dong o ben kia.
+   */
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 };
 
 /**
@@ -52,6 +59,7 @@ const UnitModalChat = ({
   variant = "stacked",
   value,
   onValueChange,
+  inputRef,
 }: UnitModalChatProps) => {
   const [innerMessage, setInnerMessage] = useState("");
   // Cha co truyen `value` thi nghe theo cha, khong thi tu giu lay
@@ -60,7 +68,9 @@ const UnitModalChat = ({
     if (onValueChange) onValueChange(next);
     else setInnerMessage(next);
   };
-  const chatInputRef = useRef<HTMLInputElement>(null);
+  const innerInputRef = useRef<HTMLInputElement>(null);
+  // Cha co dua ref thi dung chung voi cha, khong thi tu giu lay
+  const chatInputRef = inputRef ?? innerInputRef;
 
   /**
    * Dien cau hoi vao o nhan tin roi dua con tro ve cuoi dong: nguoi dung thay
@@ -71,11 +81,19 @@ const UnitModalChat = ({
     const input = chatInputRef.current;
     if (!input) return;
     input.focus();
+
     // Doi React ve xong gia tri moi roi moi dat con tro, neu khong no nhay
-    // ve dau dong.
-    requestAnimationFrame(() =>
-      input.setSelectionRange(text.length, text.length),
-    );
+    // ve dau dong. Phai doi HAI khung hinh: khung dau React moi commit gia
+    // tri, sang khung sau trinh duyet mao do lai be ngang chu - dat con tro
+    // ngay khung dau thi o van dang cuon o dau cau va nguoi dung chi thay
+    // doan dau, khong thay cho minh sap go tiep.
+    const moveCaretToEnd = () => {
+      input.setSelectionRange(text.length, text.length);
+      // Cuon han sang phai: cau goi y dai hon o nhap nen phai keo den cuoi
+      // moi thay con tro. Tu setSelectionRange khong phai luc nao cung cuon.
+      input.scrollLeft = input.scrollWidth;
+    };
+    requestAnimationFrame(() => requestAnimationFrame(moveCaretToEnd));
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -97,7 +115,7 @@ const UnitModalChat = ({
         value={chatMessage}
         onChange={(e) => setChatMessage(e.target.value)}
         placeholder="Nhắn tin với Admin..."
-        className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 placeholder:text-xs focus:outline-none"
+        className="min-w-0 flex-1 bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none"
       />
       {/* Nut gui LUON hien. Chua go chu thi van bam duoc nhung khong gui gi
           (handleSendMessage bo qua tin nhan rong) - de nguyen mau sac thay vi

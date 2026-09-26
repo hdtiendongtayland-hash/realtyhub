@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FaHandPointer } from "react-icons/fa6";
 import { FiCalendar, FiShare2 } from "react-icons/fi";
 import UnitModalHeader from "./modal/UnitModalHeader";
@@ -71,6 +71,9 @@ const UnitModalDetailDesktop = ({
   // O nhap tin nam o cot anh, ba goi y nam o cot so lieu - hai cho khac nhau
   // nen chu dang go phai do day giu, khong the de trong UnitModalChat.
   const [chatMessage, setChatMessage] = useState("");
+  // Ba goi y nam o mot component khac voi o nhap, nen ref phai do CHA giu:
+  // bam goi y -> con tro nhay thang vao o nhap o duoi, go tiep duoc ngay.
+  const chatInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-1.5 pb-2">
@@ -181,6 +184,7 @@ const UnitModalDetailDesktop = ({
                 className="shrink-0"
                 value={chatMessage}
                 onValueChange={setChatMessage}
+                inputRef={chatInputRef}
               />
 
               {/* Ba goi y nam NGAY DUOI o nhan tin: bam mot cai la cau hoi
@@ -192,6 +196,7 @@ const UnitModalDetailDesktop = ({
                 className="-mt-0.5 shrink-0"
                 value={chatMessage}
                 onValueChange={setChatMessage}
+                inputRef={chatInputRef}
               />
             </div>
           </div>
