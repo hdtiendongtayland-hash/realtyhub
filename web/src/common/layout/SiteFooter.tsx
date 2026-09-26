@@ -124,7 +124,7 @@ const GROUP_SITES = [
 const COMPANY = {
   name: 'CÔNG TY CỔ PHẦN CÔNG NGHỆ XHUB',
   license: '0312312011',
-  firstRegistered: '09/2026',
+  firstRegistered: '25/09/2026',
   address: '192 Trần Não, Khu Phố 2, Phường An Khánh, Thành phố Hồ Chí Minh, Việt Nam',
   phone: '08.73087777',
   phoneHref: 'tel:+842873087777',
@@ -246,7 +246,7 @@ const SiteFooter = () => (
                   alt={site.name}
                   width={site.width}
                   height={site.height}
-                  className="h-12 w-auto"
+                  className="h-12 w-auto xl:h-15"
                 />
               </a>
             </li>
@@ -331,7 +331,7 @@ const SiteFooter = () => (
         <p>
           © 2026.{' '}
           <span className="font-semibold uppercase text-gray-700">{COMPANY.name}.</span>{' '}
-          GPĐKKD: {COMPANY.license}, thành lập vào tháng {COMPANY.firstRegistered}.
+          GPĐKKD: {COMPANY.license}, thành lập vào ngày {COMPANY.firstRegistered}.
         </p>
         <p>Địa chỉ: {COMPANY.address}.</p>
         <p className="flex flex-wrap items-center gap-x-4">
@@ -349,7 +349,6 @@ const SiteFooter = () => (
           </span>
         </p>
         <p>
-          Người đại diện theo pháp luật: {COMPANY.representative}.{' '}
           <Link
             href="/dieu-khoan-su-dung"
             className="font-semibold text-brand-600 transition hover:text-brand-700"

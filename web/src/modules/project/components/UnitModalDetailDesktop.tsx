@@ -215,7 +215,7 @@ const UnitModalDetailDesktop = ({
               <button
                 type="button"
                 onClick={onShare}
-                className="flex h-10 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-6 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
+                className="flex h-12 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-white px-6 text-sm font-medium text-blue-600 transition-all hover:bg-blue-50/50 active:scale-95"
               >
                 <FiShare2 className="h-4 w-4 shrink-0" />
                 <span>Chia sẻ</span>
@@ -224,7 +224,7 @@ const UnitModalDetailDesktop = ({
             <button
               type="button"
               onClick={onBookingLock}
-              className="relative flex h-10 animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 pl-6 pr-12 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
+              className="relative flex h-12 animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 pl-6 pr-12 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
             >
               {/* Cai bua go go vao nut: dat o goc phai, quay quanh DUOI GOC
                   PHAI (chuoi bua) nen dau bua vung len roi bo xuong mat nut.
