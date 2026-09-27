@@ -145,14 +145,15 @@ const UnitModalDetailDesktop = ({
               {/* "Phap ly" cao BANG the "Thong tin ban giao" ben canh: no
                   chi co mot gia tri nen truoc day bi khoa h-12 va day len
                   nua o tren, nhin ngang qua thi thap hon han the kia. De no
-                  keo dan theo hang, noi dung tu can giua. */}
+                  keo dan theo hang; noi dung nam tren cung, ngang dong tieu de
+                  "Thong tin ban giao". */}
               <LegalCard />
             </div>
 
             {/* Cột tư vấn viên: tieu de + ba the, gom trong mot khung vien.
                 Hai nut hanh dong da chuyen xuong thanh ngang duoi cung. */}
             {/* Be rong dung bang o "So sanh can" phia tren: mot phan tu cua
-                thanh (25% - 4.5px) cong 40px ma ba o thong tin nhuong lai.
+                thanh (25% - 4.5px) cong 34px ma ba o thong tin nhuong lai.
                 Hai cai phai cung mot cong thuc, lech mot chut la thay ngay.
 
                 Chieu cao bam theo luoi ben trai: 3 hang deu nhau, 2 khoang
@@ -164,7 +165,7 @@ const UnitModalDetailDesktop = ({
                 nhanh ngay duoi. Truoc chung nam duoi cot anh; dat canh danh
                 sach tu van vien thi nguoi nhan va o go tin o sat nhau, ma
                 phan trong duoi the tu van cung duoc dung den. */}
-            <div className="flex w-[calc(25%+35.5px)] min-h-0 shrink-0 flex-col gap-1.5">
+            <div className="flex w-[calc(25%+29.5px)] min-h-0 shrink-0 flex-col gap-1.5">
               <div className="flex h-[calc((200%-24px)/3+36px)] min-h-0 shrink-0 flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
                 {/* Van cuon duoc (lan chuot / vuot) nhung KHONG ve thanh
                     truot: cot nay chi rong ~25% khung, mot vach cuon dung o
@@ -244,7 +245,9 @@ const UnitModalDetailDesktop = ({
             className="pointer-events-none absolute right-1.5 top-1/2 z-10 h-8 w-8 -translate-y-1/2"
           >
             <span className="absolute bottom-0.5 left-0.5 h-5 w-5 animate-cta-knock rounded-full border-2 border-white/80" />
-            <FaHandPointer className="absolute bottom-0.5 right-0.5 h-4 w-4 origin-bottom animate-cta-tap text-white drop-shadow-md" />
+            <span className="absolute inset-0 animate-hand-blink">
+              <FaHandPointer className="absolute bottom-0.5 right-0.5 h-4 w-4 origin-bottom animate-cta-tap text-white drop-shadow-md" />
+            </span>
           </span>
 
           {/* Vet sang quet qua mat nut - nam duoi chu nho z-index */}

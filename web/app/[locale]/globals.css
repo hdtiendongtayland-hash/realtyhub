@@ -313,6 +313,21 @@
      lech nhau la nhin ra ngay. */
   --animate-cta-tap: cta-tap 2.4s ease-in-out infinite;
   --animate-cta-knock: cta-knock 2.4s ease-out infinite;
+  /* Ban tay nhap nhay sang/mo, dat tren wrapper vi icon ben trong da dung
+     transform cho cta-tap. */
+  --animate-hand-blink: hand-blink 1.2s ease-in-out infinite;
+
+  @keyframes hand-blink {
+    0%,
+    100% {
+      opacity: 0.55;
+      filter: drop-shadow(0 0 0 rgb(255 255 255 / 0));
+    }
+    50% {
+      opacity: 1;
+      filter: drop-shadow(0 0 6px rgb(255 255 255 / 0.95));
+    }
+  }
 
   @keyframes cta-tap {
     0%,
@@ -415,13 +430,8 @@
     animation: none;
     opacity: 0;
   }
-  .animate-cta-tap {
-    animation: none;
-  }
-  .animate-cta-knock {
-    animation: none;
-    opacity: 0;
-  }
+  /* Ban tay tren nut BOOKING LOCK co y giu hieu ung (cta-tap, cta-knock,
+     hand-blink) ke ca khi may tat hieu ung - yeu cau san pham. */
 }
 
 @layer base {

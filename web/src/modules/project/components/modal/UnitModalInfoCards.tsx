@@ -176,7 +176,7 @@ export const HandoverCard = ({ className = "" }: CardProps) => (
 );
 
 export const LegalCard = ({ className = "" }: CardProps) => (
-  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center xl:p-1.5 ${className}`}>
+  <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs flex justify-between items-center xl:items-start xl:p-1.5 ${className}`}>
     <div className="flex items-center gap-2">
       <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg xl:p-1">
         <FiShield className="w-5 h-5 xl:w-4 xl:h-4" />

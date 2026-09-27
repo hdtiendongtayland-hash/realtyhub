@@ -106,14 +106,14 @@ const UnitModalHeaderBottom = ({
         </div>
 
         {/* "So sanh can" sat mep phai va rong bang mot phan tu CONG them
-            40px vua lay duoc tu ba o kia: 25% - 4.5px + 40px. Cot "Lien he
+            34px vua lay duoc tu ba o kia: 25% - 4.5px + 34px. Cot "Lien he
             tu van" ngay duoi dung dung con so nay - hai cai thang mot duong
             doc. */}
         {showCompare && (
           <button
             type="button"
             onClick={onCompareUnit}
-            className="flex w-[calc(25%+35.5px)] min-w-0 shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 active:scale-[0.98]"
+            className="flex w-[calc(25%+29.5px)] min-w-0 shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600 active:scale-[0.98]"
           >
             <FiCopy className="h-4 w-4 shrink-0" />
             <span className="truncate">So sánh căn</span>

@@ -106,7 +106,7 @@ const UnitModalChat = ({
   const inputBox = (
     <form
       onSubmit={handleSendMessage}
-      className="flex h-[52px] min-w-0 flex-1 items-center gap-2 px-3"
+      className="flex h-[46px] min-w-0 flex-1 items-center gap-2 px-3"
     >
       <FiMessageSquare className="h-4 w-4 shrink-0 text-blue-500" />
       <input
@@ -155,7 +155,7 @@ const UnitModalChat = ({
             key={text}
             type="button"
             onClick={() => handleSuggestion(text)}
-            className="flex h-5 shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-1.5 text-[9px] font-medium text-slate-600 shadow-2xs transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+            className="flex h-[26px] shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-1.5 text-[9px] font-medium text-slate-600 shadow-2xs transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
           >
             <Icon className="h-2 w-2 shrink-0 text-blue-500" />
             {text}
