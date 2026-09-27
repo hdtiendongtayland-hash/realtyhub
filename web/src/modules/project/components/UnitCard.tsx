@@ -99,14 +99,14 @@ const UnitCard = ({ unit, onUnitClick }: UnitCardProps) => {
             <span
               aria-label="Căn độc quyền"
               title="Căn độc quyền"
-              className="absolute left-2 top-2 z-10 inline-flex animate-hot-pulse items-center"
+              className="absolute left-3 top-3 z-10 inline-flex origin-top-left animate-hot-pulse items-center"
             >
               <Image
                 src="/images/hot.png"
                 alt="HOT"
                 width={60}
                 height={20}
-                className="h-6 w-auto"
+                className="h-9 w-auto"
               />
             </span>
           )}

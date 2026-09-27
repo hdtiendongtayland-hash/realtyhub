@@ -93,8 +93,8 @@ const UnitModalHeader = ({
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             {isHot && (
-              <span className="inline-flex animate-hot-pulse items-center gap-1 rounded-md py-0.5 pr-2 pl-1 text-xs font-bold uppercase tracking-wider text-white max-md:-my-2 xl:-my-1">
-                <Image src="/images/hot.png" alt="HOT" width={60} height={20} className="max-md:h-8 max-md:w-auto xl:h-7 xl:w-auto" />
+              <span className="inline-flex origin-left animate-hot-pulse items-center gap-1 rounded-md py-0.5 pr-2 pl-1 text-xs font-bold uppercase tracking-wider text-white max-md:-my-2 xl:-my-1">
+                <Image src="/images/hot.png" alt="HOT" width={60} height={20} className="h-10 w-auto max-md:h-9 xl:h-9" />
               </span>
             )}
 
