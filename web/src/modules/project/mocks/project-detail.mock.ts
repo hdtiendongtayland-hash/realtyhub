@@ -45,7 +45,11 @@ import {
   VOP_SLUG,
 } from './vinhomes-ocean-park.mock';
 import { MOCK_PROJECTS } from './projects.mock';
-import { BLANCA_CITY_DETAIL, BLANCA_CITY_SLUG } from './blanca-city.mock';
+import {
+  BLANCA_CITY_DETAIL,
+  BLANCA_CITY_SLUG,
+  BLANCA_CITY_UNIT_PHASES,
+} from './blanca-city.mock';
 import { IMPERIA_GREEN_PARADISE_DETAIL, IMPERIA_GREEN_PARADISE_SLUG } from './imperia-green-paradise.mock';
 
 // ── Bo sinh so ngau nhien co hat giong ─────────────────────────────────────
@@ -967,39 +971,53 @@ const BLANCA_CITY_DIRECTIONS = [
   'ĐÔNG BẮC',
 ];
 
+const BLANCA_CITY_LOW_RISE_TYPES = [
+  { label: 'Nhà phố', area: 96, bedrooms: 4 },
+  { label: 'Liền kề', area: 120, bedrooms: 4 },
+  { label: 'Biệt thự song lập', area: 210, bedrooms: 5 },
+];
+
+/**
+ * Can cho tung phan khu / toa trong BLANCA_CITY_UNIT_PHASES: thap tang la nha
+ * pho / biet thu, cao tang la can ho Studio-3PN. `phaseName` trung ten phan
+ * khu de tab "Vi tri quy can" loc dung bang hang cua tung toa.
+ */
 const buildBlancaCityUnits = (): ProjectUnit[] => {
   const units: ProjectUnit[] = [];
-  let unitIndex = 0;
 
-  // Generate 500 units
-  for (let floor = 5; floor <= 34; floor++) {
-    for (let slot = 1; slot <= 16; slot++) {
-      if (unitIndex >= 500) break;
+  BLANCA_CITY_UNIT_PHASES.forEach((phase) => {
+    const types = phase.lowRise ? BLANCA_CITY_LOW_RISE_TYPES : BLANCA_CITY_UNIT_TYPES;
+    const slotsPerFloor = phase.lowRise ? 30 : 8;
 
-      const typeIndex = unitIndex % BLANCA_CITY_UNIT_TYPES.length;
-      const type = BLANCA_CITY_UNIT_TYPES[typeIndex];
+    for (let index = 0; index < phase.unitCount; index++) {
+      const type = types[index % types.length];
+      const floor = phase.lowRise ? phase.floors : 5 + Math.floor(index / slotsPerFloor);
+      const slot = (index % slotsPerFloor) + 1;
 
-      // Generate price based on area (approximate, ~50-60 triệu/m2)
-      const basePricePerSqm = 50_000_000 + Math.random() * 10_000_000;
+      // Thap tang ~110-140 trieu/m2, can ho ~50-60 trieu/m2
+      const basePricePerSqm = phase.lowRise
+        ? 110_000_000 + Math.random() * 30_000_000
+        : 50_000_000 + Math.random() * 10_000_000;
       const listedPrice = Math.round((type.area * basePricePerSqm) / 1_000_000) * 1_000_000;
-      const netPrice = Math.round(listedPrice * 0.95 / 1_000_000) * 1_000_000;
-      const fullVatPrice = Math.round(listedPrice * 1.08 / 1_000_000) * 1_000_000;
+      const netPrice = Math.round((listedPrice * 0.95) / 1_000_000) * 1_000_000;
+      const fullVatPrice = Math.round((listedPrice * 1.08) / 1_000_000) * 1_000_000;
       const unitPrice = Math.round(netPrice / type.area);
 
       // Random status: 70% con-hang, 15% giu-cho, 15% da-ban
       const statusRoll = Math.random();
       const status: UnitStatus =
-        statusRoll > 0.85 ? 'da-ban' : statusRoll > 0.70 ? 'giu-cho' : 'con-hang';
+        statusRoll > 0.85 ? 'da-ban' : statusRoll > 0.7 ? 'giu-cho' : 'con-hang';
 
-      // Fund type distribution
       const fundRoll = Math.random();
       const fundType: UnitFundType =
         fundRoll < 0.2 ? 'doc-quyen' : fundRoll < 0.86 ? 'an-cheo' : 'thuong';
 
-      const code = `BT-${String(floor).padStart(2, '0')}${String(slot).padStart(2, '0')}`;
+      const code = phase.lowRise
+        ? `${phase.prefix}-${String(index + 1).padStart(3, '0')}`
+        : `${phase.prefix}-${String(floor).padStart(2, '0')}${String(slot).padStart(2, '0')}`;
 
       units.push({
-        publicId: `bc-unit-${String(unitIndex + 1).padStart(4, '0')}`,
+        publicId: `bc-unit-${phase.prefix.toLowerCase()}-${String(index + 1).padStart(4, '0')}`,
         code,
         fundType,
         listedPrice,
@@ -1007,31 +1025,29 @@ const buildBlancaCityUnits = (): ProjectUnit[] => {
         fullVatPrice,
         unitPrice,
         propertyTypeLabel: type.label,
-        direction: BLANCA_CITY_DIRECTIONS[unitIndex % BLANCA_CITY_DIRECTIONS.length],
+        direction: BLANCA_CITY_DIRECTIONS[index % BLANCA_CITY_DIRECTIONS.length],
         landArea: type.area,
-        buildArea: type.area,
-        phaseName: 'Beacon Tower',
+        buildArea: phase.lowRise ? Math.round(type.area * 2.6) : type.area,
+        phaseName: phase.name,
         status,
         floor: String(floor),
         unitLine: String(slot).padStart(2, '0'),
         bedrooms: type.bedrooms,
         toilets: type.bedrooms + 1,
-        floors: 1,
+        floors: phase.lowRise ? phase.floors : 1,
         loanRate: '6%/năm',
         loanTerm: '24 tháng',
         discount: 'Chiết khấu 2% khi thanh toán sớm',
-        gift: 'Voucher nội thất 50 triệu',
+        gift: phase.lowRise ? 'Gói hoàn thiện mặt ngoài' : 'Voucher nội thất 50 triệu',
         handoverDate: 'Quý 4/2026',
         handoverStatus: 'Đang xây dựng',
       });
-
-      unitIndex++;
     }
-    if (unitIndex >= 500) break;
-  }
+  });
 
   return units;
 };
+
 
 // ── Units cho Imperia Green Paradise (tu imprea.json) ──────────────────────
 

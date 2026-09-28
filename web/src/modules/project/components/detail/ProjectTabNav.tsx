@@ -60,9 +60,15 @@ type ProjectTabNavProps = {
   current: ProjectDetailTabKey;
   onChange: (tab: ProjectDetailTabKey) => void;
   consultants: ProjectConsultant[];
+  /**
+   * false: thanh cuon di theo trang thay vi dinh. Tab "Vi tri quy can" dung
+   * cai nay de nhuong cho thanh tab con cua no dinh ngay duoi SiteHeader.
+   */
+  sticky?: boolean;
 };
 
-const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) => {
+const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: ProjectTabNavProps) => {
+  const navRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
@@ -78,6 +84,30 @@ const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) =
     const offset = active.offsetLeft - list.clientWidth / 2 + active.clientWidth / 2;
     list.scrollTo({ left: Math.max(0, offset), behavior: 'smooth' });
   }, [current]);
+
+  // Ghi chieu cao that cua thanh nay vao --project-tabnav-h: thanh co the
+  // xuong hai hang tuy be ngang, ma cac thanh dinh ben duoi (tab con cua
+  // "Vi tri quy can") can biet dung cho de dinh sat ngay duoi. Thanh khong
+  // dinh thi ghi 0 - thanh ben duoi dinh thang duoi SiteHeader.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const root = document.documentElement;
+    const update = () =>
+      root.style.setProperty(
+        '--project-tabnav-h',
+        sticky ? `${nav.getBoundingClientRect().height}px` : '0px',
+      );
+    update();
+
+    const observer = new ResizeObserver(update);
+    observer.observe(nav);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty('--project-tabnav-h');
+    };
+  }, [sticky]);
 
   // Bam ra ngoai hoac Escape thi dong bang so dien thoai
   useEffect(() => {
@@ -102,8 +132,11 @@ const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) =
     // top-16 = dung chieu cao SiteHeader dang dinh o tren, de hai thanh xep sat
     // nhau thay vi de lo mot dai noi dung troi qua giua.
     <nav
+      ref={navRef}
       aria-label="Nội dung dự án"
-      className="sticky top-16 z-30 border-b border-gray-200 bg-white/90 backdrop-blur-lg"
+      className={`${
+        sticky ? 'sticky top-16' : 'relative'
+      } z-30 border-b border-gray-200 bg-white/90 backdrop-blur-lg`}
     >
       <div className="site-container flex items-center gap-3">
         {/* Duoi lg: cuon ngang, vi 11 tab khong the vua man hinh dien thoai.
@@ -129,7 +162,10 @@ const ProjectTabNav = ({ current, onChange, consultants }: ProjectTabNavProps) =
                   className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] transition duration-200 ${
                     isActive
                       ? 'brand-gradient font-semibold text-white shadow-[0_4px_14px_-4px_rgba(15,111,209,0.7)]'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-brand-600'
+                      : tab.key === HOT_TAB
+                        ? // Chua chon: nhap nhay nen hong + chu do de goi bam
+                          'animate-tab-hot font-medium text-gray-600'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-brand-600'
                   }`}
                 >
                   {/* Tab `mat-bang-quy-can` luon hien icon de noi bat dong deu

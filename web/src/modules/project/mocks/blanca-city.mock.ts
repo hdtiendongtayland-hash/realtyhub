@@ -13,6 +13,8 @@ import type {
   PlanMarker,
   ProjectAmenity,
   ProjectConsultant,
+  FundGroup,
+  FundTower,
   ProjectDetail,
   ProjectDocument,
   ProjectPhase,
@@ -230,51 +232,232 @@ const LOCATION_HIGHLIGHTS: LocationHighlight[] = [
 ];
 
 // ── Phases ────────────────────────────────────────────────────────────────
+//
+// Blanca City chia hai nhom: "Casa thap tang" (mot phan khu) va "Cao tang"
+// gom ba toa. Moi toa / phan khu la mot ProjectPhase rieng: `name` khop voi
+// `phaseName` cua can (project-detail.mock.ts) va cua pin gia ben duoi.
 
-const PHASES: ProjectPhase[] = [
-  {
-    publicId: 'bc-phase-1',
-    slug: 'beacon-tower',
-    name: 'Beacon Tower',
-    imageUrl: 'https://realtyhub.com.vn/static/rth/c4ca4238a0b923820dcc509a6f75849b/real-estate-projects/demo-inventory/1f0e3dad99908345f7439f8ffabdffc4/2026/04/28/81b1d973-32fc-476c-abf9-0b5a86ba624b-optimized.jpg',
-    totalUnits: 500,
-    priceFrom: 0,
-    priceTo: 0,
-    headline: 'Tòa tháp cao 34 tầng với tầm nhìn 360° ra biển',
+const BC_MASTER_PLAN_URL =
+  'https://realtyhub.com.vn/static/rth/c4ca4238a0b923820dcc509a6f75849b/real-estate-projects/1f0e3dad99908345f7439f8ffabdffc4/2026/04/28/f8a0a15e-0d00-457d-9662-f22117834b38-optimized.jpg';
+
+const BC_PHASE_IMAGE_URL =
+  'https://realtyhub.com.vn/static/rth/c4ca4238a0b923820dcc509a6f75849b/real-estate-projects/demo-inventory/1f0e3dad99908345f7439f8ffabdffc4/2026/04/28/81b1d973-32fc-476c-abf9-0b5a86ba624b-optimized.jpg';
+
+/**
+ * Thong tin sinh can + pin cho tung phan khu / toa. Dung chung voi
+ * buildBlancaCityUnits de ma can, loai hinh va so tang khop nhau o moi tab.
+ */
+export const BLANCA_CITY_UNIT_PHASES = [
+  { name: 'Casa Thấp Tầng', prefix: 'CS', lowRise: true, floors: 4, unitCount: 120 },
+  { name: 'Căn hộ Beachtro Tower', prefix: 'BH', lowRise: false, floors: 40, unitCount: 180 },
+  { name: 'Căn hộ Beacon', prefix: 'BT', lowRise: false, floors: 40, unitCount: 180 },
+  { name: 'Căn hộ Sky Sail', prefix: 'SS', lowRise: false, floors: 38, unitCount: 160 },
+] as const;
+
+const makePhase = ({
+  index,
+  slug,
+  name,
+  imageUrl,
+  totalUnits,
+  priceFrom,
+  priceTo,
+  headline,
+  description,
+  handover,
+  areaRange,
+  ownership,
+  zone,
+}: {
+  index: number;
+  slug: string;
+  name: string;
+  imageUrl: string;
+  totalUnits: number;
+  priceFrom: number;
+  priceTo: number;
+  headline: string;
+  description: string;
+  handover: string;
+  areaRange: string;
+  ownership: string;
+  zone: string;
+}): ProjectPhase => ({
+  publicId: `bc-phase-${index}`,
+  slug,
+  name,
+  imageUrl,
+  totalUnits,
+  priceFrom,
+  priceTo,
+  headline,
+  description,
+  specs: [
+    { label: 'Tên toà nhà', value: name.toUpperCase() },
+    { label: 'Phân khu', value: zone },
+    { label: 'Tổng sản phẩm', value: String(totalUnits) },
+    { label: 'Diện tích', value: areaRange },
+    { label: 'Tiêu chuẩn bàn giao', value: handover },
+    { label: 'Hình thức sở hữu', value: ownership },
+    { label: 'Chủ đầu tư', value: 'Sun Group' },
+    { label: 'Dự án', value: 'Blanca City' },
+  ],
+  masterPlanImages: [
+    {
+      publicId: `bc-phase-${index}-plan-1`,
+      imageUrl: BC_MASTER_PLAN_URL,
+      caption: `Mặt bằng ${name} trong tổng thể Blanca City`,
+    },
+    {
+      publicId: `bc-phase-${index}-plan-2`,
+      imageUrl: HERO_IMAGES[index % HERO_IMAGES.length],
+      caption: `Phối cảnh ${name}`,
+    },
+  ],
+});
+
+const CASA_PHASE = makePhase({
+  index: 4,
+  slug: 'casa-thap-tang',
+  name: 'Casa Thấp Tầng',
+  imageUrl: HERO_IMAGES[1 % HERO_IMAGES.length],
+  totalUnits: 939,
+  priceFrom: 12_500_000_000,
+  priceTo: 38_000_000_000,
+  headline: 'Phân khu nhà phố, biệt thự thấp tầng sát biển Bãi Sau',
+  description:
+    'Casa là phân khu thấp tầng của Blanca City gồm nhà phố thương mại, liền kề và biệt thự song lập, nằm dọc trục cảnh quan dẫn ra biển. Mỗi căn có sân vườn riêng, cao 3–4 tầng, phù hợp vừa ở vừa kinh doanh dịch vụ du lịch.',
+  handover: 'Hoàn thiện mặt ngoài, thô bên trong',
+  areaRange: '90 - 300 m²',
+  ownership: 'Sở hữu lâu dài',
+  zone: 'CASA THẤP TẦNG',
+});
+
+const TOWER_BASE = {
+  handover: 'Hoàn thiện nội thất cao cấp',
+  areaRange: '35,8 - 93,1 m²',
+  ownership: 'Sở hữu 50 năm',
+  zone: 'CAO TẦNG',
+};
+
+const BEACHTRO_TOWER: FundTower = {
+  ...makePhase({
+    ...TOWER_BASE,
+    index: 2,
+    slug: 'can-ho-beachtro-tower',
+    name: 'Căn hộ Beachtro Tower',
+    imageUrl: BC_PHASE_IMAGE_URL,
+    totalUnits: 612,
+    priceFrom: 2_100_000_000,
+    priceTo: 6_400_000_000,
+    headline: 'Toà tháp 40 tầng mặt biển, căn hộ Studio đến 3PN',
     description:
-      'Beacon Tower là tòa tháp đầu tiên của Blanca City, mang thiết kế hình cánh buồm vươn ra biển lớn. Tòa tháp cao 34 tầng với các căn hộ từ Studio đến 3PN, tầm nhìn panorama ôm trọn biển trời Bãi Sau.',
-    specs: [
-      { label: 'Tên dự án', value: 'Blanca City' },
-      { label: 'Tổng căn', value: '500' },
-      { label: 'Tiêu chuẩn bàn giao', value: 'Hoàn thiện nội thất cao cấp' },
-      { label: 'Diện tích căn', value: '35,8 - 93,1 m²' },
-      { label: 'Phong cách xây dựng', value: 'Hiện đại, sang trọng' },
-      { label: 'Hình thức sở hữu', value: 'Sở hữu 50 năm' },
-      { label: 'Tổng diện tích', value: '96,6 ha' },
-      { label: 'Chủ đầu tư', value: 'Sun Group' },
-    ],
-    masterPlanImages: [
-      {
-        publicId: 'bc-phase-1-plan-1',
-        imageUrl: 'https://realtyhub.com.vn/static/rth/c4ca4238a0b923820dcc509a6f75849b/real-estate-projects/1f0e3dad99908345f7439f8ffabdffc4/2026/04/28/f8a0a15e-0d00-457d-9662-f22117834b38-optimized.jpg',
-        caption: 'Mặt bằng tổng thể Beacon Tower',
-      },
-    ],
+      'Beachtro Tower nằm sát bờ biển Bãi Sau, cao 40 tầng với bể bơi vô cực trên mái. Toàn bộ căn hộ đều có ban công hướng biển hoặc hướng núi Lớn.',
+  }),
+  floors: 40,
+};
+
+const BEACON_TOWER: FundTower = {
+  ...makePhase({
+    ...TOWER_BASE,
+    index: 1,
+    // Giu slug cu de link trang phan khu da chia se van vao duoc
+    slug: 'beacon-tower',
+    name: 'Căn hộ Beacon',
+    imageUrl: HERO_IMAGES[2 % HERO_IMAGES.length],
+    totalUnits: 500,
+    priceFrom: 1_900_000_000,
+    priceTo: 5_800_000_000,
+    headline: 'Tòa tháp cao 40 tầng với tầm nhìn 360° ra biển',
+    description:
+      'Beacon là tòa tháp đầu tiên của Blanca City, mang thiết kế hình cánh buồm vươn ra biển lớn. Căn hộ từ Studio đến 3PN, tầm nhìn panorama ôm trọn biển trời Bãi Sau.',
+  }),
+  floors: 40,
+};
+
+const SKY_SAIL_TOWER: FundTower = {
+  ...makePhase({
+    ...TOWER_BASE,
+    index: 3,
+    slug: 'can-ho-sky-sail',
+    name: 'Căn hộ Sky Sail',
+    imageUrl: HERO_IMAGES[3 % HERO_IMAGES.length],
+    totalUnits: 548,
+    priceFrom: 2_300_000_000,
+    priceTo: 7_200_000_000,
+    headline: 'Toà tháp 38 tầng liền kề trung tâm thương mại',
+    description:
+      'Sky Sail kết nối trực tiếp trung tâm thương mại sát biển của dự án, có Skybar rooftop và đường dạo bộ trên không tầng 20.',
+  }),
+  floors: 38,
+};
+
+const PHASES: ProjectPhase[] = [CASA_PHASE, BEACHTRO_TOWER, BEACON_TOWER, SKY_SAIL_TOWER];
+
+const FUND_GROUPS: FundGroup[] = [
+  {
+    publicId: 'bc-group-casa',
+    name: 'Casa Thấp Tầng',
+    segment: 'thap-tang',
+    phase: CASA_PHASE,
+  },
+  {
+    publicId: 'bc-group-cao-tang',
+    name: 'Cao Tầng',
+    segment: 'cao-tang',
+    towers: [BEACHTRO_TOWER, BEACON_TOWER, SKY_SAIL_TOWER],
   },
 ];
 
 // ── Master Plan Map ────────────────────────────────────────────────────────
 
-const PLAN_MARKERS: PlanMarker[] = [
-  { publicId: 'bc-pm-1', code: 'BT-01', price: 0, fundType: 'doc-quyen', phaseName: 'Beacon Tower', propertyTypeLabel: '2PN', landArea: 68, status: 'con-hang', x: 25, y: 35 },
-  { publicId: 'bc-pm-2', code: 'BT-02', price: 0, fundType: 'an-cheo', phaseName: 'Beacon Tower', propertyTypeLabel: '2PN', landArea: 68, status: 'con-hang', x: 35, y: 35 },
-  { publicId: 'bc-pm-3', code: 'BT-03', price: 0, fundType: 'an-cheo', phaseName: 'Beacon Tower', propertyTypeLabel: '1PN+1', landArea: 49, status: 'con-hang', x: 45, y: 35 },
-  { publicId: 'bc-pm-4', code: 'BT-04', price: 0, fundType: 'an-cheo', phaseName: 'Beacon Tower', propertyTypeLabel: '3PN', landArea: 93, status: 'con-hang', x: 55, y: 35 },
-  { publicId: 'bc-pm-5', code: 'BT-05', price: 0, fundType: 'doc-quyen', phaseName: 'Beacon Tower', propertyTypeLabel: '2PN+1', landArea: 79, status: 'con-hang', x: 65, y: 35 },
-  { publicId: 'bc-pm-6', code: 'BT-06', price: 0, fundType: 'thuong', phaseName: 'Beacon Tower', propertyTypeLabel: 'Studio', landArea: 35, status: 'da-ban', x: 25, y: 50 },
-  { publicId: 'bc-pm-7', code: 'BT-07', price: 0, fundType: 'thuong', phaseName: 'Beacon Tower', propertyTypeLabel: '2PN', landArea: 68, status: 'con-hang', x: 35, y: 50 },
-  { publicId: 'bc-pm-8', code: 'BT-08', price: 0, fundType: 'an-cheo', phaseName: 'Beacon Tower', propertyTypeLabel: '1PN+1', landArea: 49, status: 'con-hang', x: 45, y: 50 },
+/** Moi phan khu / toa mot cum pin rieng tren anh mat bang */
+const MARKER_AREAS: Record<string, { x: number; y: number }> = {
+  'Casa Thấp Tầng': { x: 14, y: 58 },
+  'Căn hộ Beachtro Tower': { x: 40, y: 22 },
+  'Căn hộ Beacon': { x: 58, y: 44 },
+  'Căn hộ Sky Sail': { x: 76, y: 24 },
+};
+
+const MARKER_FUNDS: UnitFundType[] = ['doc-quyen', 'an-cheo', 'an-cheo', 'thuong'];
+const MARKER_STATUSES: UnitStatus[] = ['con-hang', 'con-hang', 'giu-cho', 'con-hang', 'da-ban'];
+const TOWER_MARKER_TYPES = [
+  { label: 'Studio', area: 35.8 },
+  { label: '1PN+1', area: 49.3 },
+  { label: '2PN', area: 68.8 },
+  { label: '2PN+1', area: 79.2 },
+  { label: '3PN', area: 93.1 },
 ];
+const CASA_MARKER_TYPES = [
+  { label: 'Nhà phố', area: 96 },
+  { label: 'Liền kề', area: 120 },
+  { label: 'Biệt thự song lập', area: 210 },
+];
+
+const PLAN_MARKERS: PlanMarker[] = BLANCA_CITY_UNIT_PHASES.flatMap((phase) => {
+  const origin = MARKER_AREAS[phase.name];
+  const types = phase.lowRise ? CASA_MARKER_TYPES : TOWER_MARKER_TYPES;
+  const pricePerSqm = phase.lowRise ? 125_000_000 : 58_000_000;
+
+  return Array.from({ length: 10 }, (_, index) => {
+    const type = types[index % types.length];
+    return {
+      publicId: `bc-pm-${phase.prefix}-${index + 1}`,
+      code: phase.lowRise
+        ? `${phase.prefix}-${String(index + 1).padStart(2, '0')}`
+        : `${phase.prefix}-${String(10 + index * 3).padStart(2, '0')}${String((index % 8) + 1).padStart(2, '0')}`,
+      price: Math.round((type.area * pricePerSqm) / 10_000_000) * 10_000_000,
+      fundType: MARKER_FUNDS[index % MARKER_FUNDS.length],
+      phaseName: phase.name,
+      propertyTypeLabel: type.label,
+      landArea: type.area,
+      status: MARKER_STATUSES[index % MARKER_STATUSES.length],
+      x: origin.x + (index % 5) * 3.5,
+      y: origin.y + Math.floor(index / 5) * 7,
+    };
+  });
+});
+
 
 const MASTER_PLAN_MAP: MasterPlanMap = {
   imageUrl: 'https://realtyhub.com.vn/static/rth/c4ca4238a0b923820dcc509a6f75849b/real-estate-projects/1f0e3dad99908345f7439f8ffabdffc4/2026/04/28/f8a0a15e-0d00-457d-9662-f22117834b38-optimized.jpg',
@@ -326,19 +509,40 @@ const TRAINING_VIDEOS: ProjectVideo[] = [
 
 // ── Sales Policy ────────────────────────────────────────────────────────────
 
+/** Mot bang ho tro lai suat: cung khung ky han, `offset` day ca bang len */
+const bcInterestSchedule = (key: string, title: string, offset: number) => ({
+  publicId: `bc-interest-${key}`,
+  title,
+  terms: ['18 tháng', '24 tháng', '30 tháng', '36 tháng', '60 tháng'],
+  rows: [
+    {
+      publicId: `bc-interest-${key}-70`,
+      label: 'Vay 70%',
+      note: '',
+      values: [0, 4, 8.5, 13, 24].map((value) => `${(value + offset).toFixed(1)}%`),
+    },
+    {
+      publicId: `bc-interest-${key}-80`,
+      label: 'Vay 80%',
+      note: 'Áp dụng với khách hàng đủ điều kiện vay 80% theo phê duyệt của ngân hàng',
+      values: [0, 4.5, 10, 15.5, 28].map((value) => `${(value + offset).toFixed(1)}%`),
+    },
+  ],
+});
+
 const SALES_POLICY: SalesPolicy = {
-  headline: 'Chính sách bán hàng dự án Blanca City',
+  headline: 'Chính sách bán hàng và tiến độ thanh toán dự án Blanca City',
   discountTitle: 'Khách hàng thanh toán sớm',
   discounts: [
     {
       publicId: 'bc-discount-1',
-      label: 'Thanh toán trước 30 ngày',
-      percent: '8%',
+      label: 'Trước 31/08/2026',
+      percent: '9,5%',
     },
     {
       publicId: 'bc-discount-2',
-      label: 'Thanh toán trước 60 ngày',
-      percent: '6%',
+      label: 'Sau 31/08/2026',
+      percent: '8%',
     },
   ],
   perks: [
@@ -361,44 +565,55 @@ const SALES_POLICY: SalesPolicy = {
       title: 'Miễn phí quản lý',
       value: '03',
       unit: 'năm',
-      note: '',
+      note: 'kể từ ngày bàn giao',
     },
     {
       publicId: 'bc-perk-4',
       title: 'Gói nội thất cao cấp trị giá',
       value: '150',
       unit: 'triệu',
-      note: '',
+      note: 'áp dụng căn 2PN trở lên',
+    },
+    {
+      publicId: 'bc-perk-5',
+      title: 'Ân hạn nợ gốc',
+      value: '30',
+      unit: 'tháng',
+      note: 'đồng hành cùng ngân hàng đối tác',
+    },
+    {
+      publicId: 'bc-perk-6',
+      title: 'Chiết khấu khách mua sỉ từ 2 căn',
+      value: '1',
+      unit: '%',
+      note: 'cộng dồn với ưu đãi thanh toán sớm',
+    },
+    {
+      publicId: 'bc-perk-7',
+      title: 'Voucher nghỉ dưỡng Sun World',
+      value: '50',
+      unit: 'triệu',
+      note: 'sử dụng trong 03 năm',
+    },
+    {
+      publicId: 'bc-perk-8',
+      title: 'Cam kết thuê lại căn hộ',
+      value: '6',
+      unit: '%/năm',
+      note: 'trong 02 năm đầu (tuỳ chọn)',
     },
   ],
   interestSchedules: [
-    {
-      publicId: 'bc-interest-1',
-      title: 'Chính sách hỗ trợ lãi suất',
-      terms: ['12 tháng', '18 tháng', '24 tháng', '36 tháng'],
-      rows: [
-        {
-          publicId: 'bc-interest-1-row-1',
-          label: 'Vay 70%',
-          note: '',
-          values: ['0%', '5%', '7%', '10%'],
-        },
-        {
-          publicId: 'bc-interest-1-row-2',
-          label: 'Vay 80%',
-          note: 'Áp dụng với khách hàng đủ điều kiện',
-          values: ['0%', '6%', '8%', '12%'],
-        },
-      ],
-    },
+    bcInterestSchedule('before', 'Chính sách hỗ trợ lãi suất trước 31/08/2026', 0),
+    bcInterestSchedule('after', 'Chính sách hỗ trợ lãi suất sau 31/08/2026', 3),
   ],
   loyalty: {
     title: 'Chương trình khách hàng thân thiết',
-    note: 'Chiết khấu cho khách giới thiệu thành công',
+    note: '50% chiết khấu được trừ vào giá bán và 50% được tích điểm thưởng Sun Paradise',
     tiers: [
-      { publicId: 'bc-tier-1', name: 'Hạng Đồng', percent: '0.3%' },
-      { publicId: 'bc-tier-2', name: 'Hạng Bạc', percent: '0.5%' },
-      { publicId: 'bc-tier-3', name: 'Hạng Vàng', percent: '0.8%' },
+      { publicId: 'bc-tier-1', name: 'Hạng Vàng', percent: '0.5%' },
+      { publicId: 'bc-tier-2', name: 'Hạng Bạch Kim', percent: '0.7%' },
+      { publicId: 'bc-tier-3', name: 'Hạng Kim Cương', percent: '1.0%' },
     ],
   },
   payment: {
@@ -408,30 +623,28 @@ const SALES_POLICY: SalesPolicy = {
         publicId: 'bc-plan-1',
         name: 'Tiến độ chuẩn',
         steps: [
-          {
-            publicId: 'bc-plan-1-step-1',
-            label: 'Đặt cọc',
-            note: 'Khi ký HĐĐC',
-            value: '20%',
-          },
-          {
-            publicId: 'bc-plan-1-step-2',
-            label: 'Thanh toán đợt 1',
-            note: 'Sau 30 ngày',
-            value: '10%',
-          },
-          {
-            publicId: 'bc-plan-1-step-3',
-            label: 'Thanh toán đợt 2',
-            note: 'Sau 60 ngày',
-            value: '10%',
-          },
-          {
-            publicId: 'bc-plan-1-step-4',
-            label: 'Thanh toán đợt 3',
-            note: 'Khi bàn giao',
-            value: '60%',
-          },
+          { publicId: 'bc-plan-1-step-1', label: 'Đặt cọc', note: 'khi ký thoả thuận đặt cọc', value: '10%' },
+          { publicId: 'bc-plan-1-step-2', label: 'Ký HĐMB', note: 'sau 30 ngày kể từ ngày đặt cọc', value: '20%' },
+          { publicId: 'bc-plan-1-step-3', label: 'Thanh toán theo tiến độ', note: '04 đợt, mỗi đợt 3 tháng', value: '40%' },
+          { publicId: 'bc-plan-1-step-4', label: 'Nhận bàn giao', note: 'dự kiến Quý 4/2026', value: '25%' },
+          { publicId: 'bc-plan-1-step-5', label: 'Nhận sổ hồng', note: '', value: '5%' },
+        ],
+      },
+      {
+        publicId: 'bc-plan-2',
+        name: 'Thanh toán sớm',
+        steps: [
+          { publicId: 'bc-plan-2-step-1', label: 'Thanh toán trong 30 ngày', note: 'nhận chiết khấu thanh toán sớm', value: '95%' },
+          { publicId: 'bc-plan-2-step-2', label: 'Nhận sổ hồng', note: '', value: '5%' },
+        ],
+      },
+      {
+        publicId: 'bc-plan-3',
+        name: 'Vay ngân hàng hỗ trợ lãi suất',
+        steps: [
+          { publicId: 'bc-plan-3-step-1', label: 'Vốn tự có', note: 'thanh toán trong 06 tháng', value: '20% - 30%' },
+          { publicId: 'bc-plan-3-step-2', label: 'Ngân hàng giải ngân', note: 'Vietcombank, BIDV, Techcombank', value: '70% - 80%' },
+          { publicId: 'bc-plan-3-step-3', label: 'Hỗ trợ lãi suất 0%', note: 'đến khi bàn giao', value: '18 tháng' },
         ],
       },
     ],
@@ -597,6 +810,7 @@ export const BLANCA_CITY_DETAIL: ProjectDetail = {
   },
 
   phases: PHASES,
+  fundGroups: FUND_GROUPS,
   planMap: MASTER_PLAN_MAP,
   panoramas: PANORAMAS,
   trainingVideos: TRAINING_VIDEOS,

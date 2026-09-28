@@ -144,6 +144,28 @@ export type ProjectPhase = {
   masterPlanImages: MediaSlide[];
 };
 
+// ── Tab: Vi tri quy can (nhom phan khu) ────────────────────────────────────
+
+/** Mot toa trong nhom cao tang. `name` khop `phaseName` cua can va pin gia. */
+export type FundTower = ProjectPhase & {
+  floors: number;
+};
+
+/**
+ * Mot nhom tren tab "Vi tri quy can".
+ *
+ * Hai dang: nhom co noi dung truc tiep (`phase`, VD "Casa thap tang") hoac
+ * nhom gom nhieu toa (`towers`, VD "Cao tang" -> tung toa). Du an khong khai
+ * bao nhom thi tab rai `phases` ra thanh mot cap nhu cu.
+ */
+export type FundGroup = {
+  publicId: string;
+  name: string;
+  segment: 'cao-tang' | 'thap-tang';
+  phase?: ProjectPhase;
+  towers?: FundTower[];
+};
+
 /** Muc trong thanh chuyen nhanh giua cac phan khu */
 export type PhaseSummary = {
   publicId: string;
@@ -646,6 +668,8 @@ export type ProjectDetail = Project & {
   consultants: ProjectConsultant[];
   location: ProjectLocation;
   phases: ProjectPhase[];
+  /** Cay nhom cho tab "Vi tri quy can" - khong bat buoc */
+  fundGroups?: FundGroup[];
   planMap: MasterPlanMap;
   panoramas: Panorama[];
   trainingVideos: ProjectVideo[];

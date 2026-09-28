@@ -275,6 +275,24 @@
     }
   }
 
+  /* Nut tab "Vi tri quy can" khi CHUA chon: nen hong nhat + chu do sang len
+     roi tat, kem vong sang mo - nhap nhay goi bam nhung khong gat nhu HOT. */
+  --animate-tab-hot: tab-hot 1.6s ease-in-out infinite;
+
+  @keyframes tab-hot {
+    0%,
+    100% {
+      background-color: rgb(254 243 242 / 0);
+      color: var(--color-gray-600);
+      box-shadow: 0 0 0 0 rgb(240 68 56 / 0);
+    }
+    50% {
+      background-color: rgb(254 243 242);
+      color: rgb(217 45 32);
+      box-shadow: 0 0 0 3px rgb(240 68 56 / 0.18);
+    }
+  }
+
   /* Gia can: dap nhe theo nhip cham. Chi doi TRANSFORM (scale) nen khong
      chiem them cho - cac dong ben canh dung yen tuyet doi. Bien do 8% va
      chu ky 1.8s: du de mat bat duoc, khong nhay lien tuc nhu nhan HOT. */
@@ -405,8 +423,9 @@
       opacity: 1;
       filter: brightness(1) drop-shadow(0 0 0 rgb(240 68 56 / 0));
     }
+    /* --hot-pulse-scale: noi dung doi muc phong to rieng (the can dung 1.06) */
     50% {
-      transform: scale(1.12);
+      transform: scale(var(--hot-pulse-scale, 1.12));
       opacity: 0.85;
       filter: brightness(1.15) drop-shadow(0 0 5px rgb(240 68 56 / 0.5));
     }
@@ -416,13 +435,10 @@
 /* `@theme` cua Tailwind v4 chi chap nhan custom property + @keyframes;
    rule responsive phai ra ngoai block do. */
 @media (prefers-reduced-motion: reduce) {
-  .animate-pulse-fire {
-    animation: none;
-  }
-  /* Nhan HOT co y giu nhap nhay ke ca khi may tat hieu ung (yeu cau san pham). */
-  .animate-price-pulse {
-    animation: none;
-  }
+  /* Tab "Vi tri quy can" (animate-pulse-fire, animate-tab-hot) co y giu
+     nhap nhay ke ca khi may tat hieu ung - yeu cau san pham. */
+  /* Nhan HOT va gia can trong popup chi tiet (animate-price-pulse) co y giu
+     nhap nhay ke ca khi may tat hieu ung (yeu cau san pham). */
   .animate-cta-glow {
     animation: none;
   }

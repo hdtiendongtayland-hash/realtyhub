@@ -13,7 +13,7 @@ import {
 import ProjectHero from './ProjectHero';
 import ProjectTabNav from './ProjectTabNav';
 import DocumentsTab from './tabs/DocumentsTab';
-import FloorPlanTab from './tabs/FloorPlanTab';
+import PhaseFundTab from './tabs/PhaseFundTab';
 import LocationTab from './tabs/LocationTab';
 import OverviewTab from './tabs/OverviewTab';
 import PhasesTab from './tabs/PhasesTab';
@@ -117,7 +117,7 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
         />
       )}
       {currentTab === 'phan-khu' && <PhasesTab project={project} />}
-      {currentTab === 'mat-bang-quy-can' && <FloorPlanTab planMap={project.planMap} />}
+      {currentTab === 'mat-bang-quy-can' && <PhaseFundTab project={project} />}
       {currentTab === 'quy-can' && <UnitsTab slug={slug} />}
       {currentTab === 'anh-360' && <Photo360Tab project={project} />}
       {currentTab === 'dao-tao' && <TrainingTab project={project} />}
@@ -138,6 +138,9 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
         current={currentTab}
         onChange={changeTab}
         consultants={project.consultants}
+        // "Vi tri quy can": thanh tab du an cuon di, thanh tab con cua phan
+        // khu dinh ngay duoi SiteHeader thay cho no
+        sticky={currentTab !== 'mat-bang-quy-can'}
       />
 
       {/* Moi tab tran het chieu rong. Truoc day co cot phai dinh o ben, nhung no
