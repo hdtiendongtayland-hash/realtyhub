@@ -93,7 +93,7 @@ const UnitModalHeader = ({
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             {isHot && (
-              <span className="inline-flex origin-left animate-hot-pulse items-center gap-1 rounded-md py-0.5 pr-2 pl-1 text-xs font-bold uppercase tracking-wider text-white max-md:-my-2 xl:-my-1">
+              <span className="inline-flex origin-left animate-hot-pulse items-center gap-1 xl:[--hot-pulse-scale:1.07] rounded-md py-0.5 pr-2 pl-1 text-xs font-bold uppercase tracking-wider text-white max-md:-my-2 xl:-my-1">
                 <Image src="/images/hot.png" alt="HOT" width={60} height={20} className="h-10 w-auto max-md:h-9 xl:h-9" />
               </span>
             )}
@@ -117,12 +117,15 @@ const UnitModalHeader = ({
 
         <div className="flex items-start justify-between gap-3 max-md:gap-2">
           <div className="flex min-w-0 flex-1 flex-col gap-1 xl:gap-0">
-            <h2 className="text-3xl font-bold text-gray-900 max-md:text-xl max-md:leading-tight min-[800px]:max-xl:text-4xl lg:max-xl:text-5xl xl:text-xl xl:leading-tight">
+            <h2 className="text-3xl font-bold text-gray-900 max-md:text-xl max-md:leading-tight min-[800px]:max-xl:text-4xl lg:max-xl:text-5xl xl:text-[22px] xl:leading-[26px]">
               {code}
             </h2>
+            {/* May tinh: ma can 20 -> 22px, ten phan khu 14 -> 12px. Chieu cao
+                dong bu tru nhau (25 + 20 = 26 + 19) nen khoi tieu de van cao
+                y nhu cu, cac hang ben duoi khong xe dich. */}
             <div className="flex items-center gap-1.5">
-              <FiMapPin className="h-4 w-4 shrink-0 text-gray-400" />
-              <span className="truncate text-sm font-medium text-gray-600 min-[800px]:max-xl:text-base">
+              <FiMapPin className="h-4 w-4 shrink-0 text-gray-400 xl:h-3.5 xl:w-3.5" />
+              <span className="truncate text-sm font-medium text-gray-600 min-[800px]:max-xl:text-base xl:text-xs xl:leading-[19px]">
                 {phaseName}
               </span>
             </div>

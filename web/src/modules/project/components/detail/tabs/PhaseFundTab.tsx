@@ -10,7 +10,7 @@ import {
 } from 'react';
 import type { IconType } from 'react-icons';
 import { FiChevronDown } from 'react-icons/fi';
-import { HiOutlineBuildingOffice2, HiOutlineMap } from 'react-icons/hi2';
+import { HiOutlineBuildingOffice2, HiOutlineFire, HiOutlineMap } from 'react-icons/hi2';
 import { formatBillion, formatNumber } from '@/common/utils/format';
 import { useProjectUnits } from '../../../hooks/useProjects';
 import {
@@ -44,6 +44,9 @@ const INNER_TABS = [
 ] as const;
 
 type InnerTabKey = (typeof INNER_TABS)[number]['key'];
+
+/** Tab con can noi bat (nhap nhay) - cung vai tro voi HOT_TAB o ProjectTabNav */
+const HOT_INNER_TAB: InnerTabKey = 'vi-tri-quy-hang';
 
 const SEGMENT_SHORT_LABELS: Record<ProjectDetail['segment'], string> = {
   'cao-tang': 'Cao tầng',
@@ -218,6 +221,9 @@ const PhaseTabs = ({ project, phase }: { project: ProjectDetail; phase: ProjectP
         >
           {INNER_TABS.map((item) => {
             const isActive = item.key === tab;
+            // "Vi tri quy hang" noi bat giong tab "Vi tri quy can" cua du an:
+            // icon lua dap nhip, chua chon thi ca nut nhap nhay nen hong
+            const isHot = item.key === HOT_INNER_TAB;
             return (
               <button
                 key={item.key}
@@ -225,12 +231,20 @@ const PhaseTabs = ({ project, phase }: { project: ProjectDetail; phase: ProjectP
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => changeTab(item.key)}
-                className={`shrink-0 rounded-lg px-4 py-2.5 text-theme-sm whitespace-nowrap transition sm:flex-auto lg:flex-1 ${
+                className={`flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-theme-sm whitespace-nowrap transition sm:flex-auto lg:flex-1 ${
                   isActive
                     ? 'bg-white font-semibold text-brand-600 shadow-sm'
-                    : 'text-gray-700 hover:text-brand-600'
+                    : isHot
+                      ? 'animate-tab-hot font-medium text-gray-700'
+                      : 'text-gray-700 hover:text-brand-600'
                 }`}
               >
+                {isHot && (
+                  <HiOutlineFire
+                    aria-hidden
+                    className="h-4 w-4 shrink-0 animate-pulse-fire text-error-500"
+                  />
+                )}
                 {item.label}
               </button>
             );

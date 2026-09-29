@@ -233,16 +233,17 @@ const UnitModalDetailDesktop = ({
         <button
           type="button"
           onClick={onBookingLock}
-          className="relative flex h-12 grow animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 pl-6 pr-12 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
+          className="relative flex h-12 grow animate-cta-glow items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 pl-6 pr-16 text-[13px] font-bold uppercase tracking-wider text-white transition-all hover:from-blue-700 hover:to-blue-600 hover:brightness-110 active:scale-[0.98]"
         >
           {/* Ban tay bam bam vao nut: nhac len roi an xuong mat nut,
               ngon tay hoi thu lai luc cham cho ra dong tac bam. Vong song
-              bung ra dung diem cham. pr-12 chua san cho cho no, neu khong
+              bung ra dung diem cham. Ban tay dat cach mep phai 28px (right-7)
+              cho khong dinh sat mep; pr-16 chua san cho cho no, neu khong
               ban tay se de trum len chu. Ca cum aria-hidden +
               pointer-events-none: chi de nhin, khong chan cu bam. */}
           <span
             aria-hidden
-            className="pointer-events-none absolute right-1.5 top-1/2 z-10 h-8 w-8 -translate-y-1/2"
+            className="pointer-events-none absolute right-7 top-1/2 z-10 h-8 w-8 -translate-y-1/2"
           >
             <span className="absolute bottom-0.5 left-0.5 h-5 w-5 animate-cta-knock rounded-full border-2 border-white/80" />
             <span className="absolute inset-0 animate-hand-blink">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FiDollarSign,
   FiMessageSquare,
@@ -18,6 +18,87 @@ const QUICK_SUGGESTIONS = [
   { icon: FiZap, text: "Giá/m² và giá sau chiết khấu" },
   { icon: FiShield, text: "Pháp lý dự án" },
 ];
+
+/**
+ * Cho mot hang cuon ngang (an thanh cuon) keo duoc bang CHUOT tren may tinh:
+ * - Lan chuot doc -> cuon ngang. Da cham mep thi tra lai cho trang cuon doc.
+ * - Nhan giu va keo. Keo qua 4px thi coi la keo, cu bam nha ra sau do khong
+ *   tinh la bam goi y (khong dien nham cau vao o nhan tin).
+ * Cam ung / trackpad van cuon ngang tu nhien nhu cu.
+ */
+const useMouseHorizontalScroll = (enabled: boolean) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const drag = useRef({ pointerId: -1, startX: 0, startLeft: 0, moved: false });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || !el) return;
+
+    const onWheel = (event: WheelEvent) => {
+      // Trackpad vuot ngang da tu cuon - chi doi lan chuot doc
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 0) return;
+      const atStart = el.scrollLeft <= 0 && event.deltaY < 0;
+      const atEnd = el.scrollLeft >= max - 1 && event.deltaY > 0;
+      if (atStart || atEnd) return;
+      event.preventDefault();
+      el.scrollLeft += event.deltaY;
+    };
+
+    // passive: false thi moi preventDefault duoc (React onWheel luon passive)
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [enabled]);
+
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "mouse" || event.button !== 0 || !ref.current) return;
+    drag.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startLeft: ref.current.scrollLeft,
+      moved: false,
+    };
+  };
+
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const state = drag.current;
+    const el = ref.current;
+    if (state.pointerId !== event.pointerId || !el) return;
+    const dx = event.clientX - state.startX;
+    if (!state.moved && Math.abs(dx) > 4) {
+      state.moved = true;
+      // Giu con tro ke ca khi chuot ra ngoai hang
+      el.setPointerCapture(event.pointerId);
+    }
+    if (state.moved) el.scrollLeft = state.startLeft - dx;
+  };
+
+  const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (drag.current.pointerId !== event.pointerId) return;
+    drag.current.pointerId = -1;
+    if (ref.current?.hasPointerCapture(event.pointerId)) {
+      ref.current.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  // Vua keo xong thi nuot cu click di kem
+  const onClickCapture = (event: React.MouseEvent) => {
+    if (!drag.current.moved) return;
+    drag.current.moved = false;
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  return {
+    ref,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp: endDrag,
+    onPointerCancel: endDrag,
+    onClickCapture,
+  };
+};
 
 type UnitModalChatProps = {
   /** Lop ngoai - dung de chon hien o breakpoint nao */
@@ -71,6 +152,7 @@ const UnitModalChat = ({
   const innerInputRef = useRef<HTMLInputElement>(null);
   // Cha co dua ref thi dung chung voi cha, khong thi tu giu lay
   const chatInputRef = inputRef ?? innerInputRef;
+  const chipsScroll = useMouseHorizontalScroll(variant === "chips");
 
   /**
    * Dien cau hoi vao o nhan tin roi dua con tro ve cuoi dong: nguoi dung thay
@@ -148,7 +230,8 @@ const UnitModalChat = ({
     // hieu con the phia sau.
     return (
       <div
-        className={`no-scrollbar flex items-center gap-1.5 overflow-x-auto ${className}`}
+        {...chipsScroll}
+        className={`no-scrollbar flex cursor-grab items-center gap-1.5 overflow-x-auto select-none active:cursor-grabbing ${className}`}
       >
         {QUICK_SUGGESTIONS.map(({ icon: Icon, text }) => (
           <button
