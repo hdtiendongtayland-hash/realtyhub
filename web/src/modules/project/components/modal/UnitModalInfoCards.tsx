@@ -83,12 +83,30 @@ export const PriceCard = ({
   </div>
 );
 
+/** 237.7 -> "237.7 m²"; chua co so lieu thi "--" */
+const formatArea = (value?: number) => (value ? `${value} m²` : "--");
+
 export const AreaCard = ({
   className = "",
   layout,
+  isApartment = false,
+  landArea,
+  buildArea,
 }: CardProps & {
+  /**
+   * Dong tren: can ho = DT thong thuy, thap tang = DT dat. Cung la so hien o
+   * o "Dien tich" tren dau popup - hai cho phai khop nhau.
+   */
+  landArea?: number;
+  /** Dong duoi: can ho = DT tim tuong, thap tang = DT xay dung */
+  buildArea?: number;
   /** Ma layout/mat bang cua can - hien ngang dong "Dien tich" */
   layout?: string;
+  /**
+   * Can ho cao tang: khong co "dat" hay "xay dung" rieng, ma do theo thong
+   * thuy (long can) va tim tuong (tinh ca nua tuong bao).
+   */
+  isApartment?: boolean;
 }) => (
   <div className={`bg-white p-3 rounded-xl border border-slate-100 shadow-2xs xl:flex xl:flex-col xl:p-1.5 ${className}`}>
     <div className="flex flex-wrap items-center justify-between gap-2 mb-2 xl:mb-0.5">
@@ -110,12 +128,12 @@ export const AreaCard = ({
 
     <div className="bg-slate-50/80 p-2.5 rounded-lg xl:p-1.5 xl:flex-1 grid grid-cols-2 text-sm min-[800px]:max-xl:text-base lg:max-xl:text-lg xl:text-[11px] divide-x divide-slate-200 xl:flex xl:flex-col xl:justify-center xl:gap-1 xl:divide-x-0">
       <div className="pr-2 xl:flex xl:items-center xl:justify-between xl:gap-2 xl:pr-0">
-        <p className="text-slate-600 mb-0.5 xl:mb-0 xl:shrink-0">DT đất</p>
-        <p className="font-bold text-base text-slate-900 xl:whitespace-nowrap xl:text-right xl:text-xs xl:leading-tight">237.7 m²</p>
+        <p className="text-slate-600 mb-0.5 xl:mb-0 xl:shrink-0">{isApartment ? "DT thông thủy" : "DT đất"}</p>
+        <p className="font-bold text-base text-slate-900 xl:whitespace-nowrap xl:text-right xl:text-xs xl:leading-tight">{formatArea(landArea)}</p>
       </div>
       <div className="pl-3 xl:flex xl:items-center xl:justify-between xl:gap-2 xl:pl-0">
-        <p className="text-slate-600 mb-0.5 xl:mb-0 xl:shrink-0">DT xây dựng</p>
-        <p className="font-bold text-base text-slate-900 xl:whitespace-nowrap xl:text-right xl:text-xs xl:leading-tight">377.3 m²</p>
+        <p className="text-slate-600 mb-0.5 xl:mb-0 xl:shrink-0">{isApartment ? "DT tim tường" : "DT xây dựng"}</p>
+        <p className="font-bold text-base text-slate-900 xl:whitespace-nowrap xl:text-right xl:text-xs xl:leading-tight">{formatArea(buildArea)}</p>
       </div>
     </div>
   </div>

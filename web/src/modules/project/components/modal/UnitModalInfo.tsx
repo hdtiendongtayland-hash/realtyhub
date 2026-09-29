@@ -13,6 +13,12 @@ type PropertyDetailCardProps = {
   onPriceSheet?: () => void;
   /** Mo bang tinh lai vay - nut nho nam ngang dong "Gia" */
   onLoanCalculator?: () => void;
+  /** Can ho cao tang: dien tich ghi thong thuy / tim tuong */
+  isApartment?: boolean;
+  /** DT thong thuy (can ho) / DT dat (thap tang) */
+  landArea?: number;
+  /** DT tim tuong (can ho) / DT xay dung (thap tang) */
+  buildArea?: number;
 };
 
 /**
@@ -26,6 +32,9 @@ export default function PropertyDetailCard({
   layout,
   onPriceSheet,
   onLoanCalculator,
+  isApartment = false,
+  landArea,
+  buildArea,
 }: PropertyDetailCardProps = {}) {
   return (
     <div className="mx-auto flex w-full flex-col gap-3 rounded-2xl bg-white font-sans text-slate-800">
@@ -33,7 +42,12 @@ export default function PropertyDetailCard({
         onPriceSheet={onPriceSheet}
         onLoanCalculator={onLoanCalculator}
       />
-      <AreaCard layout={layout} />
+      <AreaCard
+        layout={layout}
+        isApartment={isApartment}
+        landArea={landArea}
+        buildArea={buildArea}
+      />
       <PolicyCard />
       <HandoverCard />
       <LegalCard />

@@ -443,9 +443,12 @@ const PLAN_MARKERS: PlanMarker[] = BLANCA_CITY_UNIT_PHASES.flatMap((phase) => {
     const type = types[index % types.length];
     return {
       publicId: `bc-pm-${phase.prefix}-${index + 1}`,
+      // Ma phai trung ma can that do buildBlancaCityUnits sinh ra (thap tang
+      // CS-001.., cao tang {prefix}-{tang}{truc}, tang tu 5, 8 truc/tang) -
+      // bam pin moi mo dung can. Tang 6..24 co o ca ba toa.
       code: phase.lowRise
-        ? `${phase.prefix}-${String(index + 1).padStart(2, '0')}`
-        : `${phase.prefix}-${String(10 + index * 3).padStart(2, '0')}${String((index % 8) + 1).padStart(2, '0')}`,
+        ? `${phase.prefix}-${String(index + 1).padStart(3, '0')}`
+        : `${phase.prefix}-${String(6 + index * 2).padStart(2, '0')}${String((index % 8) + 1).padStart(2, '0')}`,
       price: Math.round((type.area * pricePerSqm) / 10_000_000) * 10_000_000,
       fundType: MARKER_FUNDS[index % MARKER_FUNDS.length],
       phaseName: phase.name,

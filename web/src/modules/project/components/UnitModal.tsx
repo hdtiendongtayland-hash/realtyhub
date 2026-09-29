@@ -158,6 +158,10 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
             propertyTypeLabel={unit.propertyTypeLabel ?? "Liền kề"}
             direction={unit.direction ?? "Đông"}
             landArea={unit.landArea ?? 0}
+            // Can ho cao tang: du an cao tang VA can chi mot tang (nha pho,
+            // biet thu thap tang trong du an cao tang co nhieu tang)
+            isApartment={unit.segment === "cao-tang" && (unit.floors ?? 1) <= 1}
+            buildArea={unit.buildArea}
             images={unit.thumbnailUrls?.length ? unit.thumbnailUrls : []}
             imageAlt={unit.publicId}
             advisors={advisors}

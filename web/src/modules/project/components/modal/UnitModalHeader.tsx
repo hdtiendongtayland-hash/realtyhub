@@ -99,8 +99,8 @@ const UnitModalHeader = ({
             )}
 
             {isStock && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-jade-500 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
-                <FiLayers className="h-3 w-3" />
+              <span className="inline-flex items-center gap-[3px] rounded-md bg-jade-500 px-[5px] py-px text-[10px] font-bold uppercase tracking-wide text-white">
+                <FiLayers className="h-2.5 w-2.5" />
                 Còn hàng
               </span>
             )}

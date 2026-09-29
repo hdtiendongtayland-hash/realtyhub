@@ -17,10 +17,16 @@ import {
   DEFAULT_UNIT_QUERY,
   type FundGroup,
   UNIT_STATUS_LABELS,
+  type MasterPlanMap,
+  type PlanMarker,
   type ProjectDetail,
   type ProjectPhase,
+  type ProjectUnit,
   type UnitStatus,
+  type UnitWithProject,
 } from '../../../models/project-detail.model';
+import UnitModal from '../../UnitModal';
+import UnitAxisModal from '../../modal/UnitAxisModal';
 import { MediaFrame, TabEmptyState } from '../shared';
 import FloorPlanTab from './FloorPlanTab';
 import SalesPolicyTab from './SalesPolicyTab';
@@ -180,8 +186,179 @@ const PhaseOverview = ({ phase }: { phase: ProjectPhase }) => (
   </div>
 );
 
+const floorNumber = (unit: ProjectUnit) => Number(unit.floor?.match(/\d+/)?.[0] ?? 0);
+
+/**
+ * Can dung tam tu mot pin khi phan khu khong con can that nao de gan. Truc =
+ * nhom so cuoi cua ma, tang = nhom so dung truoc no (VD "HA1-03": tang 1,
+ * truc 03) - du de bang truc can gom dung cac pin cung cot.
+ */
+const unitFromMarker = (marker: PlanMarker): ProjectUnit => {
+  const numbers = marker.code.match(/\d+/g) ?? [];
+  const roundMillion = (value: number) => Math.round(value / 1_000_000) * 1_000_000;
+  return {
+    publicId: `marker-${marker.publicId}`,
+    code: marker.code,
+    fundType: marker.fundType,
+    listedPrice: marker.price,
+    netPrice: roundMillion(marker.price * 0.95),
+    fullVatPrice: roundMillion(marker.price * 1.08),
+    unitPrice: marker.landArea > 0 ? Math.round(marker.price / marker.landArea) : 0,
+    propertyTypeLabel: marker.propertyTypeLabel,
+    direction: 'Đang cập nhật',
+    landArea: marker.landArea,
+    buildArea: marker.landArea,
+    phaseName: marker.phaseName,
+    status: marker.status,
+    unitLine: numbers.at(-1),
+    floor: numbers.length > 1 ? numbers.at(-2) : undefined,
+  };
+};
+
+/**
+ * Ban do "Vi tri quy hang" cua mot phan khu / toa.
+ *
+ * - Bam pin: mo popup chi tiet can (cung popup voi bang hang).
+ * - Bam dup pin (chi du an / toa cao tang): bang "Thong tin truc can" - moi can
+ *   cung truc voi can do trong toa, sap tu tang cao xuong.
+ *
+ * Pin chi mang ma can, nen phai nap bang hang cua phan khu de tra ra can that.
+ * Du lieu mau cua vai du an (Ocean Park, Imperia) sinh pin rieng, ma pin khong
+ * trung ma can nao. Luc do pin duoc gan mot can that CHUA co pin cua cung phan
+ * khu; phan khu khong co can nao thi dung tam can dung tu chinh pin. Ma, gia,
+ * tinh trang tren pin deu lay theo can da gan, nen pin - popup - bang truc
+ * luon noi cung mot so.
+ */
+const PhaseFloorPlan = ({
+  project,
+  phase,
+  planMap,
+  highRise,
+}: {
+  project: ProjectDetail;
+  phase: ProjectPhase;
+  planMap: MasterPlanMap;
+  highRise: boolean;
+}) => {
+  const query = useMemo(
+    () => ({ ...DEFAULT_UNIT_QUERY, phaseName: phase.name, limit: 5000 }),
+    [phase.name],
+  );
+  const unitsQuery = useProjectUnits(project.slug, query);
+
+  // Gan moi pin voi mot can (xem chu thich tren). `pool` la moi can cua phan
+  // khu, ke ca can dung tam - bang truc can loc tu day.
+  const { unitByMarker, pool } = useMemo(() => {
+    const units = unitsQuery.data?.units ?? [];
+    const byCode = new Map(units.map((unit) => [unit.code, unit]));
+    const taken = new Set(
+      planMap.markers.flatMap((marker) => byCode.get(marker.code)?.publicId ?? []),
+    );
+    const spare = units.filter((unit) => !taken.has(unit.publicId));
+    const built: ProjectUnit[] = [];
+    const map = new Map<string, ProjectUnit>();
+
+    planMap.markers.forEach((marker) => {
+      let unit = byCode.get(marker.code) ?? spare.shift();
+      if (!unit) {
+        unit = unitFromMarker(marker);
+        built.push(unit);
+      }
+      map.set(marker.publicId, unit);
+    });
+
+    return { unitByMarker: map, pool: [...units, ...built] };
+  }, [unitsQuery.data, planMap.markers]);
+
+  const syncedPlanMap = useMemo<MasterPlanMap>(
+    () => ({
+      ...planMap,
+      markers: planMap.markers.map((marker) => {
+        const unit = unitByMarker.get(marker.publicId);
+        return unit
+          ? {
+              ...marker,
+              code: unit.code,
+              price: unit.listedPrice,
+              status: unit.status,
+              propertyTypeLabel: unit.propertyTypeLabel,
+              landArea: unit.landArea,
+            }
+          : marker;
+      }),
+    }),
+    [planMap, unitByMarker],
+  );
+
+  const [detailUnit, setDetailUnit] = useState<UnitWithProject | null>(null);
+  const [axisUnit, setAxisUnit] = useState<ProjectUnit | null>(null);
+
+  const openDetail = (unit: ProjectUnit) =>
+    setDetailUnit({
+      ...unit,
+      projectSlug: project.slug,
+      projectName: project.name,
+      developerName: project.developerName,
+      segment: project.segment,
+      propertyType: project.propertyType,
+      projectIsHot: project.isHot,
+      thumbnailUrls: project.thumbnailUrls,
+    });
+
+  const handleMarkerClick = (marker: PlanMarker) => {
+    const unit = unitByMarker.get(marker.publicId);
+    if (unit) openDetail(unit);
+  };
+
+  const handleMarkerDoubleClick = (marker: PlanMarker) => {
+    const unit = unitByMarker.get(marker.publicId);
+    if (!unit) return;
+    // Can khong co truc (du lieu thieu) thi mo chi tiet nhu bam don
+    if (unit.unitLine) setAxisUnit(unit);
+    else openDetail(unit);
+  };
+
+  const axisUnits = useMemo(
+    () =>
+      axisUnit
+        ? pool
+            .filter((unit) => unit.unitLine === axisUnit.unitLine)
+            .sort((a, b) => floorNumber(b) - floorNumber(a))
+        : [],
+    [axisUnit, pool],
+  );
+
+  return (
+    <>
+      <FloorPlanTab
+        planMap={syncedPlanMap}
+        lockedPhaseName={phase.name}
+        onMarkerClick={handleMarkerClick}
+        onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
+      />
+      <UnitAxisModal
+        unit={axisUnit}
+        units={axisUnits}
+        onClose={() => setAxisUnit(null)}
+        onOpenUnit={openDetail}
+        suspended={detailUnit !== null}
+      />
+      <UnitModal unit={detailUnit} onClose={() => setDetailUnit(null)} />
+    </>
+  );
+};
+
 /** Bo tab con cua mot phan khu / toa */
-const PhaseTabs = ({ project, phase }: { project: ProjectDetail; phase: ProjectPhase }) => {
+const PhaseTabs = ({
+  project,
+  phase,
+  highRise,
+}: {
+  project: ProjectDetail;
+  phase: ProjectPhase;
+  /** Cao tang: ban do cho bam dup pin xem truc can */
+  highRise: boolean;
+}) => {
   const [tab, setTab] = useState<InnerTabKey>('tong-quan');
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -256,7 +433,12 @@ const PhaseTabs = ({ project, phase }: { project: ProjectDetail; phase: ProjectP
       {tab === 'vi-tri' && <PlanImages phase={phase} onlyFirst />}
       {tab === 'quy-hang' && <PhaseUnitsTable slug={project.slug} phaseName={phase.name} />}
       {tab === 'vi-tri-quy-hang' && (
-        <FloorPlanTab planMap={phasePlanMap} lockedPhaseName={phase.name} />
+        <PhaseFloorPlan
+          project={project}
+          phase={phase}
+          planMap={phasePlanMap}
+          highRise={highRise}
+        />
       )}
       {tab === 'mat-bang' && <PlanImages phase={phase} />}
       {tab === 'chinh-sach-ban-hang' && (
@@ -467,7 +649,9 @@ const TowerGroupPanel = ({
           ],
           compactFact: `${item.floors} tầng`,
         }))}
-        panel={tower && <PhaseTabs key={tower.publicId} project={project} phase={tower} />}
+        panel={
+          tower && <PhaseTabs key={tower.publicId} project={project} phase={tower} highRise />
+        }
       />
     </>
   );
@@ -512,7 +696,12 @@ const PhaseFundTab = ({ project }: { project: ProjectDetail }) => {
               />
             ) : (
               group.phase && (
-                <PhaseTabs key={group.publicId} project={project} phase={group.phase} />
+                <PhaseTabs
+                  key={group.publicId}
+                  project={project}
+                  phase={group.phase}
+                  highRise={group.segment === 'cao-tang'}
+                />
               )
             ))
           }
@@ -543,7 +732,16 @@ const PhaseFundTab = ({ project }: { project: ProjectDetail }) => {
             unitsFact(item),
           ],
         }))}
-        panel={phase && <PhaseTabs key={phase.publicId} project={project} phase={phase} />}
+        panel={
+          phase && (
+            <PhaseTabs
+              key={phase.publicId}
+              project={project}
+              phase={phase}
+              highRise={project.segment === 'cao-tang'}
+            />
+          )
+        }
       />
     </div>
   );

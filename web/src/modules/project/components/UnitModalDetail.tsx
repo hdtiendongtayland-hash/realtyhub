@@ -29,6 +29,10 @@ export type UnitModalDetailProps = {
   direction: string;
   /** Diện tích đất / xây dựng (m²) */
   landArea: number;
+  /** Căn hộ cao tầng: thẻ Diện tích ghi "DT thông thủy / DT tim tường" */
+  isApartment?: boolean;
+  /** DT tim tường (căn hộ) / DT xây dựng (thấp tầng) (m²) */
+  buildArea?: number;
   /** Danh sách URL ảnh */
   images: string[];
   /** Alt cho ảnh lớn */
@@ -90,6 +94,8 @@ const UnitModalDetail = ({
   propertyTypeLabel,
   direction,
   landArea,
+  isApartment = false,
+  buildArea,
   images,
   imageAlt,
   advisors,
@@ -117,6 +123,8 @@ const UnitModalDetail = ({
     propertyTypeLabel,
     direction,
     landArea,
+    isApartment,
+    buildArea,
     images,
     imageAlt,
     advisors,
@@ -210,6 +218,9 @@ const UnitModalDetail = ({
 
           <div className="no-scrollbar w-1/2 overflow-y-auto pt-2 pl-1 md:max-xl:overflow-visible md:max-xl:pb-4 max-md:w-full max-md:overflow-visible max-md:pl-0 max-md:pb-6 xl:flex xl:w-[58%] xl:min-h-0 xl:pl-3">
             <UnitModalInfo
+              isApartment={isApartment}
+              landArea={landArea}
+              buildArea={buildArea}
               onPriceSheet={onPriceSheet}
               onLoanCalculator={onLoanCalculator}
             />

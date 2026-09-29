@@ -52,6 +52,8 @@ const UnitModalDetailDesktop = ({
   propertyTypeLabel,
   direction,
   landArea,
+  isApartment = false,
+  buildArea,
   images,
   imageAlt,
   advisors,
@@ -139,7 +141,7 @@ const UnitModalDetailDesktop = ({
                 onPriceSheet={onPriceSheet}
                 onLoanCalculator={onLoanCalculator}
               />
-              <AreaCard />
+              <AreaCard isApartment={isApartment} landArea={landArea} buildArea={buildArea} />
               <PolicyCard />
               <HandoverCard />
               {/* "Phap ly" cao BANG the "Thong tin ban giao" ben canh: no

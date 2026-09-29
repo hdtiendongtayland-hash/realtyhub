@@ -64,9 +64,37 @@ const MapButton = ({
 type FloorPlanTabProps = {
   planMap: MasterPlanMap;
   lockedPhaseName?: string;
+  /**
+   * Co truyen thi bam pin goi ham nay (VD mo popup chi tiet can) thay cho
+   * bong thong tin nho; thong tin tom tat chuyen sang hien khi ro chuot.
+   */
+  onMarkerClick?: (marker: PlanMarker) => void;
+  /**
+   * Co truyen thi bam dup pin goi ham nay (VD bang truc can) va tat zoom khi
+   * bam dup ban do. Bam don duoc hoan 250ms de phan biet voi bam dup.
+   */
+  onMarkerDoubleClick?: (marker: PlanMarker) => void;
 };
 
-const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
+/** Cho bam lan hai trong khoang nay thi tinh la bam dup */
+const DOUBLE_CLICK_WINDOW_MS = 250;
+
+const FloorPlanTab = ({
+  planMap,
+  lockedPhaseName,
+  onMarkerClick,
+  onMarkerDoubleClick,
+}: FloorPlanTabProps) => {
+  // Ham cua cha doi moi lan render: giu qua ref de khoi ve lai toan bo pin
+  const markerClickRef = useRef(onMarkerClick);
+  const markerDoubleClickRef = useRef(onMarkerDoubleClick);
+  useEffect(() => {
+    markerClickRef.current = onMarkerClick;
+    markerDoubleClickRef.current = onMarkerDoubleClick;
+  });
+  const hasMarkerClick = Boolean(onMarkerClick);
+  const hasMarkerDoubleClick = Boolean(onMarkerDoubleClick);
+
   const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -156,6 +184,8 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
         // (con lai la hai dai xam hai ben). Zoom le cho anh vua khit khung.
         zoomSnap: 0,
         maxBoundsViscosity: 0.9,
+        // Bam dup pin da co viec rieng (bang truc can) - khong de ban do zoom
+        doubleClickZoom: !hasMarkerDoubleClick,
       });
 
       L.imageOverlay(planMap.imageUrl, bounds, {
@@ -186,7 +216,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
       layerRef.current = null;
       setIsMapReady(false);
     };
-  }, [planMap.imageUrl, planMap.height, planMap.width]);
+  }, [planMap.imageUrl, planMap.height, planMap.width, hasMarkerDoubleClick]);
 
   // ── Ve lai pin moi khi bo loc hoac cong tac Gia doi ──────────────────────
   useEffect(() => {
@@ -219,10 +249,7 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
         title: marker.code,
       });
 
-      // displayMode === 'name' → không hiện popup khi click
-      if (displayMode !== "name") {
-        markerInstance.bindPopup(
-          `<div style="min-width:180px">
+      const summaryHtml = `<div style="min-width:180px">
             <p style="font-weight:700;color:#101828;margin-bottom:6px">${escapeHtml(marker.code)}</p>
             <p style="color:#475467;font-size:12px;line-height:1.7;margin:0">
               Phân khu: <strong>${escapeHtml(marker.phaseName)}</strong><br/>
@@ -230,14 +257,43 @@ const FloorPlanTab = ({ planMap, lockedPhaseName }: FloorPlanTabProps) => {
               Diện tích: <strong>${marker.landArea} m²</strong><br/>
               Giá: <strong>${escapeHtml(formatBillion(marker.price))}</strong><br/>
               Tình trạng: <strong>${escapeHtml(UNIT_STATUS_LABELS[marker.status])}</strong>
-            </p>
-          </div>`,
+            </p>`;
+
+      if (hasMarkerClick) {
+        // Bam = mo chi tiet can; tom tat chi hien khi ro chuot, kem goi y
+        const hint = hasMarkerDoubleClick
+          ? "Bấm: chi tiết căn · Bấm đúp: trục căn"
+          : "Bấm để xem chi tiết căn";
+        markerInstance.bindTooltip(
+          `${summaryHtml}<p style="margin:6px 0 0;color:#0f6fd1;font-size:11px;font-weight:600">${hint}</p></div>`,
+          { direction: "top", offset: [0, -12] },
         );
+
+        let clickTimer: number | undefined;
+        markerInstance.on("click", () => {
+          if (!markerDoubleClickRef.current) {
+            markerClickRef.current?.(marker);
+            return;
+          }
+          window.clearTimeout(clickTimer);
+          clickTimer = window.setTimeout(
+            () => markerClickRef.current?.(marker),
+            DOUBLE_CLICK_WINDOW_MS,
+          );
+        });
+        markerInstance.on("dblclick", (event) => {
+          window.clearTimeout(clickTimer);
+          L.DomEvent.stop(event);
+          markerDoubleClickRef.current?.(marker);
+        });
+      } else if (displayMode !== "name") {
+        // displayMode === 'name' → không hiện popup khi click
+        markerInstance.bindPopup(`${summaryHtml}</div>`);
       }
 
       markerInstance.addTo(layer);
     });
-  }, [isMapReady, visibleMarkers, displayMode, toLatLng]);
+  }, [isMapReady, visibleMarkers, displayMode, toLatLng, hasMarkerClick, hasMarkerDoubleClick]);
 
   // ── Vao/ra toan man hinh: Leaflet phai do lai kich thuoc khung ───────────
   useEffect(() => {
