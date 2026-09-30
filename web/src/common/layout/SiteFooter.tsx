@@ -100,7 +100,14 @@ const SOCIAL_LINKS = [
   { label: 'Zalo', stat: 'Zalo', href: 'https://zalo.me/0939653777', color: '#0068FF', icon: <SiZalo aria-hidden /> },
 ];
 
-/** Website cung tap doan - logo lay tu trang chinh chu cua tung don vi. */
+/**
+ * Website cung tap doan - logo lay tu trang chinh chu cua tung don vi.
+ *
+ * `logoClass`: kich thuoc hien o MOI man hinh theo bo nhan dien. Dong Tay
+ * Land quy dinh logo tren man hinh rong 70.8px (cao 40.7px tren ban ve) - anh
+ * dang dung ti le 131x60 nen ghim BE NGANG 70.8px, chieu cao chay theo anh de
+ * khong meo. Le Palmier ghim cao 40.7px cho dung ngang hang voi no.
+ */
 const GROUP_SITES = [
   {
     name: 'Đông Tây Land',
@@ -109,6 +116,7 @@ const GROUP_SITES = [
     logo: '/images/home/logo-dong-tay-land.png',
     width: 131,
     height: 60,
+    logoClass: 'h-auto w-[70.8px]',
   },
   {
     name: 'Le Palmier Hồ Tràm',
@@ -116,7 +124,8 @@ const GROUP_SITES = [
     href: 'https://lepalmier.vn',
     logo: '/images/home/logo-le-palmier.png',
     width: 114,
-    height: 90,
+    height: 70,
+    logoClass: 'h-[40.7px] w-auto',
   },
 ];
 
@@ -246,7 +255,7 @@ const SiteFooter = () => (
                   alt={site.name}
                   width={site.width}
                   height={site.height}
-                  className="h-12 w-auto xl:h-15"
+                  className={site.logoClass}
                 />
               </a>
             </li>
