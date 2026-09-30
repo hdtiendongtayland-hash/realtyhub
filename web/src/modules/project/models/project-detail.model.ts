@@ -646,6 +646,134 @@ export type ProjectDocument = {
   url: string;
 };
 
+// ── Tab: Phan tich ─────────────────────────────────────────────────────────
+
+/** Anh minh hoa trong bai phan tich - bam de xem lon */
+export type AnalysisImage = {
+  src: string;
+  caption: string;
+  /** Ti le khung, VD 'aspect-16/9'. Mac dinh 16:9 */
+  ratio?: string;
+};
+
+/** Mot nhan so lieu noi bat: "2,65 m" + "Hanh lang thang" */
+export type AnalysisStat = { value: string; label: string };
+
+/** Mot loai can (1PN, 2PN...) trong phan "Key ban hang" */
+export type AnalysisUnitType = {
+  key: string;
+  /** Nhan tab: "1PN", "Duplex" */
+  label: string;
+  title: string;
+  /** Dong dien tich tom tat: "Khoang 52 m²" */
+  areaLabel: string;
+  /** Cac layout va dien tich: A1 52,2 m² */
+  layouts: { code: string; area: string; note?: string }[];
+  strengths: string[];
+  images: AnalysisImage[];
+};
+
+/** Mot muc gia trong phan so sanh - trieu/m² */
+export type AnalysisPriceRow = {
+  name: string;
+  min: number;
+  max: number;
+  note?: string;
+  /** Du an dang xem - to mau noi bat */
+  isSubject?: boolean;
+};
+
+export type AnalysisPriceGroup = {
+  title: string;
+  description: string;
+  rows: AnalysisPriceRow[];
+};
+
+/** Mot du an lan can dang mo ban tren ban do thi truong */
+export type AnalysisNearbyProject = {
+  name: string;
+  scale: string;
+  price: string;
+  isSubject?: boolean;
+};
+
+/** Mot toa / canh voi mat ngoai va mat noi khu */
+export type AnalysisTowerView = {
+  tower: string;
+  wing?: string;
+  outside: string;
+  inside: string;
+};
+
+export type AnalysisViewDirection = {
+  direction: string;
+  description: string;
+  landmarks: string[];
+  image?: AnalysisImage;
+};
+
+/**
+ * Bai phan tich du an - bon phan co dinh: Key ban hang, Thi truong, So sanh,
+ * Huong view. Du an khong co truong nay thi tab "Phan tich" bao chua co bai.
+ */
+export type ProjectAnalysis = {
+  headline: string;
+  summary: string;
+  heroImage: AnalysisImage;
+  /** "6 dac quyen" - cac y chinh cua du an */
+  highlights: string[];
+  selling: {
+    corridor: {
+      title: string;
+      description: string;
+      stats: AnalysisStat[];
+      points: string[];
+      images: AnalysisImage[];
+    };
+    design: {
+      title: string;
+      description: string;
+      points: string[];
+      philosophy: string;
+      images: AnalysisImage[];
+    };
+    unitTypes: AnalysisUnitType[];
+    partners: {
+      title: string;
+      description: string;
+      items: { name: string; role: string; description: string }[];
+      closing: string;
+      image: AnalysisImage;
+    };
+  };
+  market: {
+    title: string;
+    description: string;
+    points: string[];
+    nearby: AnalysisNearbyProject[];
+    images: AnalysisImage[];
+  };
+  comparison: {
+    title: string;
+    lead: string;
+    paragraphs: string[];
+    groups: AnalysisPriceGroup[];
+    /** Ba lop gia: nha cu -> du an -> nguon cung moi */
+    layers: { label: string; value: string; isSubject?: boolean }[];
+    conclusion: string[];
+    disclaimer: string;
+    image: AnalysisImage;
+  };
+  views: {
+    title: string;
+    description: string;
+    towers: AnalysisTowerView[];
+    directions: AnalysisViewDirection[];
+    note: string;
+    images: AnalysisImage[];
+  };
+};
+
 // ── Ghep tat ca ────────────────────────────────────────────────────────────
 
 /**
@@ -677,4 +805,6 @@ export type ProjectDetail = Project & {
   progress: ProgressMilestone[];
   documents: ProjectDocument[];
   news: NewsArticle[];
+  /** Bai phan tich cho tab "Phan tich" - chi mot so du an co */
+  analysis?: ProjectAnalysis;
 };

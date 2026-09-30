@@ -50,6 +50,16 @@ import {
   BLANCA_CITY_SLUG,
   BLANCA_CITY_UNIT_PHASES,
 } from './blanca-city.mock';
+import {
+  IMPERIA_SENSA_PARK_ANALYSIS,
+  IMPERIA_SENSA_PARK_SLUG,
+} from './imperia-sensa-park.analysis';
+import type { ProjectAnalysis } from '../models/project-detail.model';
+
+/** Bai phan tich theo slug du an - them du an moi thi them mot dong o day */
+const PROJECT_ANALYSES: Record<string, ProjectAnalysis> = {
+  [IMPERIA_SENSA_PARK_SLUG]: IMPERIA_SENSA_PARK_ANALYSIS,
+};
 import { IMPERIA_GREEN_PARADISE_DETAIL, IMPERIA_GREEN_PARADISE_SLUG } from './imperia-green-paradise.mock';
 
 // ── Bo sinh so ngau nhien co hat giong ─────────────────────────────────────
@@ -1217,12 +1227,28 @@ const ensureBuilt = (slug: string): ProjectDetail | null => {
       }
     : generated;
 
+  // Bai phan tich (tab "Phan tich") - chi du an co tai lieu moi co
+  const analysis = PROJECT_ANALYSES[slug];
+  const withAnalysis = analysis ? { ...detail, analysis } : detail;
+
   unitCache.set(slug, units);
-  detailCache.set(slug, detail);
-  return detail;
+  detailCache.set(slug, withAnalysis);
+  return withAnalysis;
 };
 
-export const getProjectDetail = (slug: string): ProjectDetail | null => ensureBuilt(slug);
+/**
+ * Moi du an deu co tab "Phan tich": du an chua co bai rieng thi dung bai
+ * Imperia Sensa Park lam bai mac dinh. Gan o day (khong phai trong
+ * ensureBuilt) vi Blanca City / Imperia Green Paradise tra ve som o nhanh rieng.
+ */
+export const getProjectDetail = (slug: string): ProjectDetail | null => {
+  const detail = ensureBuilt(slug);
+  if (!detail || detail.analysis) return detail;
+
+  const withAnalysis = { ...detail, analysis: IMPERIA_SENSA_PARK_ANALYSIS };
+  detailCache.set(slug, withAnalysis);
+  return withAnalysis;
+};
 
 /**
  * Ghep du lieu trang chi tiet phan khu tu du an cha.

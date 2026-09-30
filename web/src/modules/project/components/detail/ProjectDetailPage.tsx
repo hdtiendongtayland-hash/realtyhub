@@ -12,6 +12,7 @@ import {
 } from '../../models/project-detail.model';
 import ProjectHero from './ProjectHero';
 import ProjectTabNav from './ProjectTabNav';
+import AnalysisTab from './tabs/AnalysisTab';
 import DocumentsTab from './tabs/DocumentsTab';
 import PhaseFundTab from './tabs/PhaseFundTab';
 import LocationTab from './tabs/LocationTab';
@@ -120,6 +121,7 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
       {currentTab === 'mat-bang-quy-can' && <PhaseFundTab project={project} />}
       {currentTab === 'quy-can' && <UnitsTab slug={slug} />}
       {currentTab === 'anh-360' && <Photo360Tab project={project} />}
+      {currentTab === 'phan-tich' && <AnalysisTab analysis={project.analysis} />}
       {currentTab === 'dao-tao' && <TrainingTab project={project} />}
       {currentTab === 'chinh-sach-ban-hang' && (
         <SalesPolicyTab salesPolicy={project.salesPolicy} projectName={project.name} />
