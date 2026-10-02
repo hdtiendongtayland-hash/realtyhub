@@ -4,6 +4,8 @@ import "leaflet/dist/leaflet.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as LeafletMap, LayerGroup } from "leaflet";
 import {
+  FiCheck,
+  FiChevronDown,
   FiFilter,
   FiLayers,
   FiMaximize,
@@ -14,12 +16,13 @@ import {
 } from "react-icons/fi";
 import { formatBillion, formatBillionShort } from "@/common/utils/format";
 import {
+  FLOOR_RANGE_OPTIONS,
+  matchesFloorRange,
   UNIT_FUND_LABELS,
   UNIT_STATUS_LABELS,
   type MasterPlanMap,
   type PlanMarker,
   type UnitFundType,
-  type UnitStatus,
 } from "../../../models/project-detail.model";
 
 const FUND_TYPES = Object.keys(UNIT_FUND_LABELS) as UnitFundType[];
@@ -74,7 +77,180 @@ type FloorPlanTabProps = {
    * bam dup ban do. Bam don duoc hoan 250ms de phan biet voi bam dup.
    */
   onMarkerDoubleClick?: (marker: PlanMarker) => void;
+  /** false: an dong tieu de "Vi tri quy can" (noi goi da co thanh chon rieng) */
+  showTitle?: boolean;
+  /**
+   * Nut them dat TRONG khung ban do, tren cung cot dieu khien goc PHAI (VD
+   * nut gat 3D / 2D) - de khong de len cac nut co san.
+   */
+  controlsSlot?: React.ReactNode;
 };
+
+/** Mot khoang lua chon cho bo loc: [min, max) */
+type RangeOption = { value: string; label: string; min: number; max: number };
+
+const BILLION = 1_000_000_000;
+const MILLION = 1_000_000;
+
+const PRICE_RANGES: RangeOption[] = [
+  { value: 'duoi-3', label: 'Dưới 3 tỷ', min: 0, max: 3 * BILLION },
+  { value: '3-5', label: '3 - 5 tỷ', min: 3 * BILLION, max: 5 * BILLION },
+  { value: '5-10', label: '5 - 10 tỷ', min: 5 * BILLION, max: 10 * BILLION },
+  { value: '10-20', label: '10 - 20 tỷ', min: 10 * BILLION, max: 20 * BILLION },
+  { value: 'tren-20', label: 'Trên 20 tỷ', min: 20 * BILLION, max: Infinity },
+];
+
+const UNIT_PRICE_RANGES: RangeOption[] = [
+  { value: 'duoi-50', label: 'Dưới 50 triệu/m²', min: 0, max: 50 * MILLION },
+  { value: '50-80', label: '50 - 80 triệu/m²', min: 50 * MILLION, max: 80 * MILLION },
+  { value: '80-120', label: '80 - 120 triệu/m²', min: 80 * MILLION, max: 120 * MILLION },
+  { value: 'tren-120', label: 'Trên 120 triệu/m²', min: 120 * MILLION, max: Infinity },
+];
+
+const AREA_RANGES: RangeOption[] = [
+  { value: 'duoi-50', label: 'Dưới 50 m²', min: 0, max: 50 },
+  { value: '50-80', label: '50 - 80 m²', min: 50, max: 80 },
+  { value: '80-120', label: '80 - 120 m²', min: 80, max: 120 },
+  { value: '120-200', label: '120 - 200 m²', min: 120, max: 200 },
+  { value: 'tren-200', label: 'Trên 200 m²', min: 200, max: Infinity },
+];
+
+/** Gia tri nam trong khoang dang chon? Khong chon / thieu so lieu xu ly rieng */
+const inRange = (value: number | undefined, ranges: RangeOption[], selected: string) => {
+  if (!selected) return true;
+  const range = ranges.find((item) => item.value === selected);
+  if (!range || value === undefined) return false;
+  return value >= range.min && value < range.max;
+};
+
+/** Mat tien (m) - chi nha thap tang */
+const FRONTAGE_RANGES: RangeOption[] = [
+  { value: 'duoi-5', label: 'Dưới 5 m', min: 0, max: 5 },
+  { value: '5-7', label: '5 - 7 m', min: 5, max: 7 },
+  { value: '7-10', label: '7 - 10 m', min: 7, max: 10 },
+  { value: 'tren-10', label: 'Trên 10 m', min: 10, max: Infinity },
+];
+
+type MapFilters = {
+  code: string;
+  status: string;
+  phaseName: string;
+  block: string;
+  propertyType: string;
+  direction: string;
+  fund: string;
+  price: string;
+  unitPrice: string;
+  area: string;
+  frontage: string;
+  floorRange: string;
+  unitLine: string;
+  handover: string;
+};
+
+const EMPTY_FILTERS: MapFilters = {
+  code: '',
+  status: '',
+  phaseName: '',
+  block: '',
+  propertyType: '',
+  direction: '',
+  fund: '',
+  price: '',
+  unitPrice: '',
+  area: '',
+  frontage: '',
+  floorRange: '',
+  unitLine: '',
+  handover: '',
+};
+
+/**
+ * Loai bo loc theo du lieu tren ban do:
+ * - 'cao-tang': chi can ho  -> bo loc kieu bang hang can ho (tang, truc...)
+ * - 'thap-tang': chi nha dat -> bo loc nha dat (mat tien, ban giao...)
+ * - 'hon-hop': co ca hai    -> gop ca hai, o trung nhau chi hien mot lan
+ */
+type FilterMode = 'cao-tang' | 'thap-tang' | 'hon-hop';
+
+/** Cac gia tri co that tren pin (bo trong / trung), sap theo tieng Viet */
+const facet = (values: (string | undefined)[]) =>
+  [...new Set(values.filter((value): value is string => Boolean(value)))].sort((a, b) =>
+    a.localeCompare(b, 'vi', { numeric: true }),
+  );
+
+/** O chon trong bang loc: nhan in hoa nho tren, o chon bo goc duoi */
+const FilterField = ({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) => (
+  <label className="block min-w-0">
+    <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-gray-600 uppercase">
+      {label}
+    </span>
+    <span className="relative block">
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={`h-11 w-full appearance-none truncate rounded-lg border bg-white pr-9 pl-3 text-theme-sm outline-none transition focus:border-brand-400 focus:shadow-focus-ring ${
+          value ? 'border-brand-300 text-gray-900' : 'border-gray-200 text-gray-400'
+        }`}
+      >
+        <option value="">{label}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value} className="text-gray-900">
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <FiChevronDown
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+      />
+    </span>
+  </label>
+);
+
+/** O go ma can - cung kieu voi FilterField */
+const FilterTextField = ({
+  label,
+  placeholder,
+  value,
+  onChange,
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}) => (
+  <label className="block min-w-0">
+    <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-gray-600 uppercase">
+      {label}
+    </span>
+    <span className="relative block">
+      <FiSearch
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+      />
+      <input
+        type="search"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className={`h-11 w-full rounded-lg border bg-white pr-3 pl-9 text-theme-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-400 focus:shadow-focus-ring ${
+          value ? 'border-brand-300' : 'border-gray-200'
+        }`}
+      />
+    </span>
+  </label>
+);
 
 /** Cho bam lan hai trong khoang nay thi tinh la bam dup */
 const DOUBLE_CLICK_WINDOW_MS = 250;
@@ -84,6 +260,8 @@ const FloorPlanTab = ({
   lockedPhaseName,
   onMarkerClick,
   onMarkerDoubleClick,
+  showTitle = true,
+  controlsSlot,
 }: FloorPlanTabProps) => {
   // Ham cua cha doi moi lan render: giu qua ref de khoi ve lai toan bo pin
   const markerClickRef = useRef(onMarkerClick);
@@ -113,8 +291,10 @@ const FloorPlanTab = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [phaseName, setPhaseName] = useState<string | null>(null);
-  const [status, setStatus] = useState<UnitStatus | null>(null);
+  // `filters` dang ap len ban do; `draft` la cac o dang chinh trong bang -
+  // chi ap khi bam "Ap dung bo loc"
+  const [filters, setFilters] = useState<MapFilters>(EMPTY_FILTERS);
+  const [draft, setDraft] = useState<MapFilters>(EMPTY_FILTERS);
 
   const displayOptions = useMemo(
     () => [
@@ -125,17 +305,53 @@ const FloorPlanTab = ({
     [],
   );
 
-  const phaseNames = useMemo(
-    () => [...new Set(planMap.markers.map((marker) => marker.phaseName))],
-    [planMap.markers],
-  );
+  // Lua chon cua tung o lay tu chinh cac pin dang co - khong co gia tri nao
+  // (VD du lieu chua co huong) thi o do tu an
+  const options = useMemo(() => {
+    const markers = planMap.markers;
+    const toOptions = (values: string[]) => values.map((value) => ({ value, label: value }));
+    const hasHigh = markers.some((marker) => marker.kind === 'cao-tang');
+    const hasLow = markers.some((marker) => marker.kind !== 'cao-tang');
+    const mode: FilterMode = hasHigh && hasLow ? 'hon-hop' : hasHigh ? 'cao-tang' : 'thap-tang';
+    return {
+      mode,
+      phaseName: toOptions(facet(markers.map((marker) => marker.phaseName))),
+      propertyType: toOptions(facet(markers.map((marker) => marker.propertyTypeLabel))),
+      direction: toOptions(facet(markers.map((marker) => marker.direction))),
+      block: toOptions(facet(markers.map((marker) => marker.block))),
+      handover: toOptions(facet(markers.map((marker) => marker.handoverStandard))),
+      unitLine: facet(markers.map((marker) => marker.unitLine)).map((value) => ({
+        value,
+        label: `Trục ${value}`,
+      })),
+      // Chi cac khoang tang thuc su co can
+      floorRange: FLOOR_RANGE_OPTIONS.filter((range) =>
+        markers.some((marker) => marker.floor && matchesFloorRange(marker.floor, range.value)),
+      ),
+    };
+  }, [planMap.markers]);
 
   const visibleMarkers = useMemo(
     () =>
       planMap.markers.filter((marker) => {
         if (!funds.includes(marker.fundType)) return false;
-        if (phaseName && marker.phaseName !== phaseName) return false;
-        if (status && marker.status !== status) return false;
+        const code = filters.code.trim().toLowerCase();
+        if (code && !marker.code.toLowerCase().includes(code)) return false;
+        if (filters.status && marker.status !== filters.status) return false;
+        if (filters.phaseName && marker.phaseName !== filters.phaseName) return false;
+        if (filters.block && marker.block !== filters.block) return false;
+        if (filters.propertyType && marker.propertyTypeLabel !== filters.propertyType)
+          return false;
+        if (filters.direction && marker.direction !== filters.direction) return false;
+        if (filters.fund && marker.fundType !== filters.fund) return false;
+        if (!inRange(marker.price, PRICE_RANGES, filters.price)) return false;
+        if (!inRange(marker.unitPrice, UNIT_PRICE_RANGES, filters.unitPrice)) return false;
+        if (!inRange(marker.landArea, AREA_RANGES, filters.area)) return false;
+        if (!inRange(marker.frontage, FRONTAGE_RANGES, filters.frontage)) return false;
+        if (filters.floorRange && !matchesFloorRange(marker.floor, filters.floorRange))
+          return false;
+        if (filters.unitLine && marker.unitLine !== filters.unitLine) return false;
+        if (filters.handover && marker.handoverStandard !== filters.handover) return false;
         if (
           search.trim() &&
           !marker.code.toLowerCase().includes(search.trim().toLowerCase())
@@ -143,7 +359,7 @@ const FloorPlanTab = ({
           return false;
         return true;
       }),
-    [planMap.markers, funds, phaseName, status, search],
+    [planMap.markers, funds, filters, search],
   );
 
   /** % tren anh -> toa do CRS.Simple (truc y cua Leaflet huong len tren) */
@@ -339,20 +555,50 @@ const FloorPlanTab = ({
     if (target) mapRef.current?.flyTo(toLatLng(target), 1, { duration: 0.6 });
   };
 
-  const activeFilterCount = [phaseName, status].filter(Boolean).length;
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+
+  const toggleFilterPanel = () => {
+    // Mo bang: cac o hien dung bo loc dang ap
+    if (!isFilterOpen) setDraft(filters);
+    setIsFilterOpen((open) => !open);
+  };
+
+  const setDraftField = (key: keyof MapFilters) => (value: string) =>
+    setDraft((current) => ({ ...current, [key]: value }));
+
+  const applyFilters = () => {
+    setFilters(draft);
+    setIsFilterOpen(false);
+  };
+
+  const clearFilters = () => {
+    setDraft(EMPTY_FILTERS);
+    setFilters(EMPTY_FILTERS);
+  };
+
+  const statusOptions = Object.entries(UNIT_STATUS_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  }));
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900">
-          Vị trí quỹ căn
-        </h2>
+      <div
+        className={`mb-4 flex flex-wrap items-center gap-3 ${
+          showTitle ? 'justify-between' : 'justify-end'
+        }`}
+      >
+        {showTitle && (
+          <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900">
+            Vị trí quỹ căn
+          </h2>
+        )}
 
         <button
           type="button"
-          onClick={() => setIsFilterOpen((open) => !open)}
+          onClick={toggleFilterPanel}
           aria-expanded={isFilterOpen}
-          className={`flex h-10 items-center gap-2 rounded-md border px-4 text-theme-sm font-medium transition ${
+          className={`flex h-11 items-center gap-2 rounded-lg border px-5 text-theme-sm font-semibold shadow-sm transition ${
             isFilterOpen || activeFilterCount > 0
               ? "border-brand-400 bg-brand-50 text-brand-600"
               : "border-gray-300 bg-white text-gray-700 hover:border-brand-400"
@@ -369,58 +615,98 @@ const FloorPlanTab = ({
       </div>
 
       {isFilterOpen && (
-        <div className="mb-4 grid grid-cols-1 gap-4 rounded-lg border border-gray-200 bg-gray-25 p-4 sm:grid-cols-3">
-          {!lockedPhaseName && (
-            <label className="block">
-              <span className="mb-1 block text-theme-xs font-medium text-gray-500">
-                Phân khu
-              </span>
-              <select
-                value={phaseName ?? ""}
-                onChange={(event) => setPhaseName(event.target.value || null)}
-                className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-theme-sm text-gray-700 outline-none transition focus:border-brand-400 focus:shadow-focus-ring"
-              >
-                <option value="">Tất cả</option>
-                {phaseNames.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+        <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-card sm:p-5">
+          {/* Luoi 5 cot tren may tinh, 2 cot iPad, 1 cot dien thoai. O nao
+              khong co du lieu thi an (VD pin chua co huong). */}
+          <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2 lg:grid-cols-5">
+            {(() => {
+              const { mode } = options;
+              const isHigh = mode !== 'thap-tang';
+              const isLow = mode !== 'cao-tang';
+              // O trung giua hai kieu chi hien mot lan, nhan theo kieu du an
+              const labels = {
+                code: mode === 'cao-tang' ? 'Căn hộ' : 'Mã căn',
+                status: mode === 'thap-tang' ? 'Tình trạng' : 'Trạng thái',
+                block:
+                  mode === 'cao-tang'
+                    ? 'Tòa nhà'
+                    : mode === 'thap-tang'
+                      ? 'Tiểu khu/Dãy'
+                      : 'Tòa nhà/Dãy',
+                propertyType: mode === 'cao-tang' ? 'Loại căn' : 'Loại hình',
+                area:
+                  mode === 'cao-tang'
+                    ? 'Diện tích thông thuỷ'
+                    : mode === 'thap-tang'
+                      ? 'Diện tích đất'
+                      : 'Diện tích',
+              };
+              const select = (
+                key: keyof MapFilters,
+                label: string,
+                fieldOptions: { value: string; label: string }[],
+              ) =>
+                fieldOptions.length > 0 ? (
+                  <FilterField
+                    key={key}
+                    label={label}
+                    value={draft[key]}
+                    options={fieldOptions}
+                    onChange={setDraftField(key)}
+                  />
+                ) : null;
 
-          <label className="block">
-            <span className="mb-1 block text-theme-xs font-medium text-gray-500">
-              Tình trạng
-            </span>
-            <select
-              value={status ?? ""}
-              onChange={(event) =>
-                setStatus((event.target.value || null) as UnitStatus | null)
-              }
-              className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-theme-sm text-gray-700 outline-none transition focus:border-brand-400 focus:shadow-focus-ring"
-            >
-              <option value="">Tất cả</option>
-              {Object.entries(UNIT_STATUS_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
+              return [
+                isHigh && (
+                  <FilterTextField
+                    key="code"
+                    label={labels.code}
+                    placeholder="Mã căn hộ"
+                    value={draft.code}
+                    onChange={setDraftField('code')}
+                  />
+                ),
+                select('status', labels.status, statusOptions),
+                !lockedPhaseName &&
+                  options.phaseName.length > 1 &&
+                  select('phaseName', 'Phân khu', options.phaseName),
+                select('block', labels.block, options.block),
+                select('propertyType', labels.propertyType, options.propertyType),
+                select('direction', 'Hướng', options.direction),
+                isHigh &&
+                  select(
+                    'fund',
+                    'Quỹ bán',
+                    Object.entries(UNIT_FUND_LABELS).map(([value, label]) => ({ value, label })),
+                  ),
+                select('price', 'Khoảng giá', PRICE_RANGES),
+                select('unitPrice', 'Đơn giá', UNIT_PRICE_RANGES),
+                select('area', labels.area, AREA_RANGES),
+                // Mat tien: luon co o du an / phan khu thap tang
+                isLow && select('frontage', 'Mặt tiền', FRONTAGE_RANGES),
+                isHigh && select('floorRange', 'Khoảng tầng', options.floorRange),
+                isHigh && select('unitLine', 'Trục', options.unitLine),
+                isLow && select('handover', 'Tiêu chuẩn bàn giao', options.handover),
+              ];
+            })()}
+          </div>
 
-          <div className="flex items-end">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 border-t border-gray-100 pt-4">
             <button
               type="button"
-              onClick={() => {
-                setPhaseName(null);
-                setStatus(null);
-              }}
-              className="inline-flex items-center gap-1.5 text-theme-sm font-medium text-gray-600 transition hover:text-brand-600"
+              onClick={clearFilters}
+              className="inline-flex h-11 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-5 text-theme-sm font-medium text-gray-600 transition hover:border-brand-300 hover:text-brand-600"
             >
               <FiX aria-hidden />
               Xóa bộ lọc
+            </button>
+            <button
+              type="button"
+              onClick={applyFilters}
+              className="brand-gradient inline-flex h-11 items-center gap-2 rounded-lg px-6 text-theme-sm font-semibold text-white shadow-md transition hover:brightness-110"
+            >
+              Áp dụng bộ lọc
+              <FiCheck aria-hidden />
             </button>
           </div>
         </div>
@@ -436,7 +722,7 @@ const FloorPlanTab = ({
         />
 
         {/* Dieu khien tu ve de bam dung thiet ke; Leaflet control mac dinh da tat */}
-        <div className="absolute left-3 top-3 z-900 flex flex-col gap-2">
+        <div className="absolute left-3 top-3 z-900 flex flex-col items-start gap-2">
           <div
             className="group/display relative mt-2 inline-flex h-8 w-20 items-center rounded-full border border-gray-300 bg-white shadow-card mb-2"
             title={
@@ -502,6 +788,7 @@ const FloorPlanTab = ({
         </div>
 
         <div className="absolute right-3 top-3 z-900 flex flex-col items-end gap-2">
+          {controlsSlot}
           {isSearchOpen && (
             <form
               onSubmit={(event) => {

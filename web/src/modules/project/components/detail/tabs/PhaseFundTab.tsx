@@ -189,6 +189,38 @@ const PhaseOverview = ({ phase }: { phase: ProjectPhase }) => (
 const floorNumber = (unit: ProjectUnit) => Number(unit.floor?.match(/\d+/)?.[0] ?? 0);
 
 /**
+ * Dai tang cho nut "TANG ..." - CHI khi moi can deu la can ho cao tang: cac
+ * tang co can, gop doan lien tiep: [4..19, 21..35] -> "4-19,21-35".
+ * Thap tang (nha pho, biet thu) va HON HOP (co ca can ho lan nha thap tang,
+ * VD tong the Blanca City) khong co mot dai tang chung: tra ve rong, an nut.
+ */
+const isApartmentUnit = (unit: ProjectUnit) => Boolean(unit.floor) && (unit.floors ?? 1) <= 1;
+
+const formatFloorRanges = (units: ProjectUnit[]) => {
+  if (units.length === 0 || !units.every(isApartmentUnit)) return '';
+  const floors = [
+    ...new Set(
+      units.filter((unit) => (unit.floors ?? 1) <= 1).map(floorNumber).filter((floor) => floor > 0),
+    ),
+  ].sort((a, b) => a - b);
+  if (floors.length === 0) return '';
+
+  const ranges: string[] = [];
+  let start = floors[0];
+  let previous = floors[0];
+  for (const floor of [...floors.slice(1), Number.NaN]) {
+    if (floor === previous + 1) {
+      previous = floor;
+      continue;
+    }
+    ranges.push(start === previous ? String(start) : `${start}-${previous}`);
+    start = floor;
+    previous = floor;
+  }
+  return ranges.join(',');
+};
+
+/**
  * Can dung tam tu mot pin khi phan khu khong con can that nao de gan. Truc =
  * nhom so cuoi cua ma, tang = nhom so dung truoc no (VD "HA1-03": tang 1,
  * truc 03) - du de bang truc can gom dung cac pin cung cot.
@@ -231,18 +263,22 @@ const unitFromMarker = (marker: PlanMarker): ProjectUnit => {
  */
 const PhaseFloorPlan = ({
   project,
-  phase,
+  phaseName,
   planMap,
   highRise,
+  controlsSlot,
 }: {
   project: ProjectDetail;
-  phase: ProjectPhase;
+  /** Bo trong = tong the du an (moi phan khu) */
+  phaseName?: string;
   planMap: MasterPlanMap;
   highRise: boolean;
+  /** Nut dat trong khung ban do (VD gat 3D / 2D) */
+  controlsSlot?: ReactNode;
 }) => {
   const query = useMemo(
-    () => ({ ...DEFAULT_UNIT_QUERY, phaseName: phase.name, limit: 5000 }),
-    [phase.name],
+    () => ({ ...DEFAULT_UNIT_QUERY, phaseName: phaseName ?? null, limit: 5000 }),
+    [phaseName],
   );
   const unitsQuery = useProjectUnits(project.slug, query);
 
@@ -270,6 +306,18 @@ const PhaseFloorPlan = ({
     return { unitByMarker: map, pool: [...units, ...built] };
   }, [unitsQuery.data, planMap.markers]);
 
+  // Tieu chuan ban giao theo phan khu (bang thong tin cua phan khu)
+  const handoverByPhase = useMemo(
+    () =>
+      new Map(
+        project.phases.map((item) => [
+          item.name,
+          item.specs.find((spec) => spec.label === 'Tiêu chuẩn bàn giao')?.value,
+        ]),
+      ),
+    [project.phases],
+  );
+
   const syncedPlanMap = useMemo<MasterPlanMap>(
     () => ({
       ...planMap,
@@ -283,11 +331,21 @@ const PhaseFloorPlan = ({
               status: unit.status,
               propertyTypeLabel: unit.propertyTypeLabel,
               landArea: unit.landArea,
+              // Them cho bo loc ban do
+              direction: unit.direction,
+              unitPrice: unit.unitPrice,
+              block: unit.code.split('-')[0],
+              handoverStandard: handoverByPhase.get(unit.phaseName) ?? unit.handoverStatus,
+              // Can ho: co tang va chi mot tang; con lai la nha thap tang
+              kind: unit.floor && (unit.floors ?? 1) <= 1 ? 'cao-tang' : 'thap-tang',
+              floor: unit.floor,
+              unitLine: unit.unitLine,
+              frontage: unit.frontage,
             }
           : marker;
       }),
     }),
-    [planMap, unitByMarker],
+    [planMap, unitByMarker, handoverByPhase],
   );
 
   const [detailUnit, setDetailUnit] = useState<UnitWithProject | null>(null);
@@ -332,7 +390,9 @@ const PhaseFloorPlan = ({
     <>
       <FloorPlanTab
         planMap={syncedPlanMap}
-        lockedPhaseName={phase.name}
+        lockedPhaseName={phaseName}
+        showTitle={false}
+        controlsSlot={controlsSlot}
         onMarkerClick={handleMarkerClick}
         onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
       />
@@ -348,6 +408,162 @@ const PhaseFloorPlan = ({
   );
 };
 
+type MapMode = '3d' | '2d';
+
+/** Gia tri "chon tong the du an" trong thanh chon ban do */
+const WHOLE_PROJECT = 'tong-the';
+
+/**
+ * Nut gat 3D <-> 2D: chi con cong tac (vien trang bo tron, nut tron xanh -
+ * cung kieu cong tac "Gia" tren ban do). Nut ben trai = 3D, ben phai = 2D;
+ * ten che do hien khi ro chuot va doc cho trinh doc man hinh.
+ */
+const MapModeSwitch = ({ mode, onChange }: { mode: MapMode; onChange: (mode: MapMode) => void }) => {
+  const label = mode === '3d' ? 'Đang xem 3D - bấm để chuyển sang 2D' : 'Đang xem 2D - bấm để chuyển sang 3D';
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={mode === '2d'}
+      aria-label={label}
+      title={label}
+      onClick={() => onChange(mode === '3d' ? '2d' : '3d')}
+      // Cung chieu cao / do cao voi cong tac "Gia" ben trai ban do (h-8, cach
+      // mep tren them mt-2) nhung NGAN hon (w-14): chi co hai trang thai
+      className="relative mt-2 mb-2 h-8 w-14 shrink-0 rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
+    >
+      <span
+        aria-hidden
+        className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card transition-[left] duration-300 ease-out ${
+          mode === '2d' ? 'left-[calc(100%-1.5rem)]' : 'left-1'
+        }`}
+      />
+    </button>
+  );
+};
+
+/**
+ * Ban do quy can (tab "Vi tri quy can" cua du an va tab con "Vi tri quy
+ * hang" cua phan khu):
+ *
+ * - Nut tang (VD "TANG 4-19,21-35") o tren cung, tinh tu can that cua lua
+ *   chon hien tai; nha thap tang khong co tang thi an.
+ * - Mot hang nut: tong the du an va tung phan khu.
+ * - Nut gat 3D / 2D nam TRONG khung anh / ban do, goc tren ben trai.
+ * - 3D (mac dinh): phoi canh tong the / phan khu.
+ * - 2D: mat bang pin gia tuong tac (bam pin xem can, bam dup xem truc can).
+ */
+export const PhaseMapViews = ({
+  project,
+  phase,
+  highRise,
+}: {
+  project: ProjectDetail;
+  phase?: ProjectPhase;
+  highRise: boolean;
+}) => {
+  const [mode, setMode] = useState<MapMode>('3d');
+  const [targetId, setTargetId] = useState<string>(phase?.publicId ?? WHOLE_PROJECT);
+
+  const targets = useMemo(
+    () => [
+      { id: WHOLE_PROJECT, label: project.name },
+      ...project.phases.map((item) => ({
+        id: item.publicId,
+        label: `${project.name} - ${item.name}`,
+      })),
+    ],
+    [project.name, project.phases],
+  );
+
+  const target = project.phases.find((item) => item.publicId === targetId);
+
+  // Can cua lua chon hien tai - de tinh dai tang (cung khoa truy van voi ban
+  // do 2D nen chi nap mot lan)
+  const unitsQuery = useProjectUnits(
+    project.slug,
+    useMemo(
+      () => ({ ...DEFAULT_UNIT_QUERY, phaseName: target?.name ?? null, limit: 5000 }),
+      [target?.name],
+    ),
+  );
+  const floorRanges = useMemo(
+    () => formatFloorRanges(unitsQuery.data?.units ?? []),
+    [unitsQuery.data],
+  );
+
+  // Anh nen 3D: phoi canh phan khu / tong the. Thieu anh thi dung luon mat
+  // bang 2D de ban do khong bao gio trong.
+  const image3d =
+    (target ? target.imageUrl : project.overviewImageUrl || project.hero[0]?.imageUrl) ||
+    project.planMap.imageUrl;
+
+  // 3D va 2D la CUNG mot ban do tuong tac (pin gia, phong to, tim, loc) -
+  // chi khac anh nen: phoi canh 3D hoac mat bang 2D.
+  const planMap = useMemo<MasterPlanMap>(
+    () => ({
+      ...project.planMap,
+      imageUrl: mode === '3d' ? image3d : project.planMap.imageUrl,
+      markers: target
+        ? project.planMap.markers.filter((marker) => marker.phaseName === target.name)
+        : project.planMap.markers,
+    }),
+    [project.planMap, target, mode, image3d],
+  );
+
+  return (
+    <div>
+      {/* May tinh: cac nut gian ra lap day ca hang (flex-auto) - hai mep hang
+          thang mep ban do ben duoi, khe giua cac nut deu 8px. Hep hon thi
+          giu kich thuoc nut va vuot ngang. */}
+      <div
+        role="group"
+        aria-label="Chọn khu vực bản đồ"
+        className="no-scrollbar mb-3 flex gap-2 overflow-x-auto"
+      >
+        {targets.map((item) => {
+          const isActive = targetId === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => setTargetId(item.id)}
+              className={`flex h-10 shrink-0 items-center justify-center rounded-lg px-4 text-[11px] font-semibold whitespace-nowrap uppercase transition sm:text-xs lg:flex-auto ${
+                isActive
+                  ? 'bg-brand-600 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 ring-1 ring-gray-200 ring-inset hover:bg-gray-200 hover:text-gray-800'
+              }`}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Nut tang nam DUOI hang nut phan khu, ngay tren ban do */}
+      {floorRanges && (
+        <div className="mb-3 flex flex-wrap gap-2" aria-label="Mặt bằng theo tầng">
+          <span className="inline-flex h-10 items-center rounded-full bg-brand-600 px-5 text-theme-sm font-bold text-white uppercase shadow-sm">
+            Tầng {floorRanges}
+          </span>
+        </div>
+      )}
+
+      <PhaseFloorPlan
+        // Doi phan khu thi dung lai ban do tu dau (khung nhin, bo loc); doi
+        // 3D / 2D thi ban do tu nap lai anh nen moi
+        key={targetId}
+        project={project}
+        phaseName={target?.name}
+        planMap={planMap}
+        highRise={target ? highRise : project.segment === 'cao-tang'}
+        controlsSlot={<MapModeSwitch mode={mode} onChange={setMode} />}
+      />
+    </div>
+  );
+};
+
 /** Bo tab con cua mot phan khu / toa */
 const PhaseTabs = ({
   project,
@@ -359,7 +575,8 @@ const PhaseTabs = ({
   /** Cao tang: ban do cho bam dup pin xem truc can */
   highRise: boolean;
 }) => {
-  const [tab, setTab] = useState<InnerTabKey>('tong-quan');
+  // Mo thang "Vi tri quy hang" - noi nguoi xem tim den khi bam vao phan khu
+  const [tab, setTab] = useState<InnerTabKey>('vi-tri-quy-hang');
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Doi tab khi dang cuon giua noi dung: keo ve dau khoi de tab moi bat dau
@@ -375,17 +592,13 @@ const PhaseTabs = ({
     }
   };
 
-  // Ban do rieng cua phan khu: chi giu pin thuoc phan khu nay
-  const phasePlanMap = useMemo(
-    () => ({
-      ...project.planMap,
-      markers: project.planMap.markers.filter((marker) => marker.phaseName === phase.name),
-    }),
-    [project.planMap, phase.name],
-  );
-
   return (
-    <div ref={rootRef} className="scroll-mt-[calc(4rem+var(--project-tabnav-h,57px))]">
+    <div
+      ref={rootRef}
+      // Tab "Phan khu" tim moc nay de cuon thang toi thanh tab con
+      data-phase-tabs
+      className="scroll-mt-[calc(4rem+var(--project-tabnav-h,57px))]"
+    >
       {/* Thanh tab con dinh ngay duoi thanh tab du an khi cuon: SiteHeader
           (4rem) + chieu cao that cua ProjectTabNav, do ProjectTabNav do va ghi
           vao --project-tabnav-h (thanh do co the xuong hai hang). Nen trang
@@ -433,12 +646,7 @@ const PhaseTabs = ({
       {tab === 'vi-tri' && <PlanImages phase={phase} onlyFirst />}
       {tab === 'quy-hang' && <PhaseUnitsTable slug={project.slug} phaseName={phase.name} />}
       {tab === 'vi-tri-quy-hang' && (
-        <PhaseFloorPlan
-          project={project}
-          phase={phase}
-          planMap={phasePlanMap}
-          highRise={highRise}
-        />
+        <PhaseMapViews project={project} phase={phase} highRise={highRise} />
       )}
       {tab === 'mat-bang' && <PlanImages phase={phase} />}
       {tab === 'chinh-sach-ban-hang' && (
@@ -625,12 +833,20 @@ const unitsFact = (phase: ProjectPhase) => ({
 const TowerGroupPanel = ({
   project,
   group,
+  initialTowerId,
 }: {
   project: ProjectDetail;
   group: FundGroup & { towers: NonNullable<FundGroup['towers']> };
+  /** Toa mo san (VD vao tu tab "Phan khu"); bo trong thi mo toa dau tien */
+  initialTowerId?: string;
 }) => {
-  // Mo nhom thi toa dau tien so san - thay noi dung ngay, khong phai bam them
-  const [towerId, setTowerId] = useState<string | null>(group.towers[0]?.publicId ?? null);
+  // Mo nhom thi mot toa so san - thay noi dung ngay, khong phai bam them
+  const [towerId, setTowerId] = useState<string | null>(
+    () =>
+      group.towers.find((item) => item.publicId === initialTowerId)?.publicId ??
+      group.towers[0]?.publicId ??
+      null,
+  );
   const tower = group.towers.find((item) => item.publicId === towerId);
 
   return (
@@ -657,11 +873,36 @@ const TowerGroupPanel = ({
   );
 };
 
-const PhaseFundTab = ({ project }: { project: ProjectDetail }) => {
-  // Vao tab la the dau tien so san, nguoi xem thay noi dung ngay
-  const [selectedId, setSelectedId] = useState<string | null>(
-    () => project.fundGroups?.[0]?.publicId ?? project.phases[0]?.publicId ?? null,
+/** Nhom (fundGroups) chua phan khu / toa co publicId nay */
+const findGroupOfPhase = (groups: FundGroup[], phaseId: string) =>
+  groups.find(
+    (group) =>
+      group.phase?.publicId === phaseId ||
+      group.towers?.some((tower) => tower.publicId === phaseId),
   );
+
+const PhaseFundTab = ({
+  project,
+  initialPhaseId,
+}: {
+  project: ProjectDetail;
+  /**
+   * Phan khu mo san - VD bam the phan khu o tab "Phan khu". Du an co nhom
+   * (Blanca City) thi mo nhom chua no, va neu la toa thi mo dung toa do.
+   */
+  initialPhaseId?: string;
+}) => {
+  // Vao tab la mot the so san, nguoi xem thay noi dung ngay
+  const [selectedId, setSelectedId] = useState<string | null>(() => {
+    if (initialPhaseId) {
+      const groupOfPhase = project.fundGroups
+        ? findGroupOfPhase(project.fundGroups, initialPhaseId)
+        : undefined;
+      if (groupOfPhase) return groupOfPhase.publicId;
+      if (project.phases.some((item) => item.publicId === initialPhaseId)) return initialPhaseId;
+    }
+    return project.fundGroups?.[0]?.publicId ?? project.phases[0]?.publicId ?? null;
+  });
 
   const groups = project.fundGroups ?? [];
 
@@ -693,6 +934,7 @@ const PhaseFundTab = ({ project }: { project: ProjectDetail }) => {
                 key={group.publicId}
                 project={project}
                 group={{ ...group, towers: group.towers }}
+                initialTowerId={initialPhaseId}
               />
             ) : (
               group.phase && (

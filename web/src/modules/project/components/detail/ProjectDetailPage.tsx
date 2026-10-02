@@ -14,7 +14,7 @@ import ProjectHero from './ProjectHero';
 import ProjectTabNav from './ProjectTabNav';
 import AnalysisTab from './tabs/AnalysisTab';
 import DocumentsTab from './tabs/DocumentsTab';
-import PhaseFundTab from './tabs/PhaseFundTab';
+import { PhaseMapViews } from './tabs/PhaseFundTab';
 import LocationTab from './tabs/LocationTab';
 import OverviewTab from './tabs/OverviewTab';
 import PhasesTab from './tabs/PhasesTab';
@@ -118,7 +118,10 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
         />
       )}
       {currentTab === 'phan-khu' && <PhasesTab project={project} />}
-      {currentTab === 'mat-bang-quy-can' && <PhaseFundTab project={project} />}
+      {/* Chi ban do: thanh chon 3D / 2D theo tong the + tung phan khu */}
+      {currentTab === 'mat-bang-quy-can' && (
+        <PhaseMapViews project={project} highRise={project.segment === 'cao-tang'} />
+      )}
       {currentTab === 'quy-can' && <UnitsTab slug={slug} />}
       {currentTab === 'anh-360' && <Photo360Tab project={project} />}
       {currentTab === 'phan-tich' && <AnalysisTab analysis={project.analysis} />}
@@ -140,9 +143,10 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
         current={currentTab}
         onChange={changeTab}
         consultants={project.consultants}
-        // "Vi tri quy can": thanh tab du an cuon di, thanh tab con cua phan
-        // khu dinh ngay duoi SiteHeader thay cho no
-        sticky={currentTab !== 'mat-bang-quy-can'}
+        // "Phan khu": thanh tab du an cuon di, thanh tab con cua phan khu
+        // (Tong quan ... Chinh sach ban hang) dinh ngay duoi SiteHeader thay
+        // cho no. Cac tab khac van giu thanh tab du an dinh.
+        sticky={currentTab !== 'phan-khu'}
       />
 
       {/* Moi tab tran het chieu rong. Truoc day co cot phai dinh o ben, nhung no

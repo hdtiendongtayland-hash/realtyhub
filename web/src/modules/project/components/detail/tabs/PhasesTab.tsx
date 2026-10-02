@@ -1,15 +1,35 @@
 'use client';
 
-import Link from 'next/link';
+import { useRef, useState } from 'react';
 import { HiOutlineBuildingOffice2, HiOutlineSquares2X2 } from 'react-icons/hi2';
-import { FiArrowRight, FiEye, FiMaximize2, FiTag } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiEye, FiMaximize2, FiTag } from 'react-icons/fi';
 import { formatNumber, formatPriceRange } from '@/common/utils/format';
 import type { ProjectDetail, ProjectPhase } from '../../../models/project-detail.model';
 import { MediaFrame, TabEmptyState } from '../shared';
+import PhaseFundTab from './PhaseFundTab';
 
 
 const specValue = (phase: ProjectPhase, label: string) =>
   phase.specs.find((spec) => spec.label === label)?.value ?? '';
+
+/**
+ * Cao tang hay thap tang cua mot phan khu. Du an co chia nhom (Blanca City:
+ * "Casa thap tang" + nhom "Cao tang" gom cac toa) thi lay theo nhom chua phan
+ * khu; con lai lay theo loai du an.
+ */
+const phaseSegment = (project: ProjectDetail, phase: ProjectPhase) => {
+  const group = project.fundGroups?.find(
+    (item) =>
+      item.phase?.publicId === phase.publicId ||
+      item.towers?.some((tower) => tower.publicId === phase.publicId),
+  );
+  return group?.segment ?? project.segment;
+};
+
+const SEGMENT_BADGES = {
+  'cao-tang': 'Phân khu cao tầng',
+  'thap-tang': 'Phân khu thấp tầng',
+} as const;
 
 const compactRange = (value: string) =>
   value.replace(/^từ\s+(\S+)\s+đến\s+(\S+)\s+/i, '$1 - $2 ');
@@ -33,22 +53,73 @@ const PhaseFact = ({
   </div>
 );
 
+/**
+ * Tab "Phan khu": luoi the phan khu. Bam mot the thi hien NGAY trong tab toan
+ * bo thong tin phan khu do - cung bo cuc voi tab "Vi tri quy can" (hang the
+ * phan khu + 6 tab con), phan khu vua bam duoc chon san; doi phan khu bang
+ * hang the phia tren, nut "Quay lai" ve luoi the.
+ */
 const PhasesTab = ({ project }: { project: ProjectDetail }) => {
+  const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
   if (project.phases.length === 0) {
     return <TabEmptyState message="Dự án chưa công bố thông tin phân khu." />;
   }
 
+  /**
+   * Bam the: cuon THANG toi thanh tab con cua phan khu (Tong quan ... Chinh
+   * sach ban hang) - nguoi xem vao ngay noi dung, khong phai keo qua hang the.
+   * Quay lai: ve dau luoi the. Doi hai khung hinh cho noi dung moi ve xong.
+   */
+  const selectPhase = (phaseId: string | null) => {
+    setSelectedPhaseId(phaseId);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const root = rootRef.current;
+        const target = phaseId ? root?.querySelector('[data-phase-tabs]') : root;
+        (target ?? root)?.scrollIntoView({ block: 'start' });
+      }),
+    );
+  };
+
+  if (selectedPhaseId) {
+    return (
+      <div
+        ref={rootRef}
+        className="scroll-mt-[calc(4rem+var(--project-tabnav-h,57px)+1rem)]"
+      >
+        <button
+          type="button"
+          onClick={() => selectPhase(null)}
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-theme-sm font-medium text-gray-700 shadow-sm transition hover:border-brand-300 hover:text-brand-600"
+        >
+          <FiArrowLeft aria-hidden />
+          Quay lại
+        </button>
+        <PhaseFundTab
+          key={selectedPhaseId}
+          project={project}
+          initialPhaseId={selectedPhaseId}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      ref={rootRef}
+      className="grid scroll-mt-[calc(4rem+var(--project-tabnav-h,57px)+1rem)] grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    >
       {project.phases.map((phase) => (
         <article key={phase.publicId}>
-          {/* Ca the la mot lien ket duy nhat: truoc day ten va anh la hai the
-              <a> rieng tro cung mot noi, doc bang trinh doc man hinh se nghe
-              lap hai lan. */}
-          <Link
-            href={`/gio-hang/${project.slug}/phan-khu/${phase.slug}`}
+          {/* Ca the la mot nut duy nhat: ten va anh tung la hai lien ket rieng
+              tro cung mot noi, trinh doc man hinh se doc lap hai lan. */}
+          <button
+            type="button"
+            onClick={() => selectPhase(phase.publicId)}
             aria-label={`Xem chi tiết phân khu ${phase.name}`}
-            className="group block overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="group block w-full overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-card transition duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
           >
             <div className="relative overflow-hidden">
               <div className="transition duration-500 group-hover:scale-105">
@@ -56,7 +127,7 @@ const PhasesTab = ({ project }: { project: ProjectDetail }) => {
                   seed={phase.publicId}
                   src={phase.imageUrl}
                   alt={`Phối cảnh phân khu ${phase.name}`}
-                  ratio="aspect-4/3"
+                  ratio="aspect-16/9"
                   className="rounded-none"
                 />
               </div>
@@ -69,7 +140,7 @@ const PhasesTab = ({ project }: { project: ProjectDetail }) => {
 
               <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
                 <HiOutlineSquares2X2 aria-hidden />
-                Phân khu
+                {SEGMENT_BADGES[phaseSegment(project, phase)]}
               </span>
 
               <h3 className="absolute inset-x-4 bottom-3 truncate text-xl font-bold uppercase tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
@@ -131,7 +202,7 @@ const PhasesTab = ({ project }: { project: ProjectDetail }) => {
                 <FiArrowRight aria-hidden />
               </span>
             </div>
-          </Link>
+          </button>
         </article>
       ))}
     </div>

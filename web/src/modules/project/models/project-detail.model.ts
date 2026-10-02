@@ -229,6 +229,24 @@ export type PlanMarker = {
   propertyTypeLabel: string;
   landArea: number;
   status: UnitStatus;
+  // Cac truong duoi day lay tu can that da gan voi pin - chi de bo loc ban
+  // do dung; du lieu pin goc khong co thi bo loc tuong ung tu an.
+  /** Huong can */
+  direction?: string;
+  /** Don gia (VND/m²) */
+  unitPrice?: number;
+  /** Tieu khu / day - phan dau ma can, VD "HA1" trong "HA1-03" */
+  block?: string;
+  /** Tieu chuan ban giao, VD "Hoan thien noi that cao cap" */
+  handoverStandard?: string;
+  /** Can ho cao tang hay nha thap tang - quyet dinh bo loc nao hien */
+  kind?: 'cao-tang' | 'thap-tang';
+  /** Tang (can ho), VD "12" */
+  floor?: string;
+  /** Truc can (can ho), VD "04" */
+  unitLine?: string;
+  /** Mat tien (m) - nha thap tang */
+  frontage?: number;
   /** Vi tri tren anh, don vi % tinh tu goc tren-trai */
   x: number;
   y: number;

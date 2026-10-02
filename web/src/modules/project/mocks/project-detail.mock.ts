@@ -1038,6 +1038,11 @@ const buildBlancaCityUnits = (): ProjectUnit[] => {
         direction: BLANCA_CITY_DIRECTIONS[index % BLANCA_CITY_DIRECTIONS.length],
         landArea: type.area,
         buildArea: phase.lowRise ? Math.round(type.area * 2.6) : type.area,
+        // Mat tien nha thap tang (m): bam theo dien tich dat, buoc 0.5m - cung
+        // cach tinh voi cac du an sinh tu dong
+        ...(phase.lowRise
+          ? { frontage: Math.round(Math.min(12, Math.max(4, type.area / 12)) * 2) / 2 }
+          : {}),
         phaseName: phase.name,
         status,
         floor: String(floor),
