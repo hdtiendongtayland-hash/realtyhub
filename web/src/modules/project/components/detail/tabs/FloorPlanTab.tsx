@@ -2,6 +2,7 @@
 
 import "leaflet/dist/leaflet.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Map as LeafletMap, LayerGroup } from "leaflet";
 import {
   FiCheck,
@@ -84,6 +85,11 @@ type FloorPlanTabProps = {
    * nut gat 3D / 2D) - de khong de len cac nut co san.
    */
   controlsSlot?: React.ReactNode;
+  /**
+   * Phan tu de dat nut "Bo loc" vao (VD cuoi hang nut phan khu). Bo trong
+   * thi nut nam tren dau ban do.
+   */
+  filterSlot?: HTMLElement | null;
 };
 
 /** Mot khoang lua chon cho bo loc: [min, max) */
@@ -262,6 +268,7 @@ const FloorPlanTab = ({
   onMarkerDoubleClick,
   showTitle = true,
   controlsSlot,
+  filterSlot,
 }: FloorPlanTabProps) => {
   // Ham cua cha doi moi lan render: giu qua ref de khoi ve lai toan bo pin
   const markerClickRef = useRef(onMarkerClick);
@@ -446,16 +453,20 @@ const FloorPlanTab = ({
       // Ghim la diem neo 0x0 nam dung toa do, o gia nam trong <span>: xem
       // .plan-pin trong globals.css. Nho vay o gia rong theo do dai tung muc
       // gia, va Leaflet khong giat mat transform cua hieu ung phong to.
-      const isDot = displayMode !== "price";
-      const label =
-        displayMode === "code"
-          ? escapeHtml(marker.code)
-          : displayMode === "name"
-            ? "" // chế độ tên: chỉ hiện dấu chấm, không text
-            : escapeHtml(formatBillionShort(marker.price));
+      // - "Gia": o gia.
+      // - "Ma": CUNG mot o - gia dong tren, ma can nho dong duoi (truoc day
+      //   la cham tron co chu ma de len, nhin roi).
+      // - "Khong ten": chi con cham tron.
+      const isDot = displayMode === "name";
+      const priceLabel = escapeHtml(formatBillionShort(marker.price));
+      const html = isDot
+        ? "<span></span>"
+        : displayMode === "code"
+          ? `<span class="plan-pin__stack"><b>${priceLabel}</b><small>${escapeHtml(marker.code)}</small></span>`
+          : `<span>${priceLabel}</span>`;
       const icon = L.divIcon({
         className: `plan-pin plan-pin--${marker.fundType}${isDot ? " plan-pin--dot" : ""}`,
-        html: `<span>${label}</span>`,
+        html,
         iconSize: [0, 0],
         iconAnchor: [0, 0],
       });
@@ -581,38 +592,54 @@ const FloorPlanTab = ({
     label,
   }));
 
+  // Nut loc chi con icon phieu; dang loc thi co so dem nho o goc
+  const filterButton = (
+    <button
+      type="button"
+      onClick={toggleFilterPanel}
+      aria-expanded={isFilterOpen}
+      aria-label={activeFilterCount > 0 ? `Bộ lọc (${activeFilterCount} đang lọc)` : 'Bộ lọc'}
+      title="Bộ lọc"
+      className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border shadow-sm transition ${
+        isFilterOpen || activeFilterCount > 0
+          ? "border-brand-400 bg-brand-50 text-brand-600"
+          : "border-gray-300 bg-white text-gray-700 hover:border-brand-400 hover:text-brand-600"
+      }`}
+    >
+      <FiFilter className="h-4.5 w-4.5" aria-hidden />
+      {activeFilterCount > 0 && (
+        <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1 text-[11px] font-bold text-white ring-2 ring-white">
+          {activeFilterCount}
+        </span>
+      )}
+    </button>
+  );
+
   return (
     <div>
-      <div
-        className={`mb-4 flex flex-wrap items-center gap-3 ${
-          showTitle ? 'justify-between' : 'justify-end'
-        }`}
-      >
-        {showTitle && (
-          <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900">
-            Vị trí quỹ căn
-          </h2>
-        )}
-
-        <button
-          type="button"
-          onClick={toggleFilterPanel}
-          aria-expanded={isFilterOpen}
-          className={`flex h-11 items-center gap-2 rounded-lg border px-5 text-theme-sm font-semibold shadow-sm transition ${
-            isFilterOpen || activeFilterCount > 0
-              ? "border-brand-400 bg-brand-50 text-brand-600"
-              : "border-gray-300 bg-white text-gray-700 hover:border-brand-400"
+      {/* Noi goi co cho rieng cho nut loc (hang nut phan khu) thi dua nut len
+          do; khong thi nut nam tren dau ban do nhu cu */}
+      {filterSlot ? (
+        createPortal(filterButton, filterSlot)
+      ) : (
+        <div
+          className={`mb-4 flex flex-wrap items-center gap-3 ${
+            showTitle ? 'justify-between' : 'justify-end'
           }`}
         >
-          <FiFilter aria-hidden />
-          Bộ lọc
-          {activeFilterCount > 0 && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1 text-[11px] font-bold text-white">
-              {activeFilterCount}
-            </span>
+          {showTitle && (
+            <h2 className="text-xl font-bold uppercase tracking-wide text-gray-900">
+              Vị trí quỹ căn
+            </h2>
           )}
-        </button>
-      </div>
+          {filterButton}
+        </div>
+      )}
+      {filterSlot && showTitle && (
+        <h2 className="mb-4 text-xl font-bold uppercase tracking-wide text-gray-900">
+          Vị trí quỹ căn
+        </h2>
+      )}
 
       {isFilterOpen && (
         <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-card sm:p-5">

@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -267,6 +268,7 @@ const PhaseFloorPlan = ({
   planMap,
   highRise,
   controlsSlot,
+  filterSlot,
 }: {
   project: ProjectDetail;
   /** Bo trong = tong the du an (moi phan khu) */
@@ -275,6 +277,8 @@ const PhaseFloorPlan = ({
   highRise: boolean;
   /** Nut dat trong khung ban do (VD gat 3D / 2D) */
   controlsSlot?: ReactNode;
+  /** Cho dat nut "Bo loc" (cuoi hang nut phan khu) */
+  filterSlot?: HTMLElement | null;
 }) => {
   const query = useMemo(
     () => ({ ...DEFAULT_UNIT_QUERY, phaseName: phaseName ?? null, limit: 5000 }),
@@ -393,6 +397,7 @@ const PhaseFloorPlan = ({
         lockedPhaseName={phaseName}
         showTitle={false}
         controlsSlot={controlsSlot}
+        filterSlot={filterSlot}
         onMarkerClick={handleMarkerClick}
         onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
       />
@@ -413,31 +418,61 @@ type MapMode = '3d' | '2d';
 /** Gia tri "chon tong the du an" trong thanh chon ban do */
 const WHOLE_PROJECT = 'tong-the';
 
+const MAP_MODE_HINTS: Record<MapMode, string> = {
+  '3d': 'Toàn cảnh',
+  '2d': 'Mặt bằng',
+};
+
+/** Goi y hien them bao lau sau khi gat chuyen che do */
+const MODE_HINT_FLASH_MS = 1500;
+
 /**
- * Nut gat 3D <-> 2D: chi con cong tac (vien trang bo tron, nut tron xanh -
- * cung kieu cong tac "Gia" tren ban do). Nut ben trai = 3D, ben phai = 2D;
- * ten che do hien khi ro chuot va doc cho trinh doc man hinh.
+ * Nut gat 3D <-> 2D - cung kieu cong tac "Gia" ben trai ban do: vien trang bo
+ * tron, nut tron xanh truot qua lai. Chi MOT goi y o giua ngay duoi cong tac,
+ * ghi che do dang xem ("Toan canh" = 3D, "Mat bang" = 2D): hien khi ro chuot
+ * va tu hien ~1,5 giay ngay sau khi gat.
  */
 const MapModeSwitch = ({ mode, onChange }: { mode: MapMode; onChange: (mode: MapMode) => void }) => {
-  const label = mode === '3d' ? 'Đang xem 3D - bấm để chuyển sang 2D' : 'Đang xem 2D - bấm để chuyển sang 3D';
+  const [isFlashing, setIsFlashing] = useState(false);
+  const flashTimerRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(flashTimerRef.current), []);
+
+  const toggle = () => {
+    onChange(mode === '3d' ? '2d' : '3d');
+    setIsFlashing(true);
+    window.clearTimeout(flashTimerRef.current);
+    flashTimerRef.current = window.setTimeout(() => setIsFlashing(false), MODE_HINT_FLASH_MS);
+  };
+
+  const hint = MAP_MODE_HINTS[mode];
+
   return (
     <button
       type="button"
       role="switch"
       aria-checked={mode === '2d'}
-      aria-label={label}
-      title={label}
-      onClick={() => onChange(mode === '3d' ? '2d' : '3d')}
+      aria-label={`${hint} - bấm để chuyển sang ${MAP_MODE_HINTS[mode === '3d' ? '2d' : '3d']}`}
+      onClick={toggle}
       // Cung chieu cao / do cao voi cong tac "Gia" ben trai ban do (h-8, cach
-      // mep tren them mt-2) nhung NGAN hon (w-14): chi co hai trang thai
-      className="relative mt-2 mb-2 h-8 w-14 shrink-0 rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
+      // mep tren them mt-2) nhung NGAN hon (w-14): chi co hai trang thai.
+      // z-20: goi y ben duoi de len nut tim kiem ngay duoi, khong bi che.
+      className="group/mode relative z-20 mt-2 mb-2 inline-flex h-8 w-14 shrink-0 items-center rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
     >
       <span
         aria-hidden
-        className={`absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card transition-[left] duration-300 ease-out ${
+        className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card transition-[left] duration-300 ease-out ${
           mode === '2d' ? 'left-[calc(100%-1.5rem)]' : 'left-1'
         }`}
       />
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute top-full left-1/2 mt-1.5 -translate-x-1/2 rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap text-white shadow-card transition-opacity duration-150 group-hover/mode:opacity-100 ${
+          isFlashing ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        {hint}
+      </span>
     </button>
   );
 };
@@ -463,6 +498,8 @@ export const PhaseMapViews = ({
   highRise: boolean;
 }) => {
   const [mode, setMode] = useState<MapMode>('3d');
+  // O cuoi hang nut phan khu - ban do dua nut "Bo loc" (chi icon) vao day
+  const [filterSlot, setFilterSlot] = useState<HTMLDivElement | null>(null);
   const [targetId, setTargetId] = useState<string>(phase?.publicId ?? WHOLE_PROJECT);
 
   const targets = useMemo(
@@ -516,10 +553,11 @@ export const PhaseMapViews = ({
       {/* May tinh: cac nut gian ra lap day ca hang (flex-auto) - hai mep hang
           thang mep ban do ben duoi, khe giua cac nut deu 8px. Hep hon thi
           giu kich thuoc nut va vuot ngang. */}
+      <div className="mb-3 flex items-center gap-2">
       <div
         role="group"
         aria-label="Chọn khu vực bản đồ"
-        className="no-scrollbar mb-3 flex gap-2 overflow-x-auto"
+        className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto"
       >
         {targets.map((item) => {
           const isActive = targetId === item.id;
@@ -540,6 +578,8 @@ export const PhaseMapViews = ({
           );
         })}
       </div>
+        <div ref={setFilterSlot} className="flex shrink-0" />
+      </div>
 
       {/* Nut tang nam DUOI hang nut phan khu, ngay tren ban do */}
       {floorRanges && (
@@ -559,6 +599,7 @@ export const PhaseMapViews = ({
         planMap={planMap}
         highRise={target ? highRise : project.segment === 'cao-tang'}
         controlsSlot={<MapModeSwitch mode={mode} onChange={setMode} />}
+        filterSlot={filterSlot}
       />
     </div>
   );

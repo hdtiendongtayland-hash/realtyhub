@@ -1,196 +1,108 @@
 'use client';
 
-import type { InterestSchedule, SalesPolicy } from '../../../models/project-detail.model';
-import { JadePanel } from '../shared';
-
-/** Khung con trong panel xanh - vien mo, nen dam hon mot chut */
-const PolicyBox = ({
-  children,
-  className = '',
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => (
-  <div
-    className={`rounded-lg border border-white/20 bg-jade-700/45 p-4 text-center ${className}`}
-  >
-    {children}
-  </div>
-);
-
-const ScheduleTable = ({ schedule }: { schedule: InterestSchedule }) => (
-  <PolicyBox className="text-left">
-    <h3 className="mb-3 text-center text-theme-sm font-bold uppercase tracking-wide text-gold-200">
-      {schedule.title}
-    </h3>
-
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-80 border-collapse text-center">
-        <thead>
-          <tr>
-            <th scope="col" className="px-2 py-1.5 text-left text-theme-xs text-white/60">
-              <span className="sr-only">Tỷ lệ vay</span>
-            </th>
-            {schedule.terms.map((term) => (
-              <th
-                key={term}
-                scope="col"
-                className="px-2 py-1.5 text-[11px] font-semibold uppercase text-white/70"
-              >
-                {term}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {schedule.rows.map((row) => (
-            <tr key={row.publicId} className="border-t border-white/15">
-              <th
-                scope="row"
-                className="whitespace-nowrap px-2 py-2 text-left text-theme-sm font-bold uppercase text-white"
-              >
-                {row.label}
-              </th>
-              {row.values.map((value, index) => (
-                <td
-                  key={`${row.publicId}-${index}`}
-                  className="px-2 py-2 text-theme-sm font-semibold text-gold-200"
-                >
-                  {value}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    {schedule.rows.map((row) =>
-      row.note ? (
-        <p key={`${row.publicId}-note`} className="mt-2 text-[11px] leading-snug text-white/60">
-          (*) {row.label}: {row.note}
-        </p>
-      ) : null,
-    )}
-  </PolicyBox>
-);
+import { useState } from 'react';
+import Image from 'next/image';
+import { FiExternalLink } from 'react-icons/fi';
+import type { SalesPolicy } from '../../../models/project-detail.model';
+import { SALES_POLICY_MONTHS } from '../../../mocks/sales-policy-months.mock';
+import { TabEmptyState } from '../shared';
 
 type SalesPolicyTabProps = {
-  salesPolicy: SalesPolicy;
+  /**
+   * Chinh sach dang bang so lieu (ban cu). Bo cuc theo thang hien KHONG doc
+   * toi - giu lai de cac noi goi khong phai doi, va de dung lai khi can.
+   */
+  salesPolicy?: SalesPolicy;
   /** Luon la ten DU AN, ke ca khi xem tu trang phan khu */
   projectName: string;
 };
 
-const SalesPolicyTab = ({ salesPolicy, projectName }: SalesPolicyTabProps) => {
+/**
+ * Tab "Chinh sach ban hang" - cung bo cuc voi tab "Tien do": cot trai la
+ * danh sach THANG (dang timeline), cot phai la anh chinh sach cua thang dang
+ * chon. Thang moi nhat mo san.
+ *
+ * Ban demo: moi du an dung chung danh sach SALES_POLICY_MONTHS.
+ */
+const SalesPolicyTab = ({ projectName }: SalesPolicyTabProps) => {
+  const months = SALES_POLICY_MONTHS;
+  const [index, setIndex] = useState(0);
+
+  if (months.length === 0) {
+    return <TabEmptyState message="Dự án chưa cập nhật chính sách bán hàng." />;
+  }
+
+  const month = months[Math.min(index, months.length - 1)];
+
   return (
-    <div>
-      <h2 className="mb-5 text-center text-lg font-bold uppercase tracking-wide text-gray-900">
-        Chính sách bán hàng dự án {projectName}
-      </h2>
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+      <aside>
+        <h2 className="mb-4 text-base font-bold uppercase tracking-wide text-gray-900">
+          Chính sách bán hàng
+        </h2>
 
-      <JadePanel>
-        <div className="space-y-6">
-          <p className="text-center text-xl font-bold uppercase leading-snug tracking-wide text-white">
-            {salesPolicy.headline}
-          </p>
-
-          {/* Chiet khau thanh toan som */}
-          <PolicyBox className="mx-auto max-w-2xl">
-            <h3 className="mb-3 text-theme-sm font-bold uppercase tracking-wide text-white">
-              {salesPolicy.discountTitle}
-            </h3>
-            <div className="grid grid-cols-2 divide-x divide-white/20">
-              {salesPolicy.discounts.map((discount) => (
-                <div key={discount.publicId} className="px-3">
-                  <p className="text-theme-xs text-white/70">{discount.label}</p>
-                  <p className="mt-1 text-theme-xs uppercase text-white/80">Chiết khấu</p>
-                  <p className="text-3xl font-bold text-gold-300">{discount.percent}</p>
-                </div>
-              ))}
-            </div>
-          </PolicyBox>
-
-          {/* Quyen loi kem theo */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {salesPolicy.perks.map((perk) => (
-              <PolicyBox key={perk.publicId}>
-                <p className="text-[11px] font-semibold uppercase leading-snug text-white/80">
-                  {perk.title}
-                </p>
-                <p className="mt-1.5">
-                  <span className="text-3xl font-bold text-gold-300">{perk.value}</span>
-                  <span className="ml-1 text-theme-sm font-semibold text-white/90">
-                    {perk.unit}
-                  </span>
-                </p>
-                {perk.note && <p className="text-[11px] text-white/60">{perk.note}</p>}
-              </PolicyBox>
-            ))}
-          </div>
-
-          {/* Ho tro lai suat */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {salesPolicy.interestSchedules.map((schedule) => (
-              <ScheduleTable key={schedule.publicId} schedule={schedule} />
-            ))}
-          </div>
-
-          {/* Khach hang than thiet */}
-          <PolicyBox className="mx-auto max-w-3xl">
-            <h3 className="mb-3 text-theme-sm font-bold uppercase tracking-wide text-white">
-              {salesPolicy.loyalty.title}
-            </h3>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {salesPolicy.loyalty.tiers.map((tier) => (
-                <div
-                  key={tier.publicId}
-                  className="rounded-md border border-white/15 bg-jade-800/50 px-3 py-3"
+        {/* Duong doc cua timeline ve bang border trai cua <ol> */}
+        <ol className="space-y-2 border-l-2 border-gray-200 pl-4">
+          {months.map((item, itemIndex) => {
+            const isActive = itemIndex === index;
+            return (
+              <li key={item.publicId} className="relative">
+                <span
+                  aria-hidden
+                  className={`absolute top-3.5 -left-5.5 h-2.5 w-2.5 rounded-full ring-2 ring-white ${
+                    isActive ? 'bg-accent-500' : 'bg-gray-300'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setIndex(itemIndex)}
+                  aria-current={isActive ? 'true' : undefined}
+                  className={`w-full rounded-md border px-3 py-2.5 text-left text-base transition ${
+                    isActive
+                      ? 'border-accent-400 bg-accent-50 font-semibold text-accent-600'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-brand-300 hover:text-brand-600'
+                  }`}
                 >
-                  <p className="text-theme-xs font-semibold uppercase text-white/80">
-                    {tier.name}
-                  </p>
-                  <p className="text-2xl font-bold text-gold-300">{tier.percent}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-3 text-[11px] italic text-white/60">{salesPolicy.loyalty.note}</p>
-          </PolicyBox>
+                  {item.label}
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </aside>
 
-          {/* Tien do thanh toan */}
-          <div>
-            <h3 className="mb-3 text-center text-theme-sm font-bold uppercase tracking-wide text-white">
-              {salesPolicy.payment.title}
-            </h3>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {salesPolicy.payment.plans.map((plan) => (
-                <PolicyBox key={plan.publicId} className="text-left">
-                  <p className="mb-3 text-center text-theme-sm font-bold uppercase text-gold-200">
-                    {plan.name}
-                  </p>
-                  <ul className="space-y-2.5">
-                    {plan.steps.map((step) => (
-                      <li
-                        key={step.publicId}
-                        className="flex items-center justify-between gap-3 border-t border-white/15 pt-2.5 first:border-0 first:pt-0"
-                      >
-                        <span className="text-theme-xs leading-snug text-white/80">
-                          {step.label}
-                          {step.note && (
-                            <span className="block text-[11px] text-white/55">{step.note}</span>
-                          )}
-                        </span>
-                        <span className="shrink-0 text-lg font-bold text-gold-300">
-                          {step.value}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </PolicyBox>
-              ))}
-            </div>
-          </div>
-        </div>
-      </JadePanel>
+      {/* Anh chinh sach la anh doc (infographic): giu nguyen ti le, gioi han
+          be ngang de khong dai qua man hinh; bam de mo anh goc xem chu nho */}
+      <figure className="min-w-0">
+        <a
+          href={month.imageUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Xem ảnh gốc chính sách bán hàng ${month.label}`}
+          className="group relative mx-auto block max-w-2xl overflow-hidden rounded-lg border border-gray-200 bg-white shadow-card"
+        >
+          <Image
+            key={month.publicId}
+            src={month.imageUrl}
+            alt={`Chính sách bán hàng ${month.label} - ${projectName}`}
+            width={month.width}
+            height={month.height}
+            sizes="(min-width: 1024px) 672px, 100vw"
+            className="h-auto w-full bg-gray-100"
+            // Anh infographic PNG ~2MB: bo qua bo toi uu anh cua Next (lan dau
+            // xu ly rat cham, khung trang tron) - tai thang file goc
+            unoptimized
+            priority={index === 0}
+          />
+          <span className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-theme-xs font-medium text-white opacity-90 transition group-hover:opacity-100">
+            <FiExternalLink aria-hidden />
+            Xem ảnh gốc
+          </span>
+        </a>
+        <figcaption className="mt-2 text-center text-theme-xs text-gray-500">
+          Chính sách bán hàng {month.label}
+        </figcaption>
+      </figure>
     </div>
   );
 };

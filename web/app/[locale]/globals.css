@@ -674,6 +674,30 @@
   transform: translateX(-50%) scale(1.12);
 }
 
+/* Che do "Ma": gia va ma can trong CUNG mot o - gia dong tren dam, ma can
+   dong duoi nho va nhat hon mot chut, can giua. Mau nen / mui nhon dung chung
+   voi o gia. */
+.plan-pin > .plan-pin__stack {
+  flex-direction: column;
+  gap: 0;
+  padding: 2px 5px 3px;
+}
+
+.plan-pin__stack > b {
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.plan-pin__stack > small {
+  font-size: 8.5px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
 /* Tat gia: con lai cham tron nam DUNG TAM toa do, nen phai bo mui nhon di -
    neu khong dau ghim se tro xuong duoi vi tri that khoang 10px. */
 .plan-pin--dot > span {

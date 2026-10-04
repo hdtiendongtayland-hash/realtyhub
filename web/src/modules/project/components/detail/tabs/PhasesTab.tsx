@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { HiOutlineBuildingOffice2, HiOutlineSquares2X2 } from 'react-icons/hi2';
-import { FiArrowLeft, FiArrowRight, FiEye, FiMaximize2, FiTag } from 'react-icons/fi';
+import { FiArrowRight, FiEye, FiMaximize2, FiTag } from 'react-icons/fi';
 import { formatNumber, formatPriceRange } from '@/common/utils/format';
 import type { ProjectDetail, ProjectPhase } from '../../../models/project-detail.model';
 import { MediaFrame, TabEmptyState } from '../shared';
@@ -27,8 +27,8 @@ const phaseSegment = (project: ProjectDetail, phase: ProjectPhase) => {
 };
 
 const SEGMENT_BADGES = {
-  'cao-tang': 'Phân khu cao tầng',
-  'thap-tang': 'Phân khu thấp tầng',
+  'cao-tang': 'Cao tầng',
+  'thap-tang': 'Thấp tầng',
 } as const;
 
 const compactRange = (value: string) =>
@@ -57,7 +57,7 @@ const PhaseFact = ({
  * Tab "Phan khu": luoi the phan khu. Bam mot the thi hien NGAY trong tab toan
  * bo thong tin phan khu do - cung bo cuc voi tab "Vi tri quy can" (hang the
  * phan khu + 6 tab con), phan khu vua bam duoc chon san; doi phan khu bang
- * hang the phia tren, nut "Quay lai" ve luoi the.
+ * hang the phia tren.
  */
 const PhasesTab = ({ project }: { project: ProjectDetail }) => {
   const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -89,14 +89,6 @@ const PhasesTab = ({ project }: { project: ProjectDetail }) => {
         ref={rootRef}
         className="scroll-mt-[calc(4rem+var(--project-tabnav-h,57px)+1rem)]"
       >
-        <button
-          type="button"
-          onClick={() => selectPhase(null)}
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-theme-sm font-medium text-gray-700 shadow-sm transition hover:border-brand-300 hover:text-brand-600"
-        >
-          <FiArrowLeft aria-hidden />
-          Quay lại
-        </button>
         <PhaseFundTab
           key={selectedPhaseId}
           project={project}
@@ -138,7 +130,7 @@ const PhasesTab = ({ project }: { project: ProjectDetail }) => {
                 className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-black/75 via-black/25 to-transparent"
               />
 
-              <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
+              <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/25 bg-gray-900/55 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
                 <HiOutlineSquares2X2 aria-hidden />
                 {SEGMENT_BADGES[phaseSegment(project, phase)]}
               </span>

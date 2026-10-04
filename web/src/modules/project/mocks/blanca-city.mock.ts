@@ -413,10 +413,10 @@ const FUND_GROUPS: FundGroup[] = [
 
 /** Moi phan khu / toa mot cum pin rieng tren anh mat bang */
 const MARKER_AREAS: Record<string, { x: number; y: number }> = {
-  'Casa Thấp Tầng': { x: 14, y: 58 },
-  'Căn hộ Beachtro Tower': { x: 40, y: 22 },
-  'Căn hộ Beacon': { x: 58, y: 44 },
-  'Căn hộ Sky Sail': { x: 76, y: 24 },
+  'Casa Thấp Tầng': { x: 8, y: 60 },
+  'Căn hộ Beachtro Tower': { x: 32, y: 20 },
+  'Căn hộ Beacon': { x: 54, y: 44 },
+  'Căn hộ Sky Sail': { x: 76, y: 20 },
 };
 
 const MARKER_FUNDS: UnitFundType[] = ['doc-quyen', 'an-cheo', 'an-cheo', 'thuong'];
@@ -455,8 +455,9 @@ const PLAN_MARKERS: PlanMarker[] = BLANCA_CITY_UNIT_PHASES.flatMap((phase) => {
       propertyTypeLabel: type.label,
       landArea: type.area,
       status: MARKER_STATUSES[index % MARKER_STATUSES.length],
-      x: origin.x + (index % 5) * 3.5,
-      y: origin.y + Math.floor(index / 5) * 7,
+      // Gian 4,5% ngang / 11% doc: o gia + ma can khong de len nhau o zoom mac dinh
+      x: origin.x + (index % 5) * 4.5,
+      y: origin.y + Math.floor(index / 5) * 11,
     };
   });
 });

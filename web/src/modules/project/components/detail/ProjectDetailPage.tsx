@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useProjectDetail } from '../../hooks/useProjects';
@@ -54,8 +54,14 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
 
   const detailQuery = useProjectDetail(slug, initialProject);
 
+  // Bam "Phan khu" (ke ca khi dang o tab do, dang xem mot phan khu) -> doi
+  // key de tab dung lai tu dau: ve luoi the phan khu
+  const [phasesTabKey, setPhasesTabKey] = useState(0);
+
   const changeTab = useCallback(
     (tab: ProjectDetailTabKey) => {
+      if (tab === 'phan-khu') setPhasesTabKey((key) => key + 1);
+
       const next = new URLSearchParams(searchParams.toString());
       if (tab === DEFAULT_TAB) next.delete(TAB_PARAM);
       else next.set(TAB_PARAM, tab);
@@ -117,7 +123,7 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
           seed={project.publicId}
         />
       )}
-      {currentTab === 'phan-khu' && <PhasesTab project={project} />}
+      {currentTab === 'phan-khu' && <PhasesTab key={phasesTabKey} project={project} />}
       {/* Chi ban do: thanh chon 3D / 2D theo tong the + tung phan khu */}
       {currentTab === 'mat-bang-quy-can' && (
         <PhaseMapViews project={project} highRise={project.segment === 'cao-tang'} />
