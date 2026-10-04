@@ -428,36 +428,38 @@ const MODE_HINT_FLASH_MS = 1500;
 
 /**
  * Nut gat 3D <-> 2D - cung kieu cong tac "Gia" ben trai ban do: vien trang bo
- * tron, nut tron xanh truot qua lai. Chi MOT goi y o giua ngay duoi cong tac,
- * ghi che do dang xem ("Toan canh" = 3D, "Mat bang" = 2D): hien khi ro chuot
- * va tu hien ~1,5 giay ngay sau khi gat.
+ * tron, nut tron xanh truot qua lai. Moi nua la mot nut bam (trai = 3D, phai
+ * = 2D). Chi MOT goi y duoi cong tac:
+ * - Ro chuot nua nao thi hien ten nua do ("Toan canh" / "Mat bang").
+ * - Vua bam chuyen thi hien ten che do moi ~1,5 giay.
  */
 const MapModeSwitch = ({ mode, onChange }: { mode: MapMode; onChange: (mode: MapMode) => void }) => {
+  const [hovered, setHovered] = useState<MapMode | null>(null);
   const [isFlashing, setIsFlashing] = useState(false);
   const flashTimerRef = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(flashTimerRef.current), []);
 
-  const toggle = () => {
-    onChange(mode === '3d' ? '2d' : '3d');
+  const select = (next: MapMode) => {
+    if (next !== mode) onChange(next);
     setIsFlashing(true);
     window.clearTimeout(flashTimerRef.current);
     flashTimerRef.current = window.setTimeout(() => setIsFlashing(false), MODE_HINT_FLASH_MS);
   };
 
-  const hint = MAP_MODE_HINTS[mode];
+  // Goi y: nua dang ro chuot; khong ro chuot thi che do dang xem
+  const hintMode = hovered ?? mode;
+  const isHintVisible = hovered !== null || isFlashing;
 
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={mode === '2d'}
-      aria-label={`${hint} - bấm để chuyển sang ${MAP_MODE_HINTS[mode === '3d' ? '2d' : '3d']}`}
-      onClick={toggle}
+    <div
+      role="radiogroup"
+      aria-label="Chế độ bản đồ"
+      onMouseLeave={() => setHovered(null)}
       // Cung chieu cao / do cao voi cong tac "Gia" ben trai ban do (h-8, cach
       // mep tren them mt-2) nhung NGAN hon (w-14): chi co hai trang thai.
       // z-20: goi y ben duoi de len nut tim kiem ngay duoi, khong bi che.
-      className="group/mode relative z-20 mt-2 mb-2 inline-flex h-8 w-14 shrink-0 items-center rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
+      className="relative z-20 mt-2 mb-2 inline-flex h-8 w-14 shrink-0 items-center rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
     >
       <span
         aria-hidden
@@ -465,15 +467,29 @@ const MapModeSwitch = ({ mode, onChange }: { mode: MapMode; onChange: (mode: Map
           mode === '2d' ? 'left-[calc(100%-1.5rem)]' : 'left-1'
         }`}
       />
+      {(['3d', '2d'] as const).map((value) => (
+        <button
+          key={value}
+          type="button"
+          role="radio"
+          aria-checked={mode === value}
+          aria-label={MAP_MODE_HINTS[value]}
+          onMouseEnter={() => setHovered(value)}
+          onFocus={() => setHovered(value)}
+          onBlur={() => setHovered(null)}
+          onClick={() => select(value)}
+          className="relative z-10 h-full w-1/2 rounded-full"
+        />
+      ))}
       <span
         aria-hidden
-        className={`pointer-events-none absolute top-full left-1/2 mt-1.5 -translate-x-1/2 rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap text-white shadow-card transition-opacity duration-150 group-hover/mode:opacity-100 ${
-          isFlashing ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`pointer-events-none absolute top-full mt-1.5 -translate-x-1/2 rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap text-white shadow-card transition-[opacity,left] duration-150 ${
+          hintMode === '3d' ? 'left-1/4' : 'left-3/4'
+        } ${isHintVisible ? 'opacity-100' : 'opacity-0'}`}
       >
-        {hint}
+        {MAP_MODE_HINTS[hintMode]}
       </span>
-    </button>
+    </div>
   );
 };
 
