@@ -1,0 +1,133 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { FiCalendar, FiChevronDown, FiSearch, FiX } from 'react-icons/fi';
+import { EVENT_TYPE_FILTERS, EVENT_TYPE_LABELS } from '../models/event.model';
+
+const STATUS_OPTIONS = [
+  { value: 'upcoming', label: 'Sắp diễn ra' },
+  { value: 'ongoing', label: 'Đang diễn ra' },
+  { value: 'full', label: 'Đã đầy' },
+  { value: 'past', label: 'Đã kết thúc' },
+];
+
+const FILTER_KEYS = ['q', 'type', 'status', 'from', 'to'] as const;
+
+/**
+ * Thanh loc trang Su kien: tim kiem, loai, trang thai, khoang ngay.
+ *
+ * Gia tri nam tren URL (?q=&type=&status=&from=&to=) - trang server doc lai va
+ * loc; tai lai trang / chia se link van giu bo loc. O tim kiem doi 350ms sau
+ * khi ngung go moi cap nhat URL.
+ */
+const EventFilterBar = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [keyword, setKeyword] = useState(searchParams.get('q') ?? '');
+
+  const update = (patch: Partial<Record<(typeof FILTER_KEYS)[number], string>>) => {
+    const next = new URLSearchParams(searchParams.toString());
+    Object.entries(patch).forEach(([key, value]) => {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    });
+    const query = next.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
+  // Go xong 350ms moi loc - tranh doi URL tung phim
+  useEffect(() => {
+    if (keyword === (searchParams.get('q') ?? '')) return undefined;
+    const timer = setTimeout(() => update({ q: keyword.trim() }), 350);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chi theo chu dang go
+  }, [keyword]);
+
+  const hasFilter = FILTER_KEYS.some((key) => searchParams.get(key));
+
+  const field =
+    'h-11 w-full rounded-lg border border-gray-200 bg-white text-theme-sm text-gray-800 outline-none transition focus:border-brand-400 focus:shadow-focus-ring';
+
+  const select = (key: 'type' | 'status', placeholder: string, options: { value: string; label: string }[]) => (
+    <span className="relative block">
+      <select
+        aria-label={placeholder}
+        value={searchParams.get(key) ?? ''}
+        onChange={(change) => update({ [key]: change.target.value })}
+        className={`${field} appearance-none pr-9 pl-3 ${searchParams.get(key) ? 'border-brand-300' : ''}`}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <FiChevronDown
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+      />
+    </span>
+  );
+
+  const dateField = (key: 'from' | 'to', label: string) => (
+    <label className={`${field} flex items-center gap-2 pl-3 ${searchParams.get(key) ? 'border-brand-300' : ''}`}>
+      <span className="shrink-0 font-semibold text-gray-500">{label}</span>
+      <input
+        type="date"
+        value={searchParams.get(key) ?? ''}
+        onChange={(change) => update({ [key]: change.target.value })}
+        className="h-full min-w-0 flex-1 bg-transparent pr-2 text-gray-800 outline-none"
+      />
+    </label>
+  );
+
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3 shadow-sm sm:p-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))_auto]">
+        <label className="relative block sm:col-span-2 lg:col-span-1">
+          <FiSearch
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="search"
+            value={keyword}
+            onChange={(change) => setKeyword(change.target.value)}
+            placeholder="Tìm kiếm sự kiện..."
+            aria-label="Tìm kiếm sự kiện"
+            className={`${field} pr-3 pl-9 placeholder:text-gray-400`}
+          />
+        </label>
+        {select(
+          'type',
+          'Tất cả loại',
+          EVENT_TYPE_FILTERS.map((type) => ({ value: type, label: EVENT_TYPE_LABELS[type] })),
+        )}
+        {select('status', 'Tất cả trạng thái', STATUS_OPTIONS)}
+        {dateField('from', 'Từ')}
+        {dateField('to', 'Đến')}
+        <button
+          type="button"
+          onClick={() => {
+            setKeyword('');
+            router.replace(pathname, { scroll: false });
+          }}
+          disabled={!hasFilter}
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 text-theme-sm font-medium text-gray-600 transition hover:border-brand-300 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-40 sm:col-span-2 lg:col-span-1"
+        >
+          <FiX aria-hidden />
+          Xóa lọc
+        </button>
+      </div>
+      <p className="mt-2 flex items-center gap-1.5 text-theme-xs text-gray-400">
+        <FiCalendar aria-hidden />
+        Lọc theo ngày diễn ra sự kiện
+      </p>
+    </div>
+  );
+};
+
+export default EventFilterBar;

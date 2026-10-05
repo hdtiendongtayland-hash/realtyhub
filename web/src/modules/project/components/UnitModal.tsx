@@ -10,6 +10,19 @@ import UnitLoanCalculatorModal from "./modal/UnitLoanCalculatorModal";
 import { UNIT_STATUS_LABELS } from "../models/project-detail.model";
 import type { UnitWithProject } from "../models/project-detail.model";
 
+/**
+ * Phieu tinh gia / chinh sach cua Blanca City - hien them o cuoi bo anh
+ * trong chi tiet can (ban demo, du lieu that se theo tung can).
+ */
+const BLANCA_CITY_SLUG = "blanca-city-1777362890000";
+const BLANCA_PRICE_SHEET_IMAGES = [
+  "/images/blanca-city/phieu-tinh-gia/khong-vay.jpg",
+  "/images/blanca-city/phieu-tinh-gia/co-vay.jpg",
+  "/images/blanca-city/phieu-tinh-gia/tts-100.jpg",
+  "/images/blanca-city/phieu-tinh-gia/tts-70.jpg",
+  "/images/blanca-city/phieu-tinh-gia/bang-tom-tat.jpg",
+];
+
 type UnitModalProps = {
   unit: UnitWithProject | null;
   onClose: () => void;
@@ -162,7 +175,11 @@ const UnitModal = ({ unit, onClose }: UnitModalProps) => {
             // biet thu thap tang trong du an cao tang co nhieu tang)
             isApartment={unit.segment === "cao-tang" && (unit.floors ?? 1) <= 1}
             buildArea={unit.buildArea}
-            images={unit.thumbnailUrls?.length ? unit.thumbnailUrls : []}
+            images={[
+              ...(unit.thumbnailUrls ?? []),
+              // Blanca City: them cac phieu tinh gia / chinh sach vao cuoi
+              ...(unit.projectSlug === BLANCA_CITY_SLUG ? BLANCA_PRICE_SHEET_IMAGES : []),
+            ]}
             imageAlt={unit.publicId}
             advisors={advisors}
             onClose={onClose}

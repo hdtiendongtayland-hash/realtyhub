@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FiHeart } from 'react-icons/fi';
 import { TbLayoutGrid, TbMap2, TbView360 } from 'react-icons/tb';
 import ThumbCarousel from '@/common/components/ThumbCarousel';
 import ShineSweep from '@/common/components/ShineSweep';
@@ -34,6 +34,11 @@ const SEGMENT_BADGES: Record<ProjectSegment, { gradient: string; glow: string }>
   },
 };
 
+const MIXED_BADGE = {
+  gradient: 'bg-linear-to-r from-jade-700 via-jade-600 to-jade-500',
+  glow: 'shadow-[0_4px_16px_-4px_rgba(13,148,136,0.75)]',
+};
+
 /**
  * Ba loi tat nhay thang vao tab ben trong trang chi tiet.
  *
@@ -58,7 +63,9 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const isFavorite = checkFavorite(project.publicId);
 
-  const badge = SEGMENT_BADGES[project.segment];
+  // Du an co ca cao tang lan thap tang: nhan "Hon hop" mau xanh ngoc
+  const badge = project.isMixed ? MIXED_BADGE : SEGMENT_BADGES[project.segment];
+  const badgeLabel = project.isMixed ? 'Hỗn hợp' : SEGMENT_BADGE_LABELS[project.segment];
   const unitsCount = unitsCountMap?.get(project.slug);
   const hasUnits = typeof unitsCount === 'number' && unitsCount > 0;
 
@@ -104,7 +111,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           className={`absolute left-0 top-2 z-10 origin-left overflow-hidden rounded-r-full transition-transform duration-300 ease-out group-hover:scale-105 ${badge.gradient} ${badge.glow}`}
         >
           <span className="relative z-10 block px-2.5 py-1 text-[8px] md:text-[10px] font-bold uppercase tracking-wide text-white">
-            {SEGMENT_BADGE_LABELS[project.segment]}
+            {badgeLabel}
           </span>
 
           <ShineSweep />
@@ -123,15 +130,13 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
               ? `Bỏ lưu dự án ${project.name}`
               : `Lưu dự án ${project.name}`
           }
-          className="absolute right-2 top-2 z-10 flex h-5 w-5 md:h-7 md:w-7 items-center justify-center rounded-full border border-white/40 bg-white/15 text-xs md:text-sm backdrop-blur-md transition duration-200 ease-out hover:scale-110 hover:border-white/70 hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-0 active:scale-90"
+          // Cung mau tim voi the quy can (UnitCard): nen trang tron, tim do;
+          // da luu thi nen hong nhat + tim to day
+          className={`absolute right-2 top-2 z-10 rounded-full p-2 shadow-sm transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error-300 active:scale-90 ${
+            isFavorite ? "bg-error-50 text-error-500" : "bg-white/90 text-error-500 hover:bg-white"
+          }`}
         >
-          {/* Nen trong suot nen icon phai co bong do rieng, neu khong se chim
-              vao nhung tam anh sang mau. */}
-          {isFavorite ? (
-            <FaHeart className="animate-heart-pop text-error-500 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]" />
-          ) : (
-            <FaRegHeart className="text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]" />
-          )}
+          <FiHeart className={`h-5 w-5 ${isFavorite ? "animate-heart-pop fill-current" : ""}`} />
         </button>
       </div>
 

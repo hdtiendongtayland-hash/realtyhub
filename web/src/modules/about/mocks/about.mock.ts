@@ -80,7 +80,7 @@ export const MOCK_ABOUT_CONTENT: AboutContent = {
     promises: ['Giá niêm yết công khai', 'Pháp lý ghi rõ từng dự án', 'Môi giới đều định danh'],
     facts: [
       { label: 'Pháp nhân vận hành', value: 'CTCP Đông Tây Land' },
-      { label: 'Giấy phép ĐKKD', value: '0312312011' },
+      { label: 'Giấy phép ĐKKD', value: '0319724494' },
       { label: 'Hoạt động từ', value: '05/06/2013' },
       { label: 'Văn phòng', value: '5 tỉnh thành' },
     ],
@@ -223,7 +223,7 @@ export const MOCK_ABOUT_CONTENT: AboutContent = {
     title: 'Ai đứng sau RealtyHub',
     subtitle: 'Thông tin pháp nhân công khai — bạn có thể tra cứu độc lập.',
     legalName: 'Công ty Cổ phần Đông Tây Land',
-    license: '0312312011',
+    license: '0319724494',
     since: '05/06/2013',
     representative: 'Ông Nguyễn Thái Bình — Chủ tịch Hội đồng Quản trị',
     headquarters: '192 Trần Não, Phường An Khánh, Thành phố Hồ Chí Minh',

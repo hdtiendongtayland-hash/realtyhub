@@ -345,6 +345,7 @@ const PhaseFloorPlan = ({
               floor: unit.floor,
               unitLine: unit.unitLine,
               frontage: unit.frontage,
+              buildArea: unit.buildArea,
             }
           : marker;
       }),

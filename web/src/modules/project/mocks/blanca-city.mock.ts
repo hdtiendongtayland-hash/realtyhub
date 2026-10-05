@@ -39,6 +39,8 @@ const BLANCA_CITY: Project = {
   tagline: 'Khu đô thị phức hợp cao cấp tại Bãi Sau, Vũng Tàu',
   address: 'Đường 3 Tháng 2, Phường 10, Vũng Tàu, Bà Rịa – Vũng Tàu, Việt Nam',
   segment: 'cao-tang',
+  // Casa thap tang + cac toa can ho
+  isMixed: true,
   status: 'dang-mo-ban',
   propertyType: 'can-ho',
   developerId: 'cdt-sun-group',

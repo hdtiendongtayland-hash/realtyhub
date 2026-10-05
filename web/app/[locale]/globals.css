@@ -315,6 +315,18 @@
   /* Badge HOT nhap nhay manh me - goi su chu y */
   --animate-hot-pulse: hot-pulse 1.6s ease-in-out infinite;
 
+  /* Vach quet trong khung camera QR check-in: chay len xuong */
+  --animate-qr-scan: qr-scan 2s ease-in-out infinite alternate;
+
+  @keyframes qr-scan {
+    from {
+      top: 8%;
+    }
+    to {
+      top: 90%;
+    }
+  }
+
   /* Nut hanh dong chinh: quang sang tho nhe. Chi doi BONG DO, khong doi kich
      thuoc hay vi tri - nut nam trong bo cuc chat, phong to mot chut la xo
      day cac phan ben canh. */

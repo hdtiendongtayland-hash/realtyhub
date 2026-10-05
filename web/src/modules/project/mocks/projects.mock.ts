@@ -110,6 +110,8 @@ type Seed = {
   developerIndex: number;
   regionIndex: number;
   isHot: boolean;
+  /** Co ca cao tang lan thap tang */
+  isMixed?: boolean;
 };
 
 const SEEDS = seedData as Seed[];
@@ -316,6 +318,7 @@ export const MOCK_PROJECTS: Project[] = SEEDS.map((seed, index) => {
     tagline: seed.tagline,
     address: seed.address,
     segment: seed.segment,
+    ...(seed.isMixed ? { isMixed: true } : {}),
     status: seed.status,
     propertyType: seed.propertyType,
     developerId: developer.value,

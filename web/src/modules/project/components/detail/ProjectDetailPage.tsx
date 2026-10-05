@@ -22,7 +22,7 @@ import Photo360Tab from './tabs/Photo360Tab';
 import ProgressTab from './tabs/ProgressTab';
 import ProjectNewsTab from './tabs/ProjectNewsTab';
 import SalesPolicyTab from './tabs/SalesPolicyTab';
-import TrainingTab from './tabs/TrainingTab';
+import TrainingVideoLibrary from '@/modules/training/components/TrainingVideoLibrary';
 import UnitsTab from './tabs/UnitsTab';
 
 const TAB_PARAM = 'tab';
@@ -131,7 +131,7 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
       {currentTab === 'quy-can' && <UnitsTab slug={slug} />}
       {currentTab === 'anh-360' && <Photo360Tab project={project} />}
       {currentTab === 'phan-tich' && <AnalysisTab analysis={project.analysis} />}
-      {currentTab === 'dao-tao' && <TrainingTab project={project} />}
+      {currentTab === 'dao-tao' && <TrainingVideoLibrary />}
       {currentTab === 'chinh-sach-ban-hang' && (
         <SalesPolicyTab salesPolicy={project.salesPolicy} projectName={project.name} />
       )}

@@ -52,6 +52,12 @@ export type Project = {
   /** Dia chi hien canh icon ghim */
   address: string;
   segment: ProjectSegment;
+  /**
+   * Du an co CA cao tang lan thap tang (VD Blanca City: Casa thap tang + cac
+   * toa can ho). Nhan tren the du an ghi "Hon hop"; `segment` van la phan
+   * khuc chinh de bo loc / sap xep dung nhu cu.
+   */
+  isMixed?: boolean;
   status: ProjectStatus;
   propertyType: ProjectPropertyType;
   /** publicId cua chu dau tu */

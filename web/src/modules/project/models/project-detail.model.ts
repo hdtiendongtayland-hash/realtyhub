@@ -247,6 +247,8 @@ export type PlanMarker = {
   unitLine?: string;
   /** Mat tien (m) - nha thap tang */
   frontage?: number;
+  /** DT tim tuong (can ho) / DT xay dung (thap tang), m² */
+  buildArea?: number;
   /** Vi tri tren anh, don vi % tinh tu goc tren-trai */
   x: number;
   y: number;

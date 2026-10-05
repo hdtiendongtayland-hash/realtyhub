@@ -1,7 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FiCopy, FiDownload, FiChevronLeft, FiChevronRight, FiX, FiMaximize, FiHeart, FiHome } from "react-icons/fi";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  FiCopy,
+  FiDownload,
+  FiChevronLeft,
+  FiChevronRight,
+  FiX,
+  FiMaximize,
+  FiHeart,
+  FiHome,
+  FiZoomIn,
+  FiZoomOut,
+} from "react-icons/fi";
 
 type UnitModalGalleryProps = {
   /** Danh sách URL ảnh. Có 1 ảnh -> chi hiển thị, có nhiều -> có dot + prev/next */
@@ -38,6 +49,124 @@ type UnitModalGalleryProps = {
  */
 /** Bao lau doi mot anh khi chay tu dong */
 const AUTOPLAY_MS = 4000;
+
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 5;
+const ZOOM_STEP = 1.25;
+const clampZoom = (value: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, value));
+
+/**
+ * Anh trong khung xem lon, phong to / thu nho duoc:
+ * - Lan chuot, nut + / -, bam dup (1x <-> 2.5x).
+ * - Da phong to thi keo de di chuyen; ve 1x thi tu can giua lai.
+ * Doi anh thi noi goi dat lai `key` nen muc zoom ve 1x.
+ */
+const ZoomableImage = ({ src, alt }: { src: string; alt: string }) => {
+  const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ id: number; x: number; y: number; ox: number; oy: number } | null>(null);
+
+  const applyZoom = useCallback((next: number) => {
+    const value = clampZoom(next);
+    setZoom(value);
+    if (value === 1) setOffset({ x: 0, y: 0 });
+  }, []);
+
+  // Lan chuot: phai gan bang addEventListener passive:false moi chan duoc cuon trang
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return undefined;
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      setZoom((current) => {
+        const value = clampZoom(event.deltaY < 0 ? current * 1.15 : current / 1.15);
+        if (value === 1) setOffset({ x: 0, y: 0 });
+        return value;
+      });
+    };
+    frame.addEventListener('wheel', onWheel, { passive: false });
+    return () => frame.removeEventListener('wheel', onWheel);
+  }, []);
+
+  const onPointerDown = (event: React.PointerEvent) => {
+    if (zoom <= 1) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragRef.current = { id: event.pointerId, x: event.clientX, y: event.clientY, ox: offset.x, oy: offset.y };
+    setIsDragging(true);
+  };
+  const onPointerMove = (event: React.PointerEvent) => {
+    const drag = dragRef.current;
+    if (!drag || drag.id !== event.pointerId) return;
+    setOffset({ x: drag.ox + event.clientX - drag.x, y: drag.oy + event.clientY - drag.y });
+  };
+  const endDrag = () => {
+    dragRef.current = null;
+    setIsDragging(false);
+  };
+
+  const zoomButton =
+    'flex h-9 w-9 items-center justify-center rounded-full text-white transition hover:bg-white/20 disabled:opacity-40 disabled:hover:bg-transparent';
+
+  return (
+    <>
+      <div
+        ref={frameRef}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onDoubleClick={() => applyZoom(zoom > 1 ? 1 : 2.5)}
+        className={`relative z-10 flex h-[86vh] w-[92vw] touch-none items-center justify-center select-none ${
+          zoom > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'
+        }`}
+      >
+        <img
+          src={src}
+          alt={alt}
+          draggable={false}
+          style={{ transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})` }}
+          className={`max-h-full max-w-full rounded-lg object-contain shadow-2xl ${
+            isDragging ? '' : 'transition-transform duration-150 ease-out'
+          }`}
+        />
+      </div>
+
+      {/* Thanh zoom */}
+      <div className="absolute bottom-16 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/20 bg-black/40 px-1.5 py-1 backdrop-blur max-md:bottom-20">
+        <button
+          type="button"
+          onClick={() => applyZoom(zoom / ZOOM_STEP)}
+          disabled={zoom <= MIN_ZOOM}
+          aria-label="Thu nhỏ"
+          title="Thu nhỏ"
+          className={zoomButton}
+        >
+          <FiZoomOut className="h-4.5 w-4.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => applyZoom(1)}
+          title="Về kích thước ban đầu"
+          className="min-w-14 rounded-full px-2 py-1 text-center text-sm font-semibold text-white transition hover:bg-white/20"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+        <button
+          type="button"
+          onClick={() => applyZoom(zoom * ZOOM_STEP)}
+          disabled={zoom >= MAX_ZOOM}
+          aria-label="Phóng to"
+          title="Phóng to"
+          className={zoomButton}
+        >
+          <FiZoomIn className="h-4.5 w-4.5" />
+        </button>
+      </div>
+    </>
+  );
+};
 
 const UnitModalGallery = ({
   images,
@@ -143,10 +272,21 @@ const UnitModalGallery = ({
           title="Xem ảnh lớn"
           className="group relative block h-full w-full cursor-zoom-in"
         >
+          {/* Anh hien TRON VEN (contain) - phieu tinh gia, bang bieu khong bi
+              cat. Phan trong quanh anh (anh khac ti le khung) phu bang chinh
+              anh do phong to + lam mo, nen khung luon kin mau theo anh. */}
+          <img
+            key={`bg-${current}`}
+            src={current}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-80 blur-xl"
+            loading="lazy"
+          />
           <img
             src={current}
             alt={alt}
-            className="h-full w-full object-cover transition-all duration-300 group-hover:scale-[1.02]"
+            className="relative h-full w-full object-contain transition-all duration-300 group-hover:scale-[1.02]"
             loading="lazy"
           />
           {/* Vien mo nhe + bieu tuong phong to: bao cho nguoi dung biet anh bam
@@ -269,23 +409,28 @@ const UnitModalGallery = ({
           Anh de object-contain: xem tron ven ca tam, khong cat nhu o slide. */}
       {isViewerOpen && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 max-md:p-0"
+          className="fixed inset-0 z-[60] flex items-center justify-center overflow-hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Xem ảnh lớn"
         >
+          {/* Nen: chinh anh dang xem phong to, lam mo - phan trong quanh anh
+              (anh khong vua ti le man hinh) mang mau cua anh thay vi den trơn */}
+          <img
+            key={`bg-${current}`}
+            src={current}
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-70 blur-2xl"
+          />
           <button
             type="button"
             aria-label="Đóng"
             onClick={() => setIsViewerOpen(false)}
-            className="absolute inset-0 cursor-zoom-out bg-black/85 backdrop-blur-sm"
+            className="absolute inset-0 cursor-zoom-out bg-black/45"
           />
 
-          <img
-            src={current}
-            alt={alt}
-            className="relative z-10 max-h-[92vh] max-w-[92vw] rounded-lg object-contain shadow-2xl"
-          />
+          <ZoomableImage key={current} src={current} alt={alt} />
 
           {/* Đóng */}
           <button

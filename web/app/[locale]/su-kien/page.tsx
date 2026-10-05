@@ -24,6 +24,9 @@ import {
   type EventType,
 } from "@/modules/events/models/event.model";
 import { MOCK_EVENTS } from "@/modules/events/mocks/events.mock";
+import EventFilterBar from "@/modules/events/components/EventFilterBar";
+import EventQrScanner from "@/modules/events/components/EventQrScanner";
+import { computeEventStatus } from "@/modules/events/utils/event-extras";
 
 /**
  * Trang /su-kien - Lịch sự kiện BĐS (workshop, hội thảo, networking, open house, webinar).
@@ -57,11 +60,16 @@ export const metadata: Metadata = {
 type PageSearchParams = {
   type?: string;
   status?: string;
+  /** Tu khoa tim kiem */
+  q?: string;
+  /** Khoang ngay dien ra: yyyy-mm-dd */
+  from?: string;
+  to?: string;
 };
 
 const TYPE_ALL = "all" as const;
 type TypeFilter = EventType | typeof TYPE_ALL;
-type StatusFilter = "upcoming" | "past" | "all";
+type StatusFilter = "upcoming" | "ongoing" | "full" | "past" | "all";
 
 const parseType = (raw: string | undefined): TypeFilter => {
   if (
@@ -77,7 +85,8 @@ const parseType = (raw: string | undefined): TypeFilter => {
 };
 
 const parseStatus = (raw: string | undefined): StatusFilter => {
-  if (raw === "upcoming" || raw === "past") return raw;
+  if (raw === "upcoming" || raw === "ongoing" || raw === "full" || raw === "past")
+    return raw;
   return "all";
 };
 
@@ -101,18 +110,22 @@ const buildHref = (
 const NOW = new Date("2026-08-09T15:00:00.000+07:00");
 
 /** Tinh status thuc te theo NOW (override status trong mock neu qua han) */
-const computeStatus = (event: EventItem): EventItem["status"] => {
-  const start = new Date(event.startAt).getTime();
-  const end = event.endAt
-    ? new Date(event.endAt).getTime()
-    : start + 2 * 60 * 60 * 1000;
-  const nowMs = NOW.getTime();
+const computeStatus = computeEventStatus;
 
-  if (event.capacity && event.registered >= event.capacity) return "full";
-  if (nowMs < start) return "upcoming";
-  if (nowMs >= start && nowMs <= end) return "ongoing";
-  return "past";
-};
+/** Bo dau + chu thuong de tim kiem khong phan biet dau */
+const normalize = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();
+
+/** Ngay dien ra theo gio Viet Nam, dang yyyy-mm-dd de so voi o loc ngay */
+const eventDay = (iso: string) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }).format(
+    new Date(iso),
+  );
 
 const formatTime = (iso: string): string =>
   new Intl.DateTimeFormat("vi-VN", {
@@ -193,8 +206,27 @@ const SuKienPage = async ({
     ...e,
     status: computeStatus(e),
   }));
-  const filteredByType =
-    type === TYPE_ALL ? withStatus : withStatus.filter((e) => e.type === type);
+  const keyword = normalize(params.q?.trim() ?? "");
+  const from = params.from ?? "";
+  const to = params.to ?? "";
+  const hasFilter = Boolean(
+    keyword || from || to || type !== TYPE_ALL || status !== "all",
+  );
+
+  const filteredByType = withStatus.filter((e) => {
+    if (type !== TYPE_ALL && e.type !== type) return false;
+    if (status !== "all" && e.status !== status) return false;
+    if (keyword) {
+      const haystack = normalize(
+        [e.title, e.excerpt, e.location.name, e.location.address ?? "", ...(e.tags ?? [])].join(" "),
+      );
+      if (!haystack.includes(keyword)) return false;
+    }
+    const day = eventDay(e.startAt);
+    if (from && day < from) return false;
+    if (to && day > to) return false;
+    return true;
+  });
 
   const upcomingEvents = filteredByType
     .filter(
@@ -321,21 +353,38 @@ const SuKienPage = async ({
       </section> */}
 
       <div className="site-container pt-8">
-        <h1 className="mb-6 text-center text-3xl font-bold uppercase tracking-wide text-gray-900">
-          Danh sách Sự kiện
-        </h1>
+        {/* Tieu de o giua, nut quet QR check-in goc phai */}
+        <div className="relative mb-6 flex items-center justify-center max-sm:flex-col max-sm:gap-3">
+          <h1 className="text-center text-3xl font-bold uppercase tracking-wide text-gray-900">
+            Danh sách Sự kiện
+          </h1>
+          <div className="sm:absolute sm:top-1/2 sm:right-0 sm:-translate-y-1/2">
+            <EventQrScanner
+              events={MOCK_EVENTS.map(({ slug, title }) => ({ slug, title }))}
+            />
+          </div>
+        </div>
+
+        <EventFilterBar />
       </div>
 
+      {hasFilter && upcomingEvents.length === 0 && pastEvents.length === 0 && (
+        <section className="site-container py-16 text-center">
+          <p className="text-theme-sm text-gray-500">
+            Không có sự kiện nào khớp bộ lọc.
+          </p>
+        </section>
+      )}
+
       {/* ============ 02 FEATURED EVENT ============ */}
-      {featured && status !== "past" && (
+      {featured && !hasFilter && (
         <section className="site-container">
           <FeaturedEventCard event={featured} />
         </section>
       )}
 
       {/* ============ 03 UPCOMING EVENTS ============ */}
-      {(status === "all" || status === "upcoming") &&
-        upcomingEvents.length > 0 && (
+      {upcomingEvents.length > 0 && (
           <EventsSection
             title="Sắp diễn ra"
             subtitle={`${upcomingEvents.length} sự kiện sắp tới`}
@@ -345,7 +394,7 @@ const SuKienPage = async ({
         )}
 
       {/* ============ 04 PAST EVENTS ============ */}
-      {(status === "all" || status === "past") && pastEvents.length > 0 && (
+      {pastEvents.length > 0 && (
         <EventsSection
           title="Đã diễn ra"
           subtitle="Xem lại tư liệu và tài liệu của các sự kiện đã qua"
@@ -714,22 +763,24 @@ const EventCard = ({ event, mode }: EventCardProps) => {
                 <FiXCircle aria-hidden className="h-4 w-4" />
                 Đã đầy
               </span>
-            ) : seatsLeft !== null && seatsLeft <= 10 ? (
-              <Link
-                href={`/su-kien/${event.slug}`}
-                className="inline-flex items-center gap-1 text-theme-sm font-semibold text-rose-600 hover:underline"
-              >
-                Còn {seatsLeft} chỗ
-                <FiArrowRight aria-hidden className="h-3.5 w-3.5" />
-              </Link>
             ) : (
-              <Link
-                href={`/su-kien/${event.slug}`}
-                className="inline-flex items-center gap-1 text-theme-sm font-semibold text-purple-600 hover:underline"
-              >
-                Đăng ký
-                <FiArrowRight aria-hidden className="h-3.5 w-3.5" />
-              </Link>
+              <div className="flex flex-col items-end gap-1">
+                {seatsLeft !== null && seatsLeft <= 10 && (
+                  <span className="text-theme-xs font-semibold text-rose-600">
+                    Còn {seatsLeft} chỗ
+                  </span>
+                )}
+                <Link
+                  href={`/su-kien/${event.slug}`}
+                  className="brand-gradient group/register inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-theme-sm font-semibold text-white shadow-md transition hover:brightness-110"
+                >
+                  Đăng ký ngay
+                  <FiArrowRight
+                    aria-hidden
+                    className="h-3.5 w-3.5 transition-transform group-hover/register:translate-x-0.5"
+                  />
+                </Link>
+              </div>
             )
           ) : (
             <Link

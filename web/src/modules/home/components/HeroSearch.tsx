@@ -73,6 +73,10 @@ const flattenSuggestions = (groups: {
   developers: HomeSuggestion[];
 }) => [...groups.projects, ...groups.regions, ...groups.developers];
 
+/** Trang ket qua tim kiem toan trang */
+const buildSiteSearchUrl = (keyword: string) =>
+  keyword ? `/tim-kiem?q=${encodeURIComponent(keyword)}` : '/tim-kiem';
+
 /** Build URL search params cho trang /du-an tu parsed filter + leftover text */
 const buildProjectSearchUrl = (parsed: ParsedQuery, leftover: string): string => {
   const params = new URLSearchParams();
@@ -210,13 +214,24 @@ const HeroSearch = ({ slides }: HeroSearchProps) => {
       router.push(suggestion.href);
       return;
     }
-    router.push(buildProjectSearchUrl(parsed, suggestion.label));
+    router.push(buildSiteSearchUrl(suggestion.label));
   };
 
+  /**
+   * Bam Tim kiem: tim tren TOAN TRANG (/tim-kiem) - du an, quy can, chu dau
+   * tu, su kien, tin tuc, dao tao - thay vi chi trang Du an. Rieng khi cau go
+   * CHI gom bo loc du an (gia, dien tich, phong ngu...) ma khong con chu nao
+   * khac thi van sang trang Du an da loc san.
+   */
   const submitSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsOpen(false);
-    router.push(buildProjectSearchUrl(parsed, leftover));
+    const text = keyword.trim();
+    if (tokens.length > 0 && !leftover.trim()) {
+      router.push(buildProjectSearchUrl(parsed, leftover));
+      return;
+    }
+    router.push(buildSiteSearchUrl(text));
   };
 
   /** Click × tren chip: cat originalText khoi input, parser se tu bo qua token do */

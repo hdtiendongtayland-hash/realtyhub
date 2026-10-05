@@ -132,7 +132,7 @@ const GROUP_SITES = [
 /** Thong tin dang ky doanh nghiep - lay tu giay phep, khong duoc tu doi. */
 const COMPANY = {
   name: 'CÔNG TY CỔ PHẦN CÔNG NGHỆ XHUB',
-  license: '0312312011',
+  license: '0319724494',
   firstRegistered: '25/09/2026',
   address: '192 Trần Não, Khu Phố 2, Phường An Khánh, Thành phố Hồ Chí Minh, Việt Nam',
   phone: '08.73087777',

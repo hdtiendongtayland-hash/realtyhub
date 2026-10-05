@@ -113,6 +113,15 @@ const UNIT_PRICE_RANGES: RangeOption[] = [
   { value: 'tren-120', label: 'Trên 120 triệu/m²', min: 120 * MILLION, max: Infinity },
 ];
 
+/** DT tim tuong (can ho) / DT xay dung (nha thap tang - san nhieu tang nen lon hon) */
+const BUILD_AREA_RANGES: RangeOption[] = [
+  { value: 'duoi-80', label: 'Dưới 80 m²', min: 0, max: 80 },
+  { value: '80-120', label: '80 - 120 m²', min: 80, max: 120 },
+  { value: '120-200', label: '120 - 200 m²', min: 120, max: 200 },
+  { value: '200-350', label: '200 - 350 m²', min: 200, max: 350 },
+  { value: 'tren-350', label: 'Trên 350 m²', min: 350, max: Infinity },
+];
+
 const AREA_RANGES: RangeOption[] = [
   { value: 'duoi-50', label: 'Dưới 50 m²', min: 0, max: 50 },
   { value: '50-80', label: '50 - 80 m²', min: 50, max: 80 },
@@ -147,7 +156,14 @@ type MapFilters = {
   fund: string;
   price: string;
   unitPrice: string;
-  area: string;
+  /** DT thong thuy - can ho */
+  areaHigh: string;
+  /** DT tim tuong - can ho */
+  buildHigh: string;
+  /** DT dat - nha thap tang */
+  areaLow: string;
+  /** DT xay dung - nha thap tang */
+  buildLow: string;
   frontage: string;
   floorRange: string;
   unitLine: string;
@@ -164,7 +180,10 @@ const EMPTY_FILTERS: MapFilters = {
   fund: '',
   price: '',
   unitPrice: '',
-  area: '',
+  areaHigh: '',
+  buildHigh: '',
+  areaLow: '',
+  buildLow: '',
   frontage: '',
   floorRange: '',
   unitLine: '',
@@ -353,7 +372,17 @@ const FloorPlanTab = ({
         if (filters.fund && marker.fundType !== filters.fund) return false;
         if (!inRange(marker.price, PRICE_RANGES, filters.price)) return false;
         if (!inRange(marker.unitPrice, UNIT_PRICE_RANGES, filters.unitPrice)) return false;
-        if (!inRange(marker.landArea, AREA_RANGES, filters.area)) return false;
+        // O dien tich cua loai nao thi chi giu can loai do nam trong khoang
+        const isHighUnit = marker.kind === 'cao-tang';
+        const areaChecks: [string, boolean, number | undefined, RangeOption[]][] = [
+          [filters.areaHigh, isHighUnit, marker.landArea, AREA_RANGES],
+          [filters.buildHigh, isHighUnit, marker.buildArea, BUILD_AREA_RANGES],
+          [filters.areaLow, !isHighUnit, marker.landArea, AREA_RANGES],
+          [filters.buildLow, !isHighUnit, marker.buildArea, BUILD_AREA_RANGES],
+        ];
+        for (const [selected, matchesKind, value, ranges] of areaChecks) {
+          if (selected && (!matchesKind || !inRange(value, ranges, selected))) return false;
+        }
         if (!inRange(marker.frontage, FRONTAGE_RANGES, filters.frontage)) return false;
         if (filters.floorRange && !matchesFloorRange(marker.floor, filters.floorRange))
           return false;
@@ -661,12 +690,6 @@ const FloorPlanTab = ({
                       ? 'Tiểu khu/Dãy'
                       : 'Tòa nhà/Dãy',
                 propertyType: mode === 'cao-tang' ? 'Loại căn' : 'Loại hình',
-                area:
-                  mode === 'cao-tang'
-                    ? 'Diện tích thông thuỷ'
-                    : mode === 'thap-tang'
-                      ? 'Diện tích đất'
-                      : 'Diện tích',
               };
               const select = (
                 key: keyof MapFilters,
@@ -708,7 +731,13 @@ const FloorPlanTab = ({
                   ),
                 select('price', 'Khoảng giá', PRICE_RANGES),
                 select('unitPrice', 'Đơn giá', UNIT_PRICE_RANGES),
-                select('area', labels.area, AREA_RANGES),
+                // Bon loai dien tich, moi loai mot o rieng: can ho (thong
+                // thuy, tim tuong) chi loc can ho; nha dat (dat, xay dung)
+                // chi loc nha thap tang
+                isLow && select('areaLow', 'Diện tích đất', AREA_RANGES),
+                isLow && select('buildLow', 'DT xây dựng', BUILD_AREA_RANGES),
+                isHigh && select('areaHigh', 'DT thông thuỷ', AREA_RANGES),
+                isHigh && select('buildHigh', 'DT tim tường', BUILD_AREA_RANGES),
                 // Mat tien: luon co o du an / phan khu thap tang
                 isLow && select('frontage', 'Mặt tiền', FRONTAGE_RANGES),
                 isHigh && select('floorRange', 'Khoảng tầng', options.floorRange),
