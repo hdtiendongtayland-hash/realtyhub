@@ -482,16 +482,15 @@ const FloorPlanTab = ({
       // Ghim la diem neo 0x0 nam dung toa do, o gia nam trong <span>: xem
       // .plan-pin trong globals.css. Nho vay o gia rong theo do dai tung muc
       // gia, va Leaflet khong giat mat transform cua hieu ung phong to.
-      // - "Gia": o gia.
-      // - "Ma": CUNG mot o - gia dong tren, ma can nho dong duoi (truoc day
-      //   la cham tron co chu ma de len, nhin roi).
+      // - "Gia": hien gia (4.27, 2.07...).
+      // - "Ma": hien ma can.
       // - "Khong ten": chi con cham tron.
       const isDot = displayMode === "name";
       const priceLabel = escapeHtml(formatBillionShort(marker.price));
       const html = isDot
         ? "<span></span>"
         : displayMode === "code"
-          ? `<span class="plan-pin__stack"><b>${priceLabel}</b><small>${escapeHtml(marker.code)}</small></span>`
+          ? `<span class="plan-pin__stack"><small>${escapeHtml(marker.code)}</small></span>`
           : `<span>${priceLabel}</span>`;
       const icon = L.divIcon({
         className: `plan-pin plan-pin--${marker.fundType}${isDot ? " plan-pin--dot" : ""}`,

@@ -12,7 +12,7 @@ import {
 import type { IconType } from 'react-icons';
 import { FiChevronDown } from 'react-icons/fi';
 import { HiOutlineBuildingOffice2, HiOutlineFire, HiOutlineMap } from 'react-icons/hi2';
-import { formatBillion, formatNumber } from '@/common/utils/format';
+import { formatNumber } from '@/common/utils/format';
 import { useProjectUnits } from '../../../hooks/useProjects';
 import {
   DEFAULT_UNIT_QUERY,
@@ -92,7 +92,7 @@ const PhaseUnitsTable = ({ slug, phaseName }: { slug: string; phaseName: string 
         <table className="w-full min-w-160 text-left text-theme-sm">
           <thead className="sticky top-0 z-10 bg-gray-100 text-gray-700">
             <tr>
-              {['STT', 'Mã căn', 'Giá bán', 'Hướng', 'Diện tích (m²)', 'Loại SP', 'Trạng thái'].map(
+              {['STT', 'Mã căn', 'Hướng', 'Diện tích (m²)', 'Loại SP', 'Trạng thái'].map(
                 (label) => (
                   <th key={label} className="px-4 py-3 font-semibold whitespace-nowrap">
                     {label}
@@ -106,9 +106,6 @@ const PhaseUnitsTable = ({ slug, phaseName }: { slug: string; phaseName: string 
               <tr key={unit.publicId} className="border-t border-gray-100 text-gray-700">
                 <td className="px-4 py-3">{index + 1}</td>
                 <td className="px-4 py-3 font-medium text-gray-900">{unit.code}</td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  {unit.listedPrice > 0 ? formatBillion(unit.listedPrice) : 'Liên hệ'}
-                </td>
                 <td className="px-4 py-3 whitespace-nowrap">{unit.direction}</td>
                 <td className="px-4 py-3">{formatNumber(unit.landArea)}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{unit.propertyTypeLabel}</td>
