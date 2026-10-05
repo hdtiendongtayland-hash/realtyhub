@@ -490,7 +490,7 @@ const FloorPlanTab = ({
       const html = isDot
         ? "<span></span>"
         : displayMode === "code"
-          ? `<span class="plan-pin__stack"><small>${escapeHtml(marker.code)}</small></span>`
+          ? `<span>${escapeHtml(marker.code)}</span>`
           : `<span>${priceLabel}</span>`;
       const icon = L.divIcon({
         className: `plan-pin plan-pin--${marker.fundType}${isDot ? " plan-pin--dot" : ""}`,

@@ -16,6 +16,7 @@ import {
   HiOutlineFire,
   HiOutlineHomeModern,
   HiOutlineNewspaper,
+  HiOutlineQuestionMarkCircle,
   HiOutlineSquares2X2,
 } from 'react-icons/hi2';
 import {
@@ -40,6 +41,7 @@ const TAB_ICONS: Record<ProjectDetailTabKey, IconType> = {
   'mat-bang-quy-can': HiOutlineFire,
   'quy-can': HiOutlineHomeModern,
   'anh-360': FiCamera,
+  'hoi-dap': HiOutlineQuestionMarkCircle,
   'dao-tao': HiOutlineAcademicCap,
   'chinh-sach-ban-hang': FiFileText,
   'tien-do': FiCalendar,

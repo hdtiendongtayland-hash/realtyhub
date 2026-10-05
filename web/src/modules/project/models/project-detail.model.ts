@@ -19,6 +19,7 @@ export const PROJECT_DETAIL_TABS = [
   { key: 'mat-bang-quy-can', label: 'Vị trí quỹ căn' },
   { key: 'quy-can', label: 'Quỹ căn' },
   { key: 'anh-360', label: 'Camera 360°' },
+  { key: 'hoi-dap', label: 'Hỏi đáp' },
   { key: 'phan-tich', label: 'Phân tích' },
   { key: 'chinh-sach-ban-hang', label: 'Chính sách bán hàng' },
   { key: 'dao-tao', label: 'Đào tạo' },

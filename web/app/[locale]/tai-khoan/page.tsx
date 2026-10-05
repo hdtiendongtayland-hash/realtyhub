@@ -7,6 +7,7 @@ import { FiChevronRight, FiHome } from 'react-icons/fi';
 import MenuSection from '@/modules/profile/components/MenuSection';
 import ProfileCard from '@/modules/profile/components/ProfileCard';
 import WalletCard from '@/modules/profile/components/WalletCard';
+import ReferralCard from '@/modules/profile/components/ReferralCard';
 import { MOCK_PROFILE } from '@/modules/profile/mocks/profile.mock';
 
 /**
@@ -68,6 +69,7 @@ const TaiKhoanPage = () => {
           <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
             <ProfileCard profile={profile} />
             <WalletCard wallet={profile.wallet} />
+            <ReferralCard />
           </aside>
 
           {/* Content - cac section menu */}

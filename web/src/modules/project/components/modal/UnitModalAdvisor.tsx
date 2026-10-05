@@ -3,6 +3,24 @@
 import Image from 'next/image';
 import { FiPhone } from 'react-icons/fi';
 
+/**
+ * Link chat Viber dung so dien thoai khu vuc Viet Nam.
+ *
+ * Chuẩn cua Viber la E.164 khong dau cham: bo so 0 dau tien roi them ma
+ * quoc gia 84 (VD 0901234567 -> 84901234567). So sanh "84" truoc khi them
+ * de khong bien 84... thanh 8484...
+ */
+const toViberLink = (phone?: string): string | null => {
+  const digits = (phone ?? '').replace(/\D/g, '');
+
+  if (!digits) return null;
+
+  const national = digits.replace(/^0+/, '');
+  const e164 = national.startsWith('84') ? national : `84${national}`;
+
+  return `viber://chat?number=${e164}`;
+};
+
 interface Advisor {
   id: string | number;
   name: string;
@@ -107,6 +125,17 @@ const UnitModalAdvisor = ({
                 >
                   <Image src="/images/logo-zalo.webp" alt="Zalo" width={24} height={24} className="h-5 w-5" />
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const link = toViberLink(advisor.phone);
+                    if (link) window.open(link, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="flex h-6 w-6 items-center justify-center rounded-md transition-all active:scale-95"
+                  title="Nhắn tin Viber"
+                >
+                  <Image src="/images/logo-viber.jpg" alt="Viber" width={24} height={24} className="h-5 w-5 rounded-full object-cover" />
+                </button>
               </div>
             </div>
           </div>
@@ -154,6 +183,17 @@ const UnitModalAdvisor = ({
                   title="Nhắn tin"
                 >
                   <Image src="/images/logo-zalo.webp" alt="Zalo" width={32} height={32} className="md:max-xl:h-7 md:max-xl:w-7 laptop:h-6 laptop:w-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const link = toViberLink(advisor.phone);
+                    if (link) window.open(link, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="flex h-12 w-12 items-center justify-center rounded-lg transition-all active:scale-95 md:max-xl:h-11 md:max-xl:w-11 laptop:h-8 laptop:w-8"
+                  title="Nhắn tin Viber"
+                >
+                  <Image src="/images/logo-viber.jpg" alt="Viber" width={32} height={32} className="rounded-full object-cover md:max-xl:h-7 md:max-xl:w-7 laptop:h-6 laptop:w-6" />
                 </button>
               </div>
             </div>

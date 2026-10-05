@@ -744,6 +744,93 @@
   --pin: var(--color-success-500);
 }
 
+/* ── So do cay gioi thieu (kieu kim tu thap) ─────────────────────────────
+   Moi <ul> la mot tang, moi <li> mot nguoi. Duong noi ve bang ::before /
+   ::after: gach ngang noi cac anh em + gach doc xuong tung nguoi, goc bo
+   tron; <ul> con ve them mot gach doc tu nguoi cha xuong. */
+.ref-tree {
+  --ref-line: var(--color-brand-200);
+  --ref-gap: 28px;
+}
+
+.ref-tree ul {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: var(--ref-gap);
+}
+
+.ref-tree li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--ref-gap) 6px 0;
+}
+
+.ref-tree li::before,
+.ref-tree li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: var(--ref-gap);
+  border-top: 2px solid var(--ref-line);
+}
+
+.ref-tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid var(--ref-line);
+}
+
+.ref-tree li:only-child::before {
+  display: none;
+}
+
+.ref-tree li:only-child::after {
+  border-top: 0;
+  border-radius: 0;
+}
+
+.ref-tree li:first-child::before,
+.ref-tree li:last-child::after {
+  border: 0 none;
+}
+
+.ref-tree li:last-child::before {
+  border-right: 2px solid var(--ref-line);
+  border-radius: 0 10px 0 0;
+}
+
+.ref-tree li:first-child::after {
+  border-radius: 10px 0 0 0;
+}
+
+.ref-tree ul ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: var(--ref-gap);
+  border-left: 2px solid var(--ref-line);
+}
+
+/* Tang goc: khong co duong noi phia tren */
+.ref-tree > ul {
+  padding-top: 0;
+}
+
+.ref-tree > ul > li {
+  padding-top: 0;
+}
+
+.ref-tree > ul > li::before,
+.ref-tree > ul > li::after {
+  display: none;
+}
+
 /* Toan man hinh: khung ngoai duoc trinh duyet keo kin man hinh, nhung khung
    ban do ben trong van giu chieu cao co dinh cua Tailwind (h-140/sm:h-170) nen
    ban do chi nam gon phan tren, con lai la nen xam. Phai tra chieu cao ve 100%

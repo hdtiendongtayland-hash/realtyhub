@@ -14,6 +14,7 @@ import ProjectHero from './ProjectHero';
 import ProjectTabNav from './ProjectTabNav';
 import AnalysisTab from './tabs/AnalysisTab';
 import DocumentsTab from './tabs/DocumentsTab';
+import FaqTab from './tabs/FaqTab';
 import { PhaseMapViews } from './tabs/PhaseFundTab';
 import LocationTab from './tabs/LocationTab';
 import OverviewTab from './tabs/OverviewTab';
@@ -130,6 +131,7 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
       )}
       {currentTab === 'quy-can' && <UnitsTab slug={slug} />}
       {currentTab === 'anh-360' && <Photo360Tab project={project} />}
+      {currentTab === 'hoi-dap' && <FaqTab project={project} />}
       {currentTab === 'phan-tich' && <AnalysisTab analysis={project.analysis} />}
       {currentTab === 'dao-tao' && <TrainingVideoLibrary />}
       {currentTab === 'chinh-sach-ban-hang' && (

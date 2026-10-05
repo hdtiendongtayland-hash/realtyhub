@@ -122,10 +122,7 @@ const EventFilterBar = () => {
           Xóa lọc
         </button>
       </div>
-      <p className="mt-2 flex items-center gap-1.5 text-theme-xs text-gray-400">
-        <FiCalendar aria-hidden />
-        Lọc theo ngày diễn ra sự kiện
-      </p>
+   
     </div>
   );
 };

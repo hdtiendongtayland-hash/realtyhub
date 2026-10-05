@@ -25,9 +25,12 @@ const PartnerSignupForm = () => {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState(ROLES[0].value);
   const [region, setRegion] = useState('');
+  // Ma gioi thieu = SDT nguoi gioi thieu (khong bat buoc)
+  const [referral, setReferral] = useState('');
   const [isSent, setIsSent] = useState(false);
 
-  const canSubmit = name.trim().length > 0 && phone.trim().length >= 9;
+  const referralOk = referral === '' || /^0\d{9}$/.test(referral);
+  const canSubmit = name.trim().length > 0 && phone.trim().length >= 9 && referralOk;
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -154,6 +157,29 @@ const PartnerSignupForm = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="partner-referral"
+            className="mb-1.5 block text-theme-sm font-semibold text-gray-800"
+          >
+            Mã giới thiệu{' '}
+            <span className="font-normal text-gray-400">(SĐT người giới thiệu – không bắt buộc)</span>
+          </label>
+          <input
+            id="partner-referral"
+            type="tel"
+            inputMode="numeric"
+            value={referral}
+            onChange={(event) => setReferral(event.target.value.replace(/\D/g, '').slice(0, 10))}
+            placeholder="VD: 0912345678"
+            aria-invalid={!referralOk}
+            className={`w-full rounded-lg border bg-gray-50 px-4 py-2.5 text-theme-sm font-semibold tracking-wider text-gray-900 placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${referralOk ? 'border-gray-200' : 'border-error-500'}`}
+          />
+          {!referralOk && (
+            <p className="mt-1 text-theme-xs text-error-600">Mã giới thiệu là số điện thoại 10 số.</p>
+          )}
         </div>
       </div>
 
