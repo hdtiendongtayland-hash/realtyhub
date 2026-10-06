@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import {
   FiChevronRight,
-  FiDollarSign,
+  FiGitMerge,
   FiHome,
   FiLink,
   FiUserPlus,
@@ -14,7 +14,6 @@ import {
 } from "@/modules/profile/components/ReferralCard";
 import {
   flattenReferralTree,
-  formatMoney,
   MOCK_REFERRAL,
 } from "@/modules/profile/mocks/referral.mock";
 
@@ -36,9 +35,9 @@ const STEPS = [
     text: "Người được giới thiệu nhập mã khi tạo tài khoản và trở thành người bạn đã giới thiệu.",
   },
   {
-    icon: FiDollarSign,
-    title: "Nhận hoa hồng",
-    text: "Mỗi giao dịch thành công trong hệ thống 7 tầng đều mang lại hoa hồng cho bạn.",
+    icon: FiGitMerge,
+    title: "Theo dõi hệ thống",
+    text: "Xem cây giới thiệu 7 tầng và trạng thái hoạt động của từng thành viên.",
   },
 ];
 
@@ -51,7 +50,6 @@ const STEPS = [
 const GioiThieuBanBePage = () => {
   const all = flattenReferralTree(MOCK_REFERRAL.tree);
   const active = all.filter((member) => member.isActive).length;
-  const commission = all.reduce((sum, member) => sum + member.commission, 0);
 
   const stats = [
     { label: "Thành viên trong cây", value: String(all.length) },
@@ -60,7 +58,6 @@ const GioiThieuBanBePage = () => {
       value: String(MOCK_REFERRAL.tree.length),
     },
     { label: "Đã giao dịch", value: String(active) },
-    { label: "Hoa hồng tích lũy", value: formatMoney(commission) },
   ];
 
   return (
@@ -102,13 +99,13 @@ const GioiThieuBanBePage = () => {
             Giới thiệu bạn bè
           </h1>
           <p className="mt-1 text-theme-sm text-gray-600">
-            Mời bạn bè tham gia RealtyHub và nhận hoa hồng từ mạng lưới giới
-            thiệu của bạn.
+            Mời bạn bè tham gia RealtyHub và theo dõi mạng lưới giới thiệu của
+            bạn.
           </p>
         </header>
 
         {/* So lieu tong */}
-        <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {stats.map((stat) => (
             <div
               key={stat.label}

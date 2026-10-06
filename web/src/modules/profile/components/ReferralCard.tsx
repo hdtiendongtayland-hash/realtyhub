@@ -21,7 +21,7 @@ import {
   FiShare2,
   FiUsers,
 } from 'react-icons/fi';
-import { flattenReferralTree, formatMoney, MOCK_REFERRAL, type ReferralMember } from '../mocks/referral.mock';
+import { flattenReferralTree, MOCK_REFERRAL, type ReferralMember } from '../mocks/referral.mock';
 
 /** Mau theo tang - cung bo mau thuong hieu, khac nhau ro tung tang */
 export const LEVEL_TONES = [
@@ -118,10 +118,6 @@ const TreeNode = ({
             {hasChildren && ` · ${total} người bên dưới`}
           </p>
         </div>
-        <div className="shrink-0 text-right">
-          <p className="text-theme-sm font-bold text-brand-700">{formatMoney(member.commission)}</p>
-          <p className="text-[10px] text-gray-400">Hoa hồng</p>
-        </div>
       </div>
 
       {hasChildren && isOpen && visibleChildren.length > 0 && (
@@ -194,7 +190,6 @@ const ChartNode = ({
             <div className="flex justify-between"><dt>Trạng thái</dt><dd className={`font-semibold ${tone.text}`}>{member.hasLeft ? 'Đã nghỉ' : member.isActive ? 'Hoạt động' : 'Chưa hoạt động'}</dd></div>
             <div className="flex justify-between"><dt>Tham gia</dt><dd className="font-semibold">{dateFormatter.format(new Date(member.joinedAt))}</dd></div>
             <div className="flex justify-between"><dt>Bên dưới</dt><dd className="font-semibold">{below} người</dd></div>
-            <div className="flex justify-between"><dt>Hoa hồng</dt><dd className="font-semibold text-brand-700">{formatMoney(member.commission)}</dd></div>
           </dl>
         </div>
       </div>
@@ -287,7 +282,7 @@ const ReferralOrgChart = ({
 
 /** He thong gioi thieu nhieu tang: so do / danh sach, tim kiem */
 export const ReferralTree = () => {
-  const { tree, levelRates, code } = MOCK_REFERRAL;
+  const { tree, code } = MOCK_REFERRAL;
   const allMembers = useMemo(() => flattenReferralTree(tree), [tree]);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(tree.map((member) => member.publicId)));
   // So do: mac dinh mo het, luu cac nhanh bi thu
@@ -320,7 +315,7 @@ export const ReferralTree = () => {
           Hệ thống giới thiệu
         </h2>
         <p className="mt-1 text-theme-xs text-gray-500">
-          Mỗi giao dịch thành công trong hệ thống đều mang lại hoa hồng cho bạn.
+          Theo dõi các thành viên bạn đã giới thiệu qua 7 tầng.
         </p>
         <div className="flex items-center gap-3">
           <span className="text-theme-xs text-gray-500 max-sm:hidden">
@@ -590,7 +585,6 @@ const ReferralQRCode = ({ link, code }: QRCodeWithLogoProps) => {
 const ReferralCard = () => {
   const { code, tree } = MOCK_REFERRAL;
   const all = useMemo(() => flattenReferralTree(tree), [tree]);
-  const commission = all.reduce((sum, member) => sum + member.commission, 0);
 
   return (
     <Link
@@ -617,8 +611,8 @@ const ReferralCard = () => {
           <p className="text-[11px] text-gray-500">Thành viên hệ thống</p>
         </div>
         <div className="rounded-xl bg-gray-50 px-3 py-2.5">
-          <p className="text-lg font-bold text-brand-700">{formatMoney(commission)}</p>
-          <p className="text-[11px] text-gray-500">Hoa hồng tích lũy</p>
+          <p className="text-lg font-bold text-gray-900">{tree.length}</p>
+          <p className="text-[11px] text-gray-500">Giới thiệu trực tiếp</p>
         </div>
       </div>
     </Link>
