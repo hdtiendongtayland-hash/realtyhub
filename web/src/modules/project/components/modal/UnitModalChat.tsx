@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
+  FiCheckCircle,
   FiDollarSign,
   FiMessageSquare,
   FiSend,
@@ -178,12 +180,47 @@ const UnitModalChat = ({
     requestAnimationFrame(() => requestAnimationFrame(moveCaretToEnd));
   };
 
+  // Thong bao nho sau khi bam gui (tu an sau 2,5s)
+  const [notice, setNotice] = useState<{ text: string; ok: boolean } | null>(null);
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(null), 2500);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chatMessage.trim()) return;
+    if (!chatMessage.trim()) {
+      setNotice({ text: "Vui lòng nhập nội dung tin nhắn", ok: false });
+      chatInputRef.current?.focus();
+      return;
+    }
     console.log("Gửi tin nhắn:", chatMessage);
     setChatMessage("");
+    setNotice({ text: "Đã gửi tin nhắn cho Admin", ok: true });
   };
+
+  // Gan vao body de khong bi khung popup (overflow / transform) cat mat
+  const toast =
+    notice && typeof document !== "undefined"
+      ? createPortal(
+          <div
+            role="status"
+            aria-live="polite"
+            className="pointer-events-none fixed inset-x-0 top-6 z-[1000] flex justify-center px-4"
+          >
+            <div
+              className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-lg ${
+                notice.ok ? "bg-success-600" : "bg-gray-800"
+              }`}
+            >
+              <FiCheckCircle aria-hidden className={notice.ok ? "h-4 w-4" : "hidden"} />
+              {notice.text}
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
   const inputBox = (
     <form
@@ -218,6 +255,7 @@ const UnitModalChat = ({
         className={`flex items-stretch rounded-xl border border-slate-200 bg-white shadow-2xs ${className}`}
       >
         {inputBox}
+        {toast}
       </div>
     );
   }
@@ -290,6 +328,7 @@ const UnitModalChat = ({
             <span className="truncate">{text}</span>
           </button>
         ))}
+        {toast}
       </div>
     );
   }
@@ -315,6 +354,7 @@ const UnitModalChat = ({
           <FiSend className="w-5 h-5 xl:w-4 xl:h-4" />
         </button>
       </form>
+      {toast}
 
       {/* Thanh gợi ý nhanh phía dưới */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs">

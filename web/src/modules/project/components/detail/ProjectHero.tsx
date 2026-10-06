@@ -1,28 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { FiCheck, FiChevronRight, FiMapPin, FiShare2 } from 'react-icons/fi';
-import type { ProjectDetail } from '../../models/project-detail.model';
+import { useState } from "react";
+import Link from "next/link";
+import { FiCheck, FiChevronRight, FiMapPin, FiShare2 } from "react-icons/fi";
+import type { ProjectDetail } from "../../models/project-detail.model";
 import {
   PROPERTY_TYPE_LABELS,
   SEGMENT_LABELS,
   STATUS_LABELS,
   type ProjectStatus,
-} from '../../models/project.model';
+} from "../../models/project.model";
 
 /**
  * Mau nhan trang thai. Dang mo ban la trang thai "hanh dong duoc" nen dung mau
  * noi nhat; da ban giao la thong tin qua khu nen tram lai.
  */
 const STATUS_TONES: Record<ProjectStatus, string> = {
-  'tat-ca': 'bg-gray-200 text-gray-700',
-  'ban-chay': 'bg-success-500 text-white',
-  'da-ban-het': 'bg-gray-200 text-gray-700',
-  'da-ban-giao': 'bg-gray-200 text-gray-700',
-  'sap-mo-ban': 'bg-gold-400 text-navy-900',
-  'moi-mo-ban': 'bg-success-500 text-white',
-  'dang-mo-ban': 'bg-success-500 text-white',
+  "tat-ca": "bg-gray-200 text-gray-700",
+  "ban-chay": "bg-success-500 text-white",
+  "da-ban-het": "bg-gray-200 text-gray-700",
+  "da-ban-giao": "bg-gray-200 text-gray-700",
+  "sap-mo-ban": "bg-gold-400 text-navy-900",
+  "moi-mo-ban": "bg-success-500 text-white",
+  "dang-mo-ban": "bg-success-500 text-white",
 };
 
 /**
@@ -59,14 +59,17 @@ const ProjectHero = ({ project }: { project: ProjectDetail }) => {
   };
 
   const chips = [
-    { label: STATUS_LABELS[project.status], className: STATUS_TONES[project.status] },
+    {
+      label: STATUS_LABELS[project.status],
+      className: STATUS_TONES[project.status],
+    },
     {
       label: SEGMENT_LABELS[project.segment],
-      className: 'bg-brand-50 text-brand-700',
+      className: "bg-brand-50 text-brand-700",
     },
     {
       label: PROPERTY_TYPE_LABELS[project.propertyType],
-      className: 'bg-accent-50 text-accent-600',
+      className: "bg-accent-50 text-accent-600",
     },
   ];
 

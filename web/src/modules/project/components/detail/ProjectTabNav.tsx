@@ -1,6 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState, type ComponentType, type SVGAttributes } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type SVGAttributes,
+} from "react";
 import {
   FiCalendar,
   FiCamera,
@@ -8,7 +14,7 @@ import {
   FiGlobe,
   FiMapPin,
   FiPhone,
-} from 'react-icons/fi';
+} from "react-icons/fi";
 import {
   HiOutlineAcademicCap,
   HiOutlineBookOpen,
@@ -18,12 +24,12 @@ import {
   HiOutlineNewspaper,
   HiOutlineQuestionMarkCircle,
   HiOutlineSquares2X2,
-} from 'react-icons/hi2';
+} from "react-icons/hi2";
 import {
   PROJECT_DETAIL_TABS,
   type ProjectConsultant,
   type ProjectDetailTabKey,
-} from '../../models/project-detail.model';
+} from "../../models/project-detail.model";
 
 /** Icon react-icons: component SVG nhan className + cac attrs SVG.
  *  Dat type len truoc vi TAB_ICONS dung IconType ngay ben duoi - mot so parser
@@ -35,28 +41,30 @@ type IconType = ComponentType<SVGAttributes<SVGSVGElement>>;
  *  Tab `mat-bang-quy-can` luon hien icon (ca desktop) vi no la hot-feature;
  *  cac tab khac chi hien icon o duoi lg (chuan goc cua file nay). */
 const TAB_ICONS: Record<ProjectDetailTabKey, IconType> = {
-  'tong-quan': FiGlobe,
-  'vi-tri': FiMapPin,
-  'phan-khu': HiOutlineSquares2X2,
-  'mat-bang-quy-can': HiOutlineFire,
-  'quy-can': HiOutlineHomeModern,
-  'anh-360': FiCamera,
-  'hoi-dap': HiOutlineQuestionMarkCircle,
-  'dao-tao': HiOutlineAcademicCap,
-  'chinh-sach-ban-hang': FiFileText,
-  'tien-do': FiCalendar,
-  'tai-lieu': HiOutlineBookOpen,
-  'tin-tuc': HiOutlineNewspaper,
-  'phan-tich': HiOutlineChartBar,
+  "tong-quan": FiGlobe,
+  "vi-tri": FiMapPin,
+  "phan-khu": HiOutlineSquares2X2,
+  "mat-bang-quy-can": HiOutlineFire,
+  "quy-can": HiOutlineHomeModern,
+  "anh-360": FiCamera,
+  "hoi-dap": HiOutlineQuestionMarkCircle,
+  "dao-tao": HiOutlineAcademicCap,
+  "chinh-sach-ban-hang": FiFileText,
+  "tien-do": FiCalendar,
+  "tai-lieu": HiOutlineBookOpen,
+  "tin-tuc": HiOutlineNewspaper,
+  "phan-tich": HiOutlineChartBar,
 };
 
 /** Tab luon hien icon (icon "nong" can hien o moi breakpoint de noi bat dong deu) */
-const ALWAYS_VISIBLE_ICON_TABS = new Set<ProjectDetailTabKey>(['mat-bang-quy-can']);
+const ALWAYS_VISIBLE_ICON_TABS = new Set<ProjectDetailTabKey>([
+  "mat-bang-quy-can",
+]);
 
 /** Tab HOT can hieu ung pulse noi bat */
-const HOT_TAB = 'mat-bang-quy-can';
+const HOT_TAB = "mat-bang-quy-can";
 
-const telHref = (phone: string) => `tel:${phone.replace(/\s/g, '')}`;
+const telHref = (phone: string) => `tel:${phone.replace(/\s/g, "")}`;
 
 type ProjectTabNavProps = {
   current: ProjectDetailTabKey;
@@ -69,12 +77,15 @@ type ProjectTabNavProps = {
   sticky?: boolean;
 };
 
-const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: ProjectTabNavProps) => {
+const ProjectTabNav = ({
+  current,
+  onChange,
+  consultants,
+  sticky = true,
+}: ProjectTabNavProps) => {
   const navRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
-  const contactRef = useRef<HTMLDivElement>(null);
-  const [isContactOpen, setIsContactOpen] = useState(false);
 
   // Man hinh hep chi thay 3-4 tab mot luc. Doi tab qua URL (nut Back, link chia
   // se) ma khong keo thanh nay thi tab dang xem nam ngoai tam nhin.
@@ -83,8 +94,9 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
     const active = activeRef.current;
     if (!list || !active) return;
 
-    const offset = active.offsetLeft - list.clientWidth / 2 + active.clientWidth / 2;
-    list.scrollTo({ left: Math.max(0, offset), behavior: 'smooth' });
+    const offset =
+      active.offsetLeft - list.clientWidth / 2 + active.clientWidth / 2;
+    list.scrollTo({ left: Math.max(0, offset), behavior: "smooth" });
   }, [current]);
 
   // Tren desktop, `overflow-x-auto` chi cuon duoc khi trackpad hoac bangg cuon
@@ -102,11 +114,11 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
 
     const onPointerDown = (event: PointerEvent) => {
       // Khong drag khi bong vao button (de click chon tab van hoat dong binh thuong)
-      if ((event.target as HTMLElement).closest('button')) return;
+      if ((event.target as HTMLElement).closest("button")) return;
       isDown = true;
       startX = event.clientX;
       scrollStart = list.scrollLeft;
-      list.classList.add('cursor-grabbing');
+      list.classList.add("cursor-grabbing");
     };
     const onPointerMove = (event: PointerEvent) => {
       if (!isDown) return;
@@ -116,7 +128,7 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
     const onPointerUp = () => {
       if (!isDown) return;
       isDown = false;
-      list.classList.remove('cursor-grabbing');
+      list.classList.remove("cursor-grabbing");
     };
 
     // Bangg chuot doc (deltaY) => dich ngang. Chi chan khi thanh tab that su
@@ -138,17 +150,17 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
       event.preventDefault();
     };
 
-    list.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
+    list.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
     // Lang nghe wheel tren window vi su kien tu button con co the khong bubble
     // len ul neu React da stopPropagation. Check contains() ben trong handler.
-    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener("wheel", onWheel, { passive: false });
     return () => {
-      list.removeEventListener('pointerdown', onPointerDown);
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
-      window.removeEventListener('wheel', onWheel);
+      list.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("wheel", onWheel);
     };
   }, []);
 
@@ -163,8 +175,8 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
     const root = document.documentElement;
     const update = () =>
       root.style.setProperty(
-        '--project-tabnav-h',
-        sticky ? `${nav.getBoundingClientRect().height}px` : '0px',
+        "--project-tabnav-h",
+        sticky ? `${nav.getBoundingClientRect().height}px` : "0px",
       );
     update();
 
@@ -172,28 +184,9 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
     observer.observe(nav);
     return () => {
       observer.disconnect();
-      root.style.removeProperty('--project-tabnav-h');
+      root.style.removeProperty("--project-tabnav-h");
     };
   }, [sticky]);
-
-  // Bam ra ngoai hoac Escape thi dong bang so dien thoai
-  useEffect(() => {
-    if (!isContactOpen) return;
-
-    const onPointerDown = (event: MouseEvent) => {
-      if (!contactRef.current?.contains(event.target as Node)) setIsContactOpen(false);
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsContactOpen(false);
-    };
-
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [isContactOpen]);
 
   return (
     // top-16 = dung chieu cao SiteHeader dang dinh o tren, de hai thanh xep sat
@@ -202,7 +195,7 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
       ref={navRef}
       aria-label="Nội dung dự án"
       className={`${
-        sticky ? 'sticky top-16' : 'relative'
+        sticky ? "sticky top-16" : "relative"
       } z-30 border-b border-gray-200 bg-white/90 backdrop-blur-lg`}
     >
       <div className="site-container flex items-center gap-3">
@@ -226,14 +219,14 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
                   ref={isActive ? activeRef : undefined}
                   type="button"
                   onClick={() => onChange(tab.key)}
-                  aria-current={isActive ? 'page' : undefined}
+                  aria-current={isActive ? "page" : undefined}
                   className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] transition duration-200 lg:px-[9px] ${
                     isActive
-                      ? 'brand-gradient font-semibold text-white shadow-[0_4px_14px_-4px_rgba(15,111,209,0.7)]'
+                      ? "brand-gradient font-semibold text-white shadow-[0_4px_14px_-4px_rgba(15,111,209,0.7)]"
                       : tab.key === HOT_TAB
                         ? // Chua chon: nhap nhay nen hong + chu do de goi bam
-                          'animate-tab-hot font-medium text-gray-600'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-brand-600'
+                          "animate-tab-hot font-medium text-gray-600"
+                        : "text-gray-600 hover:bg-gray-100 hover:text-brand-600"
                   }`}
                 >
                   {/* Tab `mat-bang-quy-can` luon hien icon de noi bat dong deu
@@ -244,9 +237,9 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
                     className={
                       alwaysShowIcon
                         ? `shrink-0 ${
-                            isActive ? 'text-white' : 'text-error-500'
-                          } ${tab.key === HOT_TAB ? 'animate-pulse-fire' : ''}`
-                        : `shrink-0 lg:hidden ${isActive ? 'text-white' : 'text-gray-400'}`
+                            isActive ? "text-white" : "text-error-500"
+                          } ${tab.key === HOT_TAB ? "animate-pulse-fire" : ""}`
+                        : `shrink-0 lg:hidden ${isActive ? "text-white" : "text-gray-400"}`
                     }
                   />
                   {tab.label}
@@ -258,58 +251,95 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
 
         {/* Nut lien he gan lien thanh tab: nut goi theo nguoi dung o moi tab ma
             khong chiem mot cot rieng suot chieu dai trang. */}
-        {consultants.length > 0 && (
-          <div ref={contactRef} className="relative shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsContactOpen((open) => !open)}
-              aria-expanded={isContactOpen}
-              aria-haspopup="true"
-              aria-label="Liên hệ tư vấn"
-              className="flex items-center gap-2 rounded-full bg-jade-600 px-3 py-2 text-[14px] font-bold text-white shadow-[0_4px_14px_-4px_rgba(18,134,111,0.8)] transition duration-200 hover:scale-105 hover:bg-jade-500 active:scale-95"
-            >
-              <FiPhone aria-hidden />
-              {/* Duoi sm chi con icon cho do chat; aria-label o tren lo cho ca
-                  hai truong hop nen trinh doc man hinh luon doc du y nghia. */}
-              <span className="hidden sm:inline">Liên hệ</span>
-            </button>
-
-            {isContactOpen && (
-              <div
-                role="menu"
-                className="animate-chat-in absolute right-0 top-full z-10 mt-2 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-panel"
-              >
-                <p className="border-b border-gray-100 bg-gray-25 px-4 py-2.5 text-theme-sm font-bold uppercase tracking-wide text-navy-800">
-                  Chuyên viên tư vấn
-                </p>
-                <ul className="divide-y divide-gray-100">
-                  {consultants.map((consultant) => (
-                    <li key={consultant.publicId}>
-                      <a
-                        href={telHref(consultant.phone)}
-                        role="menuitem"
-                        className="block px-4 py-3 transition hover:bg-brand-25"
-                      >
-                        <span className="block text-theme-sm font-semibold uppercase tracking-wide text-accent-600">
-                          {consultant.role}
-                        </span>
-                        <span className="mt-0.5 block text-base text-gray-600">
-                          {consultant.name}
-                        </span>
-                        <span className="mt-1 flex items-center gap-1.5 text-base font-bold text-jade-600">
-                          <FiPhone aria-hidden />
-                          {consultant.phone}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
+        <ProjectContactButton consultants={consultants} />
       </div>
     </nav>
+  );
+};
+
+/**
+ * Nut "Lien he" + bang so dien thoai chuyen vien tu van. Dat o hang ten du an
+ * (canh Yeu thich / Chia se).
+ */
+export const ProjectContactButton = ({
+  consultants,
+}: {
+  consultants: ProjectConsultant[];
+}) => {
+  const contactRef = useRef<HTMLDivElement>(null);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
+  // Bam ra ngoai hoac Escape thi dong bang so dien thoai
+  useEffect(() => {
+    if (!isContactOpen) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!contactRef.current?.contains(event.target as Node))
+        setIsContactOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsContactOpen(false);
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isContactOpen]);
+
+  if (consultants.length === 0) return null;
+
+  return (
+    <div ref={contactRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setIsContactOpen((open) => !open)}
+        aria-expanded={isContactOpen}
+        aria-haspopup="true"
+        aria-label="Liên hệ tư vấn"
+        className="flex items-center gap-2 rounded-full bg-jade-600 px-3 py-2 text-[14px] font-bold text-white shadow-[0_4px_14px_-4px_rgba(18,134,111,0.8)] transition duration-200 hover:scale-105 hover:bg-jade-500 active:scale-95"
+      >
+        <FiPhone aria-hidden />
+        {/* Duoi sm chi con icon cho do chat; aria-label o tren lo cho ca
+              hai truong hop nen trinh doc man hinh luon doc du y nghia. */}
+        <span className="hidden sm:inline">Liên hệ</span>
+      </button>
+
+      {isContactOpen && (
+        <div
+          role="menu"
+          className="animate-chat-in absolute right-0 top-full z-10 mt-2 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-panel"
+        >
+          <p className="border-b border-gray-100 bg-gray-25 px-4 py-2.5 text-theme-sm font-bold uppercase tracking-wide text-navy-800">
+            Chuyên viên tư vấn
+          </p>
+          <ul className="divide-y divide-gray-100">
+            {consultants.map((consultant) => (
+              <li key={consultant.publicId}>
+                <a
+                  href={telHref(consultant.phone)}
+                  role="menuitem"
+                  className="block px-4 py-3 transition hover:bg-brand-25"
+                >
+                  <span className="block text-theme-sm font-semibold uppercase tracking-wide text-accent-600">
+                    {consultant.role}
+                  </span>
+                  <span className="mt-0.5 block text-base text-gray-600">
+                    {consultant.name}
+                  </span>
+                  <span className="mt-1 flex items-center gap-1.5 text-base font-bold text-jade-600">
+                    <FiPhone aria-hidden />
+                    {consultant.phone}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 };
 
