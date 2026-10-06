@@ -1,14 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import QRCode from 'qrcode';
 import {
   FiArrowRight,
   FiCheck,
   FiChevronDown,
   FiChevronRight,
   FiCopy,
+  FiDownload,
   FiGitMerge,
   FiList,
   FiMaximize2,
@@ -107,12 +109,8 @@ const TreeNode = ({
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-center gap-x-2 text-theme-sm font-semibold text-gray-900">
             <span className="truncate">{member.name}</span>
-            <span className="rounded bg-gray-100 px-1.5 text-[10px] font-bold text-gray-600">F{member.level}</span>
             {member.hasLeft && (
               <span className="rounded bg-gray-100 px-1.5 text-[10px] font-bold text-gray-500">Đã nghỉ</span>
-            )}
-            {!member.hasLeft && member.isActive && (
-              <span className="rounded bg-success-50 px-1.5 text-[10px] font-bold text-success-600">Đã giao dịch</span>
             )}
           </p>
           <p className="text-theme-xs text-gray-500">
@@ -174,9 +172,6 @@ const ChartNode = ({
           }`}
         >
           <MemberPhoto member={member} size="56px" />
-          <span className="absolute -right-1 -bottom-1 z-10 rounded-full bg-white px-1.5 text-[10px] font-extrabold text-gray-700 shadow">
-            F{member.level}
-          </span>
         </span>
         <p className={`mt-2 line-clamp-2 text-[12px] leading-tight font-semibold ${member.hasLeft ? 'text-gray-400' : 'text-gray-900'}`}>{member.name}</p>
 
@@ -197,7 +192,6 @@ const ChartNode = ({
           <p className="text-theme-sm font-bold text-gray-900">{member.name}</p>
           <dl className="mt-1.5 space-y-0.5 text-[11px] text-gray-600">
             <div className="flex justify-between"><dt>Trạng thái</dt><dd className={`font-semibold ${tone.text}`}>{member.hasLeft ? 'Đã nghỉ' : member.isActive ? 'Hoạt động' : 'Chưa hoạt động'}</dd></div>
-            <div className="flex justify-between"><dt>Tầng</dt><dd className="font-semibold">F{member.level}</dd></div>
             <div className="flex justify-between"><dt>Tham gia</dt><dd className="font-semibold">{dateFormatter.format(new Date(member.joinedAt))}</dd></div>
             <div className="flex justify-between"><dt>Bên dưới</dt><dd className="font-semibold">{below} người</dd></div>
             <div className="flex justify-between"><dt>Hoa hồng</dt><dd className="font-semibold text-brand-700">{formatMoney(member.commission)}</dd></div>
@@ -220,7 +214,7 @@ const ChartNode = ({
 const MY_AVATAR = '/images/referral/avatars/ref-me.webp';
 
 const ZOOM_LEVELS = [0.4, 0.5, 0.6, 0.75, 0.9, 1, 1.15];
-/** Mac dinh 60% - thay tron cay F1 -> F7 trong mot man hinh */
+/** Mac dinh 60% - thay tron he thong trong mot man hinh */
 const DEFAULT_ZOOM = 2;
 
 /** So do cay kieu kim tu thap: goc "Ban" o tren, cac tang toa xuong */
@@ -291,7 +285,7 @@ const ReferralOrgChart = ({
   );
 };
 
-/** Cay gioi thieu nhieu tang (F1 -> F7): so do / danh sach, thong ke tang, tim kiem */
+/** He thong gioi thieu nhieu tang: so do / danh sach, tim kiem */
 export const ReferralTree = () => {
   const { tree, levelRates, code } = MOCK_REFERRAL;
   const allMembers = useMemo(() => flattenReferralTree(tree), [tree]);
@@ -323,11 +317,14 @@ export const ReferralTree = () => {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4">
         <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
           <FiGitMerge aria-hidden className="text-brand-500" />
-          Cây giới thiệu
+          Hệ thống giới thiệu
         </h2>
+        <p className="mt-1 text-theme-xs text-gray-500">
+          Mỗi giao dịch thành công trong hệ thống đều mang lại hoa hồng cho bạn.
+        </p>
         <div className="flex items-center gap-3">
           <span className="text-theme-xs text-gray-500 max-sm:hidden">
-            {allMembers.length} thành viên · {tree.length} F1
+            {allMembers.length} thành viên
           </span>
           <div role="tablist" aria-label="Kiểu hiển thị" className="flex rounded-lg bg-gray-100 p-0.5">
             {[
@@ -352,21 +349,6 @@ export const ReferralTree = () => {
         </div>
       </div>
 
-      {/* Thong ke theo tang */}
-      <div className="grid grid-cols-2 gap-2 border-b border-gray-100 p-4 sm:grid-cols-4 lg:grid-cols-7">
-        {levelRates.map(({ level, rate }) => (
-          <div key={level} className="rounded-xl bg-gray-50 px-2 py-3 text-center">
-            <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${LEVEL_TONES[level - 1]}`}>
-              Tầng F{level}
-            </span>
-            <p className="mt-1 text-xl font-bold text-gray-900">
-              {allMembers.filter((member) => member.level === level).length}
-            </p>
-            <p className="text-[11px] text-gray-500">hoa hồng {rate}</p>
-          </div>
-        ))}
-      </div>
-
       <div className="flex flex-wrap items-center gap-2 px-4 pt-4">
         <label className="relative min-w-0 flex-1">
           <FiSearch aria-hidden className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -374,7 +356,7 @@ export const ReferralTree = () => {
             type="search"
             value={keyword}
             onChange={(change) => setKeyword(change.target.value)}
-            placeholder="Tìm thành viên trong cây..."
+            placeholder="Tìm thành viên trong hệ thống..."
             className="h-10 w-full rounded-lg border border-gray-200 pr-3 pl-9 text-theme-sm outline-none transition focus:border-brand-400 focus:shadow-focus-ring"
           />
         </label>
@@ -393,7 +375,7 @@ export const ReferralTree = () => {
           type="button"
           onClick={() => {
             setExpanded(new Set());
-            // So do: thu ve con tang F1
+            // So do: thu ve nhanh goc
             setCollapsed(new Set(tree.map((member) => member.publicId)));
           }}
           className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-gray-200 px-3 text-theme-sm text-gray-600 transition hover:border-brand-300 hover:text-brand-600"
@@ -416,7 +398,7 @@ export const ReferralTree = () => {
           </span>
           <div>
             <p className="text-theme-sm font-bold text-gray-900">Bạn (mã {code})</p>
-            <p className="text-theme-xs text-gray-500">Gốc của cây giới thiệu</p>
+            <p className="text-theme-xs text-gray-500">Trung tâm hệ thống</p>
           </div>
         </div>
         <ul className="ml-5 space-y-2 border-l-2 border-dashed border-brand-200 pl-4 sm:ml-7">
@@ -468,7 +450,10 @@ export const ReferralInfoPanel = () => {
 
   return (
     <section className="space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm sm:p-6">
-      <h2 className="text-lg font-bold text-gray-900">Giới thiệu bạn bè</h2>
+      <div>
+        <h2 className="text-lg font-bold text-gray-900">Giới thiệu bạn bè</h2>
+        <p className="mt-1 text-theme-xs text-gray-500">Giới thiệu trực tiếp.</p>
+      </div>
 
       <div>
         <p className="mb-1.5 text-theme-sm font-semibold text-gray-700">Người giới thiệu</p>
@@ -515,7 +500,87 @@ export const ReferralInfoPanel = () => {
         <FiShare2 aria-hidden />
         Chia sẻ link giới thiệu
       </button>
+
+      {/* QR Code với logo Đông Tây Land */}
+      <ReferralQRCode link={link} code={code} />
     </section>
+  );
+};
+
+interface QRCodeWithLogoProps {
+  link: string;
+  code: string;
+}
+
+const ReferralQRCode = ({ link, code }: QRCodeWithLogoProps) => {
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    QRCode.toDataURL(link, {
+      width: 280,
+      margin: 2,
+      color: { dark: '#0E2A47', light: '#ffffff' },
+    })
+      .then((url) => {
+        setQrDataUrl(url);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
+  }, [link]);
+
+  const downloadQR = () => {
+    if (!qrDataUrl) return;
+    const linkEl = document.createElement('a');
+    linkEl.href = qrDataUrl;
+    linkEl.download = `dongtayland-ref-${code}.png`;
+    linkEl.click();
+  };
+
+  return (
+    <div className="flex flex-col items-center rounded-2xl border border-brand-200 bg-gradient-to-br from-brand-50 to-accent-50/30 p-5">
+      <p className="mb-4 text-center text-theme-sm font-semibold text-gray-700">
+        Quét mã QR để nhận link giới thiệu
+      </p>
+      <div className="relative">
+        {isLoading ? (
+          <div className="flex h-64 w-64 items-center justify-center rounded-xl bg-gray-100">
+            <span className="text-theme-sm text-gray-400">Đang tải...</span>
+          </div>
+        ) : qrDataUrl ? (
+          <div className="relative">
+            {/* QR Code */}
+            <Image src={qrDataUrl} alt="QR Code giới thiệu" width={280} height={280} className="rounded-xl" />
+            {/* Logo overlay ở giữa */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg ring-4 ring-white">
+                <Image
+                  src="/images/home/logo-qr-new.png"
+                  alt="Đông Tây Land"
+                  width={48}
+                  height={48}
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex h-64 w-64 items-center justify-center rounded-xl bg-gray-100">
+            <span className="text-theme-sm text-gray-400">Không tạo được mã QR</span>
+          </div>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={downloadQR}
+        disabled={!qrDataUrl}
+        className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg bg-navy-800 px-4 text-theme-sm font-semibold text-white transition hover:bg-navy-700 disabled:opacity-50"
+      >
+        <FiDownload aria-hidden />
+        Tải mã QR
+      </button>
+    </div>
   );
 };
 
@@ -549,7 +614,7 @@ const ReferralCard = () => {
       <div className="mt-4 grid grid-cols-2 gap-2">
         <div className="rounded-xl bg-gray-50 px-3 py-2.5">
           <p className="text-lg font-bold text-gray-900">{all.length}</p>
-          <p className="text-[11px] text-gray-500">Thành viên trong cây</p>
+          <p className="text-[11px] text-gray-500">Thành viên hệ thống</p>
         </div>
         <div className="rounded-xl bg-gray-50 px-3 py-2.5">
           <p className="text-lg font-bold text-brand-700">{formatMoney(commission)}</p>

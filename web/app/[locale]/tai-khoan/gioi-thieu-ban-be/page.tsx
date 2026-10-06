@@ -33,12 +33,12 @@ const STEPS = [
   {
     icon: FiUserPlus,
     title: "Bạn bè đăng ký",
-    text: "Người được giới thiệu nhập mã khi tạo tài khoản và trở thành F1 của bạn.",
+    text: "Người được giới thiệu nhập mã khi tạo tài khoản và trở thành người bạn đã giới thiệu.",
   },
   {
     icon: FiDollarSign,
     title: "Nhận hoa hồng",
-    text: "Mỗi giao dịch thành công trong cây (F1 → F7) đều mang lại hoa hồng cho bạn.",
+    text: "Mỗi giao dịch thành công trong hệ thống 7 tầng đều mang lại hoa hồng cho bạn.",
   },
 ];
 
@@ -56,7 +56,7 @@ const GioiThieuBanBePage = () => {
   const stats = [
     { label: "Thành viên trong cây", value: String(all.length) },
     {
-      label: "Giới thiệu trực tiếp (F1)",
+      label: "Giới thiệu trực tiếp ",
       value: String(MOCK_REFERRAL.tree.length),
     },
     { label: "Đã giao dịch", value: String(active) },

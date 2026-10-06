@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { FiList, FiPlay, FiPlayCircle, FiSearch, FiX } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiList, FiPlay, FiPlayCircle, FiSearch, FiX } from 'react-icons/fi';
 import {
   TRAINING_PLAYLISTS,
   TRAINING_VIDEO_TOPICS,
@@ -18,6 +18,9 @@ const TABS = [
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
+
+/** So video hien tren moi trang (tab Video bai giang) */
+const VIDEOS_PER_PAGE = 6;
 
 const viewsLabel = (views: number) =>
   views >= 1000 ? `${new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 }).format(views / 1000)}N lượt xem` : `${views} lượt xem`;
@@ -181,6 +184,7 @@ const TrainingVideoLibrary = () => {
   const [topic, setTopic] = useState<TrainingVideoTopic | 'tat-ca'>('tat-ca');
   const [keyword, setKeyword] = useState('');
   const [playing, setPlaying] = useState<TrainingVideo | null>(null);
+  const [videoPage, setVideoPage] = useState(1);
 
   const videos = useMemo(() => {
     const term = normalize(keyword.trim());
@@ -189,6 +193,18 @@ const TrainingVideoLibrary = () => {
         (topic === 'tat-ca' || video.topic === topic) &&
         (!term || normalize(`${video.title} ${video.instructor}`).includes(term)),
     );
+  }, [topic, keyword]);
+
+  const totalPages = Math.max(1, Math.ceil(videos.length / VIDEOS_PER_PAGE));
+  const currentPage = Math.min(videoPage, totalPages);
+  const paginatedVideos = useMemo(
+    () => videos.slice((currentPage - 1) * VIDEOS_PER_PAGE, currentPage * VIDEOS_PER_PAGE),
+    [videos, currentPage],
+  );
+
+  // Khi loc/tim kiem thay doi -> ve trang 1
+  useEffect(() => {
+    setVideoPage(1);
   }, [topic, keyword]);
 
   const inProgress = TRAINING_VIDEOS.filter((video) => video.progress !== undefined);
@@ -201,6 +217,20 @@ const TrainingVideoLibrary = () => {
 
   return (
     <section id="thu-vien-video" className="site-container scroll-mt-28 pt-10 pb-16 md:pt-12 md:pb-20">
+      {/* Thanh tìm kiếm nổi bật phía trên */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <label className="relative block w-full sm:w-80 md:w-96">
+          <FiSearch aria-hidden className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <input
+            type="search"
+            value={keyword}
+            onChange={(change) => setKeyword(change.target.value)}
+            placeholder="Thư viện đào tạo"
+            className="h-11 w-full rounded-full border border-gray-200 bg-white pl-11 pr-4 text-theme-sm outline-none transition focus:border-brand-400 focus:shadow-focus-ring"
+          />
+        </label>
+      </div>
+
       {/* 3 tab */}
       <div role="tablist" aria-label="Thư viện bài giảng" className="mb-6 flex gap-1 border-b border-gray-200">
         {TABS.map((item) => {
@@ -227,8 +257,7 @@ const TrainingVideoLibrary = () => {
 
       {tab === 'video' && (
         <>
-          <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center">
-            <div className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto">
+          <div className="mb-6 no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto">
               <button type="button" onClick={() => setTopic('tat-ca')} className={chip(topic === 'tat-ca')}>
                 Tất cả
               </button>
@@ -238,26 +267,59 @@ const TrainingVideoLibrary = () => {
                 </button>
               ))}
             </div>
-            <label className="relative block lg:w-72">
-              <FiSearch aria-hidden className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="search"
-                value={keyword}
-                onChange={(change) => setKeyword(change.target.value)}
-                placeholder="Tìm bài giảng, giảng viên..."
-                className="h-10 w-full rounded-full border border-gray-200 bg-white pr-3 pl-9 text-theme-sm outline-none transition focus:border-brand-400 focus:shadow-focus-ring"
-              />
-            </label>
-          </div>
 
-          {videos.length === 0 ? (
+          {paginatedVideos.length === 0 ? (
             <p className="py-12 text-center text-theme-sm text-gray-500">Không có video nào khớp.</p>
           ) : (
-            <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-              {videos.map((video) => (
-                <VideoCard key={video.publicId} video={video} onPlay={setPlaying} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+                {paginatedVideos.map((video) => (
+                  <VideoCard key={video.publicId} video={video} onPlay={setPlaying} />
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <nav aria-label="Phân trang video" className="mt-10 flex items-center justify-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setVideoPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    aria-label="Trang trước"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-brand-300 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <FiChevronLeft aria-hidden />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => {
+                    const isActive = page === currentPage;
+                    return (
+                      <button
+                        key={page}
+                        type="button"
+                        onClick={() => setVideoPage(page)}
+                        aria-current={isActive ? 'page' : undefined}
+                        aria-label={`Trang ${page}`}
+                        className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-3 text-theme-sm font-semibold transition ${
+                          isActive
+                            ? 'bg-gray-900 text-white shadow-theme-xs'
+                            : 'border border-gray-200 bg-white text-gray-700 hover:border-brand-300 hover:text-brand-600'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => setVideoPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    aria-label="Trang sau"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-brand-300 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <FiChevronRight aria-hidden />
+                  </button>
+                </nav>
+              )}
+            </>
           )}
         </>
       )}
