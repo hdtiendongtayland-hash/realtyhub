@@ -8,6 +8,7 @@ import {
   FiCheck,
   FiChevronDown,
   FiFilter,
+  FiHeart,
   FiLayers,
   FiMaximize,
   FiMinus,
@@ -90,6 +91,11 @@ type FloorPlanTabProps = {
    * thi nut nam tren dau ban do.
    */
   filterSlot?: HTMLElement | null;
+  /**
+   * Khoa (publicId hoac slug) cua phan khu / du an dang xem - de nut "Yeu
+   * thich" trong khung ban do biet dang like cai gi. Khi khong co, nut an.
+   */
+  favoritesKey?: string;
 };
 
 /** Mot khoang lua chon cho bo loc: [min, max) */
@@ -288,6 +294,7 @@ const FloorPlanTab = ({
   showTitle = true,
   controlsSlot,
   filterSlot,
+  favoritesKey,
 }: FloorPlanTabProps) => {
   // Ham cua cha doi moi lan render: giu qua ref de khoi ve lai toan bo pin
   const markerClickRef = useRef(onMarkerClick);
@@ -309,6 +316,11 @@ const FloorPlanTab = ({
   const [isMapReady, setIsMapReady] = useState(false);
   const [canFullscreen, setCanFullscreen] = useState(false);
   const [funds, setFunds] = useState<UnitFundType[]>(FUND_TYPES);
+  // Yêu thích cấp phân khu / dự án (icon tim trong khung bản đồ) - state
+  // local, không đồng bộ backend vì cấp này chưa có hook dùng chung. Khi
+  // doi favoritesKey thi dat lai false de tranh hien tim cua phan khu cu.
+  const [isFavorite, setIsFavorite] = useState(false);
+  useEffect(() => setIsFavorite(false), [favoritesKey]);
   const [isFundLegendOpen, setIsFundLegendOpen] = useState(false);
   const [displayMode, setDisplayMode] = useState<"code" | "name" | "price">(
     "price",
@@ -844,6 +856,28 @@ const FloorPlanTab = ({
 
         <div className="absolute right-3 top-3 z-900 flex flex-col items-end gap-2">
           {controlsSlot}
+          {/* Nut "Yeu thich" phan khu / du an dang xem: cung cot voi 3D/2D
+              switch va filter, nen khi bat fullscreen van hien (wrapper
+              fullscreen chinh la khoi div cha chua div absolute nay). */}
+          {favoritesKey && (
+            <button
+              type="button"
+              onClick={() => setIsFavorite((value) => !value)}
+              aria-pressed={isFavorite}
+              aria-label={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
+              title={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
+              className={`relative flex h-9 w-9 items-center justify-center rounded-md border shadow-card transition ${
+                isFavorite
+                  ? "border-error-400 bg-error-50 text-error-500"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-error-300 hover:text-error-500"
+              }`}
+            >
+              <FiHeart
+                aria-hidden
+                className={`h-4.5 w-4.5 ${isFavorite ? "fill-current" : ""}`}
+              />
+            </button>
+          )}
           {isSearchOpen && (
             <form
               onSubmit={(event) => {

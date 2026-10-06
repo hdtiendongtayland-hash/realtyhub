@@ -52,8 +52,14 @@ const PARAM = {
   limit: 'sl',
 } as const;
 
-/** Anh phieu can (anh doc) dung chung cho moi the tren trang Quy can - hien tron, hai ben lam mo */
-const UNIT_SHEET_IMAGES = ['/images/units/phieu-can-mau.webp'];
+/** Anh phieu can / phieu tinh gia dung chung cho moi the tren trang Quy can - tu chuyen anh, hien tron, hai ben lam mo */
+const UNIT_SHEET_IMAGES = [
+  '/images/units/phieu-can-mau.webp',
+  '/images/units/quy-can-1.webp',
+  '/images/units/quy-can-2.webp',
+  '/images/units/quy-can-3.webp',
+  '/images/units/quy-can-4.webp',
+];
 
 const ALLOWED_LIMITS = [12, 24, 48];
 const DEFAULT_LIMIT = 24;

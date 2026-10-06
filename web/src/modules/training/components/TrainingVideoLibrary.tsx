@@ -219,16 +219,28 @@ const TrainingVideoLibrary = () => {
     <section id="thu-vien-video" className="site-container scroll-mt-28 pt-10 pb-16 md:pt-12 md:pb-20">
       {/* Thanh tìm kiếm nổi bật phía trên */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <label className="relative block w-full sm:w-80 md:w-96">
-          <FiSearch aria-hidden className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
+        {/* Cung kieu o tim kiem trang Chu dau tu: vien tron, bong nhe, kinh lup ben phai */}
+        <form
+          role="search"
+          onSubmit={(event) => event.preventDefault()}
+          className="flex w-full min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-white py-2 pr-2 pl-5 shadow-card transition focus-within:border-brand-300 focus-within:shadow-panel lg:max-w-2xl"
+        >
           <input
             type="search"
             value={keyword}
             onChange={(change) => setKeyword(change.target.value)}
-            placeholder="Thư viện đào tạo"
-            className="h-11 w-full rounded-full border border-gray-200 bg-white pl-11 pr-4 text-theme-sm outline-none transition focus:border-brand-400 focus:shadow-focus-ring"
+            placeholder="Tìm theo tên bài giảng, giảng viên..."
+            aria-label="Tìm kiếm trong thư viện đào tạo"
+            className="h-9 min-w-0 flex-1 bg-transparent text-base text-gray-800 outline-none placeholder:text-gray-400"
           />
-        </label>
+          <button
+            type="submit"
+            aria-label="Tìm kiếm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-50 hover:text-brand-600"
+          >
+            <FiSearch aria-hidden className="text-lg" />
+          </button>
+        </form>
       </div>
 
       {/* 3 tab */}

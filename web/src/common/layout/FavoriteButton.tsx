@@ -33,7 +33,7 @@ const FavoriteButton = ({ iconClass, wrapperClassName }: FavoriteButtonProps) =>
           ? `Yêu thích - ${count} mục đã lưu`
           : 'Yêu thích'
       }
-      data-clean-hide="utility-link"
+      // Che do toan man hinh van giu nut tim (canh nut ngon ngu)
       className={`relative flex h-9 w-9 items-center justify-center rounded-full transition ${iconClass} ${wrapperClassName ?? ''}`.trim()}
     >
       <FiHeart aria-hidden className="h-5 w-5" />

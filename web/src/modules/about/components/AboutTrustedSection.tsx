@@ -20,7 +20,7 @@ type AboutTrustedSectionProps = {
 
 const AboutTrustedSection = ({ trusted }: AboutTrustedSectionProps) => (
   <section
-    className="bg-white py-20 md:py-28"
+    className="bg-white py-10 md:py-14"
     aria-labelledby="about-trusted-heading"
   >
     <div className="site-container">
@@ -33,7 +33,7 @@ const AboutTrustedSection = ({ trusted }: AboutTrustedSectionProps) => (
 
         <h2
           id="about-trusted-heading"
-          className="mt-5 text-2xl font-bold uppercase leading-tight tracking-tight text-navy-800 md:text-3xl lg:text-4xl"
+          className="mt-5 text-2xl font-bold uppercase leading-tight tracking-tight text-navy-800 md:text-2xl lg:text-[28px]"
         >
           {trusted.title}
         </h2>
@@ -43,7 +43,7 @@ const AboutTrustedSection = ({ trusted }: AboutTrustedSectionProps) => (
         </p>
       </div>
 
-      <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {trusted.values.map((value) => {
           const Icon = resolveAboutIcon(value.iconKey);
           return (

@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
 import { FiArrowLeft, FiArrowRight, FiCalendar, FiClock, FiSearch } from 'react-icons/fi';
@@ -50,17 +49,6 @@ type PageSearchParams = {
 const PAGE_SIZE = 6;
 const CATEGORY_ALL = 'all' as const;
 type CategoryFilter = NewsCategory | typeof CATEGORY_ALL;
-
-const CATEGORY_FILTERS: ReadonlyArray<{
-  id: CategoryFilter;
-  label: string;
-  /** Order trong chip filter (chip "Tat ca" luon o dau) */
-  order: number;
-}> = [
-  { id: CATEGORY_ALL, label: 'Tất cả', order: 0 },
-  { id: 'tin-tuc-du-an', label: NEWS_CATEGORY_LABELS['tin-tuc-du-an'], order: 1 },
-  { id: 'phan-tich-nhan-dinh', label: NEWS_CATEGORY_LABELS['phan-tich-nhan-dinh'], order: 2 },
-];
 
 // ============================================================================
 // Helpers
@@ -139,119 +127,32 @@ const TinTucPage = async ({
   const startIdx = featured ? 1 : 0;
   const gridArticles = sorted.slice(startIdx, startIdx + PAGE_SIZE);
 
-  // Counts theo category (de hien thi so luong trong chip)
-  const countByCategory = (id: CategoryFilter): number =>
-    id === CATEGORY_ALL ? MOCK_NEWS.length : MOCK_NEWS.filter((a) => a.category === id).length;
-
   return (
     <main className="bg-white">
-      {/* ============ 01 HERO ============ */}
-      <section className="relative isolate overflow-hidden bg-gray-900 py-16 text-white md:py-20">
-      <div aria-hidden className="absolute inset-0 -z-10">
-        <Image
-          src="/images/heroes/tin-tuc.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/92 via-brand-950/88 to-gray-900/92" />
-      </div>
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)',
-            backgroundSize: '32px 32px',
-          }}
-        />
+      <h1 className="sr-only">Tin tức &amp; Phân tích thị trường</h1>
 
-        <div className="site-container relative">
-          <div className="mx-auto max-w-3xl text-center">
-            {/* Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="mb-6">
-              <ol className="flex items-center justify-center gap-2 text-theme-xs text-white/60">
-                <li>
-                  <Link href="/" className="transition hover:text-white">
-                    Trang chủ
-                  </Link>
-                </li>
-                <li aria-hidden>/</li>
-                <li className="text-white/90">Tin tức</li>
-              </ol>
-            </nav>
-
-            {/* Eyebrow */}
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-theme-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
-              Cập nhật hàng ngày
-            </span>
-
-            {/* Headline */}
-            <h1 className="mt-6 font-serif text-4xl font-light leading-tight md:text-5xl lg:text-6xl">
-              Tin tức &amp;
-              <br />
-              <span className="font-bold text-brand-400">Phân tích thị trường</span>
-            </h1>
-
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
-              Tin tức dự án mới nhất, góc nhìn chuyên gia và nhận định xu hướng bất động sản
-              Việt Nam — tất cả ở một nơi.
-            </p>
-
-            {/* Search bar (decorative - form submit chua co backend) */}
-            <form
-              role="search"
-              className="mx-auto mt-10 flex max-w-xl items-center gap-2 rounded-full bg-white/10 p-1.5 backdrop-blur-sm"
-              action="/tin-tuc"
-            >
-              <div className="flex flex-1 items-center gap-2 px-4">
-                <FiSearch aria-hidden className="h-4 w-4 shrink-0 text-white/60" />
-                <input
-                  type="search"
-                  name="q"
-                  placeholder="Tìm bài viết, dự án, chủ đề..."
-                  className="w-full bg-transparent text-sm text-white placeholder-white/50 focus:outline-none"
-                />
-              </div>
-              <button
-                type="submit"
-                className="rounded-full bg-brand-500 px-5 py-2 text-theme-sm font-semibold text-white transition hover:bg-brand-600"
-              >
-                Tìm
-              </button>
-            </form>
-
-            {/* Filter chips */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-              {CATEGORY_FILTERS.map((f) => {
-                const isActive = category === f.id;
-                return (
-                  <Link
-                    key={f.id}
-                    href={buildHref({ category: f.id, page: '1' }, params)}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-theme-sm font-semibold transition ${
-                      isActive
-                        ? 'border-brand-400 bg-brand-500 text-white shadow-theme-sm'
-                        : 'border-white/20 bg-white/5 text-white/80 hover:border-white/40 hover:bg-white/10'
-                    }`}
-                  >
-                    {f.label}
-                    <span
-                      className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-theme-xs font-bold ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-white/70'
-                      }`}
-                    >
-                      {countByCategory(f.id)}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+      {/* O tim kiem (chua co backend - gui ?q= ve chinh trang) */}
+      <section className="site-container pt-8 md:pt-10">
+        <form
+          role="search"
+          action="/tin-tuc"
+          className="flex min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-white py-2 pr-2 pl-5 shadow-card transition focus-within:border-brand-300 focus-within:shadow-panel lg:max-w-2xl"
+        >
+          <input
+            type="search"
+            name="q"
+            placeholder="Tìm bài viết, dự án, chủ đề..."
+            aria-label="Tìm kiếm tin tức"
+            className="h-9 min-w-0 flex-1 bg-transparent text-base text-gray-800 outline-none placeholder:text-gray-400"
+          />
+          <button
+            type="submit"
+            aria-label="Tìm kiếm"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-50 hover:text-brand-600"
+          >
+            <FiSearch aria-hidden className="text-lg" />
+          </button>
+        </form>
       </section>
 
       {/* ============ 02 FEATURED ARTICLE ============ */}

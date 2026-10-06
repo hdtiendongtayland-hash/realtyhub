@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, type FormEvent } from 'react';
+import { FEEDBACK_RATING_ICON } from '../feedbackIcons';
 
 import {
   FiAlertCircle,
@@ -12,7 +13,6 @@ import {
 } from 'react-icons/fi';
 
 import {
-  FEEDBACK_CATEGORY_ICONS,
   FEEDBACK_CATEGORY_LABELS,
   type FeedbackCategory,
   type FeedbackRating,
@@ -195,8 +195,8 @@ const FeedbackForm = () => {
   // Success
   if (status === 'success') {
     return (
-      <div className="rounded-2xl border border-orange-200 bg-orange-50/50 p-8 text-center md:p-10">
-        <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 text-white shadow-theme-sm">
+      <div className="rounded-2xl border border-brand-200 bg-brand-50/50 p-8 text-center md:p-10">
+        <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-white shadow-theme-sm">
           <FiCheckCircle aria-hidden className="h-7 w-7" />
         </span>
         <h3 className="mt-5 font-serif text-2xl font-bold text-gray-900">
@@ -214,7 +214,7 @@ const FeedbackForm = () => {
         <button
           type="button"
           onClick={() => setStatus('idle')}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-orange-500 px-5 py-2.5 text-theme-sm font-semibold text-white shadow-theme-sm transition hover:bg-orange-600"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-500 px-5 py-2.5 text-theme-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600"
         >
           Gửi góp ý khác
         </button>
@@ -243,16 +243,21 @@ const FeedbackForm = () => {
                 }}
                 className={`flex flex-col items-start gap-1 rounded-2xl border-2 p-4 text-left transition ${
                   isActive
-                    ? 'border-orange-500 bg-orange-50 shadow-theme-xs'
-                    : 'border-gray-200 bg-white hover:border-orange-300 hover:bg-orange-50/50'
+                    ? 'border-brand-500 bg-brand-50 shadow-theme-xs'
+                    : 'border-gray-200 bg-white hover:border-brand-300 hover:bg-brand-50/50'
                 }`}
               >
-                <span className="text-3xl" aria-hidden>
-                  {opt.emoji}
-                </span>
+                {(() => {
+                  const { icon: RatingIcon, tone } = FEEDBACK_RATING_ICON[opt.id];
+                  return (
+                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
+                      <RatingIcon aria-hidden className="h-5 w-5" />
+                    </span>
+                  );
+                })()}
                 <span
                   className={`mt-1 text-sm font-bold ${
-                    isActive ? 'text-orange-700' : 'text-gray-900'
+                    isActive ? 'text-brand-700' : 'text-gray-900'
                   }`}
                 >
                   {opt.label}
@@ -281,7 +286,7 @@ const FeedbackForm = () => {
           >
             {CATEGORY_OPTIONS.map((id) => (
               <option key={id} value={id}>
-                {FEEDBACK_CATEGORY_ICONS[id]} {FEEDBACK_CATEGORY_LABELS[id]}
+                {FEEDBACK_CATEGORY_LABELS[id]}
               </option>
             ))}
           </select>
@@ -361,9 +366,9 @@ const FeedbackForm = () => {
         ) : (
           <label
             htmlFor="fb-screenshot"
-            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50/50 px-6 py-10 text-center transition hover:border-orange-400 hover:bg-orange-50/30"
+            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50/50 px-6 py-10 text-center transition hover:border-brand-400 hover:bg-brand-50/30"
           >
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-orange-500 shadow-theme-xs">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-500 shadow-theme-xs">
               <FiImage aria-hidden className="h-6 w-6" />
             </span>
             <span className="text-theme-sm font-semibold text-gray-800">
@@ -396,7 +401,7 @@ const FeedbackForm = () => {
               type="checkbox"
               checked={values.isAnonymous}
               onChange={(e) => onChange('isAnonymous', e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-400"
             />
             <span>
               <span className="block text-theme-sm font-semibold text-gray-800">
@@ -437,7 +442,7 @@ const FeedbackForm = () => {
           type="checkbox"
           checked={values.contactBack}
           onChange={(e) => onChange('contactBack', e.target.checked)}
-          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
+          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-400"
         />
         <span>
           Cho phép đội ngũ RealtyHub liên hệ lại qua email nếu cần thêm thông tin.
@@ -456,7 +461,7 @@ const FeedbackForm = () => {
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-orange-500 px-6 py-3.5 text-theme-sm font-semibold text-white shadow-theme-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+        className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 px-6 py-3.5 text-theme-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
       >
         {status === 'submitting' ? (
           <>
@@ -482,7 +487,7 @@ const inputClass = (hasError: boolean) =>
   `w-full rounded-xl border bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 ${
     hasError
       ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-200'
-      : 'border-gray-200 focus:border-orange-500 focus:ring-orange-200'
+      : 'border-gray-200 focus:border-brand-500 focus:ring-brand-200'
   }`;
 
 type FieldProps = {

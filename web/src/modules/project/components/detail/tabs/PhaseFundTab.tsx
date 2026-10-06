@@ -453,6 +453,7 @@ const PhaseFloorPlan = ({
         showTitle={false}
         controlsSlot={controlsSlot}
         filterSlot={filterSlot}
+        favoritesKey={phaseName || project.slug}
         onMarkerClick={handleMarkerClick}
         onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
       />
@@ -1140,7 +1141,7 @@ const PhaseFundTab = ({
   }
 
   if (project.phases.length === 0) {
-    return <FloorPlanTab planMap={project.planMap} />;
+    return <FloorPlanTab planMap={project.planMap} favoritesKey={project.slug} />;
   }
 
   // Du an chua khai bao nhom: moi phan khu mot the, mot cap

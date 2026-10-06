@@ -25,7 +25,7 @@ type AboutIntroSectionProps = {
 
 const AboutIntroSection = ({ intro }: AboutIntroSectionProps) => (
   <section
-    className="site-container py-20 md:py-28"
+    className="site-container py-10 md:py-14"
     aria-labelledby="about-intro-heading"
   >
     <div className="mx-auto max-w-3xl text-center">
@@ -37,7 +37,7 @@ const AboutIntroSection = ({ intro }: AboutIntroSectionProps) => (
 
       <h2
         id="about-intro-heading"
-        className="mt-5 text-2xl font-bold uppercase leading-tight tracking-tight text-navy-800 md:text-3xl lg:text-4xl"
+        className="mt-5 text-2xl font-bold uppercase leading-tight tracking-tight text-navy-800 md:text-2xl lg:text-[28px]"
       >
         {intro.title}
       </h2>
@@ -48,7 +48,7 @@ const AboutIntroSection = ({ intro }: AboutIntroSectionProps) => (
     </div>
 
     {/* Grid cac gia tri cot loi - 2 cot mobile, 3 tablet, 4 desktop */}
-    <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {intro.pillars.map((pillar) => {
         const Icon = resolveAboutIcon(pillar.iconKey);
         return (

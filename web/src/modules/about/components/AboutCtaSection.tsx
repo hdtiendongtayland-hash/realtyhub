@@ -44,7 +44,7 @@ const AboutCtaSection = ({ cta }: AboutCtaSectionProps) => (
 
         <h2
           id="about-cta-heading"
-          className="mt-6 text-3xl font-bold uppercase leading-tight tracking-wide md:text-4xl lg:text-5xl"
+          className="mt-4 text-2xl font-bold uppercase leading-tight tracking-wide md:text-3xl"
         >
           {cta.title}
         </h2>

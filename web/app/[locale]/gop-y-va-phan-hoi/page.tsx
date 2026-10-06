@@ -1,43 +1,33 @@
-import Image from 'next/image';
 import Link from 'next/link';
-
 import {
   FiArrowRight,
   FiCheckCircle,
   FiClock,
+  FiInbox,
+  FiPaperclip,
   FiThumbsUp,
   FiTrendingUp,
-  FiUsers,
 } from 'react-icons/fi';
 
+import PageBanner from '@/common/components/PageBanner';
+import { FEEDBACK_CATEGORY_ICON, FEEDBACK_RATING_ICON } from '@/modules/feedback/feedbackIcons';
 import FeedbackForm from '@/modules/feedback/components/FeedbackForm';
+import {
+  FEEDBACK_CATEGORY_LABELS,
+  FEEDBACK_STATS,
+  FEEDBACK_STATUS_LABELS,
+  FEEDBACK_STATUS_TONE,
+  MOCK_RECENT_FEEDBACKS,
+  type FeedbackItem,
+} from '@/modules/feedback/mocks/feedback.mock';
 
 import type { Metadata } from 'next';
 
-import {
-  FEEDBACK_CATEGORY_ICONS,
-  FEEDBACK_CATEGORY_LABELS,
-  FEEDBACK_RATING_TONE,
-  FEEDBACK_STATS,
-  type FeedbackItem,
-  FEEDBACK_STATUS_LABELS,
-  FEEDBACK_STATUS_TONE,
-  FEEDBACK_ROADMAP,
-  MOCK_RECENT_FEEDBACKS,
-} from '@/modules/feedback/mocks/feedback.mock';
-
 /**
- * Trang /gop-y-va-phan-hoi - Bang tin gop y cong khai cua RealtyHub.
- *
- * Layout (server component + 1 client form):
- *   01 Hero (gradient navy -> orange, breadcrumb + 3 so lieu stat)
- *   02 Form + sidebar (form 3 col, sidebar 2 col)
- *   03 Recent feedbacks (6 mock card, public wall)
- *   04 Roadmap (4 features sap ra mat dua tren feedback)
- *   05 CTA (len y tuong / bao loi)
- *
- * Tone: orange (warm - gop y la "doi thoai", khong phai "mua ban").
- * Phan biet voi /lien-he-chung-toi (jade = lien lac kinh doanh).
+ * Trang /gop-y-va-phan-hoi:
+ *   1. Banner anh + 4 so lieu noi len mep duoi
+ *   2. Form (trai) | huong dan gop y + chuyen muc (phai)
+ *   3. Bang tin gop y gan day
  */
 export const metadata: Metadata = {
   title: 'Góp ý & phản hồi',
@@ -45,14 +35,8 @@ export const metadata: Metadata = {
     'Chia sẻ góp ý, báo lỗi hoặc đề xuất tính năng cho RealtyHub. Mọi phản hồi đều được đội ngũ xem xét và phản hồi công khai.',
 };
 
-// ============================================================================
-// Helpers
-// ============================================================================
-
 const formatTimeAgo = (iso: string): string => {
-  const now = Date.now();
-  const then = new Date(iso).getTime();
-  const diffMin = Math.floor((now - then) / 60000);
+  const diffMin = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
   if (diffMin < 60) return `${diffMin} phút trước`;
   const diffH = Math.floor(diffMin / 60);
   if (diffH < 24) return `${diffH} giờ trước`;
@@ -61,409 +45,186 @@ const formatTimeAgo = (iso: string): string => {
   return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit' }).format(new Date(iso));
 };
 
-// ============================================================================
-// Page
-// ============================================================================
+const STATS = [
+  { icon: FiInbox, value: FEEDBACK_STATS.totalReceived.toLocaleString('vi-VN'), label: 'Góp ý đã nhận', tone: 'bg-brand-50 text-brand-600' },
+  { icon: FiCheckCircle, value: String(FEEDBACK_STATS.totalShipped), label: 'Đã triển khai', tone: 'bg-jade-50 text-jade-600' },
+  { icon: FiClock, value: `${FEEDBACK_STATS.avgResponseHours} giờ`, label: 'Phản hồi trung bình', tone: 'bg-accent-50 text-accent-600' },
+  { icon: FiTrendingUp, value: `${FEEDBACK_STATS.upvoteRate}%`, label: 'Được cộng đồng đồng thuận', tone: 'bg-purple-50 text-purple-600' },
+];
+
+const TIPS = [
+  'Mô tả rõ vấn đề hoặc đề xuất',
+  'Kèm ảnh chụp màn hình nếu là lỗi',
+  'Ghi rõ trình duyệt / thiết bị gặp lỗi',
+  'Tôn trọng cộng đồng — không spam, quảng cáo',
+];
+
+const POPULAR_CATEGORIES = ['tinh-nang', 'ui-ux', 'hieu-nang', 'noi-dung', 'dich-vu'] as const;
 
 const FeedbackPage = () => (
-  <main className="bg-white">
-    {/* ============ 01 HERO ============ */}
-    <section className="relative isolate overflow-hidden bg-gray-900 py-16 text-white md:py-20">
-      <div aria-hidden className="absolute inset-0 -z-10">
-        <Image
-          src="/images/heroes/gop-y-va-phan-hoi.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/92 via-brand-950/88 to-orange-950/92" />
-      </div>
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)',
-          backgroundSize: '32px 32px',
-        }}
-      />
+  <main className="bg-gray-25 pb-12 md:pb-16">
+    <PageBanner
+      crumb="Góp ý & phản hồi"
+      eyebrow="Bảng tin công khai"
+      imageUrl="/images/heroes/gop-y-va-phan-hoi.jpg"
+      title="Giúp RealtyHub tốt hơn mỗi ngày"
+      description="Gửi lỗi, đề xuất tính năng hoặc đánh giá trải nghiệm — mỗi góp ý đều được đội ngũ đọc và phản hồi công khai."
+      overlap={
+        <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {STATS.map(({ icon: Icon, value, label, tone }) => (
+            <li key={label} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-theme-lg">
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${tone}`}>
+                <Icon aria-hidden className="h-5 w-5" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-lg font-bold text-gray-900">{value}</span>
+                <span className="block truncate text-theme-xs text-gray-500">{label}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      }
+    />
 
-      <div className="site-container relative">
-        <div className="mx-auto max-w-3xl text-center">
-          <nav aria-label="Breadcrumb" className="mb-6">
-            <ol className="flex items-center justify-center gap-2 text-theme-xs text-white/60">
-              <li>
-                <Link href="/" className="transition hover:text-white">
-                  Trang chủ
-                </Link>
-              </li>
-              <li aria-hidden>/</li>
-              <li className="text-white/90">Góp ý & phản hồi</li>
-            </ol>
-          </nav>
-
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-theme-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
-            Lắng nghe từ bạn
-          </span>
-
-          <h1 className="mt-6 font-serif text-4xl font-light leading-tight md:text-5xl lg:text-6xl">
-            Giúp RealtyHub
-            <br />
-            <span className="font-bold text-orange-400">tốt hơn mỗi ngày</span>
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
-            Mỗi góp ý đều được đội ngũ đọc và phản hồi công khai. Gửi lỗi, đề xuất
-            tính năng hoặc đánh giá trải nghiệm — không cần đăng nhập.
+    {/* Form + huong dan */}
+    <section className="site-container pt-10 md:pt-12">
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-theme-sm md:p-8 lg:col-span-3">
+          <span className="text-theme-xs font-bold tracking-[0.2em] text-brand-600 uppercase">Gửi góp ý</span>
+          <h2 className="mt-2 text-2xl font-bold text-navy-800">Chia sẻ của bạn</h2>
+          <p className="mt-2 mb-6 text-theme-sm leading-relaxed text-gray-600">
+            Càng chi tiết, đội ngũ càng xử lý nhanh. Có thể đính kèm ảnh hoặc gửi ẩn danh.
           </p>
-
-          {/* Stats */}
-          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            <HeroStat
-              icon={FiUsers}
-              value={FEEDBACK_STATS.totalReceived.toLocaleString('vi-VN')}
-              label="Góp ý đã nhận"
-            />
-            <HeroStat
-              icon={FiCheckCircle}
-              value={FEEDBACK_STATS.totalShipped.toString()}
-              label="Đã triển khai"
-              accent="text-orange-300"
-            />
-            <HeroStat
-              icon={FiClock}
-              value={`${FEEDBACK_STATS.avgResponseHours}h`}
-              label="Phản hồi trung bình"
-            />
-            <HeroStat
-              icon={FiThumbsUp}
-              value={`${FEEDBACK_STATS.upvoteRate}%`}
-              label="Được đồng thuận"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* ============ 02 FORM + SIDEBAR ============ */}
-    <section className="site-container py-16 md:py-24">
-      <div className="grid gap-10 lg:grid-cols-5 lg:gap-12">
-        {/* Form (trai - 3 col) */}
-        <div className="lg:col-span-3">
-          <div className="mb-8">
-            <span className="inline-block text-theme-xs font-semibold uppercase tracking-[0.25em] text-orange-600">
-              Gửi góp ý
-            </span>
-            <h2 className="mt-3 font-serif text-3xl font-bold text-gray-900 md:text-4xl">
-              Chia sẻ của bạn
-            </h2>
-            <p className="mt-3 text-base leading-relaxed text-gray-600">
-              Càng chi tiết, team càng xử lý nhanh. Bạn có thể đính kèm ảnh minh hoạ
-              hoặc gửi ẩn danh nếu muốn.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-theme-xs md:p-10">
-            <FeedbackForm />
-          </div>
+          <FeedbackForm />
         </div>
 
-        {/* Sidebar (phai - 2 col) */}
-        <aside className="lg:col-span-2">
-          <div className="sticky top-8 space-y-6">
-            {/* Guidelines card */}
-            <div className="rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50 to-white p-6 md:p-8">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-white shadow-theme-sm">
+        <aside className="space-y-6 lg:col-span-2">
+          <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-theme-sm">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                 <FiThumbsUp aria-hidden className="h-5 w-5" />
               </span>
-              <h3 className="mt-4 font-serif text-lg font-bold text-gray-900">
-                Góp ý hiệu quả
-              </h3>
-              <ul className="mt-4 space-y-3 text-theme-sm text-gray-700">
-                <li className="flex gap-2">
-                  <FiCheckCircle aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
-                  <span>Mô tả rõ <strong>vấn đề</strong> hoặc <strong>đề xuất</strong></span>
-                </li>
-                <li className="flex gap-2">
-                  <FiCheckCircle aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
-                  <span>Kèm <strong>ảnh chụp màn hình</strong> nếu là lỗi</span>
-                </li>
-                <li className="flex gap-2">
-                  <FiCheckCircle aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
-                  <span>Ghi rõ <strong>trình duyệt / thiết bị</strong> gặp lỗi</span>
-                </li>
-                <li className="flex gap-2">
-                  <FiCheckCircle aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" />
-                  <span>Tôn trọng cộng đồng — không spam hoặc quảng cáo</span>
-                </li>
-              </ul>
+              <h3 className="text-base font-semibold text-gray-900">Góp ý hiệu quả</h3>
             </div>
+            <ul className="mt-4 space-y-2.5">
+              {TIPS.map((tip) => (
+                <li key={tip} className="flex gap-2.5 text-theme-sm text-gray-700">
+                  <FiCheckCircle aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-jade-500" />
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            {/* Public wall note */}
-            <div className="rounded-2xl border border-gray-100 bg-gray-50/50 p-6 md:p-8">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-200 text-gray-700">
-                <FiTrendingUp aria-hidden className="h-5 w-5" />
-              </span>
-              <h3 className="mt-4 font-serif text-lg font-bold text-gray-900">
-                Minh bạch & công khai
-              </h3>
-              <p className="mt-3 text-theme-sm leading-relaxed text-gray-700">
-                Mọi góp ý (trừ ẩn danh) đều hiển thị ở{' '}
-                <strong>bảng tin công khai</strong> bên dưới — kèm trạng thái xử lý
-                và phản hồi từ team. Bạn có thể upvote các góp ý hay.
-              </p>
-            </div>
+          <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-theme-sm">
+            <h3 className="text-base font-semibold text-gray-900">Chuyên mục phổ biến</h3>
+            <ul className="mt-4 grid gap-2">
+              {POPULAR_CATEGORIES.map((cat) => {
+                const Icon = FEEDBACK_CATEGORY_ICON[cat];
+                return (
+                  <li key={cat} className="flex items-center gap-3 rounded-xl bg-gray-25 px-3 py-2.5 text-theme-sm text-gray-700">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-brand-600 shadow-theme-xs">
+                      <Icon aria-hidden className="h-4 w-4" />
+                    </span>
+                    {FEEDBACK_CATEGORY_LABELS[cat]}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
 
-            {/* Categories */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8">
-              <h3 className="font-serif text-lg font-bold text-gray-900">
-                Chuyên mục phổ biến
-              </h3>
-              <ul className="mt-4 space-y-2 text-theme-sm text-gray-700">
-                {(['tinh-nang', 'ui-ux', 'hieu-nang', 'noi-dung', 'dich-vu'] as const).map(
-                  (cat) => (
-                    <li key={cat} className="flex items-center gap-2">
-                      <span aria-hidden className="text-base">
-                        {FEEDBACK_CATEGORY_ICONS[cat]}
-                      </span>
-                      <span>{FEEDBACK_CATEGORY_LABELS[cat]}</span>
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
+          <div className="brand-gradient rounded-3xl p-6 text-white">
+            <h3 className="text-base font-semibold">Minh bạch & công khai</h3>
+            <p className="mt-2 text-theme-sm leading-relaxed text-white/80">
+              Mọi góp ý (trừ ẩn danh) đều hiện ở bảng tin bên dưới, kèm trạng thái xử lý và phản hồi từ đội ngũ.
+            </p>
           </div>
         </aside>
       </div>
     </section>
 
-    {/* ============ 03 RECENT FEEDBACKS ============ */}
-    <section className="border-y border-gray-200 bg-gray-50/60 py-16 md:py-24">
-      <div className="site-container">
-        <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
-          <span className="inline-block text-theme-xs font-semibold uppercase tracking-[0.25em] text-orange-600">
-            Bảng tin công khai
-          </span>
-          <h2 className="mt-3 font-serif text-3xl font-bold text-gray-900 md:text-4xl">
-            Góp ý gần đây
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-gray-600 md:text-lg">
-            Cộng đồng đã nói gì — và đội ngũ RealtyHub đã phản hồi ra sao.
-          </p>
+    {/* Bang tin gop y */}
+    <section className="site-container pt-12 md:pt-14">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <span className="text-theme-xs font-bold tracking-[0.2em] text-brand-600 uppercase">Bảng tin công khai</span>
+          <h2 className="mt-2 text-2xl font-bold text-navy-800">Góp ý gần đây</h2>
         </div>
-
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {MOCK_RECENT_FEEDBACKS.map((fb) => (
-            <FeedbackCard key={fb.publicId} feedback={fb} />
-          ))}
-        </div>
-
-        <div className="mt-10 text-center">
-          <Link
-            href="#"
-            className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-theme-sm font-semibold text-gray-700 shadow-theme-xs transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
-          >
-            Xem tất cả góp ý
-            <FiArrowRight aria-hidden className="h-4 w-4" />
-          </Link>
-        </div>
-      </div>
-    </section>
-
-    {/* ============ 04 ROADMAP ============ */}
-    <section className="site-container py-16 md:py-24">
-      <div className="mx-auto mb-12 max-w-2xl text-center md:mb-16">
-        <span className="inline-block text-theme-xs font-semibold uppercase tracking-[0.25em] text-orange-600">
-          Lộ trình cải tiến
-        </span>
-        <h2 className="mt-3 font-serif text-3xl font-bold text-gray-900 md:text-4xl">
-          Tính năng đang được xây dựng
-        </h2>
-        <p className="mt-4 text-base leading-relaxed text-gray-600 md:text-lg">
-          Dựa trên các góp ý có nhiều upvote nhất. Bạn có thể upvote góp ý để tăng độ ưu tiên.
-        </p>
+        <Link
+          href="#"
+          className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-theme-sm font-semibold text-gray-700 transition hover:border-brand-300 hover:text-brand-600"
+        >
+          Xem tất cả
+          <FiArrowRight aria-hidden />
+        </Link>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        {FEEDBACK_ROADMAP.map((item) => (
-          <article
-            key={item.title}
-            className="rounded-2xl border border-gray-100 bg-white p-6 shadow-theme-xs md:p-7"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="font-serif text-lg font-bold text-gray-900">
-                {item.title}
-              </h3>
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-orange-50 px-2.5 py-0.5 text-theme-xs font-bold uppercase tracking-[0.15em] text-orange-700">
-                <FiThumbsUp aria-hidden className="h-3 w-3" />
-                {item.relatedFeedbackCount}
-              </span>
-            </div>
-            <p className="mt-2 text-theme-sm leading-relaxed text-gray-600">
-              {item.description}
-            </p>
-
-            {/* Progress bar */}
-            <div className="mt-5">
-              <div className="flex items-center justify-between text-theme-xs text-gray-500">
-                <span className="font-semibold uppercase tracking-[0.15em]">
-                  Tiến độ
-                </span>
-                <span className="font-bold text-orange-700">{item.progress}%</span>
-              </div>
-              <div
-                role="progressbar"
-                aria-valuenow={item.progress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`Tiến độ ${item.title}`}
-                className="mt-2 h-2 overflow-hidden rounded-full bg-gray-100"
-              >
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-600 transition-all"
-                  style={{ width: `${item.progress}%` }}
-                />
-              </div>
-            </div>
-          </article>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {MOCK_RECENT_FEEDBACKS.map((fb) => (
+          <FeedbackCard key={fb.publicId} feedback={fb} />
         ))}
-      </div>
-    </section>
-
-    {/* ============ 05 CTA ============ */}
-    <section className="bg-gradient-to-br from-gray-900 via-brand-950 to-orange-950 py-16 text-white md:py-20">
-      <div className="site-container">
-        <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-theme-xs font-semibold uppercase tracking-[0.2em] text-white">
-            Cùng xây dựng
-          </span>
-          <h2 className="mt-5 font-serif text-3xl font-bold leading-tight md:text-4xl lg:text-5xl">
-            Mỗi góp ý đều có giá trị
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/85 md:text-lg">
-            218 tính năng đã được triển khai nhờ góp ý của cộng đồng. Cảm ơn bạn đã
-            đồng hành cùng RealtyHub.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/tro-thanh-moi-gioi"
-              className="inline-flex items-center gap-2 rounded-full bg-orange-500 px-6 py-3 text-theme-sm font-semibold text-white shadow-theme-sm transition hover:bg-orange-600"
-            >
-              Trở thành môi giới
-              <FiArrowRight aria-hidden className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/dao-tao"
-              className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-6 py-3 text-theme-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20"
-            >
-              Khám phá khoá học
-            </Link>
-          </div>
-        </div>
       </div>
     </section>
   </main>
 );
 
-// ============================================================================
-// Sub-components
-// ============================================================================
-
-const HeroStat = ({
-  icon: Icon,
-  value,
-  label,
-  accent = 'text-white',
-}: {
-  icon: React.ComponentType<{ 'aria-hidden'?: boolean; className?: string }>;
-  value: string;
-  label: string;
-  accent?: string;
-}) => (
-  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
-    <Icon aria-hidden className="mx-auto h-6 w-6 text-white/70" />
-    <div className={`mt-2 font-serif text-2xl font-bold leading-none md:text-3xl ${accent}`}>
-      {value}
-    </div>
-    <div className="mt-1.5 text-theme-xs uppercase tracking-[0.15em] text-white/70">
-      {label}
-    </div>
-  </div>
-);
-
 const FeedbackCard = ({ feedback }: { feedback: FeedbackItem }) => {
-  const tone = FEEDBACK_RATING_TONE[feedback.rating];
+  const { icon: RatingIcon, tone } = FEEDBACK_RATING_ICON[feedback.rating];
+  const CategoryIcon = FEEDBACK_CATEGORY_ICON[feedback.category];
 
   return (
-    <article className={`flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-theme-xs ${tone.bg}`}>
-      {/* Header */}
+    <article className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-theme-xs transition hover:shadow-theme-md">
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span
-            aria-hidden
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-2xl shadow-theme-xs"
-          >
-            {tone.emoji}
+        <div className="flex min-w-0 items-center gap-3">
+          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tone}`}>
+            <RatingIcon aria-hidden className="h-5 w-5" />
           </span>
-          <div>
-            <div className="font-serif text-base font-bold text-gray-900">
-              {feedback.title}
-            </div>
-            <div className="mt-0.5 flex items-center gap-2 text-theme-xs text-gray-600">
-              <span>{feedback.isAnonymous ? 'Ẩn danh' : feedback.authorName}</span>
-              <span aria-hidden>·</span>
-              <span>{formatTimeAgo(feedback.submittedAt)}</span>
-            </div>
+          <div className="min-w-0">
+            <h3 className="truncate text-theme-sm font-semibold text-gray-900">{feedback.title}</h3>
+            <p className="text-theme-xs text-gray-500">
+              {feedback.isAnonymous ? 'Ẩn danh' : feedback.authorName} · {formatTimeAgo(feedback.submittedAt)}
+            </p>
           </div>
         </div>
-        <span className={`inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-theme-xs font-bold uppercase tracking-[0.15em] ${FEEDBACK_STATUS_TONE[feedback.status]}`}>
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${FEEDBACK_STATUS_TONE[feedback.status]}`}
+        >
           {FEEDBACK_STATUS_LABELS[feedback.status]}
         </span>
       </div>
 
-      {/* Category + screenshot flag */}
-      <div className="flex items-center gap-2 text-theme-xs">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-0.5 text-gray-700">
-          <span aria-hidden>{FEEDBACK_CATEGORY_ICONS[feedback.category]}</span>
+      <div className="flex flex-wrap items-center gap-2 text-theme-xs text-gray-600">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-0.5">
+          <CategoryIcon aria-hidden className="h-3.5 w-3.5" />
           {FEEDBACK_CATEGORY_LABELS[feedback.category]}
         </span>
         {feedback.hasScreenshot && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/60 px-2 py-0.5 text-gray-500">
-            📎 có ảnh
+          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5">
+            <FiPaperclip aria-hidden className="h-3.5 w-3.5" />
+            Có ảnh
           </span>
         )}
-        <span className="ml-auto text-gray-500">{feedback.displayId}</span>
+        <span className="ml-auto text-gray-400">{feedback.displayId}</span>
       </div>
 
-      {/* Content */}
-      <p className="text-theme-sm leading-relaxed text-gray-700">{feedback.content}</p>
+      <p className="line-clamp-3 text-theme-sm leading-relaxed text-gray-600">{feedback.content}</p>
 
-      {/* Admin reply */}
       {feedback.adminReply && (
-        <div className="rounded-xl border-l-4 border-orange-500 bg-white/70 px-4 py-3 text-theme-sm">
-          <div className="text-theme-xs font-bold uppercase tracking-[0.15em] text-orange-700">
-            Phản hồi từ RealtyHub
-          </div>
+        <div className="rounded-xl border-l-4 border-brand-500 bg-brand-25 px-4 py-3 text-theme-sm">
+          <p className="text-theme-xs font-semibold text-brand-700">Phản hồi từ RealtyHub</p>
           <p className="mt-1 text-gray-700">{feedback.adminReply}</p>
         </div>
       )}
 
-      {/* Footer */}
-      <div className="flex items-center justify-between border-t border-white/40 pt-3">
+      <div className="mt-auto flex items-center justify-between border-t border-gray-100 pt-3">
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-theme-xs font-bold text-gray-700 shadow-theme-xs transition hover:bg-orange-50 hover:text-orange-700"
+          className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-1.5 text-theme-xs font-semibold text-gray-700 transition hover:bg-brand-50 hover:text-brand-600"
         >
           <FiThumbsUp aria-hidden className="h-3.5 w-3.5" />
           {feedback.upvotes} đồng thuận
         </button>
-        <span className="text-theme-xs text-gray-500">
-          Xem chi tiết →
-        </span>
+        <span className="text-theme-xs font-medium text-brand-600">Xem chi tiết →</span>
       </div>
     </article>
   );

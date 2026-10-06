@@ -32,7 +32,7 @@ const AboutInventorySection = ({ inventory }: AboutInventorySectionProps) => {
 
   return (
     <section
-      className="bg-gray-50 py-20 md:py-28"
+      className="bg-gray-50 py-10 md:py-14"
       aria-labelledby="about-inventory-heading"
     >
       <div className="site-container">
@@ -46,7 +46,7 @@ const AboutInventorySection = ({ inventory }: AboutInventorySectionProps) => {
 
           <h2
             id="about-inventory-heading"
-            className="mt-5 text-2xl font-bold uppercase leading-tight tracking-tight text-navy-800 md:text-3xl lg:text-4xl"
+            className="mt-5 text-2xl font-bold uppercase leading-tight tracking-tight text-navy-800 md:text-2xl lg:text-[28px]"
           >
             {inventory.title}
           </h2>
@@ -57,7 +57,7 @@ const AboutInventorySection = ({ inventory }: AboutInventorySectionProps) => {
         </div>
 
         {/* Callout Mien Nam - the lon, noi bat nhat section */}
-        <div className="mt-12 overflow-hidden rounded-3xl border border-brand-200 bg-white shadow-card-hover">
+        <div className="mt-8 overflow-hidden rounded-3xl border border-brand-200 bg-white shadow-card-hover">
           <div className="grid items-stretch md:grid-cols-12">
             {/* Cot trai: badge + ten mien */}
             <div className="relative flex flex-col items-center justify-center gap-3 bg-brand-600 px-6 py-8 text-center md:col-span-4 md:px-8 md:py-12">
@@ -85,7 +85,7 @@ const AboutInventorySection = ({ inventory }: AboutInventorySectionProps) => {
         </div>
 
         {/* Grid 4 highlights */}
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {inventory.highlights.map((item) => {
             const Icon = resolveAboutIcon(item.iconKey);
             return (

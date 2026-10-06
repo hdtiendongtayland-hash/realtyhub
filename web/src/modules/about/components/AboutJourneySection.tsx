@@ -21,7 +21,7 @@ type AboutJourneySectionProps = {
 
 const AboutJourneySection = ({ journey }: AboutJourneySectionProps) => (
   <section
-    className="border-y border-gray-200 bg-gray-50/70 py-20 md:py-28"
+    className="border-y border-gray-200 bg-gray-50/70 py-10 md:py-14"
     aria-labelledby="about-journey-heading"
   >
     <div className="site-container grid gap-12 lg:grid-cols-12 lg:gap-16">
@@ -35,7 +35,7 @@ const AboutJourneySection = ({ journey }: AboutJourneySectionProps) => (
 
         <h2
           id="about-journey-heading"
-          className="mt-5 text-2xl font-bold uppercase leading-tight tracking-tight text-navy-800 md:text-3xl lg:text-4xl"
+          className="mt-5 text-2xl font-bold uppercase leading-tight tracking-tight text-navy-800 md:text-2xl lg:text-[28px]"
         >
           {journey.title}
         </h2>
@@ -44,7 +44,7 @@ const AboutJourneySection = ({ journey }: AboutJourneySectionProps) => (
           {journey.subtitle}
         </p>
 
-        <ol className="mt-12 space-y-6">
+        <ol className="mt-8 space-y-6">
           {journey.steps.map((step, index) => (
             <li key={step.title} className="relative flex gap-5">
               {/* So thu tu */}

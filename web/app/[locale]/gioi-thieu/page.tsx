@@ -29,14 +29,9 @@
  * qua `generateMetadata` (Next 16 cần `params` là Promise).
  */
 
+import AboutPageView from '@/modules/about/components/AboutPageView';
 import type { Metadata } from 'next';
 
-import AboutCtaSection from '@/modules/about/components/AboutCtaSection';
-import AboutHeroSection from '@/modules/about/components/AboutHeroSection';
-import AboutIntroSection from '@/modules/about/components/AboutIntroSection';
-import AboutInventorySection from '@/modules/about/components/AboutInventorySection';
-import AboutJourneySection from '@/modules/about/components/AboutJourneySection';
-import AboutTrustedSection from '@/modules/about/components/AboutTrustedSection';
 import { MOCK_ABOUT_PAGE } from '@/modules/about/mocks/about-page.mock';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
@@ -64,25 +59,5 @@ export default async function GioiThieuPage({
 
   const ABOUT = MOCK_ABOUT_PAGE;
 
-  return (
-    <main className="bg-white">
-      {/* 1. HERO - hiện đã self-contained, đọc text từ `about.hero` */}
-      <AboutHeroSection />
-
-      {/* 2. VỀ REALTYHUB - nền tảng cho môi giới */}
-      <AboutIntroSection intro={ABOUT.intro} />
-
-      {/* 3. QUỸ CĂN PHONG PHÚ - tập trung miền Nam */}
-      <AboutInventorySection inventory={ABOUT.inventory} />
-
-      {/* 4. ĐƯỢC KHÁCH HÀNG TIN TƯỞNG VÀ LỰA CHỌN */}
-      <AboutTrustedSection trusted={ABOUT.trusted} />
-
-      {/* 5. ĐỒNG HÀNH CÙNG BẠN TỪ A ĐẾN Z */}
-      <AboutJourneySection journey={ABOUT.journey} />
-
-      {/* 6. CTA - Trở thành cộng tác viên */}
-      <AboutCtaSection cta={ABOUT.cta} />
-    </main>
-  );
+  return <AboutPageView content={ABOUT} />;
 }
