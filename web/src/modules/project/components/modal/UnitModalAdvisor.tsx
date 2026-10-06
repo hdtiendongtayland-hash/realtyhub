@@ -162,16 +162,16 @@ const UnitModalAdvisor = ({
                   {advisor.role}
                 </span>
               )}
-              <div className="flex items-center gap-2 laptop:gap-1">
+              <div className="flex items-center gap-2 max-md:gap-1.5 md:max-xl:gap-1.5 laptop:gap-1">
                 <img
                   src={advisor.avatar}
                   alt={advisor.name}
-                  className="h-12 w-12 rounded-full object-cover border-2 border-white shadow-2xs laptop:h-8 laptop:w-8"
+                  className="h-12 w-12 shrink-0 rounded-full object-cover border-2 border-white shadow-2xs max-md:h-11 max-md:w-11 md:max-xl:h-9 md:max-xl:w-9 laptop:h-8 laptop:w-8"
                 />
                 <button
                   type="button"
                   onClick={() => onCall ? onCall(advisor) : window.open(`tel:${advisor.phone}`)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95 md:max-xl:h-8 md:max-xl:w-8 laptop:h-7 laptop:w-7"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 text-white shadow-xs transition-all hover:bg-emerald-600 active:scale-95 shrink-0 md:max-xl:h-7 md:max-xl:w-7 laptop:h-7 laptop:w-7"
                   title="Gọi điện"
                 >
                   <FiPhone className="h-4 w-4 fill-white md:max-xl:h-3.5 md:max-xl:w-3.5 laptop:h-3.5 laptop:w-3.5" />
@@ -179,10 +179,10 @@ const UnitModalAdvisor = ({
                 <button
                   type="button"
                   onClick={() => onMessage && onMessage(advisor)}
-                  className="flex h-12 w-12 items-center justify-center rounded-lg transition-all active:scale-95 md:max-xl:h-11 md:max-xl:w-11 laptop:h-8 laptop:w-8"
+                  className="flex h-12 w-12 items-center justify-center rounded-lg transition-all active:scale-95 shrink-0 max-md:h-9 max-md:w-9 md:max-xl:h-7 md:max-xl:w-7 laptop:h-8 laptop:w-8"
                   title="Nhắn tin"
                 >
-                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={32} height={32} className="md:max-xl:h-7 md:max-xl:w-7 laptop:h-6 laptop:w-6" />
+                  <Image src="/images/logo-zalo.webp" alt="Zalo" width={32} height={32} className="max-md:h-8 max-md:w-8 md:max-xl:h-6 md:max-xl:w-6 laptop:h-6 laptop:w-6" />
                 </button>
                 <button
                   type="button"
@@ -190,10 +190,10 @@ const UnitModalAdvisor = ({
                     const link = toViberLink(advisor.phone);
                     if (link) window.open(link, '_blank', 'noopener,noreferrer');
                   }}
-                  className="flex h-12 w-12 items-center justify-center rounded-lg transition-all active:scale-95 md:max-xl:h-11 md:max-xl:w-11 laptop:h-8 laptop:w-8"
+                  className="flex h-12 w-12 items-center justify-center rounded-lg transition-all active:scale-95 shrink-0 max-md:h-9 max-md:w-9 md:max-xl:h-7 md:max-xl:w-7 laptop:h-8 laptop:w-8"
                   title="Nhắn tin Viber"
                 >
-                  <Image src="/images/logo-viber.jpg" alt="Viber" width={32} height={32} className="rounded-full object-cover md:max-xl:h-7 md:max-xl:w-7 laptop:h-6 laptop:w-6" />
+                  <Image src="/images/logo-viber.jpg" alt="Viber" width={32} height={32} className="h-8 w-8 rounded-full object-cover max-md:h-7 max-md:w-7 md:max-xl:h-6 md:max-xl:w-6 laptop:h-6 laptop:w-6" />
                 </button>
               </div>
             </div>
