@@ -47,68 +47,84 @@ const EventFilterBar = () => {
 
   const hasFilter = FILTER_KEYS.some((key) => searchParams.get(key));
 
+  // Cung kieu khung loc o trang du an: nhan in hoa nho tren, o cao 48px bo goc
   const field =
-    'h-11 w-full rounded-lg border border-gray-200 bg-white text-theme-sm text-gray-800 outline-none transition focus:border-brand-400 focus:shadow-focus-ring';
+    'h-11 w-full rounded-lg border bg-white text-theme-sm outline-none transition placeholder:text-gray-400 focus:border-brand-400 focus:shadow-focus-ring';
 
-  const select = (key: 'type' | 'status', placeholder: string, options: { value: string; label: string }[]) => (
-    <span className="relative block">
-      <select
-        aria-label={placeholder}
-        value={searchParams.get(key) ?? ''}
-        onChange={(change) => update({ [key]: change.target.value })}
-        className={`${field} appearance-none pr-9 pl-3 ${searchParams.get(key) ? 'border-brand-300' : ''}`}
-      >
-        <option value="">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      <FiChevronDown
-        aria-hidden
-        className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-400"
-      />
-    </span>
+  const labelOf = (text: string) => (
+    <span className="mb-1.5 block text-[11px] font-semibold tracking-wide text-gray-600 uppercase">{text}</span>
+  );
+
+  const select = (
+    key: 'type' | 'status',
+    label: string,
+    placeholder: string,
+    options: { value: string; label: string }[],
+  ) => (
+    <label className="block">
+      {labelOf(label)}
+      <span className="relative block">
+        <select
+          value={searchParams.get(key) ?? ''}
+          onChange={(change) => update({ [key]: change.target.value })}
+          className={`${field} appearance-none truncate pr-9 pl-3 ${searchParams.get(key) ? 'border-brand-300 text-gray-900' : 'border-gray-200 text-gray-400'}`}
+        >
+          <option value="">{placeholder}</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value} className="text-gray-900">
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <FiChevronDown
+          aria-hidden
+          className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+        />
+      </span>
+    </label>
   );
 
   const dateField = (key: 'from' | 'to', label: string) => (
-    <label className={`${field} flex items-center gap-2 pl-3 ${searchParams.get(key) ? 'border-brand-300' : ''}`}>
-      <span className="shrink-0 font-semibold text-gray-500">{label}</span>
+    <label className="block">
+      {labelOf(label)}
       <input
         type="date"
         value={searchParams.get(key) ?? ''}
         onChange={(change) => update({ [key]: change.target.value })}
-        className="h-full min-w-0 flex-1 bg-transparent pr-2 text-gray-800 outline-none"
+        className={`${field} px-3 ${searchParams.get(key) ? 'border-brand-300 text-gray-900' : 'border-gray-200 text-gray-400'}`}
       />
     </label>
   );
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3 shadow-sm sm:p-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.6fr)_repeat(4,minmax(0,1fr))_auto]">
-        <label className="relative block sm:col-span-2 lg:col-span-1">
-          <FiSearch
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="search"
-            value={keyword}
-            onChange={(change) => setKeyword(change.target.value)}
-            placeholder="Tìm kiếm sự kiện..."
-            aria-label="Tìm kiếm sự kiện"
-            className={`${field} pr-3 pl-9 placeholder:text-gray-400`}
-          />
+    <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-xs md:mb-10 md:p-6">
+      <div className="grid grid-cols-1 gap-x-5 gap-y-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_repeat(4,minmax(0,1fr))_auto] lg:items-end">
+        <label className="block sm:col-span-2 lg:col-span-1">
+          {labelOf('Tìm kiếm')}
+          <span className="relative block">
+            <FiSearch
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="search"
+              value={keyword}
+              onChange={(change) => setKeyword(change.target.value)}
+              placeholder="Tên sự kiện"
+              aria-label="Tìm kiếm sự kiện"
+              className={`${field} pr-3 pl-9 text-gray-900 ${keyword ? 'border-brand-300' : 'border-gray-200'}`}
+            />
+          </span>
         </label>
         {select(
           'type',
-          'Tất cả loại',
+          'Loại sự kiện',
+          'Loại sự kiện',
           EVENT_TYPE_FILTERS.map((type) => ({ value: type, label: EVENT_TYPE_LABELS[type] })),
         )}
-        {select('status', 'Tất cả trạng thái', STATUS_OPTIONS)}
-        {dateField('from', 'Từ')}
-        {dateField('to', 'Đến')}
+        {select('status', 'Trạng thái', 'Trạng thái', STATUS_OPTIONS)}
+        {dateField('from', 'Từ ngày')}
+        {dateField('to', 'Đến ngày')}
         <button
           type="button"
           onClick={() => {
@@ -116,13 +132,12 @@ const EventFilterBar = () => {
             router.replace(pathname, { scroll: false });
           }}
           disabled={!hasFilter}
-          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 text-theme-sm font-medium text-gray-600 transition hover:border-brand-300 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-40 sm:col-span-2 lg:col-span-1"
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-5 text-theme-sm font-medium text-gray-600 transition hover:border-brand-300 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-40 sm:col-span-2 lg:col-span-1"
         >
           <FiX aria-hidden />
           Xóa lọc
         </button>
       </div>
-   
     </div>
   );
 };

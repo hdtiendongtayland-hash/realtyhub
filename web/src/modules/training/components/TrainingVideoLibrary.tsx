@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { FiChevronLeft, FiChevronRight, FiList, FiPlay, FiPlayCircle, FiSearch, FiX } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiList, FiPlay, FiPlayCircle, FiSearch, FiX } from 'react-icons/fi';
 import {
   TRAINING_PLAYLISTS,
   TRAINING_VIDEO_TOPICS,
@@ -202,11 +202,6 @@ const TrainingVideoLibrary = () => {
     [videos, currentPage],
   );
 
-  // Khi loc/tim kiem thay doi -> ve trang 1
-  useEffect(() => {
-    setVideoPage(1);
-  }, [topic, keyword]);
-
   const inProgress = TRAINING_VIDEOS.filter((video) => video.progress !== undefined);
   const byId = new Map(TRAINING_VIDEOS.map((video) => [video.publicId, video]));
 
@@ -228,7 +223,10 @@ const TrainingVideoLibrary = () => {
           <input
             type="search"
             value={keyword}
-            onChange={(change) => setKeyword(change.target.value)}
+            onChange={(change) => {
+              setKeyword(change.target.value);
+              setVideoPage(1); // loc thay doi -> ve trang 1
+            }}
             placeholder="Tìm theo tên bài giảng, giảng viên..."
             aria-label="Tìm kiếm trong thư viện đào tạo"
             className="h-9 min-w-0 flex-1 bg-transparent text-base text-gray-800 outline-none placeholder:text-gray-400"
@@ -270,11 +268,17 @@ const TrainingVideoLibrary = () => {
       {tab === 'video' && (
         <>
           <div className="mb-6 no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto">
-              <button type="button" onClick={() => setTopic('tat-ca')} className={chip(topic === 'tat-ca')}>
+              <button type="button" onClick={() => {
+                  setTopic('tat-ca');
+                  setVideoPage(1);
+                }} className={chip(topic === 'tat-ca')}>
                 Tất cả
               </button>
               {TRAINING_VIDEO_TOPICS.map((item) => (
-                <button key={item.key} type="button" onClick={() => setTopic(item.key)} className={chip(topic === item.key)}>
+                <button key={item.key} type="button" onClick={() => {
+                  setTopic(item.key);
+                  setVideoPage(1);
+                }} className={chip(topic === item.key)}>
                   {item.label}
                 </button>
               ))}
@@ -291,15 +295,16 @@ const TrainingVideoLibrary = () => {
               </div>
 
               {totalPages > 1 && (
-                <nav aria-label="Phân trang video" className="mt-10 flex items-center justify-center gap-1.5">
+                <nav aria-label="Phân trang video" className="mt-12 flex items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => setVideoPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage === 1}
                     aria-label="Trang trước"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-brand-300 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-theme-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-400"
                   >
-                    <FiChevronLeft aria-hidden />
+                    <FiArrowLeft aria-hidden className="h-4 w-4" />
+                    Trước
                   </button>
                   {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => {
                     const isActive = page === currentPage;
@@ -310,10 +315,10 @@ const TrainingVideoLibrary = () => {
                         onClick={() => setVideoPage(page)}
                         aria-current={isActive ? 'page' : undefined}
                         aria-label={`Trang ${page}`}
-                        className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-3 text-theme-sm font-semibold transition ${
+                        className={`inline-flex h-10 min-w-10 items-center justify-center rounded-full px-3 text-theme-sm font-semibold transition ${
                           isActive
-                            ? 'bg-gray-900 text-white shadow-theme-xs'
-                            : 'border border-gray-200 bg-white text-gray-700 hover:border-brand-300 hover:text-brand-600'
+                            ? 'bg-brand-500 text-white shadow-theme-sm'
+                            : 'border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
                         {page}
@@ -325,9 +330,10 @@ const TrainingVideoLibrary = () => {
                     onClick={() => setVideoPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage === totalPages}
                     aria-label="Trang sau"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-brand-300 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-theme-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-400"
                   >
-                    <FiChevronRight aria-hidden />
+                    Sau
+                    <FiArrowRight aria-hidden className="h-4 w-4" />
                   </button>
                 </nav>
               )}

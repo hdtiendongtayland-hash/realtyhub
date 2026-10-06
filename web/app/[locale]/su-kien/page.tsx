@@ -352,9 +352,9 @@ const SuKienPage = async ({
         </div>
       </section> */}
 
-      <div className="site-container pt-8">
+      <div className="site-container pt-10 md:pt-12">
         {/* Tieu de o giua, nut quet QR check-in goc phai */}
-        <div className="relative mb-6 flex items-center justify-center max-sm:flex-col max-sm:gap-3">
+        <div className="relative mb-8 flex items-center justify-center max-sm:flex-col max-sm:gap-3 md:mb-10">
           <h1 className="text-center text-3xl font-bold uppercase tracking-wide text-gray-900">
             Danh sách Sự kiện
           </h1>
