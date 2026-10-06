@@ -14,6 +14,8 @@ type ThumbCarouselProps = {
   /** Tam dung tu chuyen - the dang duoc ro chuot chang han */
   paused?: boolean;
   className?: string;
+  /** 'blur': anh hien tron, hai ben lap bang anh mo (xem PlaceholderThumb) */
+  fit?: 'cover' | 'contain' | 'blur';
 };
 
 const ThumbCarousel = ({
@@ -22,6 +24,7 @@ const ThumbCarousel = ({
   alt,
   paused = false,
   className = '',
+  fit = 'cover',
 }: ThumbCarouselProps) => {
   const [index, setIndex] = useState(0);
 
@@ -57,6 +60,7 @@ const ThumbCarousel = ({
             seed={`${seed}-${slideIndex}`}
             src={src || undefined}
             alt={slideIndex === index ? alt : ''}
+            fit={fit}
           />
         </div>
       ))}

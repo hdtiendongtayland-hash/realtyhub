@@ -227,7 +227,7 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
                   type="button"
                   onClick={() => onChange(tab.key)}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] transition duration-200 ${
+                  className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] transition duration-200 lg:px-[9px] ${
                     isActive
                       ? 'brand-gradient font-semibold text-white shadow-[0_4px_14px_-4px_rgba(15,111,209,0.7)]'
                       : tab.key === HOT_TAB

@@ -23,7 +23,11 @@ type PlaceholderThumbProps = {
   src?: string;
   alt?: string;
 
-  fit?: 'cover' | 'contain';
+  /**
+   * 'blur': anh hien tron (khong cat) o giua, phan khung con trong hai ben /
+   * tren duoi duoc lap bang chinh anh do phong to + lam mo.
+   */
+  fit?: 'cover' | 'contain' | 'blur';
   className?: string;
 };
 
@@ -35,6 +39,28 @@ const PlaceholderThumb = ({
   fit = 'cover',
   className = '',
 }: PlaceholderThumbProps) => {
+  if (src && fit === 'blur') {
+    return (
+      <div className={`relative h-full w-full overflow-hidden bg-gray-900 ${className}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-80 blur-xl"
+          loading="lazy"
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={alt ?? label ?? ''}
+          className="relative h-full w-full object-contain"
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+
   if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element

@@ -52,6 +52,9 @@ const PARAM = {
   limit: 'sl',
 } as const;
 
+/** Anh phieu can (anh doc) dung chung cho moi the tren trang Quy can - hien tron, hai ben lam mo */
+const UNIT_SHEET_IMAGES = ['/images/units/phieu-can-mau.webp'];
+
 const ALLOWED_LIMITS = [12, 24, 48];
 const DEFAULT_LIMIT = 24;
 
@@ -487,7 +490,12 @@ const UnitInventoryPage = () => {
           }`}
         >
           {animatedGrid.map((unit) => (
-            <UnitCard key={unit.publicId} unit={unit} onUnitClick={handleUnitClick} />
+            <UnitCard
+              key={unit.publicId}
+              unit={unit}
+              imageUrls={UNIT_SHEET_IMAGES}
+              onUnitClick={handleUnitClick}
+            />
           ))}
         </div>
       )}
