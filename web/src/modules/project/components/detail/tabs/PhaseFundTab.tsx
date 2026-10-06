@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   useEffect,
@@ -8,12 +8,16 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type ReactNode,
-} from 'react';
-import type { IconType } from 'react-icons';
-import { FiChevronDown } from 'react-icons/fi';
-import { HiOutlineBuildingOffice2, HiOutlineFire, HiOutlineMap } from 'react-icons/hi2';
-import { formatNumber } from '@/common/utils/format';
-import { useProjectUnits } from '../../../hooks/useProjects';
+} from "react";
+import type { IconType } from "react-icons";
+import { FiChevronDown } from "react-icons/fi";
+import {
+  HiOutlineBuildingOffice2,
+  HiOutlineFire,
+  HiOutlineMap,
+} from "react-icons/hi2";
+import { formatNumber } from "@/common/utils/format";
+import { useProjectUnits } from "../../../hooks/useProjects";
 import {
   DEFAULT_UNIT_QUERY,
   type FundGroup,
@@ -25,12 +29,12 @@ import {
   type ProjectUnit,
   type UnitStatus,
   type UnitWithProject,
-} from '../../../models/project-detail.model';
-import UnitModal from '../../UnitModal';
-import UnitAxisModal from '../../modal/UnitAxisModal';
-import { MediaFrame, TabEmptyState } from '../shared';
-import FloorPlanTab from './FloorPlanTab';
-import SalesPolicyTab from './SalesPolicyTab';
+} from "../../../models/project-detail.model";
+import UnitModal from "../../UnitModal";
+import UnitAxisModal from "../../modal/UnitAxisModal";
+import { MediaFrame, TabEmptyState } from "../shared";
+import FloorPlanTab from "./FloorPlanTab";
+import SalesPolicyTab from "./SalesPolicyTab";
 
 /**
  * Tab "Vi tri quy can": cac phan khu xep thanh mot hang the nam ngang, bam
@@ -42,32 +46,38 @@ import SalesPolicyTab from './SalesPolicyTab';
  */
 
 const INNER_TABS = [
-  { key: 'tong-quan', label: 'Tổng quan' },
-  { key: 'vi-tri', label: 'Vị trí' },
-  { key: 'quy-hang', label: 'Quỹ hàng' },
-  { key: 'vi-tri-quy-hang', label: 'Vị trí quỹ hàng' },
-  { key: 'mat-bang', label: 'Mặt bằng' },
-  { key: 'chinh-sach-ban-hang', label: 'Chính sách bán hàng' },
+  { key: "tong-quan", label: "Tổng quan" },
+  { key: "vi-tri", label: "Vị trí" },
+  { key: "quy-hang", label: "Quỹ hàng" },
+  { key: "vi-tri-quy-hang", label: "Vị trí quỹ hàng" },
+  { key: "mat-bang", label: "Mặt bằng" },
+  { key: "chinh-sach-ban-hang", label: "Chính sách bán hàng" },
 ] as const;
 
-type InnerTabKey = (typeof INNER_TABS)[number]['key'];
+type InnerTabKey = (typeof INNER_TABS)[number]["key"];
 
 /** Tab con can noi bat (nhap nhay) - cung vai tro voi HOT_TAB o ProjectTabNav */
-const HOT_INNER_TAB: InnerTabKey = 'vi-tri-quy-hang';
+const HOT_INNER_TAB: InnerTabKey = "vi-tri-quy-hang";
 
-const SEGMENT_SHORT_LABELS: Record<ProjectDetail['segment'], string> = {
-  'cao-tang': 'Cao tầng',
-  'thap-tang': 'Thấp tầng',
+const SEGMENT_SHORT_LABELS: Record<ProjectDetail["segment"], string> = {
+  "cao-tang": "Cao tầng",
+  "thap-tang": "Thấp tầng",
 };
 
 const STATUS_TONES: Record<UnitStatus, string> = {
-  'con-hang': 'bg-success-50 text-success-600',
-  'giu-cho': 'bg-amber-50 text-amber-700',
-  'da-ban': 'bg-gray-100 text-gray-500',
+  "con-hang": "bg-success-50 text-success-600",
+  "giu-cho": "bg-amber-50 text-amber-700",
+  "da-ban": "bg-gray-100 text-gray-500",
 };
 
 /** Bang san pham cua mot phan khu - toi da 100 can, cuon doc trong khung */
-const PhaseUnitsTable = ({ slug, phaseName }: { slug: string; phaseName: string }) => {
+const PhaseUnitsTable = ({
+  slug,
+  phaseName,
+}: {
+  slug: string;
+  phaseName: string;
+}) => {
   const query = useMemo(
     () => ({ ...DEFAULT_UNIT_QUERY, phaseName, limit: 100 }),
     [phaseName],
@@ -80,7 +90,9 @@ const PhaseUnitsTable = ({ slug, phaseName }: { slug: string; phaseName: string 
   }
 
   if (units.length === 0) {
-    return <TabEmptyState message="Phân khu chưa có sản phẩm trong giỏ hàng." />;
+    return (
+      <TabEmptyState message="Phân khu chưa có sản phẩm trong giỏ hàng." />
+    );
   }
 
   return (
@@ -92,23 +104,40 @@ const PhaseUnitsTable = ({ slug, phaseName }: { slug: string; phaseName: string 
         <table className="w-full min-w-160 text-left text-theme-sm">
           <thead className="sticky top-0 z-10 bg-gray-100 text-gray-700">
             <tr>
-              {['STT', 'Mã căn', 'Hướng', 'Diện tích (m²)', 'Loại SP', 'Trạng thái'].map(
-                (label) => (
-                  <th key={label} className="px-4 py-3 font-semibold whitespace-nowrap">
-                    {label}
-                  </th>
-                ),
-              )}
+              {[
+                "STT",
+                "Mã căn",
+                "Hướng",
+                "Diện tích (m²)",
+                "Loại SP",
+                "Trạng thái",
+              ].map((label) => (
+                <th
+                  key={label}
+                  className="px-4 py-3 font-semibold whitespace-nowrap"
+                >
+                  {label}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {units.map((unit, index) => (
-              <tr key={unit.publicId} className="border-t border-gray-100 text-gray-700">
+              <tr
+                key={unit.publicId}
+                className="border-t border-gray-100 text-gray-700"
+              >
                 <td className="px-4 py-3">{index + 1}</td>
-                <td className="px-4 py-3 font-medium text-gray-900">{unit.code}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{unit.direction}</td>
+                <td className="px-4 py-3 font-medium text-gray-900">
+                  {unit.code}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {unit.direction}
+                </td>
                 <td className="px-4 py-3">{formatNumber(unit.landArea)}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{unit.propertyTypeLabel}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {unit.propertyTypeLabel}
+                </td>
                 <td className="px-4 py-3">
                   <span
                     className={`inline-flex rounded-full px-2.5 py-1 text-theme-xs font-semibold whitespace-nowrap ${STATUS_TONES[unit.status]}`}
@@ -126,8 +155,16 @@ const PhaseUnitsTable = ({ slug, phaseName }: { slug: string; phaseName: string 
 };
 
 /** Ban ve / anh phoi canh xep doc, xem tron anh (contain) */
-const PlanImages = ({ phase, onlyFirst = false }: { phase: ProjectPhase; onlyFirst?: boolean }) => {
-  const sheets = onlyFirst ? phase.masterPlanImages.slice(0, 1) : phase.masterPlanImages;
+const PlanImages = ({
+  phase,
+  onlyFirst = false,
+}: {
+  phase: ProjectPhase;
+  onlyFirst?: boolean;
+}) => {
+  const sheets = onlyFirst
+    ? phase.masterPlanImages.slice(0, 1)
+    : phase.masterPlanImages;
 
   if (sheets.length === 0) {
     return (
@@ -171,7 +208,9 @@ const PhaseOverview = ({ phase }: { phase: ProjectPhase }) => (
           className="flex items-baseline justify-between gap-4 border-b border-dashed border-gray-200 py-3"
         >
           <dt className="shrink-0 text-theme-sm text-gray-500">{spec.label}</dt>
-          <dd className="text-right text-theme-sm font-medium text-gray-900">{spec.value}</dd>
+          <dd className="text-right text-theme-sm font-medium text-gray-900">
+            {spec.value}
+          </dd>
         </div>
       ))}
     </dl>
@@ -184,7 +223,8 @@ const PhaseOverview = ({ phase }: { phase: ProjectPhase }) => (
   </div>
 );
 
-const floorNumber = (unit: ProjectUnit) => Number(unit.floor?.match(/\d+/)?.[0] ?? 0);
+const floorNumber = (unit: ProjectUnit) =>
+  Number(unit.floor?.match(/\d+/)?.[0] ?? 0);
 
 /**
  * Dai tang cho nut "TANG ..." - CHI khi moi can deu la can ho cao tang: cac
@@ -192,16 +232,20 @@ const floorNumber = (unit: ProjectUnit) => Number(unit.floor?.match(/\d+/)?.[0] 
  * Thap tang (nha pho, biet thu) va HON HOP (co ca can ho lan nha thap tang,
  * VD tong the Blanca City) khong co mot dai tang chung: tra ve rong, an nut.
  */
-const isApartmentUnit = (unit: ProjectUnit) => Boolean(unit.floor) && (unit.floors ?? 1) <= 1;
+const isApartmentUnit = (unit: ProjectUnit) =>
+  Boolean(unit.floor) && (unit.floors ?? 1) <= 1;
 
 const formatFloorRanges = (units: ProjectUnit[]) => {
-  if (units.length === 0 || !units.every(isApartmentUnit)) return '';
+  if (units.length === 0 || !units.every(isApartmentUnit)) return "";
   const floors = [
     ...new Set(
-      units.filter((unit) => (unit.floors ?? 1) <= 1).map(floorNumber).filter((floor) => floor > 0),
+      units
+        .filter((unit) => (unit.floors ?? 1) <= 1)
+        .map(floorNumber)
+        .filter((floor) => floor > 0),
     ),
   ].sort((a, b) => a - b);
-  if (floors.length === 0) return '';
+  if (floors.length === 0) return "";
 
   const ranges: string[] = [];
   let start = floors[0];
@@ -215,7 +259,7 @@ const formatFloorRanges = (units: ProjectUnit[]) => {
     start = floor;
     previous = floor;
   }
-  return ranges.join(',');
+  return ranges.join(",");
 };
 
 /**
@@ -225,7 +269,8 @@ const formatFloorRanges = (units: ProjectUnit[]) => {
  */
 const unitFromMarker = (marker: PlanMarker): ProjectUnit => {
   const numbers = marker.code.match(/\d+/g) ?? [];
-  const roundMillion = (value: number) => Math.round(value / 1_000_000) * 1_000_000;
+  const roundMillion = (value: number) =>
+    Math.round(value / 1_000_000) * 1_000_000;
   return {
     publicId: `marker-${marker.publicId}`,
     code: marker.code,
@@ -233,9 +278,10 @@ const unitFromMarker = (marker: PlanMarker): ProjectUnit => {
     listedPrice: marker.price,
     netPrice: roundMillion(marker.price * 0.95),
     fullVatPrice: roundMillion(marker.price * 1.08),
-    unitPrice: marker.landArea > 0 ? Math.round(marker.price / marker.landArea) : 0,
+    unitPrice:
+      marker.landArea > 0 ? Math.round(marker.price / marker.landArea) : 0,
     propertyTypeLabel: marker.propertyTypeLabel,
-    direction: 'Đang cập nhật',
+    direction: "Đang cập nhật",
     landArea: marker.landArea,
     buildArea: marker.landArea,
     phaseName: marker.phaseName,
@@ -278,7 +324,11 @@ const PhaseFloorPlan = ({
   filterSlot?: HTMLElement | null;
 }) => {
   const query = useMemo(
-    () => ({ ...DEFAULT_UNIT_QUERY, phaseName: phaseName ?? null, limit: 5000 }),
+    () => ({
+      ...DEFAULT_UNIT_QUERY,
+      phaseName: phaseName ?? null,
+      limit: 5000,
+    }),
     [phaseName],
   );
   const unitsQuery = useProjectUnits(project.slug, query);
@@ -289,7 +339,9 @@ const PhaseFloorPlan = ({
     const units = unitsQuery.data?.units ?? [];
     const byCode = new Map(units.map((unit) => [unit.code, unit]));
     const taken = new Set(
-      planMap.markers.flatMap((marker) => byCode.get(marker.code)?.publicId ?? []),
+      planMap.markers.flatMap(
+        (marker) => byCode.get(marker.code)?.publicId ?? [],
+      ),
     );
     const spare = units.filter((unit) => !taken.has(unit.publicId));
     const built: ProjectUnit[] = [];
@@ -313,7 +365,8 @@ const PhaseFloorPlan = ({
       new Map(
         project.phases.map((item) => [
           item.name,
-          item.specs.find((spec) => spec.label === 'Tiêu chuẩn bàn giao')?.value,
+          item.specs.find((spec) => spec.label === "Tiêu chuẩn bàn giao")
+            ?.value,
         ]),
       ),
     [project.phases],
@@ -335,10 +388,14 @@ const PhaseFloorPlan = ({
               // Them cho bo loc ban do
               direction: unit.direction,
               unitPrice: unit.unitPrice,
-              block: unit.code.split('-')[0],
-              handoverStandard: handoverByPhase.get(unit.phaseName) ?? unit.handoverStatus,
+              block: unit.code.split("-")[0],
+              handoverStandard:
+                handoverByPhase.get(unit.phaseName) ?? unit.handoverStatus,
               // Can ho: co tang va chi mot tang; con lai la nha thap tang
-              kind: unit.floor && (unit.floors ?? 1) <= 1 ? 'cao-tang' : 'thap-tang',
+              kind:
+                unit.floor && (unit.floors ?? 1) <= 1
+                  ? "cao-tang"
+                  : "thap-tang",
               floor: unit.floor,
               unitLine: unit.unitLine,
               frontage: unit.frontage,
@@ -411,14 +468,14 @@ const PhaseFloorPlan = ({
   );
 };
 
-type MapMode = '3d' | '2d';
+type MapMode = "3d" | "2d";
 
 /** Gia tri "chon tong the du an" trong thanh chon ban do */
-const WHOLE_PROJECT = 'tong-the';
+const WHOLE_PROJECT = "tong-the";
 
 const MAP_MODE_HINTS: Record<MapMode, string> = {
-  '3d': 'Toàn cảnh',
-  '2d': 'Mặt bằng',
+  "3d": "Toàn cảnh",
+  "2d": "Mặt bằng",
 };
 
 /** Goi y hien them bao lau sau khi gat chuyen che do */
@@ -431,7 +488,13 @@ const MODE_HINT_FLASH_MS = 1500;
  * - Ro chuot nua nao thi hien ten nua do ("Toan canh" / "Mat bang").
  * - Vua bam chuyen thi hien ten che do moi ~1,5 giay.
  */
-const MapModeSwitch = ({ mode, onChange }: { mode: MapMode; onChange: (mode: MapMode) => void }) => {
+const MapModeSwitch = ({
+  mode,
+  onChange,
+}: {
+  mode: MapMode;
+  onChange: (mode: MapMode) => void;
+}) => {
   const [hovered, setHovered] = useState<MapMode | null>(null);
   const [isFlashing, setIsFlashing] = useState(false);
   const flashTimerRef = useRef<number | undefined>(undefined);
@@ -442,7 +505,10 @@ const MapModeSwitch = ({ mode, onChange }: { mode: MapMode; onChange: (mode: Map
     if (next !== mode) onChange(next);
     setIsFlashing(true);
     window.clearTimeout(flashTimerRef.current);
-    flashTimerRef.current = window.setTimeout(() => setIsFlashing(false), MODE_HINT_FLASH_MS);
+    flashTimerRef.current = window.setTimeout(
+      () => setIsFlashing(false),
+      MODE_HINT_FLASH_MS,
+    );
   };
 
   // Goi y: nua dang ro chuot; khong ro chuot thi che do dang xem
@@ -462,10 +528,10 @@ const MapModeSwitch = ({ mode, onChange }: { mode: MapMode; onChange: (mode: Map
       <span
         aria-hidden
         className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card transition-[left] duration-300 ease-out ${
-          mode === '2d' ? 'left-[calc(100%-1.5rem)]' : 'left-1'
+          mode === "2d" ? "left-[calc(100%-1.5rem)]" : "left-1"
         }`}
       />
-      {(['3d', '2d'] as const).map((value) => (
+      {(["3d", "2d"] as const).map((value) => (
         <button
           key={value}
           type="button"
@@ -482,8 +548,8 @@ const MapModeSwitch = ({ mode, onChange }: { mode: MapMode; onChange: (mode: Map
       <span
         aria-hidden
         className={`pointer-events-none absolute top-full mt-1.5 -translate-x-1/2 rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap text-white shadow-card transition-[opacity,left] duration-150 ${
-          hintMode === '3d' ? 'left-1/4' : 'left-3/4'
-        } ${isHintVisible ? 'opacity-100' : 'opacity-0'}`}
+          hintMode === "3d" ? "left-1/4" : "left-3/4"
+        } ${isHintVisible ? "opacity-100" : "opacity-0"}`}
       >
         {MAP_MODE_HINTS[hintMode]}
       </span>
@@ -506,15 +572,25 @@ export const PhaseMapViews = ({
   project,
   phase,
   highRise,
+  hideTargets = false,
+  externalFilterSlot,
 }: {
   project: ProjectDetail;
   phase?: ProjectPhase;
   highRise: boolean;
+  /** Trong tab Phan khu: an hang nut tong the / phan khu (da chon phan khu o the ben tren) */
+  hideTargets?: boolean;
+  /** Cho dat nut "Bo loc" ben ngoai (VD canh thanh tab con cua phan khu) */
+  externalFilterSlot?: HTMLElement | null;
 }) => {
-  const [mode, setMode] = useState<MapMode>('3d');
+  const [mode, setMode] = useState<MapMode>("3d");
   // O cuoi hang nut phan khu - ban do dua nut "Bo loc" (chi icon) vao day
-  const [filterSlot, setFilterSlot] = useState<HTMLDivElement | null>(null);
-  const [targetId, setTargetId] = useState<string>(phase?.publicId ?? WHOLE_PROJECT);
+  const [ownFilterSlot, setFilterSlot] = useState<HTMLDivElement | null>(null);
+  const filterSlot =
+    externalFilterSlot !== undefined ? externalFilterSlot : ownFilterSlot;
+  const [targetId, setTargetId] = useState<string>(
+    phase?.publicId ?? WHOLE_PROJECT,
+  );
 
   const targets = useMemo(
     () => [
@@ -534,7 +610,11 @@ export const PhaseMapViews = ({
   const unitsQuery = useProjectUnits(
     project.slug,
     useMemo(
-      () => ({ ...DEFAULT_UNIT_QUERY, phaseName: target?.name ?? null, limit: 5000 }),
+      () => ({
+        ...DEFAULT_UNIT_QUERY,
+        phaseName: target?.name ?? null,
+        limit: 5000,
+      }),
       [target?.name],
     ),
   );
@@ -546,7 +626,9 @@ export const PhaseMapViews = ({
   // Anh nen 3D: phoi canh phan khu / tong the. Thieu anh thi dung luon mat
   // bang 2D de ban do khong bao gio trong.
   const image3d =
-    (target ? target.imageUrl : project.overviewImageUrl || project.hero[0]?.imageUrl) ||
+    (target
+      ? target.imageUrl
+      : project.overviewImageUrl || project.hero[0]?.imageUrl) ||
     project.planMap.imageUrl;
 
   // 3D va 2D la CUNG mot ban do tuong tac (pin gia, phong to, tim, loc) -
@@ -554,9 +636,11 @@ export const PhaseMapViews = ({
   const planMap = useMemo<MasterPlanMap>(
     () => ({
       ...project.planMap,
-      imageUrl: mode === '3d' ? image3d : project.planMap.imageUrl,
+      imageUrl: mode === "3d" ? image3d : project.planMap.imageUrl,
       markers: target
-        ? project.planMap.markers.filter((marker) => marker.phaseName === target.name)
+        ? project.planMap.markers.filter(
+            (marker) => marker.phaseName === target.name,
+          )
         : project.planMap.markers,
     }),
     [project.planMap, target, mode, image3d],
@@ -567,37 +651,44 @@ export const PhaseMapViews = ({
       {/* May tinh: cac nut gian ra lap day ca hang (flex-auto) - hai mep hang
           thang mep ban do ben duoi, khe giua cac nut deu 8px. Hep hon thi
           giu kich thuoc nut va vuot ngang. */}
-      <div className="mb-3 flex items-center gap-2">
-      <div
-        role="group"
-        aria-label="Chọn khu vực bản đồ"
-        className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto"
-      >
-        {targets.map((item) => {
-          const isActive = targetId === item.id;
-          return (
-            <button
-              key={item.id}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => setTargetId(item.id)}
-              className={`flex h-10 shrink-0 items-center justify-center rounded-lg px-4 text-[11px] font-semibold whitespace-nowrap uppercase transition sm:text-xs lg:flex-auto ${
-                isActive
-                  ? 'bg-brand-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 ring-1 ring-gray-200 ring-inset hover:bg-gray-200 hover:text-gray-800'
-              }`}
-            >
-              {item.label}
-            </button>
-          );
-        })}
-      </div>
-        <div ref={setFilterSlot} className="flex shrink-0" />
-      </div>
+      {!hideTargets && (
+        <div className="mb-3 flex items-center gap-2">
+          <div
+            role="group"
+            aria-label="Chọn khu vực bản đồ"
+            className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto"
+          >
+            {targets.map((item) => {
+              const isActive = targetId === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setTargetId(item.id)}
+                  className={`flex h-10 shrink-0 items-center justify-center rounded-lg px-4 text-[11px] font-semibold whitespace-nowrap uppercase transition sm:text-xs lg:flex-auto ${
+                    isActive
+                      ? "bg-brand-600 text-white shadow-sm"
+                      : "bg-gray-100 text-gray-600 ring-1 ring-gray-200 ring-inset hover:bg-gray-200 hover:text-gray-800"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+          {externalFilterSlot === undefined && (
+            <div ref={setFilterSlot} className="flex shrink-0" />
+          )}
+        </div>
+      )}
 
       {/* Nut tang nam DUOI hang nut phan khu, ngay tren ban do */}
       {floorRanges && (
-        <div className="mb-3 flex flex-wrap gap-2" aria-label="Mặt bằng theo tầng">
+        <div
+          className="mb-3 flex flex-wrap gap-2"
+          aria-label="Mặt bằng theo tầng"
+        >
           <span className="inline-flex h-10 items-center rounded-full bg-brand-600 px-5 text-theme-sm font-bold text-white uppercase shadow-sm">
             Tầng {floorRanges}
           </span>
@@ -611,7 +702,7 @@ export const PhaseMapViews = ({
         project={project}
         phaseName={target?.name}
         planMap={planMap}
-        highRise={target ? highRise : project.segment === 'cao-tang'}
+        highRise={target ? highRise : project.segment === "cao-tang"}
         controlsSlot={<MapModeSwitch mode={mode} onChange={setMode} />}
         filterSlot={filterSlot}
       />
@@ -631,7 +722,9 @@ const PhaseTabs = ({
   highRise: boolean;
 }) => {
   // Mo thang "Vi tri quy hang" - noi nguoi xem tim den khi bam vao phan khu
-  const [tab, setTab] = useState<InnerTabKey>('vi-tri-quy-hang');
+  const [tab, setTab] = useState<InnerTabKey>("vi-tri-quy-hang");
+  // Nut "Bo loc" cua ban do nam cung hang voi thanh tab con
+  const [filterSlot, setFilterSlot] = useState<HTMLDivElement | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Doi tab khi dang cuon giua noi dung: keo ve dau khoi de tab moi bat dau
@@ -643,7 +736,7 @@ const PhaseTabs = ({
     if (!root) return;
     const stickyTop = parseFloat(getComputedStyle(root).scrollMarginTop) || 0;
     if (root.getBoundingClientRect().top < stickyTop) {
-      root.scrollIntoView({ block: 'start' });
+      root.scrollIntoView({ block: "start" });
     }
   };
 
@@ -658,11 +751,11 @@ const PhaseTabs = ({
           (4rem) + chieu cao that cua ProjectTabNav, do ProjectTabNav do va ghi
           vao --project-tabnav-h (thanh do co the xuong hai hang). Nen trang
           phia sau de noi dung cuon qua khong lo qua khe. */}
-      <div className="sticky top-[calc(4rem+var(--project-tabnav-h,57px))] z-20 -mx-1 mb-5 bg-white px-1 py-2">
+      <div className="sticky top-[calc(4rem+var(--project-tabnav-h,57px))] z-20 -mx-1 mb-5 flex items-center gap-2 bg-white px-1 py-2">
         <div
           role="tablist"
           aria-label={`Thông tin ${phase.name}`}
-          className="no-scrollbar flex gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1"
+          className="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1"
         >
           {INNER_TABS.map((item) => {
             const isActive = item.key === tab;
@@ -678,10 +771,10 @@ const PhaseTabs = ({
                 onClick={() => changeTab(item.key)}
                 className={`flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-theme-sm whitespace-nowrap transition sm:flex-auto lg:flex-1 ${
                   isActive
-                    ? 'bg-white font-semibold text-brand-600 shadow-sm'
+                    ? "bg-white font-semibold text-brand-600 shadow-sm"
                     : isHot
-                      ? 'animate-tab-hot font-medium text-gray-700'
-                      : 'text-gray-700 hover:text-brand-600'
+                      ? "animate-tab-hot font-medium text-gray-700"
+                      : "text-gray-700 hover:text-brand-600"
                 }`}
               >
                 {isHot && (
@@ -695,29 +788,43 @@ const PhaseTabs = ({
             );
           })}
         </div>
+        {tab === "vi-tri-quy-hang" && (
+          <div ref={setFilterSlot} className="flex shrink-0" />
+        )}
       </div>
 
-      {tab === 'tong-quan' && <PhaseOverview phase={phase} />}
-      {tab === 'vi-tri' && <PlanImages phase={phase} onlyFirst />}
-      {tab === 'quy-hang' && <PhaseUnitsTable slug={project.slug} phaseName={phase.name} />}
-      {tab === 'vi-tri-quy-hang' && (
-        <PhaseMapViews project={project} phase={phase} highRise={highRise} />
+      {tab === "tong-quan" && <PhaseOverview phase={phase} />}
+      {tab === "vi-tri" && <PlanImages phase={phase} onlyFirst />}
+      {tab === "quy-hang" && (
+        <PhaseUnitsTable slug={project.slug} phaseName={phase.name} />
       )}
-      {tab === 'mat-bang' && <PlanImages phase={phase} />}
-      {tab === 'chinh-sach-ban-hang' && (
-        <SalesPolicyTab salesPolicy={project.salesPolicy} projectName={project.name} />
+      {tab === "vi-tri-quy-hang" && (
+        <PhaseMapViews
+          project={project}
+          phase={phase}
+          highRise={highRise}
+          hideTargets
+          externalFilterSlot={filterSlot}
+        />
+      )}
+      {tab === "mat-bang" && <PlanImages phase={phase} />}
+      {tab === "chinh-sach-ban-hang" && (
+        <SalesPolicyTab
+          salesPolicy={project.salesPolicy}
+          projectName={project.name}
+        />
       )}
     </div>
   );
 };
 
 /** Nho hon breakpoint sm (640px) cua Tailwind = dien thoai */
-const PHONE_QUERY = '(max-width: 639.98px)';
+const PHONE_QUERY = "(max-width: 639.98px)";
 
 const subscribePhone = (onChange: () => void) => {
   const media = window.matchMedia(PHONE_QUERY);
-  media.addEventListener('change', onChange);
-  return () => media.removeEventListener('change', onChange);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
 };
 
 /** Server render coi nhu khong phai dien thoai; client doc lai ngay khi hydrate */
@@ -778,82 +885,96 @@ const TileRow = ({
       <div
         role="list"
         aria-label={label}
-        style={{ '--fund-cols-desktop': Math.min(tiles.length, 4) } as CSSProperties}
+        style={
+          { "--fund-cols-desktop": Math.min(tiles.length, 4) } as CSSProperties
+        }
         className="no-scrollbar grid grid-cols-1 gap-3 sm:flex sm:snap-x sm:overflow-x-auto sm:gap-2 lg:grid lg:snap-none lg:grid-cols-[repeat(var(--fund-cols-desktop),minmax(0,1fr))] lg:gap-4 lg:overflow-visible"
       >
-        {tiles.map(({ id, icon: Icon, title, facts, compactFact }) => {
-          const isActive = id === selectedId;
-          return (
-            <div
-              key={id}
-              role="listitem"
-              className="flex min-w-0 sm:min-w-40 sm:flex-1 sm:basis-0 sm:snap-start lg:min-w-0"
-            >
-              <button
-                type="button"
-                onClick={() => onSelect(isActive ? null : id)}
-                aria-expanded={isActive}
-                aria-controls={`fund-panel-${id}`}
-                title={title}
-                className={`relative flex w-full min-w-0 items-center gap-3 rounded-2xl border p-3 text-left transition sm:gap-2 sm:rounded-xl sm:px-2.5 sm:py-2.5 lg:gap-3 lg:rounded-2xl lg:p-4 ${
-                  isActive
-                    ? 'border-brand-500 bg-brand-50/70 shadow-[0_6px_20px_-8px_rgba(15,111,209,0.45)]'
-                    : 'border-dashed border-brand-300 bg-white hover:border-brand-400 hover:bg-brand-50/40'
-                }`}
+        {tiles
+          .map(({ id, icon: Icon, title, facts, compactFact }) => {
+            const isActive = id === selectedId;
+            return (
+              <div
+                key={id}
+                role="listitem"
+                className="flex min-w-0 sm:min-w-40 sm:flex-1 sm:basis-0 sm:snap-start lg:min-w-0"
               >
-                <span
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl sm:h-8 sm:w-8 sm:rounded-lg lg:h-12 lg:w-12 lg:rounded-xl ${
-                    isActive ? 'bg-brand-500 text-white' : 'bg-brand-50 text-brand-500'
+                <button
+                  type="button"
+                  onClick={() => onSelect(isActive ? null : id)}
+                  aria-expanded={isActive}
+                  aria-controls={`fund-panel-${id}`}
+                  title={title}
+                  className={`relative flex w-full min-w-0 items-center gap-3 rounded-2xl border p-3 text-left transition sm:gap-2 sm:rounded-xl sm:px-2.5 sm:py-2.5 lg:gap-3 lg:rounded-2xl lg:p-4 ${
+                    isActive
+                      ? "border-brand-500 bg-brand-50/70 shadow-[0_6px_20px_-8px_rgba(15,111,209,0.45)]"
+                      : "border-dashed border-brand-300 bg-white hover:border-brand-400 hover:bg-brand-50/40"
                   }`}
                 >
-                  <Icon className="h-6 w-6 sm:h-4.5 sm:w-4.5 lg:h-7 lg:w-7" aria-hidden />
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="line-clamp-2 text-[15px] leading-snug font-semibold uppercase text-brand-600 sm:line-clamp-1 sm:pr-4 sm:text-[12.5px] lg:line-clamp-2 lg:pr-0 lg:text-base">
-                    {title}
+                  <span
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl sm:h-8 sm:w-8 sm:rounded-lg lg:h-12 lg:w-12 lg:rounded-xl ${
+                      isActive
+                        ? "bg-brand-500 text-white"
+                        : "bg-brand-50 text-brand-500"
+                    }`}
+                  >
+                    <Icon
+                      className="h-6 w-6 sm:h-4.5 sm:w-4.5 lg:h-7 lg:w-7"
+                      aria-hidden
+                    />
                   </span>
-                  {facts.map((fact) => (
-                    <span
-                      key={fact.label}
-                      className={`mt-0.5 block text-theme-xs leading-snug text-gray-600 sm:truncate sm:text-[10.5px] lg:whitespace-normal lg:text-theme-xs ${
-                        compactFact ? 'sm:hidden lg:block' : ''
-                      }`}
-                    >
-                      {fact.label}: <strong className="font-semibold text-gray-800">{fact.value}</strong>
-                    </span>
-                  ))}
-                  {compactFact && (
-                    <span className="mt-0.5 hidden truncate text-[10.5px] leading-snug text-gray-600 sm:block lg:hidden">
-                      {compactFact}
-                    </span>
-                  )}
-                </span>
 
-                {/* iPad: mui ten len goc tren phai, canh dong ten (dong ten chua cho
+                  <span className="min-w-0 flex-1">
+                    <span className="line-clamp-2 text-[15px] leading-snug font-semibold uppercase text-brand-600 sm:line-clamp-1 sm:pr-4 sm:text-[12.5px] lg:line-clamp-2 lg:pr-0 lg:text-base">
+                      {title}
+                    </span>
+                    {facts.map((fact) => (
+                      <span
+                        key={fact.label}
+                        className={`mt-0.5 block text-theme-xs leading-snug text-gray-600 sm:truncate sm:text-[10.5px] lg:whitespace-normal lg:text-theme-xs ${
+                          compactFact ? "sm:hidden lg:block" : ""
+                        }`}
+                      >
+                        {fact.label}:{" "}
+                        <strong className="font-semibold text-gray-800">
+                          {fact.value}
+                        </strong>
+                      </span>
+                    ))}
+                    {compactFact && (
+                      <span className="mt-0.5 hidden truncate text-[10.5px] leading-snug text-gray-600 sm:block lg:hidden">
+                        {compactFact}
+                      </span>
+                    )}
+                  </span>
+
+                  {/* iPad: mui ten len goc tren phai, canh dong ten (dong ten chua cho
                     bang pr-4); cac dong so lieu ben duoi dung het be ngang */}
-                <FiChevronDown
-                  className={`h-5 w-5 shrink-0 text-brand-500 transition-transform sm:absolute sm:right-2 sm:top-2 sm:h-3.5 sm:w-3.5 lg:static lg:h-5 lg:w-5 ${
-                    isActive ? 'rotate-180' : ''
-                  }`}
-                  aria-hidden
-                />
-              </button>
-            </div>
-          );
-        }).flatMap((item, index) =>
-          isPhone && openId !== null && tiles[index].id === openId
-            ? [
-                item,
-                <TilePanel key={`${openId}-panel`} id={openId} inline>
-                  {panel}
-                </TilePanel>,
-              ]
-            : [item],
-        )}
+                  <FiChevronDown
+                    className={`h-5 w-5 shrink-0 text-brand-500 transition-transform sm:absolute sm:right-2 sm:top-2 sm:h-3.5 sm:w-3.5 lg:static lg:h-5 lg:w-5 ${
+                      isActive ? "rotate-180" : ""
+                    }`}
+                    aria-hidden
+                  />
+                </button>
+              </div>
+            );
+          })
+          .flatMap((item, index) =>
+            isPhone && openId !== null && tiles[index].id === openId
+              ? [
+                  item,
+                  <TilePanel key={`${openId}-panel`} id={openId} inline>
+                    {panel}
+                  </TilePanel>,
+                ]
+              : [item],
+          )}
       </div>
 
-      {!isPhone && openId !== null && <TilePanel id={openId}>{panel}</TilePanel>}
+      {!isPhone && openId !== null && (
+        <TilePanel id={openId}>{panel}</TilePanel>
+      )}
     </>
   );
 };
@@ -872,7 +993,7 @@ const TilePanel = ({
   <div
     id={`fund-panel-${id}`}
     className={`rounded-2xl border border-dashed border-brand-300 bg-white p-3 sm:p-5 lg:p-6 ${
-      inline ? 'min-w-0' : 'mt-3 sm:mt-4'
+      inline ? "min-w-0" : "mt-3 sm:mt-4"
     }`}
   >
     {children}
@@ -880,7 +1001,7 @@ const TilePanel = ({
 );
 
 const unitsFact = (phase: ProjectPhase) => ({
-  label: 'Số lượng sản phẩm',
+  label: "Số lượng sản phẩm",
   value: formatNumber(phase.totalUnits),
 });
 
@@ -891,7 +1012,7 @@ const TowerGroupPanel = ({
   initialTowerId,
 }: {
   project: ProjectDetail;
-  group: FundGroup & { towers: NonNullable<FundGroup['towers']> };
+  group: FundGroup & { towers: NonNullable<FundGroup["towers"]> };
   /** Toa mo san (VD vao tu tab "Phan khu"); bo trong thi mo toa dau tien */
   initialTowerId?: string;
 }) => {
@@ -915,13 +1036,20 @@ const TowerGroupPanel = ({
           icon: HiOutlineBuildingOffice2,
           title: item.name,
           facts: [
-            { label: 'Phân khu', value: group.name.toUpperCase() },
-            { label: 'Số tầng', value: String(item.floors) },
+            { label: "Phân khu", value: group.name.toUpperCase() },
+            { label: "Số tầng", value: String(item.floors) },
           ],
           compactFact: `${item.floors} tầng`,
         }))}
         panel={
-          tower && <PhaseTabs key={tower.publicId} project={project} phase={tower} highRise />
+          tower && (
+            <PhaseTabs
+              key={tower.publicId}
+              project={project}
+              phase={tower}
+              highRise
+            />
+          )
         }
       />
     </>
@@ -954,9 +1082,12 @@ const PhaseFundTab = ({
         ? findGroupOfPhase(project.fundGroups, initialPhaseId)
         : undefined;
       if (groupOfPhase) return groupOfPhase.publicId;
-      if (project.phases.some((item) => item.publicId === initialPhaseId)) return initialPhaseId;
+      if (project.phases.some((item) => item.publicId === initialPhaseId))
+        return initialPhaseId;
     }
-    return project.fundGroups?.[0]?.publicId ?? project.phases[0]?.publicId ?? null;
+    return (
+      project.fundGroups?.[0]?.publicId ?? project.phases[0]?.publicId ?? null
+    );
   });
 
   const groups = project.fundGroups ?? [];
@@ -972,12 +1103,13 @@ const PhaseFundTab = ({
           onSelect={setSelectedId}
           tiles={groups.map((item) => ({
             id: item.publicId,
-            icon: item.towers?.length || item.segment === 'thap-tang'
-              ? HiOutlineMap
-              : HiOutlineBuildingOffice2,
+            icon:
+              item.towers?.length || item.segment === "thap-tang"
+                ? HiOutlineMap
+                : HiOutlineBuildingOffice2,
             title: item.name,
             facts: item.towers?.length
-              ? [{ label: 'Tổng toà nhà', value: String(item.towers.length) }]
+              ? [{ label: "Tổng toà nhà", value: String(item.towers.length) }]
               : item.phase
                 ? [unitsFact(item.phase)]
                 : [],
@@ -997,7 +1129,7 @@ const PhaseFundTab = ({
                   key={group.publicId}
                   project={project}
                   phase={group.phase}
-                  highRise={group.segment === 'cao-tang'}
+                  highRise={group.segment === "cao-tang"}
                 />
               )
             ))
@@ -1022,10 +1154,16 @@ const PhaseFundTab = ({
         onSelect={setSelectedId}
         tiles={project.phases.map((item) => ({
           id: item.publicId,
-          icon: project.segment === 'cao-tang' ? HiOutlineBuildingOffice2 : HiOutlineMap,
+          icon:
+            project.segment === "cao-tang"
+              ? HiOutlineBuildingOffice2
+              : HiOutlineMap,
           title: item.name,
           facts: [
-            { label: 'Loại hình', value: SEGMENT_SHORT_LABELS[project.segment] },
+            {
+              label: "Loại hình",
+              value: SEGMENT_SHORT_LABELS[project.segment],
+            },
             unitsFact(item),
           ],
         }))}
@@ -1035,7 +1173,7 @@ const PhaseFundTab = ({
               key={phase.publicId}
               project={project}
               phase={phase}
-              highRise={project.segment === 'cao-tang'}
+              highRise={project.segment === "cao-tang"}
             />
           )
         }

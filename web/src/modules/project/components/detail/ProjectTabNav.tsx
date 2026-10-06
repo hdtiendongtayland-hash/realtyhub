@@ -87,6 +87,71 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
     list.scrollTo({ left: Math.max(0, offset), behavior: 'smooth' });
   }, [current]);
 
+  // Tren desktop, `overflow-x-auto` chi cuon duoc khi trackpad hoac bangg cuon
+  // chuot. Chuot thuong khong co phim cuon ngang nen khong the keo. Hook nay
+  // them hanh vi drag-to-scroll: giu chuot trai + keo de cuon thanh tab.
+  // Dong thoi chuyen bangg cuon doc (wheel deltaY) thanh cuon ngang de nguoi
+  // dung chi can xoay bangg chuot la luot qua het 11 tab.
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+
+    let isDown = false;
+    let startX = 0;
+    let scrollStart = 0;
+
+    const onPointerDown = (event: PointerEvent) => {
+      // Khong drag khi bong vao button (de click chon tab van hoat dong binh thuong)
+      if ((event.target as HTMLElement).closest('button')) return;
+      isDown = true;
+      startX = event.clientX;
+      scrollStart = list.scrollLeft;
+      list.classList.add('cursor-grabbing');
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (!isDown) return;
+      const dx = event.clientX - startX;
+      list.scrollLeft = scrollStart - dx;
+    };
+    const onPointerUp = () => {
+      if (!isDown) return;
+      isDown = false;
+      list.classList.remove('cursor-grabbing');
+    };
+
+    // Bangg chuot doc (deltaY) => dich ngang. Chi chan khi thanh tab that su
+    // dang tran (co the cuon them) - tranh khong cho nguoi dung cuon trang
+    // khi khong can cuon ngang nua.
+    const onWheel = (event: WheelEvent) => {
+      // Chi xu ly khi con tro dang nam trong thanh tab, de khong can
+      // tro ngai cuon trang o cac vung khac.
+      if (!list.contains(event.target as Node)) return;
+      const hasHorizontalOverflow = list.scrollWidth > list.clientWidth;
+      if (!hasHorizontalOverflow) return;
+      const atStart = list.scrollLeft <= 0 && event.deltaY < 0;
+      const atEnd =
+        list.scrollLeft + list.clientWidth >= list.scrollWidth - 1 &&
+        event.deltaY > 0;
+      if (atStart || atEnd) return;
+      // deltaY manh hon deltaX, lay gia tri tuong doi de cam giac tu nhien
+      list.scrollLeft += event.deltaY;
+      event.preventDefault();
+    };
+
+    list.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    // Lang nghe wheel tren window vi su kien tu button con co the khong bubble
+    // len ul neu React da stopPropagation. Check contains() ben trong handler.
+    window.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      list.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('wheel', onWheel);
+    };
+  }, []);
+
   // Ghi chieu cao that cua thanh nay vao --project-tabnav-h: thanh co the
   // xuong hai hang tuy be ngang, ma cac thanh dinh ben duoi (tab con cua
   // "Vi tri quy can") can biet dung cho de dinh sat ngay duoi. Thanh khong
@@ -141,13 +206,14 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
       } z-30 border-b border-gray-200 bg-white/90 backdrop-blur-lg`}
     >
       <div className="site-container flex items-center gap-3">
-        {/* Duoi lg: cuon ngang, vi 11 tab khong the vua man hinh dien thoai.
-            Tu lg: `flex-wrap` - danh sach chi chiem phan rong con lai sau nut
-            Lien he, va neu van khong du thi tab xuong hang chu khong bi cat.
-            Nho vay khong bao gio co tab nao bi nut de len nhu truoc. */}
+        {/* Duoi lg va ca tren lg: thanh tab cho phep cuon ngang neu qua dai
+            (11 tab o 1280-1440px van khong the vua mot hang). Thanh cuon duoc
+            giu noi - nho to chuot hoac keo tha (hook drag-to-scroll ben khoi
+            them cho chuot thuong). Nut Lien he luon gan phai, nguoi dung cuon
+            ngang de xem het tab - khong bao gio co tab bi day xuong hang 2. */}
         <ul
           ref={listRef}
-          className="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto py-2 lg:flex-wrap lg:overflow-x-visible"
+          className="tab-scroll flex min-w-0 flex-1 cursor-grab items-center gap-0.5 overflow-x-scroll py-2 select-none"
         >
           {PROJECT_DETAIL_TABS.map((tab) => {
             const isActive = tab.key === current;
@@ -171,10 +237,8 @@ const ProjectTabNav = ({ current, onChange, consultants, sticky = true }: Projec
                   }`}
                 >
                   {/* Tab `mat-bang-quy-can` luon hien icon de noi bat dong deu
-                      moi breakpoint. Cac tab khac: duoi lg thi hien icon; tu lg
-                      tro len phai nhuong ~240px cho 11 nhan tab o co chu 16px -
-                      nhan da du ro nghia, bo icon la cach re nhat de tat ca
-                      tab cung nam mot hang. */}
+                      moi breakpoint. Cac tab khac an icon de tiet kiem be
+                      ngang, giup 11 tab co the cuon ngang gon hon. */}
                   <Icon
                     aria-hidden
                     className={

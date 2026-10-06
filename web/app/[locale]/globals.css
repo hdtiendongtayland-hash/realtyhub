@@ -569,6 +569,20 @@
   }
 }
 
+/* Thanh cuon ngang duoc phep nhung KHONG hien thanh keo (giu thanh tab gon).
+   Cuon duoc bang 3 cach: bangg chuot (wheel handler chuyen doc -> ngang),
+   keo tha chuot trai (drag-to-scroll hook trong component), hoac trackpad.
+   Dung cho thanh tab du an o moi breakpoint. */
+@utility tab-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+    height: 0;
+  }
+}
+
 /* Thanh cuon manh - dung cho cac khung cuon nho ben trong popup. Thanh cuon
    mac dinh cua he dieu hanh rong ~17px, chiem gan het be ngang mot the nho. */
 @utility slim-scrollbar {
