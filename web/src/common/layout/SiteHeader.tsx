@@ -304,13 +304,13 @@ const SiteHeader = () => {
         <nav aria-label={tHeader('home')} className="hidden xl:block" />
 
         <nav aria-label={tHeader('home')} className="hidden xl:block">
-          <ul className="flex items-center gap-5">
+          <ul className="flex items-center gap-5 xl:gap-6 min-[1760px]:gap-8">
             {navItems.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   aria-current={isNavItemActive(item) ? 'page' : undefined}
-                  className={`whitespace-nowrap text-theme-sm font-semibold uppercase tracking-wide transition ${
+                  className={`whitespace-nowrap text-theme-sm font-semibold xl:text-[15px] min-[1760px]:text-base uppercase tracking-wide transition ${
                     isNavItemActive(item) ? navColor.active : navColor.idle
                   }`}
                 >
@@ -334,7 +334,7 @@ const SiteHeader = () => {
                   aria-haspopup="menu"
                   aria-expanded={isMoreOpen}
                   aria-current={isMoreActive ? 'page' : undefined}
-                  className={`inline-flex items-center gap-1 whitespace-nowrap text-theme-sm font-semibold uppercase tracking-wide transition ${moreBtnActive}`}
+                  className={`inline-flex items-center gap-1 whitespace-nowrap text-theme-sm font-semibold xl:text-[15px] min-[1760px]:text-base uppercase tracking-wide transition ${moreBtnActive}`}
                 >
                   {tHeader('more')}
                   <FiChevronDown

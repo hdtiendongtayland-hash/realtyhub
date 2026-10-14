@@ -1,5 +1,6 @@
 'use client';
 
+import ListingHeader from '@/common/components/ListingHeader';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FiSearch, FiTag } from 'react-icons/fi';
@@ -77,8 +78,12 @@ const SORT_OPTIONS = [
  * nao, service khong khop duoc thi khong co ket qua (tuong duong khong loc).
  */
 const parseSort = (value: string | null): UnitSort => {
-  if (value === 'gia-tang' || value === 'gia-giam' ||
-      value === 'dien-tich-tang' || value === 'dien-tich-giam') {
+  if (
+    value === 'gia-tang' ||
+    value === 'gia-giam' ||
+    value === 'dien-tich-tang' ||
+    value === 'dien-tich-giam'
+  ) {
     return value;
   }
   return 'mac-dinh';
@@ -274,12 +279,8 @@ const UnitInventoryPage = () => {
       unitLine,
       status,
     ].filter((value) => value !== null && value !== '').length +
-    [
-      priceMin !== null,
-      priceMax !== null,
-      areaMax !== null,
-      frontages.length > 0,
-    ].filter(Boolean).length;
+    [priceMin !== null, priceMax !== null, areaMax !== null, frontages.length > 0].filter(Boolean)
+      .length;
 
   /**
    * Gia tri cua 9 o loc trong bang - lay thang tu URL nen bang loc va ket qua
@@ -370,94 +371,91 @@ const UnitInventoryPage = () => {
 
   return (
     <div className="site-container py-8">
-      {/* ── Tieu de ─────────────────────────────────────────────────────── */}
-      <div className="mb-6">
-        <h1 className="text-center text-3xl font-bold uppercase tracking-wide text-gray-900">
-          Danh sách Quỹ căn
-        </h1>
-      </div>
+      <ListingHeader
+        crumb="Quỹ căn"
+        title="Danh sách quỹ căn"
+        subtitle={
+          isFirstLoad ? (
+            <span className="inline-block h-4 w-40 animate-pulse rounded bg-gray-100" />
+          ) : (
+            <span aria-live="polite">
+              {hasActiveFilter ? 'Tìm thấy ' : 'Có '}
+              <strong className="text-gray-800">{total}</strong> căn trên toàn hệ thống
+              {isRefreshing && <span className="ml-2 text-gray-400">· Đang cập nhật...</span>}
+            </span>
+          )
+        }
+        toolbar={
+          <>
+            {/* ── Hang 1: tim kiem + sap xep ─────────────────────────────────── */}
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  submitSearch();
+                }}
+                role="search"
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-gray-200 bg-gray-25 py-2 pl-5 pr-2 transition focus-within:border-brand-300 focus-within:bg-white focus-within:shadow-focus-ring"
+              >
+                <input
+                  type="search"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  placeholder="Tìm theo mã căn, tên dự án, chủ đầu tư, phân khu..."
+                  aria-label="Tìm kiếm quỹ căn"
+                  className="h-9 min-w-0 flex-1 bg-transparent text-base text-gray-800 outline-none placeholder:text-gray-400"
+                />
+                <button
+                  type="submit"
+                  aria-label="Tìm kiếm"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-50 hover:text-brand-600"
+                >
+                  <FiSearch aria-hidden className="text-lg" />
+                </button>
+              </form>
 
-      {/* ── Hang 1: tim kiem + sap xep ─────────────────────────────────── */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            submitSearch();
-          }}
-          role="search"
-          className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-gray-200 bg-white py-2 pl-5 pr-2 shadow-card transition focus-within:border-brand-300 focus-within:shadow-panel lg:max-w-2xl"
-        >
-          <input
-            type="search"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-            placeholder="Tìm theo mã căn, tên dự án, chủ đầu tư, phân khu..."
-            aria-label="Tìm kiếm quỹ căn"
-            className="h-9 min-w-0 flex-1 bg-transparent text-base text-gray-800 outline-none placeholder:text-gray-400"
-          />
-          <button
-            type="submit"
-            aria-label="Tìm kiếm"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-50 hover:text-brand-600"
-          >
-            <FiSearch aria-hidden className="text-lg" />
-          </button>
-        </form>
+              <div className="flex items-center gap-2 lg:ml-auto">
+                <span className="text-theme-sm font-semibold uppercase tracking-wide text-gray-500">
+                  Sắp xếp
+                </span>
+                <FilterSelect
+                  variant="chip"
+                  label="Sắp xếp"
+                  icon={<FiTag />}
+                  value={sort}
+                  options={SORT_OPTIONS}
+                  isLoading={false}
+                  onChange={(next) => {
+                    applyParams({
+                      [PARAM.sort]: next === 'mac-dinh' ? null : (next as string),
+                    });
+                  }}
+                />
+              </div>
+            </div>
 
-        <div className="flex items-center gap-2 lg:ml-auto">
-          <span className="text-theme-sm font-semibold uppercase tracking-wide text-gray-500">
-            Sắp xếp
-          </span>
-          <FilterSelect
-            variant="chip"
-            label="Sắp xếp"
-            icon={<FiTag />}
-            value={sort}
-            options={SORT_OPTIONS}
-            isLoading={false}
-            onChange={(next) => {
-              applyParams({
-                [PARAM.sort]: next === 'mac-dinh' ? null : (next as string),
-              });
-            }}
-          />
-        </div>
-      </div>
-
-      {/* ── Hang 2: logo chu dau tu + bang tat ca bo loc ───────────────── */}
-      {/* Hang chip loc cu (Du an / Khu vuc / Phan khu / Loai hinh / Trang thai
+            {/* ── Hang 2: logo chu dau tu + bang tat ca bo loc ───────────────── */}
+            {/* Hang chip loc cu (Du an / Khu vuc / Phan khu / Loai hinh / Trang thai
           / Huong) da chuyen het vao trong bang cua nut "Loc" ben duoi. */}
-      <div className="mt-3">
-        <UnitFilterStrip
-          values={filterValues}
-          facets={facets}
-          isLoading={isFirstLoad}
-          resultCount={total}
-          activeCount={activeCount}
-          onChange={handleFilterChange}
-          onClearAll={clearAllFilters}
-        />
-      </div>
-
-      {/* ── So luong can tim thay ──────────────────────────────────────── */}
-      <div className="mt-4 mb-4 flex min-h-5 items-center justify-between text-theme-sm text-gray-500">
-        {isFirstLoad ? (
-          <span className="h-4 w-32 animate-pulse rounded bg-gray-100" />
-        ) : (
-          <span aria-live="polite">
-            {hasActiveFilter ? 'Tìm thấy ' : 'Có '}
-            <strong className="text-gray-800">{total}</strong> căn trên toàn hệ thống
-          </span>
-        )}
-        {isRefreshing && <span className="text-gray-400">Đang cập nhật...</span>}
-      </div>
+            <div className="mt-3">
+              <UnitFilterStrip
+                values={filterValues}
+                facets={facets}
+                isLoading={isFirstLoad}
+                resultCount={total}
+                activeCount={activeCount}
+                onChange={handleFilterChange}
+                onClearAll={clearAllFilters}
+              />
+            </div>
+          </>
+        }
+      />
 
       {/* ── Grid can ───────────────────────────────────────────────────── */}
       {listQuery.isError ? (
         <div className="rounded-xl border border-error-500/30 bg-error-50 p-8 text-center">
-          <p className="mb-4 text-theme-sm text-error-600">
-            Không tải được quỹ căn.
-          </p>
+          <p className="mb-4 text-theme-sm text-error-600">Không tải được quỹ căn.</p>
           <button
             type="button"
             onClick={() => listQuery.refetch()}

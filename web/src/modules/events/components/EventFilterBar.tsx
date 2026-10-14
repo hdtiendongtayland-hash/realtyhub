@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FiCalendar, FiChevronDown, FiSearch, FiX } from 'react-icons/fi';
+import { FiChevronDown, FiGrid, FiSearch, FiTag, FiX } from 'react-icons/fi';
+import HeroFilterBar from '@/common/components/HeroFilterBar';
 import { EVENT_TYPE_FILTERS, EVENT_TYPE_LABELS } from '../models/event.model';
 
 const STATUS_OPTIONS = [
@@ -21,7 +22,7 @@ const FILTER_KEYS = ['q', 'type', 'status', 'from', 'to'] as const;
  * loc; tai lai trang / chia se link van giu bo loc. O tim kiem doi 350ms sau
  * khi ngung go moi cap nhat URL.
  */
-const EventFilterBar = () => {
+const EventFilterBar = ({ variant = 'default' }: { variant?: 'default' | 'hero' }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -46,6 +47,27 @@ const EventFilterBar = () => {
   }, [keyword]);
 
   const hasFilter = FILTER_KEYS.some((key) => searchParams.get(key));
+
+
+
+  // Kieu "hero": dung chung bo loc voi trang Tin tuc
+  if (variant === 'hero') {
+    return (
+      <HeroFilterBar
+        searchPlaceholder="Tìm sự kiện..."
+        withDateRange
+        selects={[
+          {
+            param: 'type',
+            label: 'Loại sự kiện',
+            icon: FiGrid,
+            options: EVENT_TYPE_FILTERS.map((type) => ({ value: type, label: EVENT_TYPE_LABELS[type] })),
+          },
+          { param: 'status', label: 'Trạng thái', icon: FiTag, options: STATUS_OPTIONS },
+        ]}
+      />
+    );
+  }
 
   // Cung kieu khung loc o trang du an: nhan in hoa nho tren, o cao 48px bo goc
   const field =

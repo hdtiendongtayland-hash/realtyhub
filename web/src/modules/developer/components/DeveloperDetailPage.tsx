@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { FiArrowRight, FiBriefcase } from 'react-icons/fi';
+import type { IconType } from 'react-icons';
+import { FiArrowRight, FiBriefcase, FiCalendar, FiExternalLink, FiFileText, FiGlobe, FiHome, FiTrendingUp } from 'react-icons/fi';
 import { formatNumber } from '@/common/utils/format';
 import { STATUS_LABELS } from '@/modules/project/models/project.model';
 import type { Project, ProjectStatus } from '@/modules/project/models/project.model';
@@ -52,6 +53,9 @@ const InvestorDetailPage = ({
   // Lay project list dong bo (projectsSync) - khong can them query.
   const projects: Project[] = InvestorService.projectsSync(slug);
 
+  // Anh nen hero: anh du an dau tien cua chu dau tu, khong co thi anh mac dinh
+  const heroImage = projects.find((p) => p.thumbnailUrl)?.thumbnailUrl || '/images/projects/vinhomes-grand-park.jpg';
+
   const sortedProjects: Project[] = [...projects].sort((a, b) => {
     // Sap xep: dang-mo-ban -> sap-mo-ban -> moi-mo-ban -> da-ban-giao -> cac status khac
     const order: Record<ProjectStatus, number> = {
@@ -67,80 +71,89 @@ const InvestorDetailPage = ({
   });
 
   return (
-    <div className="bg-white">
+    <div className="bg-gray-25">
       {/* ── 1. HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative isolate overflow-hidden bg-navy-900 pb-24 pt-12 text-white md:pb-28 md:pt-16">
-        <div aria-hidden className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-linear-to-br from-navy-900/95 via-navy-900/85 to-brand-900/80" />
-        </div>
+      <section className="site-container pt-6 pb-4 md:pt-8">
+        <div className="relative isolate overflow-hidden rounded-3xl border border-white bg-gradient-to-br from-white via-[#f3f7ff] to-[#e4eeff] p-5 shadow-[0_20px_50px_-25px_rgba(30,64,175,0.35)] sm:p-8 lg:p-10">
+          {/* Anh thanh pho hoa vao nen ben phai */}
+          <div
+            aria-hidden
+            className="absolute inset-y-0 right-0 -z-10 hidden w-[42%] md:block xl:w-[40%] [mask-image:linear-gradient(to_right,transparent,black_40%)]"
+          >
+            <img src={heroImage} alt="" className="h-full w-full object-cover" />
+          </div>
+          <span aria-hidden className="absolute -bottom-24 -left-20 -z-10 h-72 w-72 rounded-full bg-sky-200/50 blur-3xl" />
 
-        <div className="site-container">
-          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
-            {/* Logo that tu realtyhub.com.vn - khoi logo lon */}
-            <div className="lg:col-span-4">
-              <div className="relative mx-auto flex aspect-square w-full max-w-xs items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white p-6 shadow-card-hover">
-                <img
-                  src={investor.logo}
-                  alt={investor.name}
-                  width={256}
-                  height={256}
-                  className="max-h-full w-auto max-w-full object-contain"
-                />
-              </div>
+          <div className="grid items-center gap-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-10 xl:grid-cols-[340px_minmax(0,1fr)]">
+            {/* Logo */}
+            <div className="relative mx-auto flex aspect-square w-full max-w-[220px] items-center justify-center overflow-hidden rounded-2xl border border-white bg-white p-6 shadow-[0_18px_40px_-20px_rgba(30,64,175,0.45)] sm:max-w-[260px] lg:max-w-none">
+              <img
+                src={investor.logo}
+                alt={investor.name}
+                width={256}
+                height={256}
+                className="relative max-h-full w-auto max-w-full object-contain"
+              />
             </div>
 
-            {/* Thong tin chinh */}
-            <div className="min-w-0 lg:col-span-8">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-theme-xs font-bold uppercase tracking-[0.22em] text-white backdrop-blur-sm">
-                <FiBriefcase aria-hidden className="text-sm" />
+            {/* Thong tin */}
+            <div className="min-w-0 lg:max-w-[680px] xl:max-w-[720px]">
+              <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50/80 px-3.5 py-1 text-theme-xs font-bold tracking-[0.12em] text-brand-700 uppercase">
+                <FiBriefcase aria-hidden className="h-3.5 w-3.5" />
                 Chủ đầu tư
               </span>
 
-              <h1 className="mt-4 text-3xl font-bold uppercase leading-tight tracking-tight md:text-5xl">
+              <h1 className="mt-3 text-2xl leading-tight font-bold text-navy-800 uppercase sm:text-3xl md:text-4xl">
                 {investor.name}
               </h1>
 
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
-                {investor.name} là một trong những chủ đầu tư đang có dự án trên
-                RealtyHub. Xem các dự án đang mở bán, bảng giá và thông tin pháp lý
-                bên dưới.
+              <p className="mt-3 max-w-xl text-theme-sm leading-relaxed text-gray-800 md:text-base">
+                {investor.name} là một trong những chủ đầu tư hàng đầu tại Việt Nam, đang có dự án trên RealtyHub.
+                Xem các dự án đang mở bán, bảng giá và thông tin pháp lý bên dưới.
               </p>
 
-              {/* 3 chi so nhanh */}
-              <dl className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3">
+              {/* 3 chi so */}
+              <dl className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <Stat
+                  icon={FiCalendar}
+                  tone="bg-brand-50 text-brand-600"
+                  arrowTone="bg-brand-50 text-brand-600"
+                  href="#du-an"
                   label="Dự án"
-                  value={formatNumber(
-                    initialSummary?.projectCount ?? projects.length,
-                  )}
+                  value={formatNumber(initialSummary?.projectCount ?? projects.length)}
                   suffix="dự án"
                 />
                 <Stat
+                  icon={FiTrendingUp}
+                  tone="bg-emerald-50 text-emerald-600"
+                  arrowTone="bg-emerald-50 text-emerald-600"
+                  href="#du-an"
                   label="Đang mở bán"
                   value={formatNumber(
-                    initialSummary?.openingProjectCount ??
-                      projects.filter((p) => p.status === 'dang-mo-ban').length,
+                    initialSummary?.openingProjectCount ?? projects.filter((p) => p.status === 'dang-mo-ban').length,
                   )}
                   suffix="mở bán"
-                  highlight
                 />
                 <Stat
+                  icon={FiFileText}
+                  tone="bg-violet-50 text-violet-600"
+                  arrowTone="bg-violet-50 text-violet-600"
+                  href={`/quy-can?cdt=${encodeURIComponent(slug)}`}
                   label="Căn còn hàng"
                   value={formatNumber(initialSummary?.availableUnitCount ?? 0)}
                   suffix="căn"
-                  highlight
                 />
               </dl>
 
               <Link
                 href={`/quy-can?cdt=${encodeURIComponent(slug)}`}
-                className="group mt-8 inline-flex items-center gap-2 rounded-full bg-brand-500 px-6 py-3 text-theme-sm font-semibold text-white shadow-card-hover transition hover:bg-brand-600"
+                className="group mt-6 inline-flex max-w-full items-center gap-2.5 rounded-full bg-gradient-to-r from-brand-500 to-navy-800 px-5 py-3 text-theme-sm font-semibold text-white shadow-[0_12px_30px_-12px_rgba(15,111,209,0.8)] transition hover:brightness-110 sm:px-6"
               >
-                Xem căn hộ đang bán của {investor.name}
-                <FiArrowRight
-                  aria-hidden
-                  className="transition-transform group-hover:translate-x-1"
-                />
+                <FiHome aria-hidden className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  Xem sản phẩm đang bán của <strong className="uppercase">{investor.name}</strong>
+                </span>
+                <FiArrowRight aria-hidden className="shrink-0 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </div>
@@ -148,7 +161,7 @@ const InvestorDetailPage = ({
       </section>
 
       {/* ── 2. DU AN THUOC CHU DAU TU ──────────────────────────────────── */}
-      <section className="site-container py-16 md:py-20">
+      <section id="du-an" className="site-container scroll-mt-24 py-10 md:py-14">
         <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 text-theme-xs font-bold uppercase tracking-[0.22em] text-brand-600">
@@ -188,46 +201,64 @@ const InvestorDetailPage = ({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {sortedProjects.map((project) => (
               <article
                 key={project.publicId}
-                className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-5 shadow-card transition hover:border-brand-200 hover:shadow-card-hover"
+                className="flex flex-col rounded-xl border border-gray-200 bg-white shadow-card transition hover:border-brand-200 hover:shadow-card-hover overflow-hidden"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <Link
-                    href={`/du-an/${project.slug}`}
-                    className="line-clamp-2 text-base font-bold uppercase tracking-wide text-gray-900 transition hover:text-brand-600"
-                  >
-                    {project.name}
-                  </Link>
+                {/* Ảnh cover 16:9 */}
+                <Link
+                  href={`/du-an/${project.slug}`}
+                  className="group relative block aspect-video w-full overflow-hidden bg-gray-100"
+                >
+                  <img
+                    src={project.thumbnailUrl || '/images/projects/vinhomes-grand-park.jpg'}
+                    alt={project.name}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                  {/* Status badge trên ảnh */}
                   <span
-                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                    className={`absolute bottom-3 left-3 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide backdrop-blur-sm ${
                       project.status === 'dang-mo-ban'
-                        ? 'bg-success-50 text-success-700'
+                        ? 'bg-success-500/90 text-white'
                         : project.status === 'sap-mo-ban'
-                          ? 'bg-warning-50 text-warning-700'
-                          : 'bg-gray-100 text-gray-600'
+                          ? 'bg-warning-500/90 text-white'
+                          : 'bg-gray-500/90 text-white'
                     }`}
                   >
                     {STATUS_LABELS[project.status]}
                   </span>
-                </div>
-
-                <p className="line-clamp-2 text-theme-xs leading-relaxed text-gray-600">
-                  {project.tagline}
-                </p>
-
-                <Link
-                  href={`/du-an/${project.slug}`}
-                  className="mt-2 inline-flex items-center gap-1.5 self-start text-theme-sm font-semibold text-brand-600 transition hover:text-brand-700"
-                >
-                  Xem chi tiết dự án
-                  <FiArrowRight
-                    aria-hidden
-                    className="transition-transform group-hover:translate-x-1"
-                  />
                 </Link>
+
+                {/* Nội dung */}
+                <div className="flex flex-1 flex-col gap-3 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <Link
+                      href={`/du-an/${project.slug}`}
+                      className="line-clamp-2 text-base font-bold uppercase tracking-wide text-gray-900 transition hover:text-brand-600"
+                    >
+                      {project.name}
+                    </Link>
+                  </div>
+
+                  <p className="line-clamp-2 text-theme-xs leading-relaxed text-gray-600">
+                    {project.tagline}
+                  </p>
+
+                  <Link
+                    href={`/du-an/${project.slug}`}
+                    className="group/more mt-2 inline-flex items-center gap-1.5 self-start text-theme-sm font-semibold text-brand-600 transition hover:text-brand-700"
+                  >
+                    Xem chi tiết
+                    <FiArrowRight
+                      aria-hidden
+                      className="transition-transform group-hover/more:translate-x-1"
+                    />
+                  </Link>
+                </div>
               </article>
             ))}
           </div>
@@ -237,37 +268,42 @@ const InvestorDetailPage = ({
   );
 };
 
-/** Vai thanh KPI nho trong hero (compact, co highlight) */
+/** The chi so trong hero: icon tron mau, so lon, mui ten */
 const Stat = ({
+  icon: Icon,
+  tone,
+  arrowTone,
+  href,
   label,
   value,
   suffix,
-  highlight,
 }: {
+  icon: IconType;
+  tone: string;
+  arrowTone: string;
+  href: string;
   label: string;
   value: string;
   suffix?: string;
-  highlight?: boolean;
 }) => (
-  <div
-    className={`rounded-xl border p-5 backdrop-blur-sm transition ${
-      highlight
-        ? 'border-brand-400/50 bg-brand-500/15'
-        : 'border-white/20 bg-white/5'
-    }`}
+  <Link
+    href={href}
+    className="group flex items-center gap-3 rounded-2xl border border-white bg-white/85 p-4 shadow-[0_10px_30px_-16px_rgba(30,64,175,0.35)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white"
   >
-    <dt className="text-theme-xs uppercase tracking-[0.18em] text-white/65">
-      {label}
-    </dt>
-    <dd className="mt-2 flex items-baseline gap-1">
-      <span className="text-2xl font-bold leading-none text-white md:text-3xl">
-        {value}
-      </span>
-      {suffix && (
-        <span className="text-theme-xs font-medium text-white/65">{suffix}</span>
-      )}
-    </dd>
-  </div>
+    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${tone}`}>
+      <Icon aria-hidden className="h-5 w-5" />
+    </span>
+    <div className="min-w-0 flex-1">
+      <dt className="truncate text-[11px] font-semibold tracking-wide whitespace-nowrap text-gray-500 uppercase">{label}</dt>
+      <dd className="mt-0.5 flex items-baseline gap-1">
+        <span className="text-2xl leading-none font-bold text-navy-800">{value}</span>
+        {suffix && <span className="text-theme-xs text-gray-500">{suffix}</span>}
+      </dd>
+    </div>
+    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition group-hover:translate-x-0.5 ${arrowTone}`}>
+      <FiArrowRight aria-hidden className="h-3.5 w-3.5" />
+    </span>
+  </Link>
 );
 
 export default InvestorDetailPage;

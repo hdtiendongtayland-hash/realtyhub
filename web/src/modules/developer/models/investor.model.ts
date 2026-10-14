@@ -22,6 +22,8 @@ export type Investor = {
   logo: string;
   /** Slug URL, dung cho /chu-dau-tu/[slug]. */
   slug: string;
+  /** Website chinh thuc cua chu dau tu. */
+  website?: string;
 };
 
 /** Tom tat them de hien thi card list (so du an, so can con hang, ...). */

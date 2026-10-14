@@ -32,7 +32,7 @@ const DaoTaoPage = () => (
         </div>
       }
     >
-      <TrainingVideoLibrary />
+      <TrainingVideoLibrary withHeader />
     </Suspense>
   </main>
 );

@@ -88,7 +88,7 @@ const useFeaturedEvents = (events: EventItem[], limit: number) => {
   }, [events, limit]);
 };
 
-const FeaturedEvents = ({ events, limit = 6 }: FeaturedEventsProps) => {
+const FeaturedEvents = ({ events, limit = 8 }: FeaturedEventsProps) => {
   const allEvents = events ?? MOCK_EVENTS;
   const featuredEvents = useFeaturedEvents(allEvents, limit);
 
@@ -243,7 +243,7 @@ const FeaturedEvents = ({ events, limit = 6 }: FeaturedEventsProps) => {
         </div>
 
         {/* ── Desktop grid (sm+) ─────────────────────────────────────── */}
-        <div className="hidden grid-cols-1 gap-5 sm:grid sm:grid-cols-2 lg:grid lg:grid-cols-3">
+        <div className="hidden grid-cols-1 gap-5 sm:grid sm:grid-cols-2 lg:grid lg:grid-cols-3 2xl:grid-cols-4 lg:[&>*:nth-child(n+7)]:hidden 2xl:[&>*:nth-child(n+7)]:block">
           {featuredEvents.map((event, index) => (
             <EventCard
               key={event.publicId}

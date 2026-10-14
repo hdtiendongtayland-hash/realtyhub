@@ -1,5 +1,6 @@
 'use client';
 
+import ListingHeader from '@/common/components/ListingHeader';
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { FiArrowLeft, FiArrowRight, FiList, FiPlay, FiPlayCircle, FiSearch, FiX } from 'react-icons/fi';
@@ -20,7 +21,8 @@ const TABS = [
 type TabKey = (typeof TABS)[number]['key'];
 
 /** So video hien tren moi trang (tab Video bai giang) */
-const VIDEOS_PER_PAGE = 6;
+/** 8: man lon 2 hang x 4 cot */
+const VIDEOS_PER_PAGE = 8;
 
 const viewsLabel = (views: number) =>
   views >= 1000 ? `${new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 }).format(views / 1000)}N lượt xem` : `${views} lượt xem`;
@@ -179,7 +181,7 @@ const VideoPlayer = ({
  * - Hang chu de de loc + o tim nhanh, luoi 3 cot tren may tinh.
  * - Bam video mo khung xem + "Video tiep theo".
  */
-const TrainingVideoLibrary = () => {
+const TrainingVideoLibrary = ({ withHeader = false }: { withHeader?: boolean }) => {
   const [tab, setTab] = useState<TabKey>('video');
   const [topic, setTopic] = useState<TrainingVideoTopic | 'tat-ca'>('tat-ca');
   const [keyword, setKeyword] = useState('');
@@ -211,8 +213,41 @@ const TrainingVideoLibrary = () => {
     }`;
 
   return (
-    <section id="thu-vien-video" className="site-container scroll-mt-28 pt-10 pb-16 md:pt-12 md:pb-20">
-      {/* Thanh tìm kiếm nổi bật phía trên */}
+    <section id="thu-vien-video" className={`site-container scroll-mt-28 pb-16 md:pb-20 ${withHeader ? 'pt-6' : 'pt-10 md:pt-12'}`}>
+      {withHeader ? (
+        <ListingHeader
+          crumb="Đào tạo"
+          title="Thư viện đào tạo"
+          subtitle={`${TRAINING_VIDEOS.length} video bài giảng · ${TRAINING_PLAYLISTS.length} danh sách phát`}
+          toolbar={
+            <form
+              role="search"
+              onSubmit={(event) => event.preventDefault()}
+              className="flex w-full min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-gray-25 py-2 pr-2 pl-5 transition focus-within:border-brand-300 focus-within:bg-white focus-within:shadow-focus-ring"
+            >
+              <input
+                type="search"
+                value={keyword}
+                onChange={(change) => {
+                  setKeyword(change.target.value);
+                  setVideoPage(1); // loc thay doi -> ve trang 1
+                }}
+                placeholder="Tìm theo tên bài giảng, giảng viên..."
+                aria-label="Tìm kiếm trong thư viện đào tạo"
+                className="h-9 min-w-0 flex-1 bg-transparent text-base text-gray-800 outline-none placeholder:text-gray-400"
+              />
+              <button
+                type="submit"
+                aria-label="Tìm kiếm"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-gray-500 transition hover:bg-brand-50 hover:text-brand-600"
+              >
+                <FiSearch aria-hidden className="text-lg" />
+              </button>
+            </form>
+          }
+        />
+      ) : (
+      // Thanh tìm kiếm nổi bật phía trên (dung trong tab Dao tao cua trang du an)
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Cung kieu o tim kiem trang Chu dau tu: vien tron, bong nhe, kinh lup ben phai */}
         <form
@@ -240,6 +275,8 @@ const TrainingVideoLibrary = () => {
           </button>
         </form>
       </div>
+
+      )}
 
       {/* 3 tab */}
       <div role="tablist" aria-label="Thư viện bài giảng" className="mb-6 flex gap-1 border-b border-gray-200">
@@ -288,7 +325,7 @@ const TrainingVideoLibrary = () => {
             <p className="py-12 text-center text-theme-sm text-gray-500">Không có video nào khớp.</p>
           ) : (
             <>
-              <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {paginatedVideos.map((video) => (
                   <VideoCard key={video.publicId} video={video} onPlay={setPlaying} />
                 ))}
@@ -343,7 +380,7 @@ const TrainingVideoLibrary = () => {
       )}
 
       {tab === 'playlist' && (
-        <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {TRAINING_PLAYLISTS.map((playlist) => {
             const first = byId.get(playlist.videoIds[0]);
             return (
@@ -382,7 +419,7 @@ const TrainingVideoLibrary = () => {
       )}
 
       {tab === 'dang-hoc' && (
-        <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {inProgress.map((video) => (
             <div key={video.publicId}>
               <VideoCard video={video} onPlay={setPlaying} />

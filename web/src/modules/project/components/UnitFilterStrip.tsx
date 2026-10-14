@@ -77,6 +77,10 @@ const SLOT_VISIBILITY = [
   'hidden md:flex',
   'hidden md:flex',
   'hidden lg:flex',
+  // Man hinh may tinh rong (trang da mo rong gan het man hinh): them 3 logo
+  'hidden xl:flex',
+  'hidden xl:flex',
+  'hidden xl:flex',
 ];
 
 type UnitFilterStripProps = {
@@ -112,10 +116,13 @@ const UnitFilterStrip = ({
    */
   const investors = useMemo(
     () =>
-      (data?.investors ?? []).map((investor) => ({
-        investor,
-        developerId: InvestorService.developerIdBySlug(investor.slug),
-      })),
+      (data?.investors ?? [])
+        .map((investor) => ({
+          investor,
+          developerId: InvestorService.developerIdBySlug(investor.slug),
+        }))
+        // Chu dau tu dang co du an len truoc - logo bam duoc nam o dau hang
+        .sort((a, b) => Number(b.developerId !== null) - Number(a.developerId !== null)),
     [data],
   );
 
@@ -146,7 +153,10 @@ const UnitFilterStrip = ({
     if (!isPanelOpen) return;
 
     const top = wrapperRef.current?.getBoundingClientRect().top ?? 0;
-    window.scrollBy({ top: top - 88, behavior: 'smooth' });
+    // Dua hang nut sat ngay duoi thanh dieu huong dinh (do chieu cao that), chi
+    // chua 8px - khong de lo mot dai trong phia tren nut Loc
+    const headerHeight = document.querySelector('header')?.getBoundingClientRect().height ?? 64;
+    window.scrollBy({ top: top - headerHeight - 8, behavior: 'smooth' });
   }, [isPanelOpen]);
 
   // Bam ra ngoai / bam Escape thi dong bang - bang dang che mat ket qua
@@ -178,11 +188,11 @@ const UnitFilterStrip = ({
   if (isLoadingInvestors) {
     return (
       <div className="flex items-center gap-1.5 sm:gap-2">
-        <div className="h-11 w-20 shrink-0 animate-pulse rounded-xl bg-gray-100 sm:w-24" />
+        <div className="h-12 w-20 shrink-0 animate-pulse rounded-xl bg-gray-100 sm:w-24" />
         {SLOT_VISIBILITY.map((visibility, index) => (
           <div
             key={index}
-            className={`h-11 flex-1 animate-pulse rounded-xl bg-gray-100 ${visibility}`}
+            className={`h-12 flex-1 animate-pulse rounded-xl bg-gray-100 ${visibility}`}
           />
         ))}
       </div>
@@ -198,7 +208,7 @@ const UnitFilterStrip = ({
           onClick={() => setIsPanelOpen((open) => !open)}
           aria-expanded={isPanelOpen}
           aria-haspopup="dialog"
-          className={`relative z-30 flex h-11 shrink-0 items-center gap-1.5 rounded-xl border px-3 text-theme-sm font-semibold transition sm:gap-2 sm:px-4 ${
+          className={`relative z-30 flex h-12 shrink-0 items-center gap-1.5 rounded-xl border px-3 text-theme-sm font-semibold transition sm:gap-2 sm:px-4 ${
             isPanelOpen
               ? 'border-brand-500 bg-brand-50 text-brand-700'
               : 'border-gray-200 bg-white text-gray-700 shadow-card hover:border-brand-300 hover:text-brand-600'
@@ -230,11 +240,11 @@ const UnitFilterStrip = ({
                   ? `${investor.name} · chưa có dự án trên hệ thống`
                   : `${investor.name} · ${investor.projectCount} dự án`
               }
-              className={`${SLOT_VISIBILITY[index] ?? 'flex'} h-11 min-w-0 max-w-[168px] flex-1 items-center justify-center overflow-hidden rounded-xl border px-1.5 transition sm:px-4 ${
+              className={`${SLOT_VISIBILITY[index] ?? 'flex'} h-12 min-w-0 max-w-[168px] flex-1 items-center justify-center overflow-hidden rounded-xl border bg-white px-1.5 transition sm:px-4 xl:max-w-none ${
                 isSelected
-                  ? 'border-brand-500 bg-white shadow-card ring-1 ring-brand-500/25'
-                  : 'border-transparent bg-gray-100 hover:bg-gray-200/80'
-              } ${developerId === null ? 'cursor-not-allowed opacity-45 hover:bg-gray-100' : ''}`}
+                  ? 'border-brand-500 shadow-card ring-2 ring-brand-500/20'
+                  : 'border-gray-200 hover:border-brand-300 hover:shadow-theme-xs'
+              } ${developerId === null ? 'cursor-not-allowed opacity-40 grayscale hover:border-gray-200 hover:shadow-none' : ''}`}
             >
               <DeveloperLogo name={investor.name} logo={investor.logo} />
             </button>

@@ -515,7 +515,9 @@
 
 /* Vung noi dung chinh - dung chung cho header, main, footer */
 @utility site-container {
-  @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+  /* May tinh (xl+): mo rong gan het man hinh, chi chua le nho hai ben.
+     Duoi xl (iPad, dien thoai) giu nguyen nhu cu. */
+  @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8 xl:max-w-[1840px] xl:px-8 2xl:px-10;
 }
 
 /* Nen chuyen mau thuong hieu: nhan "du an cao tang" tren the du an va nut

@@ -1,8 +1,8 @@
 'use client';
 
+import ListingHeader from '@/common/components/ListingHeader';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import Pagination from '@/common/components/Pagination';
 import ProjectCard from './ProjectCard';
 import ProjectFilterBar, {
@@ -99,7 +99,8 @@ const toParam = (value: ProjectFilterValues[keyof ProjectFilterValues]) => {
   return String(value);
 };
 
-const GRID_CLASS = 'grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 project-grid-clean';
+const GRID_CLASS =
+  'grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 project-grid-clean';
 
 /**
  * Khung xuong mot the du an.
@@ -110,7 +111,7 @@ const GRID_CLASS = 'grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-
  */
 const CardSkeleton = () => (
   <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
-    <div className="aspect-[16/10] w-full animate-pulse bg-gray-100" />
+    <div className="aspect-video w-full animate-pulse bg-gray-100" />
     <div className="p-2 md:p-4">
       <div className="grid grid-cols-2 gap-1">
         {Array.from({ length: 2 }).map((_, index) => (
@@ -164,7 +165,6 @@ const ProjectListPage = () => {
 
   // `projects.title` chứa H1 của trang. Các label filter/sort/empty được
   // truyền vào ProjectFilterBar qua prop `t` (xem dưới).
-  const t = useTranslations('projects');
 
   // ── Doc trang thai tu URL ────────────────────────────────────────────────
   // URL do nguoi dung sua duoc, nen moi gia tri deu phai qua mot buoc lam sach:
@@ -448,57 +448,49 @@ const ProjectListPage = () => {
     <div className={shellClass}>
       <div className={headClass}>
         {/* Che do ban do tren dien thoai: giau tieu de de nhuong cho cho ban do */}
-        <h1
-          className={`mb-6 text-center text-3xl font-bold uppercase tracking-wide text-gray-900 ${
-            isMapView ? 'hidden lg:block' : ''
-          }`}
-        >
-          {t('title')}
-        </h1>
-
-        <div className="mb-4">
-        <ProjectFilterBar
-          values={filterValues}
-          options={options}
-          isLoadingOptions={optionsQuery.isLoading}
-          activeCount={activeCount}
-          resultCount={total}
-          view={view}
-          onViewChange={setView}
-          onClearAll={clearAllFilters}
-          onSubmitSearch={submitSearch}
-          onChange={handleFilterChange}
-          sort={sort}
-          onSortChange={(nextSort) =>
-            applyParams({ [PARAM.sort]: nextSort === 'mac-dinh' ? null : nextSort })
+        <ListingHeader
+          crumb="Dự án"
+          title="Danh sách dự án"
+          className={isMapView ? 'max-lg:[&>nav]:hidden max-lg:[&>div:nth-child(2)]:hidden' : ''}
+          subtitle={
+            isFirstLoad ? (
+              <span className="inline-block h-4 w-40 animate-pulse rounded bg-gray-100" />
+            ) : (
+              <span aria-live="polite">
+                {hasActiveFilter ? 'Tìm thấy ' : 'Đang phân phối '}
+                <strong className="text-gray-800">{total}</strong> dự án
+                {isRefreshing && <span className="ml-2 text-gray-400">· Đang cập nhật...</span>}
+              </span>
+            )
+          }
+          toolbar={
+            <ProjectFilterBar
+              values={filterValues}
+              options={options}
+              isLoadingOptions={optionsQuery.isLoading}
+              activeCount={activeCount}
+              resultCount={total}
+              view={view}
+              onViewChange={setView}
+              onClearAll={clearAllFilters}
+              onSubmitSearch={submitSearch}
+              onChange={handleFilterChange}
+              sort={sort}
+              onSortChange={(nextSort) =>
+                applyParams({
+                  [PARAM.sort]: nextSort === 'mac-dinh' ? null : nextSort,
+                })
+              }
+            />
           }
         />
-      </div>
-
-        <div
-          className={`mb-4 flex min-h-5 items-center justify-between text-theme-sm text-gray-500 ${
-            isMapView ? 'hidden lg:flex' : ''
-          }`}
-        >
-          {isFirstLoad ? (
-            <span className="h-4 w-32 animate-pulse rounded bg-gray-100" />
-          ) : (
-            <span aria-live="polite">
-              {hasActiveFilter ? 'Tìm thấy ' : 'Có '}
-              <strong className="text-gray-800">{total}</strong> dự án
-            </span>
-          )}
-          {isRefreshing && <span className="text-gray-400">Đang cập nhật...</span>}
-        </div>
       </div>
 
       {isMapView ? (
         <ProjectMapView projects={projects} isLoading={isFirstLoad} />
       ) : listQuery.isError ? (
         <div className="rounded-xl border border-error-500/30 bg-error-50 p-8 text-center">
-          <p className="mb-4 text-theme-sm text-error-600">
-            Không tải được danh sách dự án.
-          </p>
+          <p className="mb-4 text-theme-sm text-error-600">Không tải được danh sách dự án.</p>
           <button
             type="button"
             onClick={() => listQuery.refetch()}
@@ -516,9 +508,7 @@ const ProjectListPage = () => {
       ) : projects.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
           <p className="mb-4 text-theme-sm text-gray-500">
-            {hasActiveFilter
-              ? 'Không tìm thấy dự án phù hợp với bộ lọc.'
-              : 'Chưa có dự án nào.'}
+            {hasActiveFilter ? 'Không tìm thấy dự án phù hợp với bộ lọc.' : 'Chưa có dự án nào.'}
           </p>
           {hasActiveFilter && (
             <button

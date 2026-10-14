@@ -1,9 +1,10 @@
 'use client';
 
+import ListingHeader from '@/common/components/ListingHeader';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { FiArrowRight } from 'react-icons/fi';
+import { FiArrowRight, FiGlobe } from 'react-icons/fi';
 import Pagination from '@/common/components/Pagination';
 import { formatNumber } from '@/common/utils/format';
 import InvestorFilterBar from './InvestorFilterBar';
@@ -19,7 +20,8 @@ type InvestorListPageProps = {
   initialInvestors?: InvestorSummary[];
 };
 
-const GRID_CLASS = 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+const GRID_CLASS =
+  'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5';
 
 const CardSkeleton = () => (
   <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-card">
@@ -55,13 +57,12 @@ const PARAM_OF: Record<keyof InvestorFilterValues, string> = {
   hasAvailableUnits: PARAM.hasAvailable,
 };
 
-const ALLOWED_LIMITS = [12, 24, 48];
-const DEFAULT_LIMIT = 12;
+// 15: dung 3 hang logo tren luoi 5 cot (man hinh rong)
+const ALLOWED_LIMITS = [15, 30, 45];
+const DEFAULT_LIMIT = 15;
 
 /** Null / empty string / false → delete the param */
-const toParam = (
-  value: InvestorFilterValues[keyof InvestorFilterValues],
-): string | null => {
+const toParam = (value: InvestorFilterValues[keyof InvestorFilterValues]): string | null => {
   if (value === null || value === '' || value === false) return null;
   if (value === true) return '1';
   return String(value);
@@ -126,10 +127,7 @@ const InvestorListPage = ({ initialInvestors }: InvestorListPageProps) => {
   // Debounce search input: write to URL after 300ms of no typing.
   useEffect(() => {
     if (searchInput === urlSearch) return;
-    const timer = setTimeout(
-      () => applyParams({ [PARAM.search]: searchInput || null }),
-      300,
-    );
+    const timer = setTimeout(() => applyParams({ [PARAM.search]: searchInput || null }), 300);
     return () => clearTimeout(timer);
   }, [searchInput, urlSearch, applyParams]);
 
@@ -187,14 +185,9 @@ const InvestorListPage = ({ initialInvestors }: InvestorListPageProps) => {
   );
 
   // ── Active filter count ──────────────────────────────────────────────
-  const activeCount =
-    [
-      urlSearch,
-      regionId,
-      minProjectCount,
-      hasOpening,
-      hasAvailableUnits,
-    ].filter((v) => v !== null && v !== '' && v !== false && v !== 0).length;
+  const activeCount = [urlSearch, regionId, minProjectCount, hasOpening, hasAvailableUnits].filter(
+    (v) => v !== null && v !== '' && v !== false && v !== 0,
+  ).length;
 
   const clearAllFilters = useCallback(() => {
     setSearchInput('');
@@ -216,33 +209,29 @@ const InvestorListPage = ({ initialInvestors }: InvestorListPageProps) => {
       {/* ── Tieu de ──────────────────────────────────────────────────── */}
       {/* Cung co chu/khoang dem voi h1 cua /du-an va /quy-can - ba trang danh
           sach nay doi qua lai nhieu, tieu de lech co la thay ngay. */}
-      <header className="mb-6">
-        <h1 className="text-center text-3xl font-bold uppercase tracking-wide text-gray-900">
-          Danh sách Chủ đầu tư
-        </h1>
-      </header>
-
-      {/* ── Bo loc ──────────────────────────────────────────────────── */}
-      <div className="mb-4">
-        <InvestorFilterBar
-          values={filterValues}
-          onSubmitSearch={submitSearch}
-          onChange={handleFilterChange}
-          sort={sort}
-          onSortChange={(nextSort) =>
-            applyParams({
-              [PARAM.sort]: nextSort === 'mac-dinh' ? null : nextSort,
-            })
-          }
-        />
-      </div>
+      <ListingHeader
+        crumb="Chủ đầu tư"
+        title="Danh sách chủ đầu tư"
+        subtitle="Các chủ đầu tư uy tín đang hợp tác phân phối cùng RealtyHub"
+        toolbar={
+          <InvestorFilterBar
+            values={filterValues}
+            onSubmitSearch={submitSearch}
+            onChange={handleFilterChange}
+            sort={sort}
+            onSortChange={(nextSort) =>
+              applyParams({
+                [PARAM.sort]: nextSort === 'mac-dinh' ? null : nextSort,
+              })
+            }
+          />
+        }
+      />
 
       {/* ── Luoi chu dau tu ─────────────────────────────────────────── */}
       {listQuery.isError ? (
         <div className="rounded-xl border border-error-500/30 bg-error-50 p-8 text-center">
-          <p className="mb-4 text-theme-sm text-error-600">
-            Không tải được danh sách chủ đầu tư.
-          </p>
+          <p className="mb-4 text-theme-sm text-error-600">Không tải được danh sách chủ đầu tư.</p>
           <button
             type="button"
             onClick={() => listQuery.refetch()}
@@ -288,6 +277,7 @@ const InvestorListPage = ({ initialInvestors }: InvestorListPageProps) => {
               logo={investor.logo}
               projectCount={investor.projectCount}
               availableUnitCount={investor.availableUnitCount}
+              website={investor.website}
             />
           ))}
         </div>
@@ -300,16 +290,13 @@ const InvestorListPage = ({ initialInvestors }: InvestorListPageProps) => {
           totalPages={totalPages}
           total={total}
           limit={limit}
+          pageSizeOptions={ALLOWED_LIMITS}
           onPageChange={(nextPage) =>
-            applyParams(
-              { [PARAM.page]: nextPage > 1 ? String(nextPage) : null },
-              true,
-            )
+            applyParams({ [PARAM.page]: nextPage > 1 ? String(nextPage) : null }, true)
           }
           onLimitChange={(nextLimit) =>
             applyParams({
-              [PARAM.limit]:
-                nextLimit === DEFAULT_LIMIT ? null : String(nextLimit),
+              [PARAM.limit]: nextLimit === DEFAULT_LIMIT ? null : String(nextLimit),
             })
           }
         />
@@ -325,6 +312,7 @@ type InvestorCardProps = {
   logo: string;
   projectCount: number;
   availableUnitCount: number;
+  website?: string;
 };
 
 const InvestorCard = ({
@@ -333,6 +321,7 @@ const InvestorCard = ({
   logo,
   projectCount,
   availableUnitCount,
+  website,
 }: InvestorCardProps) => {
   const detailHref = `/chu-dau-tu/${slug}`;
   return (
@@ -364,12 +353,8 @@ const InvestorCard = ({
 
         <dl className="grid grid-cols-2 gap-2 rounded-lg border border-gray-100 bg-gray-25 p-3 text-center">
           <div>
-            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
-              Dự án
-            </dt>
-            <dd className="mt-0.5 text-theme-sm font-bold text-gray-900">
-              {projectCount}
-            </dd>
+            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Dự án</dt>
+            <dd className="mt-0.5 text-theme-sm font-bold text-gray-900">{projectCount}</dd>
           </div>
           <div className="border-l border-gray-100">
             <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
@@ -383,14 +368,28 @@ const InvestorCard = ({
         </dl>
 
         <div className="mt-auto pt-1">
-          <Link
-            href={detailHref}
-            aria-label={`Xem chi tiết chủ đầu tư ${name}`}
-            className="flex w-full items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 py-2.5 text-theme-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
-          >
-            Xem chi tiết
-            <FiArrowRight aria-hidden className="text-base" />
-          </Link>
+          {website ? (
+            <a
+              href={website}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Truy cập trang web của chủ đầu tư ${name}`}
+              className="group flex w-full items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 py-2.5 text-theme-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+            >
+              <FiGlobe aria-hidden className="text-base" />
+              Trang chủ đầu tư
+              <FiArrowRight aria-hidden className="text-base transition-transform group-hover:translate-x-1" />
+            </a>
+          ) : (
+            <Link
+              href={detailHref}
+              aria-label={`Xem chi tiết chủ đầu tư ${name}`}
+              className="flex w-full items-center justify-center gap-1.5 rounded-md bg-brand-500 px-4 py-2.5 text-theme-sm font-semibold text-white transition hover:bg-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+            >
+              Xem chi tiết
+              <FiArrowRight aria-hidden className="text-base" />
+            </Link>
+          )}
         </div>
       </div>
     </article>

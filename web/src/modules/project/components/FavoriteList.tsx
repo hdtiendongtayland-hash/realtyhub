@@ -48,7 +48,7 @@ import UnitModal from './UnitModal';
  * SSR-safe: favorites ban dau = [] (server) -> skeleton grid hien thi.
  * Sau mount favorites hydrate, effect chay query, isLoading flip, swap data.
  */
-const GRID_CLASS = 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3';
+const GRID_CLASS = 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4';
 
 const SEGMENT_FILTER_LABELS: Record<ProjectSegment, string> = {
   'cao-tang': 'Cao tầng',

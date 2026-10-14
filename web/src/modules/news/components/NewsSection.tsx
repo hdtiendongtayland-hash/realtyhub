@@ -181,7 +181,7 @@ const NewsSection = ({ limit = 8, articles }: NewsSectionProps) => {
       </div>
 
       {/* ── Desktop grid (sm+) ──────────────────────────────────────────── */}
-      <div className="hidden grid-cols-1 gap-5 sm:grid sm:grid-cols-2 lg:grid lg:grid-cols-4">
+      <div className="hidden grid-cols-1 gap-5 sm:grid sm:grid-cols-2 lg:grid lg:grid-cols-4 2xl:gap-6">
         {data.map((article) => (
           <NewsCard key={article.publicId} article={article} />
         ))}

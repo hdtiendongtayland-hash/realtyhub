@@ -170,7 +170,7 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
         </div>
 
         {/* ── Desktop grid (sm+) ─────────────────────────────────────────── */}
-        <div className="hidden grid-cols-1 gap-5 sm:grid sm:grid-cols-2 lg:grid lg:grid-cols-3">
+        <div className="hidden grid-cols-1 gap-5 sm:grid sm:grid-cols-2 lg:grid lg:grid-cols-3 2xl:grid-cols-4 lg:[&>*:nth-child(n+7)]:hidden 2xl:[&>*:nth-child(n+7)]:block">
           {projects.map((project) => (
             <ProjectCard key={project.publicId} project={project} />
           ))}

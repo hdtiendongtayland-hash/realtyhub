@@ -206,7 +206,7 @@ const ProjectTabNav = ({
             ngang de xem het tab - khong bao gio co tab bi day xuong hang 2. */}
         <ul
           ref={listRef}
-          className="tab-scroll flex min-w-0 flex-1 cursor-grab items-center gap-0.5 overflow-x-scroll py-2 select-none"
+          className="tab-scroll flex min-w-0 flex-1 cursor-grab items-center gap-0.5 overflow-x-scroll py-2 select-none min-[1360px]:justify-between"
         >
           {PROJECT_DETAIL_TABS.map((tab) => {
             const isActive = tab.key === current;
@@ -220,7 +220,7 @@ const ProjectTabNav = ({
                   type="button"
                   onClick={() => onChange(tab.key)}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] transition duration-200 lg:px-[9px] ${
+                  className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[14px] transition duration-200 lg:px-[9px] min-[1360px]:gap-1 min-[1360px]:px-[6px] min-[1360px]:text-[14px] min-[1600px]:text-[15px] min-[1440px]:px-[7px] min-[1600px]:gap-1 min-[1600px]:px-2 min-[1760px]:gap-1.5 min-[1760px]:px-3 min-[1760px]:py-2.5 min-[1760px]:text-base ${
                     isActive
                       ? "brand-gradient font-semibold text-white shadow-[0_4px_14px_-4px_rgba(15,111,209,0.7)]"
                       : tab.key === HOT_TAB
@@ -239,7 +239,7 @@ const ProjectTabNav = ({
                         ? `shrink-0 ${
                             isActive ? "text-white" : "text-error-500"
                           } ${tab.key === HOT_TAB ? "animate-pulse-fire" : ""}`
-                        : `shrink-0 lg:hidden ${isActive ? "text-white" : "text-gray-400"}`
+                        : `shrink-0 lg:max-[1359px]:hidden min-[1360px]:h-[14px] min-[1360px]:w-[14px] min-[1600px]:h-[15px] min-[1600px]:w-[15px] min-[1760px]:h-[18px] min-[1760px]:w-[18px] ${isActive ? "text-white" : "text-gray-500"}`
                     }
                   />
                   {tab.label}
@@ -304,7 +304,7 @@ export const ProjectContactButton = ({
         <FiPhone aria-hidden />
         {/* Duoi sm chi con icon cho do chat; aria-label o tren lo cho ca
               hai truong hop nen trinh doc man hinh luon doc du y nghia. */}
-        <span className="hidden sm:inline">Liên hệ</span>
+        <span className="hidden sm:inline min-[1360px]:max-[1439px]:hidden">Liên hệ</span>
       </button>
 
       {isContactOpen && (

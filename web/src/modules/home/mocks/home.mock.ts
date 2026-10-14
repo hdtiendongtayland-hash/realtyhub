@@ -85,7 +85,8 @@ export const MOCK_FEATURED_PROJECTS = [...MOCK_PROJECTS]
     if (a.isHot !== b.isHot) return Number(b.isHot) - Number(a.isHot);
     return Date.parse(b.publishedAt) - Date.parse(a.publishedAt);
   })
-  .slice(0, 6);
+  // 8: man lon hien 2 hang x 4; man nho hien 6 (an bang CSS)
+  .slice(0, 8);
 
 export const MOCK_TESTIMONIALS: HomeTestimonial[] = [
   {

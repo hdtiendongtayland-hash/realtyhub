@@ -228,33 +228,35 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
           subtitle="Đội ngũ chuyên viên sẵn sàng hỗ trợ bạn 24/7"
         />
 
-        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-5 sm:grid-cols-2">
+        {/* Laptop tro len: tat ca chuyen vien tren mot hang */}
+        <div
+          className={`mx-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5 ${
+            project.consultants.length >= 3 ? 'max-w-6xl lg:grid-cols-3' : 'max-w-3xl'
+          }`}
+        >
           {project.consultants.map((consultant) => (
             <div
               key={consultant.publicId}
-              className="flex flex-col items-center rounded-xl border border-gray-200 bg-white p-6 text-center shadow-card"
+              className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-gray-100 bg-white px-6 pt-7 pb-6 text-center shadow-[0_10px_30px_-16px_rgba(30,64,175,0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-16px_rgba(30,64,175,0.4)]"
             >
-              <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-jade-50 text-xl text-jade-500">
+              <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-jade-400 to-gold-400" />
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-jade-50 text-2xl text-jade-500 ring-4 ring-jade-50/60">
                 <FiPhone aria-hidden />
               </span>
 
-              <p className="text-base font-semibold uppercase tracking-wide text-gold-500">
-                {consultant.role}
-              </p>
-              <p className="mt-0.5 text-base font-medium text-gray-700">
-                {consultant.name}
-              </p>
+              <p className="mt-4 text-theme-sm font-bold tracking-[0.15em] text-gold-500 uppercase">{consultant.role}</p>
+              <p className="mt-1 text-base font-medium text-gray-700">{consultant.name}</p>
 
               <a
                 href={`tel:${consultant.phone.replace(/\s/g, '')}`}
-                className="mt-2 text-xl font-bold text-jade-600 transition hover:text-jade-500"
+                className="mt-2 text-2xl font-bold tracking-wide text-jade-600 transition hover:text-jade-500"
               >
                 {consultant.phone}
               </a>
 
               <a
                 href={`tel:${consultant.phone.replace(/\s/g, '')}`}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-gold-400 px-5 py-2 text-base font-bold uppercase tracking-wide text-jade-800 transition hover:bg-gold-300"
+                className="mt-5 inline-flex w-full max-w-[220px] items-center justify-center gap-2 rounded-full bg-gold-400 px-5 py-2.5 text-base font-bold tracking-wide text-jade-800 uppercase shadow-[0_8px_20px_-10px_rgba(234,179,8,0.8)] transition hover:bg-gold-300"
               >
                 <FiPhone aria-hidden />
                 Liên hệ ngay

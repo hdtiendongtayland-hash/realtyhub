@@ -54,7 +54,7 @@ const InvestorFilterBar = ({
       <form
         onSubmit={submit}
         role="search"
-        className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-gray-200 bg-white py-2 pl-5 pr-2 shadow-card transition focus-within:border-brand-300 focus-within:shadow-panel lg:max-w-2xl"
+        className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-gray-200 bg-gray-25 py-2 pl-5 pr-2 transition focus-within:border-brand-300 focus-within:bg-white focus-within:shadow-focus-ring"
       >
         <input
           type="search"
