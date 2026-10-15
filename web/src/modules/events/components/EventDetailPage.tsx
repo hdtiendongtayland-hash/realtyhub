@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   FiArrowLeft,
+  FiArrowRight,
+  FiHome,
   FiCalendar,
   FiCheckCircle,
   FiChevronLeft,
   FiChevronRight,
   FiClock,
-  FiDownload,
   FiImage,
   FiMapPin,
   FiMessageSquare,
@@ -19,6 +20,7 @@ import {
   FiX,
   FiXCircle,
 } from 'react-icons/fi';
+import { TbCalendarPlus } from 'react-icons/tb';
 
 import PlaceholderThumb from '@/common/components/PlaceholderThumb';
 import { formatNumber } from '@/common/utils/format';
@@ -65,10 +67,6 @@ const dayFormatter = new Intl.DateTimeFormat('vi-VN', {
   timeZone: TIMEZONE,
 });
 const weekdayFormatter = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', timeZone: TIMEZONE });
-
-/** "09:00 10/09/2026" */
-const formatMoment = (iso: string) =>
-  `${timeFormatter.format(new Date(iso))} ${dayFormatter.format(new Date(iso))}`;
 
 const formatPrice = (event: EventItem) =>
   event.isFree ? 'Miễn phí' : `${new Intl.NumberFormat('vi-VN').format(event.price ?? 0)}đ`;
@@ -318,54 +316,143 @@ const EventDetailPage = ({ slug, initialEvent }: EventDetailPageProps) => {
   const days = daysUntil(event.startAt);
 
   return (
-    <main className="bg-white pb-16">
-      {/* ── Anh bia + breadcrumb ─────────────────────────────────────── */}
+    <main className="bg-gray-25 pb-16">
+      {/* ── 1. DAU TRANG: the sang, chu trai + anh 16:9 phai ─────────── */}
       <section className="site-container pt-6">
         <nav aria-label="Breadcrumb" className="mb-4">
-          <ol className="flex items-center gap-2 text-theme-xs text-gray-500">
+          <ol className="flex flex-wrap items-center gap-1.5 text-theme-xs text-gray-500">
             <li>
-              <Link href="/" className="transition hover:text-brand-600">
+              <Link href="/" className="inline-flex items-center gap-1 transition hover:text-brand-600">
+                <FiHome aria-hidden className="h-3.5 w-3.5" />
                 Trang chủ
               </Link>
             </li>
-            <li aria-hidden>/</li>
+            <li aria-hidden>
+              <FiChevronRight className="h-3.5 w-3.5 text-gray-300" />
+            </li>
             <li>
               <Link href="/su-kien" className="transition hover:text-brand-600">
                 Sự kiện
               </Link>
             </li>
-            <li aria-hidden>/</li>
-            <li className="line-clamp-1 text-gray-800">{event.title}</li>
+            <li aria-hidden>
+              <FiChevronRight className="h-3.5 w-3.5 text-gray-300" />
+            </li>
+            <li className="line-clamp-1 font-medium text-gray-700">{event.title}</li>
           </ol>
         </nav>
 
-        <div className="relative overflow-hidden rounded-2xl shadow-theme-md">
-          <PlaceholderThumb
-            seed={event.slug}
-            src={event.coverImage}
-            label={event.title}
-            alt={event.title}
-            className="aspect-[16/9] w-full md:aspect-[21/8]"
-          />
-          {!isPast && days > 0 && (
-            <span className="absolute right-4 bottom-4 flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-theme-sm font-semibold text-gray-900 shadow-theme-md backdrop-blur">
-              <FiClock aria-hidden className="text-brand-500" />
-              Còn {days} ngày
-            </span>
-          )}
+        <div className="relative isolate overflow-hidden rounded-3xl border border-white bg-gradient-to-br from-white via-[#f3f7ff] to-[#e6efff] shadow-[0_24px_60px_-30px_rgba(30,64,175,0.45)]">
+          <span aria-hidden className="absolute -right-20 -bottom-24 -z-10 h-72 w-72 rounded-full bg-sky-200/60 blur-3xl" />
+          <span aria-hidden className="absolute -top-20 left-1/3 -z-10 h-56 w-56 rounded-full bg-violet-200/40 blur-3xl" />
+
+          <div className="grid items-center gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-10 lg:p-8">
+            {/* Chu */}
+            <div className="order-2 lg:order-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`rounded-full px-3 py-1 text-[11px] font-bold tracking-wide uppercase ${tone.chip}`}>
+                  {EVENT_TYPE_LABELS[event.type]}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold tracking-wide uppercase ${STATUS_TONES[status]}`}
+                >
+                  {status === 'ongoing' ? (
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500" />
+                  ) : isPast ? (
+                    <FiCheckCircle aria-hidden />
+                  ) : null}
+                  {EVENT_STATUS_LABELS[status]}
+                </span>
+                {!isPast && days > 0 && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-3 py-1 text-[11px] font-bold text-white">
+                    <FiClock aria-hidden className="h-3.5 w-3.5" />
+                    Còn {days} ngày
+                  </span>
+                )}
+              </div>
+
+              <h1 className="mt-4 text-2xl leading-tight font-bold text-navy-800 md:text-3xl xl:text-4xl">{event.title}</h1>
+              <p className="mt-3 text-theme-sm leading-relaxed text-gray-600 md:text-base">{event.excerpt}</p>
+
+              <ul className="mt-5 space-y-3">
+                <li className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                    <FiCalendar aria-hidden className="h-5 w-5" />
+                  </span>
+                  <span className="text-theme-sm">
+                    <span className="block font-semibold text-gray-900 capitalize">
+                      {weekdayFormatter.format(new Date(event.startAt))}, {dayFormatter.format(new Date(event.startAt))}
+                    </span>
+                    <span className="block text-gray-500">
+                      {timeFormatter.format(new Date(event.startAt))}
+                      {event.endAt && ` – ${timeFormatter.format(new Date(event.endAt))}`}
+                    </span>
+                  </span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    {event.location.isOnline ? (
+                      <FiVideo aria-hidden className="h-5 w-5" />
+                    ) : (
+                      <FiMapPin aria-hidden className="h-5 w-5" />
+                    )}
+                  </span>
+                  <span className="text-theme-sm">
+                    <span className="block font-semibold text-gray-900">{event.location.name}</span>
+                    {!event.location.isOnline && event.location.address && (
+                      <span className="block text-gray-500">{event.location.address}</span>
+                    )}
+                  </span>
+                </li>
+              </ul>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                {!isPast && !isFull && (
+                  <a
+                    href="#dang-ky"
+                    className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-brand-500 to-brand-700 py-2.5 pr-5 pl-2.5 text-theme-sm font-semibold text-white shadow-[0_12px_28px_-12px_rgba(15,111,209,0.85)] transition hover:brightness-110"
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
+                      <FiArrowRight aria-hidden className="h-4 w-4" />
+                    </span>
+                    Đăng ký tham dự
+                  </a>
+                )}
+                {!isPast && (
+                  <a
+                    href={toIcsDataUri(event)}
+                    download={`${event.slug}.ics`}
+                    className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white px-5 py-2.5 text-theme-sm font-semibold text-brand-700 transition hover:border-brand-400"
+                  >
+                    <TbCalendarPlus aria-hidden className="h-4 w-4" />
+                    Thêm vào lịch
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Anh 16:9 */}
+            <div className="order-1 lg:order-2">
+              <div className="relative aspect-video overflow-hidden rounded-2xl shadow-[0_20px_44px_-20px_rgba(15,23,42,0.55)]">
+                <PlaceholderThumb seed={event.slug} src={event.coverImage} label={event.title} alt={event.title} />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="site-container mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
-        {/* ── Cot trai: tieu de + tab ───────────────────────────────── */}
+      {/* ── 2. NOI DUNG + THE DANG KY ─────────────────────────────────── */}
+      <section className="site-container mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] xl:gap-8">
         <div className="min-w-0">
-          <h1 className="text-2xl leading-tight font-extrabold text-navy-800 uppercase md:text-3xl lg:text-4xl">
-            {event.title}
-          </h1>
-
-          <div role="tablist" aria-label="Nội dung sự kiện" className="mt-6 flex gap-1 border-b border-gray-200">
+          {/* Tab dang vien thuoc */}
+          <div
+            role="tablist"
+            aria-label="Nội dung sự kiện"
+            className="no-scrollbar inline-flex max-w-full gap-1 overflow-x-auto rounded-2xl border border-white bg-white p-1.5 shadow-[0_10px_30px_-18px_rgba(30,64,175,0.35)]"
+          >
             {TABS.map(({ key, label, icon: Icon }) => {
               const isActive = tab === key;
+              const count = key === 'thu-vien' ? gallery.length : key === 'danh-gia' ? getEventReviews(event).length : null;
               return (
                 <button
                   key={key}
@@ -373,44 +460,66 @@ const EventDetailPage = ({ slug, initialEvent }: EventDetailPageProps) => {
                   role="tab"
                   aria-selected={isActive}
                   onClick={() => setTab(key)}
-                  className={`relative inline-flex items-center gap-2 px-4 py-3 text-theme-sm font-semibold uppercase transition ${
-                    isActive ? 'text-brand-600' : 'text-gray-500 hover:text-gray-800'
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-theme-sm font-semibold transition ${
+                    isActive
+                      ? 'bg-gradient-to-r from-brand-500 to-brand-700 text-white shadow-theme-sm'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-brand-600'
                   }`}
                 >
                   <Icon aria-hidden className="h-4 w-4" />
                   {label}
-                  {key === 'thu-vien' && <span className="text-theme-xs text-gray-400">({gallery.length})</span>}
-                  <span
-                    aria-hidden
-                    className={`absolute inset-x-2 -bottom-px h-0.5 rounded-full brand-gradient transition-opacity ${
-                      isActive ? 'opacity-100' : 'opacity-0'
-                    }`}
-                  />
+                  {count !== null && count > 0 && (
+                    <span
+                      className={`rounded-full px-1.5 text-[11px] font-bold ${isActive ? 'bg-white/25 text-white' : 'bg-gray-100 text-gray-500'}`}
+                    >
+                      {count}
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
 
-          <div className="pt-6">
+          <div className="mt-5">
             {tab === 'tong-quan' && (
-              <div className="space-y-8">
-                <p className="text-base leading-relaxed font-semibold text-gray-800">{event.excerpt}</p>
-                {event.description && (
-                  <p className="text-base leading-loose text-gray-700">{event.description}</p>
-                )}
+              <div className="space-y-5">
+                <div className="rounded-2xl border border-white bg-white p-6 shadow-[0_10px_30px_-18px_rgba(30,64,175,0.35)]">
+                  <h2 className="flex items-center gap-2 text-lg font-bold text-navy-800">
+                    <span className="h-5 w-1 rounded-full bg-gradient-to-b from-sky-400 to-violet-500" />
+                    Giới thiệu sự kiện
+                  </h2>
+                  <p className="mt-3 text-base leading-relaxed text-gray-700">{event.description ?? event.excerpt}</p>
+                  {event.tags && event.tags.length > 0 && (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {event.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-theme-xs font-semibold text-brand-700"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {event.speakers && event.speakers.length > 0 && (
-                  <div>
-                    <h2 className="mb-4 text-lg font-bold text-gray-900 uppercase">
-                      Sự kiện hội tụ những chuyên gia
+                  <div className="rounded-2xl border border-white bg-white p-6 shadow-[0_10px_30px_-18px_rgba(30,64,175,0.35)]">
+                    <h2 className="flex items-center gap-2 text-lg font-bold text-navy-800">
+                      <span className="h-5 w-1 rounded-full bg-gradient-to-b from-sky-400 to-violet-500" />
+                      Diễn giả
                     </h2>
-                    <ul className="grid gap-3 sm:grid-cols-2">
-                      {event.speakers.map((speaker) => (
+                    <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {event.speakers.map((speaker, index) => (
                         <li
                           key={speaker.publicId}
-                          className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-4"
+                          className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gradient-to-br from-white to-sky-50/60 p-4"
                         >
-                          <span className="brand-gradient flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-bold text-white">
+                          <span
+                            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-base font-bold text-white shadow-theme-sm ring-4 ring-white ${
+                              index % 2 === 0 ? 'from-sky-400 to-brand-600' : 'from-violet-400 to-purple-600'
+                            }`}
+                          >
                             {speaker.initials ?? initialsOf(speaker.name)}
                           </span>
                           <div className="min-w-0">
@@ -422,150 +531,92 @@ const EventDetailPage = ({ slug, initialEvent }: EventDetailPageProps) => {
                     </ul>
                   </div>
                 )}
-
-                {event.tags && event.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {event.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-theme-xs font-semibold text-brand-700"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
 
-            {tab === 'thu-vien' && <Gallery images={gallery} title={event.title} />}
+            {tab === 'thu-vien' && (
+              <div className="rounded-2xl border border-white bg-white p-4 shadow-[0_10px_30px_-18px_rgba(30,64,175,0.35)] sm:p-5">
+                <Gallery images={gallery} title={event.title} />
+              </div>
+            )}
 
             {tab === 'danh-gia' && <Reviews event={event} isPast={isPast || status === 'ongoing'} />}
           </div>
         </div>
 
-        {/* ── Cot phai: thong tin su kien ───────────────────────────── */}
-        <aside>
-          <div className="sticky top-24 rounded-2xl border border-gray-100 bg-white p-5 shadow-theme-md sm:p-6">
-            <h2 className="text-lg font-bold text-navy-800 uppercase">Thông tin sự kiện</h2>
-            <span aria-hidden className="brand-gradient mt-2 block h-1 w-16 rounded-full" />
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              <span className={`rounded-full px-3 py-1 text-theme-xs font-bold tracking-wide uppercase ${tone.chip}`}>
-                {EVENT_TYPE_LABELS[event.type]}
-              </span>
-              <span
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-theme-xs font-bold tracking-wide uppercase ${STATUS_TONES[status]}`}
-              >
-                {status === 'ongoing' ? (
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500" />
-                ) : isPast ? (
-                  <FiCheckCircle aria-hidden />
-                ) : null}
-                {EVENT_STATUS_LABELS[status]}
-              </span>
+        {/* ── The dang ky (dinh khi cuon) ─────────────────────────────── */}
+        <aside id="dang-ky" className="scroll-mt-24 lg:self-start">
+          <div className="overflow-hidden rounded-3xl border border-white bg-white shadow-[0_20px_50px_-26px_rgba(30,64,175,0.5)] lg:sticky lg:top-24">
+            {/* Phi tham du */}
+            <div className="relative isolate overflow-hidden bg-gradient-to-br from-brand-600 via-indigo-600 to-violet-600 px-6 py-5 text-white">
+              <span aria-hidden className="absolute -top-10 -right-8 -z-10 h-32 w-32 rounded-full bg-white/15 blur-xl" />
+              <p className="text-theme-xs font-medium text-white/75">Phí tham dự</p>
+              <p className="mt-0.5 text-3xl font-bold">{formatPrice(event)}</p>
             </div>
 
-            <dl className="mt-5 space-y-4 text-theme-sm">
-              <div className="flex gap-3">
-                <FiCalendar aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" />
-                <div>
-                  <dt className="font-semibold text-gray-900">Thời gian</dt>
-                  <dd className="mt-0.5 text-gray-600">
-                    {formatMoment(event.startAt)}
-                    {event.endAt && ` – ${formatMoment(event.endAt)}`}
-                  </dd>
-                  <dd className="text-theme-xs text-gray-400 capitalize">
-                    {weekdayFormatter.format(new Date(event.startAt))}
-                  </dd>
+            <div className="p-5 sm:p-6">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-gray-100 bg-gray-25 p-3.5">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+                    <FiUsers aria-hidden className="h-4 w-4" />
+                  </span>
+                  <p className="mt-2 text-2xl font-bold text-navy-800">{formatNumber(event.registered)}</p>
+                  <p className="text-theme-xs text-gray-500">Người đăng ký</p>
+                </div>
+                <div className="rounded-2xl border border-gray-100 bg-gray-25 p-3.5">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                    <FiCheckCircle aria-hidden className="h-4 w-4" />
+                  </span>
+                  <p className="mt-2 text-2xl font-bold text-navy-800">{formatNumber(checkedIn)}</p>
+                  <p className="text-theme-xs text-gray-500">Đã check-in</p>
                 </div>
               </div>
-              <div className="flex gap-3">
-                {event.location.isOnline ? (
-                  <FiVideo aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-brand-500" />
+
+              {event.capacity !== undefined && !isPast && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-theme-xs">
+                    <span className="text-gray-500">
+                      {formatNumber(event.registered)}/{formatNumber(event.capacity)} chỗ
+                    </span>
+                    {seatsLeft !== null && seatsLeft > 0 && (
+                      <span className={`font-semibold ${seatsLeft <= 10 ? 'text-error-600' : 'text-emerald-600'}`}>
+                        Còn {seatsLeft} chỗ
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-100">
+                    <span
+                      className="block h-full rounded-full bg-gradient-to-r from-sky-400 via-brand-500 to-violet-500"
+                      style={{ width: `${Math.min(100, (event.registered / event.capacity) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-5 space-y-3 border-t border-gray-100 pt-5">
+                {isPast || isFull ? (
+                  <p className="flex w-full items-center justify-center gap-2 rounded-full bg-gray-100 px-5 py-3 text-theme-sm font-semibold text-gray-500">
+                    <FiXCircle aria-hidden />
+                    {isPast ? 'Sự kiện đã kết thúc' : 'Đã hết chỗ'}
+                  </p>
                 ) : (
-                  <FiMapPin aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-error-500" />
-                )}
-                <div>
-                  <dt className="font-semibold text-gray-900">Địa điểm</dt>
-                  <dd className="mt-0.5 text-gray-600">
-                    {event.location.name}
-                    {!event.location.isOnline && event.location.address && ` – ${event.location.address}`}
-                  </dd>
-                </div>
-              </div>
-            </dl>
-
-            {/* Hai o so lieu */}
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-4 text-center">
-                <p className="text-3xl font-extrabold text-brand-600">{formatNumber(event.registered)}</p>
-                <p className="mt-1 flex items-center justify-center gap-1 text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
-                  <FiUsers aria-hidden />
-                  Người đăng ký
-                </p>
-              </div>
-              <div className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-4 text-center">
-                <p className="text-3xl font-extrabold text-success-600">{formatNumber(checkedIn)}</p>
-                <p className="mt-1 flex items-center justify-center gap-1 text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
-                  <FiCheckCircle aria-hidden />
-                  Đã check-in
-                </p>
-              </div>
-            </div>
-            {event.capacity !== undefined && !isPast && (
-              <div className="mt-3">
-                <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                  <span
-                    className="brand-gradient block h-full rounded-full"
-                    style={{ width: `${Math.min(100, (event.registered / event.capacity) * 100)}%` }}
+                  <EventRegisterForm
+                    event={{
+                      slug: event.slug,
+                      title: event.title,
+                      startAt: event.startAt,
+                      locationName: event.location.name,
+                    }}
                   />
-                </div>
-                <p className="mt-1.5 text-theme-xs text-gray-500">
-                  {formatNumber(event.registered)}/{formatNumber(event.capacity)} chỗ
-                  {seatsLeft !== null && seatsLeft > 0 && ` · còn ${seatsLeft} chỗ`}
-                </p>
-              </div>
-            )}
-
-            <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-5">
-              <span className="text-theme-xs font-semibold tracking-wide text-gray-500 uppercase">Phí tham dự</span>
-              <span className="text-xl font-bold text-brand-700">{formatPrice(event)}</span>
-            </div>
-
-            <div className="mt-5 space-y-3">
-              {isPast || isFull ? (
-                <p className="flex w-full items-center justify-center gap-2 rounded-full bg-gray-100 px-5 py-3 text-theme-sm font-semibold text-gray-500">
-                  <FiXCircle aria-hidden />
-                  {isPast ? 'Sự kiện đã kết thúc' : 'Đã hết chỗ'}
-                </p>
-              ) : (
-                <EventRegisterForm
-                  event={{
-                    slug: event.slug,
-                    title: event.title,
-                    startAt: event.startAt,
-                    locationName: event.location.name,
-                  }}
-                />
-              )}
-              {!isPast && (
-                <a
-                  href={toIcsDataUri(event)}
-                  download={`${event.slug}.ics`}
-                  className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 px-5 py-3 text-theme-sm font-semibold text-gray-700 transition hover:border-brand-300 hover:text-brand-600"
+                )}
+                <Link
+                  href="/su-kien"
+                  className="flex w-full items-center justify-center gap-2 text-theme-sm font-medium text-gray-500 transition hover:text-brand-600"
                 >
-                  <FiDownload aria-hidden />
-                  Thêm vào lịch (.ics)
-                </a>
-              )}
-              <Link
-                href="/su-kien"
-                className="flex w-full items-center justify-center gap-2 text-theme-sm font-medium text-gray-500 transition hover:text-brand-600"
-              >
-                <FiArrowLeft aria-hidden />
-                Danh sách sự kiện
-              </Link>
+                  <FiArrowLeft aria-hidden />
+                  Danh sách sự kiện
+                </Link>
+              </div>
             </div>
           </div>
         </aside>

@@ -637,6 +637,15 @@
   .marquee-track { animation: none; }
 }
 
+/* Dai logo doi tac (trang Gioi thieu): luon tu chay, ro chuot thi dung. */
+.logo-marquee {
+  animation: marquee var(--marquee-duration, 80s) linear infinite;
+  will-change: transform;
+}
+.logo-marquee:hover {
+  animation-play-state: paused;
+}
+
 /* ── Pin gia tren ban do mat bang (Leaflet divIcon) ──────────────────────
    Leaflet dung HTML tho cho icon nen khong ap dung duoc class Tailwind sinh
    theo nhu cau; cac lop nay phai la CSS that.

@@ -5,12 +5,12 @@ import {
   FiArrowRight,
   FiCalendar,
   FiClock,
-  FiDownload,
   FiUsers,
   FiMapPin,
   FiVideo,
   FiXCircle,
 } from "react-icons/fi";
+import { TbCalendarPlus } from "react-icons/tb";
 
 import PlaceholderThumb from "@/common/components/PlaceholderThumb";
 
@@ -649,7 +649,7 @@ const FeaturedEventCard = ({ event }: { event: EventItem }) => {
             download={`${event.slug}.ics`}
             className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-theme-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
           >
-            <FiDownload aria-hidden className="h-4 w-4" />
+            <TbCalendarPlus aria-hidden className="h-4 w-4" />
             Thêm vào lịch
           </a>
           <span

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Open_Sans } from 'next/font/google';
+import { Dancing_Script, Open_Sans } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
@@ -37,6 +37,13 @@ const openSans = Open_Sans({
   subsets: ['latin', 'vietnamese'],
   display: 'swap',
   variable: '--font-open-sans',
+});
+
+/** Chu viet tay trang tri (trang Gioi thieu) - co day du dau tieng Viet */
+const handwriting = Dancing_Script({
+  subsets: ['latin', 'vietnamese'],
+  display: 'swap',
+  variable: '--font-handwriting',
 });
 
 /**
@@ -141,7 +148,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={openSans.variable}
+      className={`${openSans.variable} ${handwriting.variable}`}
       data-scroll-behavior="smooth"
       data-view-mode="normal"
       suppressHydrationWarning
