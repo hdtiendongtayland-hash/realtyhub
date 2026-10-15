@@ -212,7 +212,6 @@ const InvestorListPage = ({ initialInvestors }: InvestorListPageProps) => {
       <ListingHeader
         crumb="Chủ đầu tư"
         title="Danh sách chủ đầu tư"
-        subtitle="Các chủ đầu tư uy tín đang hợp tác phân phối cùng RealtyHub"
         toolbar={
           <InvestorFilterBar
             values={filterValues}

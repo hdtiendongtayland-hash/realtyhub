@@ -451,13 +451,13 @@ const ProjectListPage = () => {
         <ListingHeader
           crumb="Dự án"
           title="Danh sách dự án"
-          className={isMapView ? 'max-lg:[&>nav]:hidden max-lg:[&>div:nth-child(2)]:hidden' : ''}
+          className={isMapView ? 'max-lg:[&>h1]:hidden max-lg:[&>p]:hidden' : ''}
           subtitle={
             isFirstLoad ? (
               <span className="inline-block h-4 w-40 animate-pulse rounded bg-gray-100" />
             ) : (
               <span aria-live="polite">
-                {hasActiveFilter ? 'Tìm thấy ' : 'Đang phân phối '}
+                {hasActiveFilter ? 'Tìm thấy ' : 'Có '}
                 <strong className="text-gray-800">{total}</strong> dự án
                 {isRefreshing && <span className="ml-2 text-gray-400">· Đang cập nhật...</span>}
               </span>
