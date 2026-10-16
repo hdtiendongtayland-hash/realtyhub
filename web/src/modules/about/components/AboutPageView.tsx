@@ -1,12 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaRegHandshake } from 'react-icons/fa';
-import { FiArrowRight, FiCheckCircle, FiChevronRight, FiGrid, FiHome, FiMapPin, FiMessageSquare, FiPlayCircle, FiSearch, FiStar, FiUser, FiUsers } from 'react-icons/fi';
+import { FiArrowRight, FiBox, FiCheck, FiCompass, FiLayers, FiChevronRight, FiGrid, FiHome, FiMapPin, FiMessageSquare, FiPlayCircle, FiSearch, FiStar, FiUser, FiUsers } from 'react-icons/fi';
 
 import { MOCK_DEVELOPER_RECORDS } from '@/modules/developer/mocks/developers.mock';
 import { INVESTORS } from '@/modules/developer/mocks/investors.mock';
 import { MOCK_PROJECTS } from '@/modules/project/mocks/projects.mock';
-import { resolveAboutIcon } from './iconRegistry';
 import type { AboutPageContent } from '../models/about.model';
 
 /** "MOT NEN TANG – DU MOI CONG CU" -> "Một nền tảng – đủ mọi công cụ" */
@@ -17,16 +16,34 @@ const sentenceCase = (text: string) => {
     .replace(/miền nam/g, 'miền Nam');
 };
 
-/** Mau cho 4 the cong cu (AI, tim quy can, so sanh, theo doi) */
-const TOOL_CARD_TONES = [
-  { card: 'from-white to-sky-50', icon: 'from-sky-400 to-brand-600', arrow: 'bg-brand-600 text-white' },
-  { card: 'from-white to-emerald-50', icon: 'from-emerald-400 to-teal-600', arrow: 'bg-emerald-100 text-emerald-700' },
-  { card: 'from-white to-orange-50', icon: 'from-amber-300 to-orange-500', arrow: 'bg-orange-100 text-orange-600' },
-  { card: 'from-white to-violet-50', icon: 'from-violet-400 to-purple-600', arrow: 'bg-violet-100 text-violet-700' },
+/** 4 trai nghiem so tren trang du an - anh lay tu du an mau trong he thong */
+const EXPERIENCES = [
+  {
+    title: 'Tham quan 360°',
+    icon: FiCompass,
+    image: '/images/projects/vinhomes-ocean-park-gia-lam/hero-1-hoang-hon-ho-trung-tam.jpg',
+    description: 'Ngắm toàn cảnh dự án, khu tiện ích và căn mẫu từ mọi hướng — như đang đứng ngay tại công trình.',
+  },
+  {
+    title: 'Ghim thông tin thông minh',
+    icon: FiMapPin,
+    image: '/images/projects/vinhomes-ocean-park-gia-lam/tien-ich-vincom-mega-mall-dem.jpg',
+    description: 'Mỗi điểm ghim mở ra ảnh, video, bảng giá hoặc dẫn sang khu vực kế tiếp chỉ với một chạm.',
+  },
+  {
+    title: 'Bản đồ phân khu trực quan',
+    icon: FiLayers,
+    image: '/images/projects/vinhomes-ocean-park-gia-lam/hero-3-phoi-canh-tong-the.jpg',
+    description: 'Khoanh vùng nhanh phân khu, tòa nhà và tiện ích khách quan tâm ngay trên mặt bằng tổng thể.',
+  },
+  {
+    title: 'Phối cảnh 3D – mặt bằng 2D',
+    icon: FiBox,
+    image: '/images/projects/vinhomes-ocean-park-gia-lam/mat-bang-phan-lo-tong-the.jpg',
+    description: 'Chuyển qua lại giữa phối cảnh 3D và mặt bằng 2D để thấy rõ tòa, tầng, trục và vị trí từng căn.',
+  },
 ];
 
-/** Cong cu noi bat (trong 8 cong cu): AI, tim quy can, so sanh, theo doi giao dich */
-const FEATURED_TOOLS = [0, 1, 3, 7];
 /** Hanh trinh rut gon: tim kiem, tim quy can, tu van, ho tro giao dich */
 const FEATURED_STEPS = [0, 2, 4, 6];
 /** Icon cho 4 buoc: tim kiem, tim quy can, tu van, ho tro giao dich */
@@ -51,10 +68,10 @@ const AboutPageView = ({ content }: { content: AboutPageContent }) => {
     { value: String(intro.pillars.length), label: 'Công cụ cho môi giới', icon: FiStar, tone: 'bg-amber-50 text-amber-600' },
   ];
 
-  // Tieu de cong cu: to xanh cum "bứt phá doanh số"
-  const toolsFull = sentenceCase(intro.title);
-  const cut = toolsFull.toLocaleLowerCase('vi').indexOf('bứt phá doanh số');
-  const toolsTitle = cut >= 0 ? { head: toolsFull.slice(0, cut), highlight: toolsFull.slice(cut) } : { head: toolsFull, highlight: '' };
+  // Tieu de quy can: to xanh cum "thị trường miền Nam"
+  const southFull = sentenceCase(inventory.title);
+  const scut = southFull.toLocaleLowerCase('vi').indexOf('thị trường miền nam');
+  const southTitle = scut >= 0 ? { head: southFull.slice(0, scut), highlight: southFull.slice(scut) } : { head: southFull, highlight: '' };
 
   // Tieu de hanh trinh: to mau cum "mỗi giao dịch"
   const journeyFull = sentenceCase(journey.title);
@@ -64,7 +81,6 @@ const AboutPageView = ({ content }: { content: AboutPageContent }) => {
   // Logo chu dau tu cho dai chay ngang
   const partners = INVESTORS.filter((investor) => investor.logo);
 
-  const tools = FEATURED_TOOLS.map((i) => intro.pillars[i]).filter(Boolean);
   const steps = FEATURED_STEPS.map((i) => journey.steps[i]).filter(Boolean);
 
   return (
@@ -75,16 +91,19 @@ const AboutPageView = ({ content }: { content: AboutPageContent }) => {
           {/* Anh thanh pho tuoi sang ben phai, mo dan sang trai */}
           <div
             aria-hidden
-            className="absolute inset-y-0 right-0 -z-20 w-full md:w-[62%] [mask-image:linear-gradient(to_left,black_0%,black_45%,rgba(0,0,0,0.6)_70%,transparent_100%)] max-md:opacity-30"
+            className="absolute inset-y-0 right-0 -z-20 w-full md:w-[62%] bg-gradient-to-b from-[#9fd0f7] via-[#bcdcf6] to-[#cfe0ee] [mask-image:linear-gradient(to_left,black_0%,black_45%,rgba(0,0,0,0.6)_70%,transparent_100%)] max-md:opacity-30"
           >
-            <Image
-              src="/images/about/hero.jpg"
-              alt=""
-              fill
-              priority
-              sizes="62vw"
-              className="object-cover brightness-110 contrast-110 saturate-150"
-            />
+            {/* Khung dung ti le anh, neo day; mep tren mo dan vao nen troi */}
+            <div className="absolute inset-x-0 bottom-0 aspect-[2400/1250] [mask-image:linear-gradient(to_bottom,transparent_0%,black_35%)]">
+              <Image
+                src="/images/about/hero.jpg"
+                alt=""
+                fill
+                priority
+                sizes="62vw"
+                className="object-cover object-[85%_bottom] brightness-110 contrast-110 saturate-150"
+              />
+            </div>
             <span className="absolute inset-0 bg-gradient-to-b from-sky-400/25 via-transparent to-sky-200/20" />
           </div>
 
@@ -175,7 +194,7 @@ const AboutPageView = ({ content }: { content: AboutPageContent }) => {
         </div>
       </section>
 
-      {/* ── 2. CONG CU NOI BAT ────────────────────────────────────── */}
+      {/* ── 2. TRAI NGHIEM SO (4 the anh) ─────────────────────────── */}
       <section className="site-container pt-14 md:pt-16">
         <div className="relative isolate overflow-hidden rounded-3xl border border-white bg-gradient-to-b from-[#f2f8ff] via-[#f7fbff] to-[#eef5ff] px-5 py-10 shadow-[0_24px_60px_-34px_rgba(30,64,175,0.45)] md:px-10 md:py-14">
           {/* Mang cong trang tri */}
@@ -186,88 +205,113 @@ const AboutPageView = ({ content }: { content: AboutPageContent }) => {
 
           {/* Chu viet tay hai ben (man rong) */}
           <div aria-hidden className="absolute top-24 left-10 hidden -rotate-12 text-sky-500 xl:block">
-            <p className="font-[family-name:var(--font-handwriting)] text-3xl leading-snug font-semibold">Công cụ thông minh</p>
-            <p className="ml-8 font-[family-name:var(--font-handwriting)] text-3xl leading-snug font-semibold">Cho hiệu quả thật</p>
+            <p className="font-[family-name:var(--font-handwriting)] text-3xl leading-snug font-semibold">Xem tận mắt</p>
+            <p className="ml-8 font-[family-name:var(--font-handwriting)] text-3xl leading-snug font-semibold">Chốt nhanh hơn</p>
             <span className="mt-1 ml-4 block h-0.5 w-40 rotate-6 rounded-full bg-sky-400/70" />
           </div>
           <div aria-hidden className="absolute top-20 right-12 hidden -rotate-12 text-sky-500 xl:block">
-            <p className="font-[family-name:var(--font-handwriting)] text-3xl leading-snug font-semibold">Tăng tốc</p>
-            <p className="ml-6 font-[family-name:var(--font-handwriting)] text-3xl leading-snug font-semibold">Doanh số</p>
-            <span className="mt-3 flex items-end gap-1">
-              <span className="h-3 w-2 rounded-sm bg-sky-300" />
-              <span className="h-5 w-2 rounded-sm bg-sky-400" />
-              <span className="h-7 w-2 rounded-sm bg-brand-500" />
-            </span>
+            <p className="font-[family-name:var(--font-handwriting)] text-3xl leading-snug font-semibold">Trực quan</p>
+            <p className="ml-6 font-[family-name:var(--font-handwriting)] text-3xl leading-snug font-semibold">Đến từng căn</p>
           </div>
 
           {/* Tieu de */}
           <div className="mx-auto mb-10 max-w-3xl text-center">
             <div className="flex items-center justify-center gap-4">
               <span aria-hidden className="h-px w-16 bg-sky-300" />
-              <span className="rounded-full bg-sky-100 px-5 py-1.5 text-theme-sm font-bold tracking-wide text-brand-700 uppercase">
-                Công cụ
+              <span className="rounded-full bg-sky-100 px-5 whitespace-nowrap py-1.5 text-theme-sm font-bold tracking-wide text-brand-700 uppercase">
+                Trải nghiệm số
               </span>
               <span aria-hidden className="h-px w-16 bg-sky-300" />
             </div>
             <h2 className="mt-5 text-2xl leading-tight font-bold text-navy-800 md:text-4xl">
-              {toolsTitle.head}
-              {toolsTitle.highlight && <span className="text-[#3b9bf5]">{toolsTitle.highlight}</span>}
+              Đưa khách hàng <span className="text-[#3b9bf5]">bước vào dự án</span> ngay trên màn hình
             </h2>
-            <p className="mt-4 text-theme-sm leading-relaxed text-gray-600 md:text-base">{intro.body}</p>
+            <p className="mt-4 text-theme-sm leading-relaxed text-gray-600 md:text-base">
+              Mỗi dự án trên RealtyHub được dựng thành một hành trình tư vấn liền mạch: từ vị trí, tiện ích, mặt bằng đến từng
+              căn cụ thể — môi giới dẫn khách đi xem mà không cần rời bàn làm việc.
+            </p>
           </div>
 
-          {/* 4 the cong cu */}
-          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {tools.map((pillar, index) => {
-              const Icon = resolveAboutIcon(pillar.iconKey);
-              const tone = TOOL_CARD_TONES[index % TOOL_CARD_TONES.length];
-              return (
-                <li
-                  key={pillar.title}
-                  className={`group relative isolate flex min-h-60 flex-col overflow-hidden rounded-2xl border border-white bg-gradient-to-br p-5 shadow-[0_14px_34px_-20px_rgba(30,64,175,0.45)] transition hover:-translate-y-1 hover:shadow-[0_22px_44px_-20px_rgba(30,64,175,0.5)] ${tone.card}`}
-                >
-                  <span
-                    className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-[0_10px_20px_-8px_rgba(15,23,42,0.35)] ${tone.icon}`}
-                  >
-                    <Icon aria-hidden className="h-6 w-6" />
+          {/* 4 the anh */}
+          <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            {EXPERIENCES.map((item) => (
+              <li
+                key={item.title}
+                className="group flex flex-col overflow-hidden rounded-3xl border border-white bg-white shadow-[0_18px_40px_-20px_rgba(15,23,42,0.45)] transition hover:-translate-y-1 hover:shadow-[0_26px_50px_-20px_rgba(15,23,42,0.5)]"
+              >
+                {/* Anh 16:9 */}
+                <div className="relative aspect-video overflow-hidden">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover transition duration-700 group-hover:scale-105"
+                  />
+                  <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                  {/* Nhan tieu de goc tren */}
+                  <span className="absolute top-0 left-0 inline-flex items-center gap-2 rounded-br-2xl bg-gradient-to-r from-brand-600 to-violet-600 px-4 py-2.5 text-theme-sm font-semibold text-white shadow-theme-md">
+                    <item.icon aria-hidden className="h-4 w-4" />
+                    {item.title}
                   </span>
-                  <h3 className="mt-4 text-base leading-snug font-bold text-navy-800 md:text-lg">{pillar.title}</h3>
-                  <p className="mt-2 text-theme-xs leading-relaxed text-gray-600 md:text-theme-sm">{pillar.description}</p>
-                  <span
-                    className={`mt-auto flex h-9 w-9 items-center justify-center rounded-full pt-0 transition group-hover:translate-x-1 ${tone.arrow}`}
-                  >
-                    <FiArrowRight aria-hidden className="h-4 w-4" />
-                  </span>
-                </li>
-              );
-            })}
+                </div>
+                {/* Mo ta duoi anh */}
+                <p className="flex-1 px-5 py-4 text-theme-sm leading-relaxed text-gray-600">{item.description}</p>
+              </li>
+            ))}
           </ul>
         </div>
       </section>
 
-      {/* ── 3. QUY CAN MIEN NAM (anh nen mo) ──────────────────────── */}
+      {/* ── 3. QUY CAN MIEN NAM (anh Landmark 81 mo dan) ──────────── */}
       <section className="site-container pt-14 md:pt-16">
-        <div className="relative isolate overflow-hidden rounded-3xl border border-white bg-white shadow-[0_24px_60px_-30px_rgba(30,64,175,0.45)]">
+        <div className="relative isolate overflow-hidden rounded-3xl border border-white bg-[linear-gradient(180deg,#e9f1f9_0%,#f5f8fb_50%,#e6ecf0_100%)] shadow-[0_24px_60px_-30px_rgba(47,110,168,0.5)]">
+          {/* Nen ben trai cung tong anh: tren xanh troi nhat, duoi xam nuoc nhat; lop trang mo giu chu de doc */}
+          <span aria-hidden className="absolute inset-y-0 left-0 -z-10 w-full bg-gradient-to-r from-white/90 via-white/55 to-transparent md:w-[60%]" />
+          {/* Vet mau noi tiep giua chu va anh: may troi phia tren, mat nuoc phia duoi */}
+          <span aria-hidden className="absolute -top-20 left-[28%] -z-10 hidden h-72 w-[30rem] rounded-full bg-[#8fb6dc]/35 blur-3xl md:block" />
+          <span aria-hidden className="absolute -bottom-24 left-[30%] -z-10 hidden h-56 w-[28rem] rounded-full bg-[#9fb1bb]/35 blur-3xl md:block" />
+          <span aria-hidden className="absolute -bottom-24 -left-16 -z-10 h-64 w-64 rounded-full bg-[#c9d8e5]/60 blur-3xl" />
+
+          {/* Anh Landmark 81 ben song, mo dan rat em sang trai */}
           <div
             aria-hidden
-            className="absolute inset-y-0 right-0 -z-10 w-full md:w-[60%] [mask-image:linear-gradient(to_left,black_0%,rgba(0,0,0,0.7)_40%,transparent_100%)] max-md:opacity-20"
+            className="absolute inset-y-0 right-0 -z-10 w-full md:w-[64%] [mask-image:linear-gradient(to_left,black_0%,black_48%,rgba(0,0,0,0.85)_58%,rgba(0,0,0,0.55)_70%,rgba(0,0,0,0.25)_84%,transparent_100%)] max-md:opacity-25"
           >
-            <Image src="/images/projects/vinhomes-grand-park.jpg" alt="" fill sizes="60vw" className="object-cover" />
+            <Image
+              src="/images/about/landmark-81-river.jpg"
+              unoptimized
+              alt=""
+              fill
+              sizes="64vw"
+              className="object-cover object-[60%_55%] contrast-[1.05] saturate-[1.12]"
+            />
+            {/* Tang nhe xanh troi phia tren cho dong mau voi nen */}
+            <span className="absolute inset-0 bg-gradient-to-b from-[#3a7dba]/15 via-transparent to-[#5f7f99]/10" />
           </div>
+
           <div className="max-w-xl px-6 py-10 md:px-12 md:py-14">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-theme-xs font-bold text-brand-700">
-              <FiMapPin aria-hidden />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-white/90 px-3.5 py-1.5 text-theme-xs font-bold text-brand-700 shadow-theme-xs">
+              <FiMapPin aria-hidden className="text-[#2f6ea8]" />
               Trọng tâm: {inventory.regionCallout.region}
             </span>
-            <h2 className="mt-4 text-2xl leading-tight font-bold text-navy-800 md:text-3xl">{sentenceCase(inventory.title)}</h2>
+            <h2 className="mt-4 text-2xl leading-tight font-bold text-navy-800 md:text-3xl">
+              {southTitle.head}
+              {southTitle.highlight && <span className="text-[#2f6ea8]">{southTitle.highlight}</span>}
+            </h2>
             <p className="mt-3 text-theme-sm leading-relaxed text-gray-600 md:text-base">{inventory.regionCallout.description}</p>
             <ul className="mt-6 space-y-3">
               {trusted.values.slice(0, 3).map((value) => (
-                <li key={value.title} className="flex items-start gap-3">
-                  <FiCheckCircle aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
+                <li
+                  key={value.title}
+                  className="flex items-start gap-3 rounded-2xl border border-white bg-white/80 px-4 py-3 shadow-[0_10px_24px_-18px_rgba(30,64,175,0.45)] backdrop-blur"
+                >
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#6b99c6] to-[#2f6ea8] text-white">
+                    <FiCheck aria-hidden className="h-3.5 w-3.5" />
+                  </span>
                   <span className="text-theme-sm">
-                    <strong className="font-semibold text-gray-900">{value.title}</strong>
-                    <span className="text-gray-500"> — {value.description}</span>
+                    <strong className="block font-semibold text-navy-800">{value.title}</strong>
+                    <span className="text-gray-500">{value.description}</span>
                   </span>
                 </li>
               ))}
@@ -376,7 +420,7 @@ const AboutPageView = ({ content }: { content: AboutPageContent }) => {
         </div>
 
         {/* Dai logo chay lien tuc - ro chuot thi dung; hai mep mo dan */}
-        <div className="group relative overflow-hidden border-y border-gray-100 bg-white [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+        <div className="group relative overflow-hidden border-y border-gray-100 bg-white [mask-image:linear-gradient(to_right,transparent,black_3%,black_97%,transparent)]">
           <ul
             className="logo-marquee flex w-max"
             style={{ ['--marquee-duration' as string]: `${partners.length * 3.5}s` }}
@@ -394,7 +438,7 @@ const AboutPageView = ({ content }: { content: AboutPageContent }) => {
                     src={partner.logo}
                     alt={partner.name}
                     loading="lazy"
-                    className="max-h-14 w-auto max-w-full object-contain opacity-80 grayscale-[35%] transition duration-300 hover:scale-105 hover:opacity-100 hover:grayscale-0 md:max-h-16"
+                    className="max-h-14 w-auto max-w-full object-contain transition duration-300 hover:scale-105 md:max-h-16"
                   />
                 </Link>
               </li>

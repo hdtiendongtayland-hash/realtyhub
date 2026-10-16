@@ -176,22 +176,22 @@ const SectionHeader = ({
   title: string;
   description?: string;
 }) => (
-  <header className="mb-6 max-w-3xl">
+  <header className="mb-5 max-w-3xl">
     <p className="mb-2 flex items-center gap-2 text-theme-xs font-bold tracking-wide text-brand-600 uppercase">
       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-[11px] text-white">
         {index}
       </span>
       {eyebrow}
     </p>
-    <h2 className="text-xl leading-snug font-bold text-gray-900 sm:text-2xl">{title}</h2>
+    <h2 className="text-lg leading-snug font-bold text-gray-900 sm:text-xl">{title}</h2>
     {description && (
-      <p className="mt-3 text-theme-sm leading-relaxed text-gray-600">{description}</p>
+      <p className="mt-2 text-theme-sm leading-relaxed text-gray-600">{description}</p>
     )}
   </header>
 );
 
 const SubHeading = ({ children }: { children: ReactNode }) => (
-  <h3 className="mb-4 border-l-4 border-brand-500 pl-3 text-lg font-bold text-gray-900">
+  <h3 className="mb-3 border-l-4 border-brand-500 pl-3 text-base font-bold text-gray-900">
     {children}
   </h3>
 );
@@ -210,7 +210,7 @@ const CheckList = ({ items, className = '' }: { items: string[]; className?: str
 );
 
 const Card = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <div className={`min-w-0 rounded-2xl border border-gray-200 bg-white p-4 shadow-card sm:p-6 ${className}`}>
+  <div className={`min-w-0 rounded-2xl border border-gray-200 bg-white p-4 shadow-card sm:p-5 ${className}`}>
     {children}
   </div>
 );
@@ -250,7 +250,7 @@ const UnitTypeTabs = ({
                 setActiveKey(item.key);
                 setImageIndex(0);
               }}
-              className={`flex-1 shrink-0 rounded-lg px-4 py-2.5 text-theme-sm whitespace-nowrap transition ${
+              className={`flex-1 shrink-0 rounded-lg px-4 py-2 text-theme-sm whitespace-nowrap transition ${
                 isActive
                   ? 'bg-white font-semibold text-brand-600 shadow-sm'
                   : 'text-gray-600 hover:text-brand-600'
@@ -264,7 +264,7 @@ const UnitTypeTabs = ({
 
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="min-w-0 lg:col-span-2">
-          <h4 className="text-lg font-bold text-gray-900">{unit.title}</h4>
+          <h4 className="text-base font-bold text-gray-900">{unit.title}</h4>
           <p className="mt-1 text-theme-sm text-gray-500">{unit.areaLabel}</p>
 
           <ul className="mt-4 flex flex-wrap gap-2" aria-label="Các layout">
@@ -491,26 +491,26 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
   };
 
   return (
-    <div className="min-w-0 space-y-12 overflow-x-clip sm:space-y-16">
+    <div className="mx-auto min-w-0 max-w-[1360px] space-y-10 overflow-x-clip sm:space-y-12">
       {/* ── Mo dau: tieu de + 6 dac quyen ─────────────────────────────── */}
-      <section className="grid items-center gap-8 rounded-3xl bg-linear-to-br from-brand-50 via-white to-success-50 p-5 sm:p-8 lg:grid-cols-5">
+      <section className="grid items-center gap-8 rounded-3xl bg-linear-to-br from-brand-50 via-white to-success-50 p-5 sm:p-7 lg:grid-cols-5">
         <div className="min-w-0 lg:col-span-3">
           <p className="mb-2 text-theme-xs font-bold tracking-wide text-brand-600 uppercase">
             Phân tích dự án
           </p>
-          <h2 className="text-2xl leading-snug font-bold text-gray-900 sm:text-3xl">
+          <h2 className="text-xl leading-snug font-bold text-gray-900 sm:text-2xl">
             {analysis.headline}
           </h2>
-          <p className="mt-4 text-theme-sm leading-relaxed text-gray-600 sm:text-base">
+          <p className="mt-3 text-theme-sm leading-relaxed text-gray-600">
             {analysis.summary}
           </p>
-          <ol className="mt-6 grid gap-3 sm:grid-cols-2">
+          <ol className="mt-5 grid gap-2.5 sm:grid-cols-2">
             {analysis.highlights.map((item, index) => (
               <li
                 key={item}
-                className="flex items-center gap-3 rounded-xl border border-white bg-white/80 px-3 py-2.5 shadow-sm"
+                className="flex items-center gap-3 rounded-xl border border-white bg-white/80 px-3 py-2 shadow-sm"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500 text-theme-sm font-bold text-white">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-500 text-theme-xs font-bold text-white">
                   {index + 1}
                 </span>
                 <span className="text-theme-sm font-medium text-gray-800">{item}</span>
@@ -522,7 +522,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
           image={analysis.heroImage}
           onOpen={() => openImage([analysis.heroImage])}
           sizes="(min-width: 1024px) 35vw, 100vw"
-          className="mx-auto w-full max-w-sm lg:col-span-2"
+          className="mx-auto w-full max-w-xs lg:col-span-2"
         />
       </section>
 
@@ -539,7 +539,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
                 type="button"
                 onClick={() => scrollTo(section.id)}
                 aria-current={isActive ? 'true' : undefined}
-                className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-theme-sm whitespace-nowrap transition sm:flex-1 sm:justify-center ${
+                className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-1.5 text-theme-sm whitespace-nowrap transition sm:flex-1 sm:justify-center ${
                   isActive
                     ? 'brand-gradient font-semibold text-white shadow-md'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -560,7 +560,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
       </div>
 
       {/* ── Phan 1: Key ban hang ───────────────────────────────────────── */}
-      <section id={SECTIONS[0].id} className={`space-y-8 ${SECTION_SCROLL_MARGIN}`}>
+      <section id={SECTIONS[0].id} className={`space-y-6 ${SECTION_SCROLL_MARGIN}`}>
         <SectionHeader
           index={1}
           eyebrow="Key bán hàng"
@@ -575,13 +575,13 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
               <p className="text-theme-sm leading-relaxed text-gray-600">
                 {selling.corridor.description}
               </p>
-              <dl className="my-5 grid grid-cols-3 gap-2">
+              <dl className="my-4 grid grid-cols-3 gap-2">
                 {selling.corridor.stats.map((stat) => (
-                  <div key={stat.label} className="flex flex-col-reverse rounded-xl bg-brand-50 px-2 py-3 text-center">
+                  <div key={stat.label} className="flex flex-col-reverse rounded-xl bg-brand-50 px-2 py-2.5 text-center">
                     <dt className="mt-1 text-[11px] leading-tight text-gray-600">
                       {stat.label}
                     </dt>
-                    <dd className="text-lg font-bold text-brand-600 sm:text-xl">{stat.value}</dd>
+                    <dd className="text-base font-bold text-brand-600 sm:text-lg">{stat.value}</dd>
                   </div>
                 ))}
               </dl>
@@ -604,7 +604,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
           <p className="max-w-3xl text-theme-sm leading-relaxed text-gray-600">
             {selling.design.description}
           </p>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
             {selling.design.points.map((point) => (
               <li
                 key={point}
@@ -615,7 +615,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
               </li>
             ))}
           </ul>
-          <blockquote className="my-6 rounded-xl border-l-4 border-brand-500 bg-brand-50 px-4 py-3 text-theme-sm leading-relaxed font-medium text-brand-800">
+          <blockquote className="my-5 rounded-xl border-l-4 border-brand-500 bg-brand-50 px-4 py-3 text-theme-sm leading-relaxed font-medium text-brand-800">
             {selling.design.philosophy}
           </blockquote>
           <div className="grid gap-4 md:grid-cols-2">
@@ -641,20 +641,20 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
               <p className="text-theme-sm leading-relaxed text-gray-600">
                 {selling.partners.description}
               </p>
-              <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+              <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                 {selling.partners.items.map((partner) => (
-                  <li key={partner.name} className="rounded-xl border border-gray-200 p-4">
+                  <li key={partner.name} className="rounded-xl border border-gray-200 p-3.5">
                     <p className="text-theme-xs font-bold tracking-wide text-brand-600 uppercase">
                       {partner.role}
                     </p>
-                    <p className="mt-1 text-lg font-bold text-gray-900">{partner.name}</p>
+                    <p className="mt-1 text-base font-bold text-gray-900">{partner.name}</p>
                     <p className="mt-1.5 text-theme-sm leading-relaxed text-gray-600">
                       {partner.description}
                     </p>
                   </li>
                 ))}
               </ul>
-              <p className="mt-5 text-theme-sm leading-relaxed font-medium text-gray-800">
+              <p className="mt-4 text-theme-sm leading-relaxed font-medium text-gray-800">
                 {selling.partners.closing}
               </p>
             </div>
@@ -662,7 +662,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
               image={selling.partners.image}
               onOpen={() => openImage([selling.partners.image])}
               sizes="(min-width: 1024px) 35vw, 100vw"
-              className="mx-auto w-full max-w-sm lg:col-span-2"
+              className="mx-auto w-full max-w-xs lg:col-span-2"
             />
           </div>
         </Card>
@@ -746,7 +746,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
 
         <div className="max-w-3xl space-y-3">
           {comparison.paragraphs.map((paragraph) => (
-            <p key={paragraph} className="text-theme-sm leading-relaxed text-gray-700 sm:text-base">
+            <p key={paragraph} className="text-theme-sm leading-relaxed text-gray-700">
               {paragraph}
             </p>
           ))}
@@ -760,7 +760,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
             {comparison.layers.map((layer, index) => (
               <li key={layer.label} className="flex flex-1 flex-col gap-3 md:flex-row md:items-center">
                 <div
-                  className={`flex-1 rounded-xl px-4 py-4 text-center ${
+                  className={`flex-1 rounded-xl px-4 py-3 text-center ${
                     layer.isSubject
                       ? 'brand-gradient text-white shadow-md'
                       : 'border border-gray-200 bg-gray-50 text-gray-800'
@@ -769,7 +769,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
                   <p className={`text-theme-xs ${layer.isSubject ? 'text-white/80' : 'text-gray-500'}`}>
                     {layer.label}
                   </p>
-                  <p className="mt-1 text-xl font-bold">{layer.value}</p>
+                  <p className="mt-0.5 text-lg font-bold">{layer.value}</p>
                 </div>
                 {index < comparison.layers.length - 1 && (
                   <FiArrowRight
@@ -780,7 +780,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
               </li>
             ))}
           </ol>
-          <div className="mt-6 space-y-3">
+          <div className="mt-5 space-y-2.5">
             {comparison.conclusion.map((paragraph) => (
               <p key={paragraph} className="text-theme-sm leading-relaxed text-gray-700">
                 {paragraph}
@@ -793,7 +793,12 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
           </p>
         </Card>
 
-        <Figure image={comparison.image} onOpen={() => openImage([comparison.image])} sizes="100vw" />
+        <Figure
+          image={comparison.image}
+          onOpen={() => openImage([comparison.image])}
+          sizes="(min-width: 1024px) 64rem, 100vw"
+          className="mx-auto max-w-5xl"
+        />
       </section>
 
       {/* ── Phan 4: Huong view ─────────────────────────────────────────── */}
@@ -834,7 +839,7 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {views.directions.map((direction, index) => {
             const directionImages = views.directions.flatMap((item) => (item.image ? [item.image] : []));
             return (
@@ -843,11 +848,12 @@ const AnalysisTab = ({ analysis }: { analysis?: ProjectAnalysis }) => {
                   <Figure
                     image={direction.image}
                     onOpen={() => openImage(directionImages, directionImages.indexOf(direction.image!))}
-                    className="mb-4"
+                    className="mb-3"
+                    sizes="(min-width: 1280px) 18rem, (min-width: 640px) 50vw, 100vw"
                   />
                 )}
-                <p className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                  <FiCompass className="h-5 w-5 text-brand-500" aria-hidden />
+                <p className="flex items-center gap-2 text-base font-bold text-gray-900">
+                  <FiCompass className="h-4 w-4 text-brand-500" aria-hidden />
                   {direction.direction}
                 </p>
                 <p className="mt-2 text-theme-sm leading-relaxed text-gray-600">{direction.description}</p>
