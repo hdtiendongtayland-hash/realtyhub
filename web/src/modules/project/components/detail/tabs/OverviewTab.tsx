@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { FiArrowUpRight, FiPhone } from 'react-icons/fi';
 import type { ProjectDetail } from '../../../models/project-detail.model';
 import ProjectDescription from '../ProjectDescription';
@@ -333,54 +334,75 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
         seed={`${project.publicId}-closing`}
       />
 
-      {/* Lien he tu van: dai nen xanh thuong hieu, the trang ben trong */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-800 via-brand-700 to-sky-500 px-4 py-8 sm:px-8 sm:py-12">
-        <span aria-hidden className="absolute -top-24 -left-20 h-72 w-72 rounded-full bg-sky-400/25 blur-3xl" />
-        <span aria-hidden className="absolute -right-16 -bottom-28 h-80 w-80 rounded-full bg-white/10 blur-2xl" />
+      {/* Lien he tu van: the trang vien manh, nut goi vang + Zalo / Viber */}
+      <section>
+        <BlockHeading
+          eyebrow="Hỗ trợ 24/7"
+          title="Liên hệ tư vấn"
+          subtitle="Đội ngũ chuyên viên sẵn sàng hỗ trợ bạn 24/7"
+        />
 
-        <div className="relative">
-          <BlockHeading
-            tone="dark"
-            eyebrow="Hỗ trợ 24/7"
-            title="Liên hệ tư vấn"
-            subtitle="Đội ngũ chuyên viên sẵn sàng hỗ trợ bạn 24/7"
-          />
-
-          {/* Laptop tro len: tat ca chuyen vien tren mot hang */}
-          <div
-            className={`mx-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5 ${
-              project.consultants.length >= 3 ? 'max-w-6xl lg:grid-cols-3' : 'max-w-3xl'
-            }`}
-          >
-            {project.consultants.map((consultant) => (
+        {/* Dien thoai 1 the, tablet 2 the, laptop tro len 3 the mot hang; hang
+            cuoi le the thi can giua (khong de mot the lech trai) */}
+        <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-4 lg:gap-5">
+          {project.consultants.map((consultant) => {
+            const digits = consultant.phone.replace(/\D/g, '');
+            const national = digits.replace(/^0+/, '');
+            const e164 = national.startsWith('84') ? national : `84${national}`;
+            return (
               <div
                 key={consultant.publicId}
-                className="grid grid-cols-[auto_1fr] items-center gap-x-3 rounded-2xl border border-white/60 bg-white p-4 text-left sm:flex sm:flex-col sm:items-center sm:px-6 sm:pt-7 sm:pb-6 sm:text-center shadow-[0_20px_44px_-22px_rgba(8,24,50,0.7)] transition hover:-translate-y-0.5"
+                className="flex w-full max-w-sm flex-col items-center rounded-2xl border border-gray-200 bg-white px-5 py-6 sm:w-[calc(50%-0.5rem)] lg:w-[calc((100%-2.5rem)/3)] text-center shadow-[0_12px_30px_-24px_rgba(11,33,67,0.45)] transition hover:-translate-y-0.5 hover:border-jade-300 hover:shadow-[0_18px_40px_-24px_rgba(11,33,67,0.5)] sm:px-6 sm:py-7"
               >
-                <span className="row-span-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-brand-600 text-xl text-white ring-4 ring-brand-50 sm:h-14 sm:w-14 sm:text-2xl">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-jade-50 text-2xl text-jade-600">
                   <FiPhone aria-hidden />
                 </span>
 
-                <p className="text-theme-xs font-bold tracking-[0.15em] text-brand-600 uppercase sm:mt-4">{consultant.role}</p>
-                <p className="text-theme-sm font-medium text-gray-700 sm:mt-1 sm:text-base">{consultant.name}</p>
-
+                <p className="mt-4 text-base font-bold tracking-wide text-gold-500 uppercase">{consultant.role}</p>
+                <p className="mt-0.5 text-base font-medium text-navy-800">{consultant.name}</p>
                 <a
-                  href={`tel:${consultant.phone.replace(/\s/g, '')}`}
-                  className="text-xl font-bold tracking-wide text-navy-800 transition hover:text-brand-600 sm:mt-2 sm:text-2xl"
+                  href={`tel:${digits}`}
+                  className="mt-1 text-2xl font-bold tracking-wide text-jade-700 transition hover:text-jade-500"
                 >
                   {consultant.phone}
                 </a>
 
-                <a
-                  href={`tel:${consultant.phone.replace(/\s/g, '')}`}
-                  className="col-span-2 mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full sm:mt-5 sm:max-w-[220px] bg-gradient-to-r from-sky-500 to-brand-600 px-5 py-2.5 text-theme-sm font-bold tracking-wide text-white uppercase shadow-[0_10px_22px_-10px_rgba(15,111,209,0.8)] transition hover:brightness-110"
-                >
-                  <FiPhone aria-hidden />
-                  Liên hệ ngay
-                </a>
+                <div className="mt-5 flex w-full max-w-[260px] flex-col gap-2">
+                  <a
+                    href={`tel:${digits}`}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-gold-400 text-theme-sm font-bold tracking-wide text-jade-800 uppercase shadow-[0_8px_18px_-10px_rgba(234,179,8,0.9)] transition hover:bg-gold-300 sm:text-base"
+                  >
+                    <FiPhone aria-hidden className="h-4.5 w-4.5" />
+                    Liên hệ ngay
+                  </a>
+                  <div className="grid grid-cols-2 gap-2">
+                    <a
+                      href={`https://zalo.me/${digits}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-brand-50 text-theme-sm font-bold text-brand-600 uppercase transition hover:bg-brand-100"
+                    >
+                      <Image src="/images/logo-zalo.webp" alt="" width={20} height={20} className="h-5 w-5" />
+                      Zalo
+                    </a>
+                    <a
+                      href={`viber://chat?number=${e164}`}
+                      className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-[#f1edff] text-theme-sm font-bold text-[#7360f2] uppercase transition hover:bg-[#e6dfff]"
+                    >
+                      <Image
+                        src="/images/logo-viber.jpg"
+                        alt=""
+                        width={20}
+                        height={20}
+                        className="h-5 w-5 rounded-full object-cover"
+                      />
+                      Viber
+                    </a>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </section>
     </div>
