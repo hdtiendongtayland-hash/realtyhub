@@ -16,6 +16,7 @@ import {
   FiSearch,
   FiX,
 } from "react-icons/fi";
+import RangeSliderField from "@/common/components/RangeSliderField";
 import { formatBillion, formatBillionShort } from "@/common/utils/format";
 import {
   FLOOR_RANGE_OPTIONS,
@@ -283,6 +284,50 @@ const FilterTextField = ({
   </label>
 );
 
+/** Mau cham cua tung tinh trang trong bang loc nhanh */
+const STATUS_DOT_TONES: Record<string, string> = {
+  "con-hang": "bg-success-500",
+  "giu-cho": "bg-amber-400",
+  "da-ban": "bg-gray-400",
+};
+
+/** O chon gon cho bang loc nhanh */
+const QuickSelect = ({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) => (
+  <label className="block min-w-0">
+    <span className="mb-1 block text-[11px] font-semibold tracking-wide text-gray-500 uppercase">{label}</span>
+    <span className="relative block">
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={`h-8 w-full appearance-none truncate rounded-lg border bg-white pr-7 pl-2.5 text-theme-xs outline-none transition focus:border-brand-400 ${
+          value ? "border-brand-300 font-medium text-brand-700" : "border-gray-200 text-gray-500"
+        }`}
+      >
+        <option value="">Tất cả</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value} className="text-gray-900">
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <FiChevronDown
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400"
+      />
+    </span>
+  </label>
+);
+
 /** Cho bam lan hai trong khoang nay thi tinh la bam dup */
 const DOUBLE_CLICK_WINDOW_MS = 250;
 
@@ -315,6 +360,13 @@ const FloorPlanTab = ({
 
   const [isMapReady, setIsMapReady] = useState(false);
   const [canFullscreen, setCanFullscreen] = useState(false);
+  // Nut loc + bang loc nhanh trong khung ban do CHI hien khi toan man hinh -
+  // luc do nut "Bo loc" ben ngoai bi che; binh thuong da co nut ben ngoai
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isQuickFilterOpen, setIsQuickFilterOpen] = useState(false);
+  // Khoang gia (VND) / dien tich (m²) keo tren thanh truot; null = khong chan
+  const [priceRange, setPriceRange] = useState<[number | null, number | null]>([null, null]);
+  const [areaRange, setAreaRange] = useState<[number | null, number | null]>([null, null]);
   const [funds, setFunds] = useState<UnitFundType[]>(FUND_TYPES);
   // Yêu thích cấp phân khu / dự án (icon tim trong khung bản đồ) - state
   // local, không đồng bộ backend vì cấp này chưa có hook dùng chung. Khi
@@ -326,8 +378,6 @@ const FloorPlanTab = ({
     "price",
   );
   const [displayOpen, setDisplayOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [search, setSearch] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   // `filters` dang ap len ban do; `draft` la cac o dang chinh trong bang -
   // chi ap khi bam "Ap dung bo loc"
@@ -369,9 +419,25 @@ const FloorPlanTab = ({
     };
   }, [planMap.markers]);
 
+  // Moc cuoi duong ray: lam tron len tu gia / dien tich lon nhat dang co
+  const sliderLimits = useMemo(() => {
+    const maxPrice = Math.max(0, ...planMap.markers.map((marker) => marker.price || 0));
+    const maxArea = Math.max(0, ...planMap.markers.map((marker) => marker.landArea || 0));
+    return {
+      price: Math.max(BILLION, Math.ceil(maxPrice / BILLION) * BILLION),
+      area: Math.max(50, Math.ceil(maxArea / 10) * 10),
+    };
+  }, [planMap.markers]);
+
   const visibleMarkers = useMemo(
     () =>
       planMap.markers.filter((marker) => {
+        const [priceMin, priceMax] = priceRange;
+        if (priceMin !== null && marker.price < priceMin) return false;
+        if (priceMax !== null && marker.price > priceMax) return false;
+        const [areaMin, areaMax] = areaRange;
+        if (areaMin !== null && marker.landArea < areaMin) return false;
+        if (areaMax !== null && marker.landArea > areaMax) return false;
         if (!funds.includes(marker.fundType)) return false;
         const code = filters.code.trim().toLowerCase();
         if (code && !marker.code.toLowerCase().includes(code)) return false;
@@ -400,14 +466,9 @@ const FloorPlanTab = ({
           return false;
         if (filters.unitLine && marker.unitLine !== filters.unitLine) return false;
         if (filters.handover && marker.handoverStandard !== filters.handover) return false;
-        if (
-          search.trim() &&
-          !marker.code.toLowerCase().includes(search.trim().toLowerCase())
-        )
-          return false;
         return true;
       }),
-    [planMap.markers, funds, filters, search],
+    [planMap.markers, funds, filters, priceRange, areaRange],
   );
 
   /** % tren anh -> toa do CRS.Simple (truc y cua Leaflet huong len tren) */
@@ -565,6 +626,9 @@ const FloorPlanTab = ({
   // ── Vao/ra toan man hinh: Leaflet phai do lai kich thuoc khung ───────────
   useEffect(() => {
     const onFullscreenChange = () => {
+      const isOn = document.fullscreenElement === wrapperRef.current;
+      setIsFullscreen(isOn);
+      if (!isOn) setIsQuickFilterOpen(false);
       window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
     };
 
@@ -600,13 +664,10 @@ const FloorPlanTab = ({
     else void wrapperRef.current?.requestFullscreen().catch(() => {});
   };
 
-  /** Bay toi can dau tien khop tu khoa */
-  const flyToFirstMatch = () => {
-    const target = visibleMarkers[0];
-    if (target) mapRef.current?.flyTo(toLatLng(target), 1, { duration: 0.6 });
-  };
-
-  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const activeFilterCount =
+    Object.values(filters).filter(Boolean).length +
+    (priceRange.some((value) => value !== null) ? 1 : 0) +
+    (areaRange.some((value) => value !== null) ? 1 : 0);
 
   const toggleFilterPanel = () => {
     // Mo bang: cac o hien dung bo loc dang ap
@@ -625,12 +686,19 @@ const FloorPlanTab = ({
   const clearFilters = () => {
     setDraft(EMPTY_FILTERS);
     setFilters(EMPTY_FILTERS);
+    setPriceRange([null, null]);
+    setAreaRange([null, null]);
   };
 
   const statusOptions = Object.entries(UNIT_STATUS_LABELS).map(([value, label]) => ({
     value,
     label,
   }));
+
+  // Bang loc nhanh (toan man hinh) ap ngay khi chon - khong qua `draft`
+  const setFilterField = (key: keyof MapFilters) => (value: string) =>
+    setFilters((current) => ({ ...current, [key]: value }));
+
 
   // Nut loc chi con icon phieu; dang loc thi co so dem nho o goc
   const filterButton = (
@@ -878,35 +946,27 @@ const FloorPlanTab = ({
               />
             </button>
           )}
-          {isSearchOpen && (
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                flyToFirstMatch();
-              }}
+          {isFullscreen && (
+            <button
+              type="button"
+              onClick={() => setIsQuickFilterOpen((open) => !open)}
+              aria-expanded={isQuickFilterOpen}
+              aria-label={activeFilterCount > 0 ? `Bộ lọc (${activeFilterCount} đang lọc)` : "Bộ lọc"}
+              title="Bộ lọc"
+              className={`relative flex h-9 w-9 items-center justify-center rounded-md border shadow-card transition ${
+                isQuickFilterOpen || activeFilterCount > 0
+                  ? "border-transparent bg-gradient-to-br from-sky-500 to-brand-600 text-white"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-brand-400 hover:text-brand-600"
+              }`}
             >
-              <input
-                autoFocus
-                type="search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Tìm mã căn..."
-                aria-label="Tìm mã căn trên mặt bằng"
-                className="h-9 w-44 rounded-md border border-gray-300 bg-white px-3 text-theme-sm text-gray-700 shadow-card outline-none focus:border-brand-400"
-              />
-            </form>
+              <FiFilter aria-hidden className="h-4.5 w-4.5" />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-brand-600 shadow ring-1 ring-brand-200">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
           )}
-
-          <MapButton
-            label={isSearchOpen ? "Đóng tìm kiếm" : "Tìm mã căn"}
-            onClick={() => {
-              setIsSearchOpen((open) => !open);
-              if (isSearchOpen) setSearch("");
-            }}
-          >
-            {isSearchOpen ? <FiX aria-hidden /> : <FiSearch aria-hidden />}
-          </MapButton>
-
           <MapButton
             label={
               isFundLegendOpen ? "Đóng chú thích quỹ căn" : "Chú thích quỹ căn"
@@ -947,6 +1007,177 @@ const FloorPlanTab = ({
             </div>
           )}
         </div>
+
+        {/* Bang loc nhanh - chi khi toan man hinh (nam trong wrapper fullscreen);
+            dat ben trai cot nut phai. */}
+        {isFullscreen && isQuickFilterOpen && (
+          <div
+            role="dialog"
+            aria-label="Bộ lọc nhanh"
+            className="absolute top-3 right-15 z-[1000] flex max-h-[calc(100%-1.5rem)] w-[min(288px,calc(100%-5.5rem))] flex-col overflow-hidden rounded-2xl border border-brand-100 bg-white/97 shadow-[0_20px_50px_-18px_rgba(11,33,67,0.5)] backdrop-blur-md"
+          >
+            <div className="flex items-center gap-2.5 bg-gradient-to-r from-brand-700 to-sky-500 px-3.5 py-2.5 text-white">
+              <FiFilter aria-hidden className="h-4 w-4 shrink-0" />
+              <p className="min-w-0 flex-1 text-theme-sm font-bold">Bộ lọc nhanh</p>
+              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-semibold">
+                {visibleMarkers.length}/{planMap.markers.length} căn
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsQuickFilterOpen(false)}
+                aria-label="Đóng bộ lọc"
+                className="-mr-1 flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-white/20"
+              >
+                <FiX aria-hidden className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 space-y-3 overflow-y-auto px-3.5 py-3">
+              <label className="relative block">
+                <span className="sr-only">Mã căn</span>
+                <FiSearch
+                  aria-hidden
+                  className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  type="search"
+                  value={filters.code}
+                  onChange={(event) => setFilterField("code")(event.target.value)}
+                  placeholder="Tìm mã căn"
+                  className={`h-9 w-full rounded-lg border bg-gray-50 pr-3 pl-8 text-theme-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-400 focus:bg-white ${
+                    filters.code ? "border-brand-300 bg-white" : "border-gray-200"
+                  }`}
+                />
+              </label>
+
+              {/* Tinh trang: thanh chon 3 o deu nhau, bam lai o dang chon de bo */}
+              <div role="group" aria-label="Tình trạng" className="grid grid-cols-3 gap-1 rounded-lg bg-gray-100 p-1">
+                {statusOptions.map((option) => {
+                  const isActive = filters.status === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => setFilterField("status")(isActive ? "" : option.value)}
+                      className={`inline-flex h-7 items-center justify-center gap-1.5 rounded-md text-theme-xs font-semibold whitespace-nowrap transition ${
+                        isActive ? "bg-white text-brand-700 shadow-sm" : "text-gray-500 hover:text-gray-800"
+                      }`}
+                    >
+                      <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT_TONES[option.value]}`} />
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="space-y-3 rounded-xl bg-brand-25 px-3 py-2.5 ring-1 ring-brand-100">
+                {(
+                  [
+                    {
+                      label: "Khoảng giá",
+                      range: priceRange,
+                      limit: sliderLimits.price,
+                      step: BILLION / 2,
+                      scale: BILLION,
+                      unit: "tỷ",
+                      onChange: setPriceRange,
+                    },
+                    {
+                      label: "Diện tích",
+                      range: areaRange,
+                      limit: sliderLimits.area,
+                      step: 5,
+                      scale: 1,
+                      unit: "m²",
+                      onChange: setAreaRange,
+                    },
+                  ] as const
+                ).map((slider) => {
+                  const [low, high] = slider.range;
+                  const isSet = low !== null || high !== null;
+                  const show = (value: number) =>
+                    (value / slider.scale).toLocaleString("vi-VN", { maximumFractionDigits: 1 });
+                  return (
+                    <div key={slider.label}>
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-semibold tracking-wide text-gray-500 uppercase">
+                          {slider.label}
+                        </span>
+                        <span
+                          className={`text-theme-xs font-semibold ${isSet ? "text-brand-700" : "text-gray-400"}`}
+                        >
+                          {isSet
+                            ? `${show(low ?? 0)} – ${show(high ?? slider.limit)} ${slider.unit}`
+                            : `Tất cả`}
+                        </span>
+                      </div>
+                      <RangeSliderField
+                        label={slider.label}
+                        variant="track"
+                        limit={slider.limit}
+                        step={slider.step}
+                        scale={slider.scale}
+                        unit={slider.unit}
+                        min={low}
+                        max={high}
+                        onChange={(min, max) => slider.onChange([min, max])}
+                        format={(value) => `${show(value)} ${slider.unit}`}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {!lockedPhaseName && options.phaseName.length > 1 && (
+                  <QuickSelect
+                    label="Phân khu"
+                    value={filters.phaseName}
+                    options={options.phaseName}
+                    onChange={setFilterField("phaseName")}
+                  />
+                )}
+                {options.propertyType.length > 1 && (
+                  <QuickSelect
+                    label="Loại hình"
+                    value={filters.propertyType}
+                    options={options.propertyType}
+                    onChange={setFilterField("propertyType")}
+                  />
+                )}
+                {options.direction.length > 0 && (
+                  <QuickSelect
+                    label="Hướng"
+                    value={filters.direction}
+                    options={options.direction}
+                    onChange={setFilterField("direction")}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 border-t border-gray-100 px-3.5 py-2.5">
+              <button
+                type="button"
+                onClick={clearFilters}
+                disabled={activeFilterCount === 0}
+                className="inline-flex h-8 items-center justify-center gap-1 rounded-lg px-3 text-theme-xs font-semibold text-gray-500 transition hover:bg-gray-100 hover:text-brand-600 disabled:opacity-40"
+              >
+                <FiX aria-hidden className="h-3.5 w-3.5" />
+                Xóa lọc
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsQuickFilterOpen(false)}
+                className="inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-brand-600 to-sky-500 text-theme-xs font-semibold text-white shadow-sm transition hover:brightness-110"
+              >
+                <FiCheck aria-hidden className="h-3.5 w-3.5" />
+                Xem {visibleMarkers.length} căn
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

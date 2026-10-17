@@ -96,8 +96,9 @@ type RangeSliderFieldProps = {
    * "boxes" (mac dinh): co them hai o go so ben duoi duong ray.
    * "compact": chi duong ray, duoi la hai nhan "Tu: ... / Den: ...". Dung o
    * nhung cho da chat cho, go so khong con quan trong bang nhin thay khoang.
+   * "track": chi duong ray - noi goi tu hien gia tri o cho khac.
    */
-  variant?: 'boxes' | 'compact';
+  variant?: 'boxes' | 'compact' | 'track';
   /** Bo qua khi singleThumb */
   min: number | null;
   max: number | null;
@@ -241,6 +242,8 @@ const RangeSliderField = ({
       onCommit={(next) => apply([lowPos, Math.max(next ?? limit, lowPos)])}
     />
   );
+
+  if (variant === 'track') return track;
 
   if (variant === 'compact') {
     // Nhan doc theo VI TRI nut chu khong theo gia tri da loc: nut o dau ray

@@ -9,6 +9,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import type { IconType } from "react-icons";
 import { FiChevronDown } from "react-icons/fi";
 import {
@@ -292,6 +293,22 @@ const unitFromMarker = (marker: PlanMarker): ProjectUnit => {
 };
 
 /**
+ * Phan tu dang toan man hinh (null neu khong). Khi ban do toan man hinh, trinh
+ * duyet CHI ve phan tu do va con cua no - popup chi tiet can / truc can nam
+ * ngoai se bi an, nen phai dua popup vao trong phan tu nay.
+ */
+const subscribeFullscreen = (onChange: () => void) => {
+  document.addEventListener("fullscreenchange", onChange);
+  return () => document.removeEventListener("fullscreenchange", onChange);
+};
+const useFullscreenElement = () =>
+  useSyncExternalStore(
+    subscribeFullscreen,
+    () => document.fullscreenElement,
+    () => null,
+  );
+
+/**
  * Ban do "Vi tri quy hang" cua mot phan khu / toa.
  *
  * - Bam pin: mo popup chi tiet can (cung popup voi bang hang).
@@ -409,6 +426,7 @@ const PhaseFloorPlan = ({
 
   const [detailUnit, setDetailUnit] = useState<UnitWithProject | null>(null);
   const [axisUnit, setAxisUnit] = useState<ProjectUnit | null>(null);
+  const fullscreenElement = useFullscreenElement();
 
   const openDetail = (unit: ProjectUnit) =>
     setDetailUnit({
@@ -445,6 +463,19 @@ const PhaseFloorPlan = ({
     [axisUnit, pool],
   );
 
+  const modals = (
+    <>
+      <UnitAxisModal
+        unit={axisUnit}
+        units={axisUnits}
+        onClose={() => setAxisUnit(null)}
+        onOpenUnit={openDetail}
+        suspended={detailUnit !== null}
+      />
+      <UnitModal unit={detailUnit} onClose={() => setDetailUnit(null)} />
+    </>
+  );
+
   return (
     <>
       <FloorPlanTab
@@ -457,14 +488,11 @@ const PhaseFloorPlan = ({
         onMarkerClick={handleMarkerClick}
         onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
       />
-      <UnitAxisModal
-        unit={axisUnit}
-        units={axisUnits}
-        onClose={() => setAxisUnit(null)}
-        onOpenUnit={openDetail}
-        suspended={detailUnit !== null}
-      />
-      <UnitModal unit={detailUnit} onClose={() => setDetailUnit(null)} />
+      {fullscreenElement
+        ? // Toan man hinh: dua popup vao trong khung dang phong to; lop boc
+          // z cao de nam tren pin / nut cua ban do (Leaflet dung z 400-1000)
+          createPortal(<div className="relative z-[1100]">{modals}</div>, fullscreenElement)
+        : modals}
     </>
   );
 };

@@ -646,6 +646,41 @@
   animation-play-state: paused;
 }
 
+/* Vach sang chay tren ten tien ich (tab Tong quan): ray mo + doan sang truot
+   qua lai lien tuc; ro chuot vao the thi ray dai ra (w-* dat o JSX). */
+.amenity-bar {
+  position: relative;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.25);
+  transition: width 0.5s ease;
+}
+.amenity-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, #7dd3fc 35%, #ffffff 70%, transparent);
+  animation: amenity-bar-slide 2.4s ease-in-out infinite;
+}
+@keyframes amenity-bar-slide {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(230%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .amenity-bar::after {
+    animation: none;
+    width: 100%;
+  }
+}
+
 /* ── Pin gia tren ban do mat bang (Leaflet divIcon) ──────────────────────
    Leaflet dung HTML tho cho icon nen khong ap dung duoc class Tailwind sinh
    theo nhu cau; cac lop nay phai la CSS that.
