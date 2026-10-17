@@ -35,7 +35,7 @@ export const SectionHeading = ({
 }) => {
   if (align === "left") {
     return (
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex min-w-0 items-start gap-3">
           <span
             aria-hidden
@@ -60,7 +60,7 @@ export const SectionHeading = ({
         <a
           href={`${process.env.NEXT_PUBLIC_SITE_URL ?? "#"}`}
           rel="noopener noreferrer"
-          className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-navy-800/15 bg-white px-4 py-2 text-sm font-semibold text-navy-800 shadow-card transition hover:-translate-y-0.5 hover:border-navy-800/30 hover:bg-navy-800 hover:text-white hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 sm:text-base"
+          className="group inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-navy-800/15 sm:self-auto bg-white px-4 py-2 text-sm font-semibold text-navy-800 shadow-card transition hover:-translate-y-0.5 hover:border-navy-800/30 hover:bg-navy-800 hover:text-white hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 sm:text-base"
         >
           <span>Tạo Landing Page</span>
           <FiArrowUpRight

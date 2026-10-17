@@ -83,7 +83,7 @@ const StoryPanel = ({
         seed={seed}
         src={thumbnailUrl}
         alt={`Video giới thiệu: ${title}`}
-        ratio="aspect-21/9"
+        ratio="aspect-16/9 sm:aspect-21/9"
         className="rounded-none"
       />
       <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy-900/55 via-transparent to-transparent" />
@@ -124,17 +124,17 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
             seed={`${project.publicId}-overview`}
             src={project.overviewImageUrl}
             alt={`Phối cảnh tổng thể ${project.name}`}
-            ratio="aspect-21/9"
+            ratio="aspect-16/9 sm:aspect-21/9"
             className="rounded-none"
           />
           <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-900/45 via-transparent to-transparent" />
-          <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-1.5 text-theme-sm font-semibold text-navy-800 shadow-theme-md backdrop-blur sm:bottom-6 sm:left-6">
+          <span className="absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-2 truncate rounded-full bg-white/90 px-3 py-1 text-theme-xs font-semibold sm:px-4 sm:py-1.5 sm:text-theme-sm text-navy-800 shadow-theme-md backdrop-blur sm:bottom-6 sm:left-6">
             <span aria-hidden className="h-2 w-2 rounded-full bg-brand-500" />
             Phối cảnh tổng thể {project.name}
           </span>
         </div>
 
-        <div className="relative mt-6 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-[#eaf3ff] via-white to-[#e6f1ff] p-5 sm:p-8">
+        <div className="relative mt-6 overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-[#eaf3ff] via-white to-[#e6f1ff] p-4 sm:p-8">
           <span aria-hidden className="absolute -top-16 -right-16 h-56 w-56 rounded-full bg-brand-200/40 blur-3xl" />
           <span aria-hidden className="absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-sky-200/50 blur-3xl" />
           <p className="relative mb-3 flex items-center gap-2 text-theme-xs font-bold tracking-[0.14em] text-brand-600 uppercase">
@@ -142,7 +142,20 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
             Giới thiệu dự án
           </p>
           <div className="relative">
-            <ProjectDescription html={project.description} />
+            <ProjectDescription
+              html={project.description}
+              projectName={project.name}
+              // Anh bia khac anh phoi canh lon ngay phia tren; sau do la anh tien ich
+              images={[
+                ...new Set(
+                  [
+                    ...project.hero.slice(1).map((slide) => slide.imageUrl),
+                    ...project.amenities.map((amenity) => amenity.imageUrl),
+                    project.overviewImageUrl,
+                  ].filter(Boolean),
+                ),
+              ]}
+            />
           </div>
         </div>
 
@@ -214,11 +227,17 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
             eyebrowClass="bg-white text-brand-600 shadow-theme-xs"
           />
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {productPages[Math.min(productPage, productPages.length - 1)].map((product, index) => (
+          {/* Dien thoai: mot hang vuot ngang chua MOI san pham; tu sm: luoi
+              phan trang 3 the nhu cu */}
+          <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3">
+            {project.products.map((product, index) => (
               <article
                 key={product.publicId}
-                className="group overflow-hidden rounded-2xl border border-white bg-white shadow-[0_14px_34px_-24px_rgba(11,33,67,0.5)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_44px_-24px_rgba(15,111,209,0.55)]"
+                className={`group w-[80%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white bg-white shadow-[0_14px_34px_-24px_rgba(11,33,67,0.5)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_44px_-24px_rgba(15,111,209,0.55)] sm:w-auto ${
+                  Math.floor(index / PRODUCTS_PER_PAGE) === Math.min(productPage, productPages.length - 1)
+                    ? ''
+                    : 'sm:hidden'
+                }`}
               >
                 <div className="relative overflow-hidden">
                   <MediaFrame
@@ -229,12 +248,12 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
                     className="rounded-none transition duration-700 group-hover:scale-105"
                   />
                   <span className="absolute top-3 left-3 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-brand-600 text-theme-xs font-bold text-white shadow-theme-md ring-2 ring-white/70">
-                    {String(productPage * PRODUCTS_PER_PAGE + index + 1).padStart(2, '0')}
+                    {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 p-4 sm:p-5">
+                <div className="flex items-center gap-3 p-3.5 sm:p-5">
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-bold tracking-wide text-navy-800 uppercase">{product.name}</h3>
+                    <h3 className="truncate text-theme-sm font-bold tracking-wide text-navy-800 uppercase sm:text-base">{product.name}</h3>
                     <p className="mt-1 text-theme-sm text-gray-500">{product.areaLabel}</p>
                   </div>
                   <span
@@ -248,12 +267,14 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
             ))}
           </div>
 
-          <CarouselDots
-            count={productPages.length}
-            current={productPage}
-            onSelect={setProductPage}
-            label="Trang sản phẩm"
-          />
+          <div className="hidden sm:block">
+            <CarouselDots
+              count={productPages.length}
+              current={productPage}
+              onSelect={setProductPage}
+              label="Trang sản phẩm"
+            />
+          </div>
           </div>
         </section>
       )}
@@ -285,7 +306,7 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
                   className="rounded-none transition duration-700 group-hover:scale-105"
                 />
                 <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-navy-900/85 via-navy-900/10 to-transparent" />
-                <figcaption className="absolute inset-x-0 bottom-0 p-4">
+                <figcaption className="absolute inset-x-0 bottom-0 p-2.5 sm:p-4">
                   <span aria-hidden className="amenity-bar mb-2.5 w-14 group-hover:w-24" />
                   <span className="block text-theme-sm leading-snug font-semibold text-white sm:text-base">
                     {amenity.name}
@@ -313,7 +334,7 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
       />
 
       {/* Lien he tu van: dai nen xanh thuong hieu, the trang ben trong */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-800 via-brand-700 to-sky-500 px-4 py-10 sm:px-8 sm:py-12">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-800 via-brand-700 to-sky-500 px-4 py-8 sm:px-8 sm:py-12">
         <span aria-hidden className="absolute -top-24 -left-20 h-72 w-72 rounded-full bg-sky-400/25 blur-3xl" />
         <span aria-hidden className="absolute -right-16 -bottom-28 h-80 w-80 rounded-full bg-white/10 blur-2xl" />
 
@@ -334,25 +355,25 @@ const OverviewTab = ({ project }: { project: ProjectDetail }) => {
             {project.consultants.map((consultant) => (
               <div
                 key={consultant.publicId}
-                className="flex flex-col items-center rounded-2xl border border-white/60 bg-white px-6 pt-7 pb-6 text-center shadow-[0_20px_44px_-22px_rgba(8,24,50,0.7)] transition hover:-translate-y-0.5"
+                className="grid grid-cols-[auto_1fr] items-center gap-x-3 rounded-2xl border border-white/60 bg-white p-4 text-left sm:flex sm:flex-col sm:items-center sm:px-6 sm:pt-7 sm:pb-6 sm:text-center shadow-[0_20px_44px_-22px_rgba(8,24,50,0.7)] transition hover:-translate-y-0.5"
               >
-                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-brand-600 text-2xl text-white ring-4 ring-brand-50">
+                <span className="row-span-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-brand-600 text-xl text-white ring-4 ring-brand-50 sm:h-14 sm:w-14 sm:text-2xl">
                   <FiPhone aria-hidden />
                 </span>
 
-                <p className="mt-4 text-theme-xs font-bold tracking-[0.15em] text-brand-600 uppercase">{consultant.role}</p>
-                <p className="mt-1 text-base font-medium text-gray-700">{consultant.name}</p>
+                <p className="text-theme-xs font-bold tracking-[0.15em] text-brand-600 uppercase sm:mt-4">{consultant.role}</p>
+                <p className="text-theme-sm font-medium text-gray-700 sm:mt-1 sm:text-base">{consultant.name}</p>
 
                 <a
                   href={`tel:${consultant.phone.replace(/\s/g, '')}`}
-                  className="mt-2 text-2xl font-bold tracking-wide text-navy-800 transition hover:text-brand-600"
+                  className="text-xl font-bold tracking-wide text-navy-800 transition hover:text-brand-600 sm:mt-2 sm:text-2xl"
                 >
                   {consultant.phone}
                 </a>
 
                 <a
                   href={`tel:${consultant.phone.replace(/\s/g, '')}`}
-                  className="mt-5 inline-flex w-full max-w-[220px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-brand-600 px-5 py-2.5 text-theme-sm font-bold tracking-wide text-white uppercase shadow-[0_10px_22px_-10px_rgba(15,111,209,0.8)] transition hover:brightness-110"
+                  className="col-span-2 mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full sm:mt-5 sm:max-w-[220px] bg-gradient-to-r from-sky-500 to-brand-600 px-5 py-2.5 text-theme-sm font-bold tracking-wide text-white uppercase shadow-[0_10px_22px_-10px_rgba(15,111,209,0.8)] transition hover:brightness-110"
                 >
                   <FiPhone aria-hidden />
                   Liên hệ ngay
