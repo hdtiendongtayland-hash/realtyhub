@@ -99,6 +99,8 @@ type FloorPlanTabProps = {
    * thich" trong khung ban do biet dang like cai gi. Khi khong co, nut an.
    */
   favoritesKey?: string;
+  /** Doi phan khu ngay trong bang loc (value "" = tong the du an) */
+  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void };
 };
 
 /** Mot khoang lua chon cho bo loc: [min, max) */
@@ -308,6 +310,7 @@ const FloorPlanTab = ({
   controlsSlot,
   filterSlot,
   favoritesKey,
+  phaseSwitch,
 }: FloorPlanTabProps) => {
   // Ham cua cha doi moi lan render: giu qua ref de khoi ve lai toan bo pin
   const markerClickRef = useRef(onMarkerClick);
@@ -368,6 +371,13 @@ const FloorPlanTab = ({
   // chi ap khi bam "Ap dung bo loc"
   const [filters, setFilters] = useState<MapFilters>(EMPTY_FILTERS);
   const [draft, setDraft] = useState<MapFilters>(EMPTY_FILTERS);
+  // Doi phan khu (ban do khong dung lai) thi bo loc cu khong con dung - dat lai
+  const [filtersPhase, setFiltersPhase] = useState(lockedPhaseName);
+  if (filtersPhase !== lockedPhaseName) {
+    setFiltersPhase(lockedPhaseName);
+    setFilters(EMPTY_FILTERS);
+    setDraft(EMPTY_FILTERS);
+  }
 
   const displayOptions = useMemo(
     () => [
@@ -1023,6 +1033,7 @@ const FloorPlanTab = ({
             statusDotTones={STATUS_DOT_TONES}
             ranges={{ unitPrice: UNIT_PRICE_RANGES, build: BUILD_AREA_RANGES, frontage: FRONTAGE_RANGES }}
             lockedPhaseName={lockedPhaseName}
+            phaseSwitch={phaseSwitch}
             priceRange={priceRange}
             onPriceRange={setPriceRange}
             areaRange={areaRange}
@@ -1059,6 +1070,7 @@ const FloorPlanTab = ({
               statusDotTones={STATUS_DOT_TONES}
               ranges={{ unitPrice: UNIT_PRICE_RANGES, build: BUILD_AREA_RANGES, frontage: FRONTAGE_RANGES }}
               lockedPhaseName={lockedPhaseName}
+              phaseSwitch={phaseSwitch}
               priceRange={priceRange}
               onPriceRange={setPriceRange}
               areaRange={areaRange}

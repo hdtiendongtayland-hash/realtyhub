@@ -329,6 +329,7 @@ const PhaseFloorPlan = ({
   highRise,
   controlsSlot,
   filterSlot,
+  phaseSwitch,
 }: {
   project: ProjectDetail;
   /** Bo trong = tong the du an (moi phan khu) */
@@ -339,6 +340,8 @@ const PhaseFloorPlan = ({
   controlsSlot?: ReactNode;
   /** Cho dat nut "Bo loc" (cuoi hang nut phan khu) */
   filterSlot?: HTMLElement | null;
+  /** Doi phan khu ngay trong bang loc (value "" = tong the du an) */
+  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void };
 }) => {
   const query = useMemo(
     () => ({
@@ -484,6 +487,7 @@ const PhaseFloorPlan = ({
         showTitle={false}
         controlsSlot={controlsSlot}
         filterSlot={filterSlot}
+        phaseSwitch={phaseSwitch}
         favoritesKey={phaseName || project.slug}
         onMarkerClick={handleMarkerClick}
         onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
@@ -725,15 +729,20 @@ export const PhaseMapViews = ({
       )}
 
       <PhaseFloorPlan
-        // Doi phan khu thi dung lai ban do tu dau (khung nhin, bo loc); doi
-        // 3D / 2D thi ban do tu nap lai anh nen moi
-        key={targetId}
+        // Khong dung key theo phan khu: doi phan khu tu bang loc trong che do
+        // toan man hinh ma dung lai ban do thi trinh duyet thoat toan man hinh.
+        // Bo loc tu dat lai khi doi phan khu (xem FloorPlanTab).
         project={project}
         phaseName={target?.name}
         planMap={planMap}
         highRise={target ? highRise : project.segment === "cao-tang"}
         controlsSlot={<MapModeSwitch mode={mode} onChange={setMode} />}
         filterSlot={filterSlot}
+        phaseSwitch={{
+          options: project.phases.map((item) => ({ value: item.publicId, label: item.name })),
+          value: target?.publicId ?? "",
+          onChange: (value) => setTargetId(value || WHOLE_PROJECT),
+        }}
       />
     </div>
   );

@@ -20,8 +20,6 @@ import {
   FiSliders,
   FiX,
   FiArrowRight,
-  FiArrowLeft,
-  FiChevronRight,
   FiArchive,
   FiHome,
   FiLock,
@@ -78,6 +76,8 @@ type MapFilterPanelProps = {
   statusDotTones: Record<string, string>;
   ranges: { unitPrice: Option[]; build: Option[]; frontage: Option[] };
   lockedPhaseName?: string;
+  /** Co thi dong "Phan khu" doi phan khu cua ban do (luon hien) */
+  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void };
   priceRange: Range;
   onPriceRange: (range: Range) => void;
   areaRange: Range;
@@ -334,6 +334,7 @@ const MapFilterPanel = ({
   statusDotTones,
   ranges,
   lockedPhaseName,
+  phaseSwitch,
   priceRange,
   onPriceRange,
   areaRange,
@@ -405,7 +406,9 @@ const MapFilterPanel = ({
   // da nam o dau bang); truong khong co du lieu thi an
   const rows = (
     [
-      !lockedPhaseName && options.phaseName.length > 1 && { key: "phaseName", label: "Phân khu", icon: FiMap, options: options.phaseName },
+      phaseSwitch && phaseSwitch.options.length > 0
+        ? { key: "phaseName", label: "Phân khu", icon: FiMap, options: phaseSwitch.options }
+        : !lockedPhaseName && options.phaseName.length > 1 && { key: "phaseName", label: "Phân khu", icon: FiMap, options: options.phaseName },
       {
         key: "block",
         label: mode === "cao-tang" ? "Tòa nhà" : mode === "thap-tang" ? "Tiểu khu/Dãy" : "Tòa nhà/Dãy",
@@ -428,14 +431,22 @@ const MapFilterPanel = ({
   const labelOf = (row: Row, value: string) => row.options.find((option) => option.value === value)?.label ?? value;
 
   /** Chu hien cho mot dong: "Khoang tang" uu tien so tang go tay ("Tang 15") */
+  /** Gia tri dang chon cua mot dong (Phan khu lay tu ban do neu doi duoc) */
+  const valueOf = (row: Row) => (row.key === "phaseName" && phaseSwitch ? phaseSwitch.value : filters[row.key]);
+
   const shownOf = (row: Row) => {
     if (row.key === "floorRange" && filters.floor) return `Tầng ${filters.floor}`;
-    const value = filters[row.key];
+    const value = valueOf(row);
     return value ? labelOf(row, value) : "";
   };
 
   /** Chon mot lua chon; chon khoang tang thi bo so tang go tay (va nguoc lai) */
   const pick = (row: Row, next: string) => {
+    if (row.key === "phaseName" && phaseSwitch) {
+      phaseSwitch.onChange(next);
+      setOpenRow(null);
+      return;
+    }
     onField(row.key)(next);
     if (row.key === "floorRange") onField("floor")("");
     setOpenRow(null);
@@ -501,8 +512,8 @@ const MapFilterPanel = ({
       : []),
     ...(filters.floor ? [{ id: "floor", text: `Tầng ${filters.floor}`, remove: () => onField("floor")("") }] : []),
     ...rows
-      .filter((row) => filters[row.key])
-      .map((row) => ({ id: row.key, text: labelOf(row, filters[row.key]), remove: () => onField(row.key)("") })),
+      .filter((row) => valueOf(row))
+      .map((row) => ({ id: row.key, text: labelOf(row, valueOf(row)), remove: () => pick(row, "") })),
   ];
 
   return (
@@ -606,306 +617,138 @@ const MapFilterPanel = ({
         </button>
       </div>
 
-      {/* ── Ngan keo (iPad / dien thoai): luoi o tieu chi + man chon rieng ── */}
-      {isSheet &&
-        (() => {
-          const drill = rows.find((row) => row.key === openRow);
-          if (drill) {
-            const value = filters[drill.key];
-            const shown = shownOf(drill);
+      <div className={`thin-scroll flex-1 space-y-2.5 overflow-y-auto overscroll-contain py-3 pr-1.5 pl-3 ${isCollapsed ? "hidden" : ""}`}>
+        <label className="relative block">
+          <span className="sr-only">Mã căn</span>
+          <FiSearch
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="search"
+            value={filters.code}
+            onChange={(event) => onField("code")(event.target.value)}
+            placeholder={isHigh ? "Mã căn hộ..." : "Mã căn..."}
+            className={`h-10 w-full rounded-xl border bg-white pr-3 pl-9 text-theme-sm text-gray-900 shadow-[0_6px_16px_-12px_rgba(15,111,209,0.45)] outline-none transition placeholder:text-gray-400 focus:border-brand-400 ${
+              filters.code ? "border-brand-300" : "border-sky-100"
+            }`}
+          />
+        </label>
+
+        {/* Trang thai: ba nut rieng, co icon */}
+        <div role="group" aria-label="Trạng thái" className="grid grid-cols-3 gap-1.5">
+          {statusOptions.map((option) => {
+            const isActive = filters.status === option.value;
+            const Icon = STATUS_ICONS[option.value] ?? FiHome;
             return (
-              <div className="thin-scroll flex-1 overflow-y-auto overscroll-contain">
-                <div className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-sky-100 bg-[#eef5ff] px-3 py-2.5 max-sm:bg-white">
-                  <button
-                    type="button"
-                    onClick={() => setOpenRow(null)}
-                    aria-label="Quay lại"
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-navy-800 shadow-theme-xs ring-1 ring-sky-100 transition active:scale-95"
-                  >
-                    <FiArrowLeft aria-hidden className="h-4.5 w-4.5" />
-                  </button>
-                  <drill.icon aria-hidden className="h-4.5 w-4.5 shrink-0 text-brand-600" />
-                  <p className="min-w-0 flex-1 truncate text-base font-bold text-navy-800">{drill.label}</p>
-                  {shown && (
-                    <span className="max-w-[40%] truncate rounded-full bg-brand-600 px-2.5 py-0.5 text-theme-xs font-semibold text-white">
-                      {shown}
-                    </span>
-                  )}
-                </div>
-                <OptionPicker
-                  options={drill.options}
-                  value={value}
-                  header={headerOf(drill)}
-                  onPick={(next) => pick(drill, next)}
-                />
-              </div>
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => onField("status")(isActive ? "" : option.value)}
+                className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg text-theme-xs font-semibold whitespace-nowrap transition ${
+                  isActive
+                    ? "bg-gradient-to-r from-navy-800 to-brand-600 text-white shadow-[0_8px_16px_-10px_rgba(11,33,67,0.8)]"
+                    : "bg-white text-gray-600 ring-1 ring-sky-100 hover:text-brand-600"
+                }`}
+              >
+                <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${statusDotTones[option.value]}`} />
+                <Icon aria-hidden className="h-3.5 w-3.5" />
+                {option.label}
+              </button>
             );
-          }
+          })}
+        </div>
 
-          return (
-            <div className="thin-scroll flex-1 space-y-2.5 overflow-y-auto overscroll-contain py-3 pr-1.5 pl-3">
-              <label className="relative block">
-                <span className="sr-only">Mã căn</span>
-                <FiSearch
-                  aria-hidden
-                  className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
-                />
-                <input
-                  type="search"
-                  value={filters.code}
-                  onChange={(event) => onField("code")(event.target.value)}
-                  placeholder={isHigh ? "Tìm mã căn hộ..." : "Tìm mã căn..."}
-                  className={`h-10 w-full rounded-xl border bg-white pr-3 pl-9 text-theme-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-400 ${
-                    filters.code ? "border-brand-300" : "border-sky-100"
-                  }`}
-                />
-              </label>
+        <RangeLine
+          title="Khoảng giá"
+          icon={FiDollarSign}
+          unit="tỷ"
+          range={priceRange}
+          onRange={onPriceRange}
+          limit={limits.price}
+          step={priceStep}
+          scale={priceScale}
+        />
+        <RangeLine
+          title={mode === "cao-tang" ? "DT thông thủy" : mode === "thap-tang" ? "Diện tích đất" : "Diện tích"}
+          icon={FiMaximize}
+          unit="m²"
+          range={areaRange}
+          onRange={onAreaRange}
+          limit={limits.area}
+          step={5}
+          scale={1}
+        />
 
-              {/* Trang thai: mot thanh chia 3 */}
-              <div role="group" aria-label="Trạng thái" className="flex rounded-xl bg-white p-1 ring-1 ring-sky-100">
-                {statusOptions.map((option) => {
-                  const isActive = filters.status === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      aria-pressed={isActive}
-                      onClick={() => onField("status")(isActive ? "" : option.value)}
-                      className={`inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg text-theme-xs font-semibold whitespace-nowrap transition ${
-                        isActive ? "bg-gradient-to-r from-navy-800 to-brand-600 text-white" : "text-gray-600"
-                      }`}
-                    >
-                      <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${statusDotTones[option.value]}`} />
-                      {option.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Gia + dien tich chung mot the */}
-              <div className="divide-y divide-sky-50 rounded-xl bg-white ring-1 ring-sky-100">
-                <div className="px-3 pt-2.5 pb-3">
-                  <RangeLine
-                    compact
-                    title="Khoảng giá"
-                    icon={FiDollarSign}
-                    unit="tỷ"
-                    range={priceRange}
-                    onRange={onPriceRange}
-                    limit={limits.price}
-                    step={priceStep}
-                    scale={priceScale}
-                  />
-                </div>
-                <div className="px-3 pt-2.5 pb-3">
-                  <RangeLine
-                    compact
-                    title={mode === "cao-tang" ? "DT thông thủy" : mode === "thap-tang" ? "Diện tích đất" : "Diện tích"}
-                    icon={FiMaximize}
-                    unit="m²"
-                    range={areaRange}
-                    onRange={onAreaRange}
-                    limit={limits.area}
-                    step={5}
-                    scale={1}
-                  />
-                </div>
-              </div>
-
-              {tags.length > 0 && (
-                <div className="no-scrollbar -mr-1.5 flex gap-1.5 overflow-x-auto pr-1.5">
-                  {tags.map((tag) => (
-                    <span
-                      key={tag.id}
-                      className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white py-1 pr-1 pl-2.5 text-[11px] font-semibold text-brand-700 ring-1 ring-brand-200"
-                    >
-                      {tag.text}
-                      <button
-                        type="button"
-                        onClick={tag.remove}
-                        aria-label={`Bỏ lọc ${tag.text}`}
-                        className="flex h-5 w-5 items-center justify-center rounded-full text-brand-400"
-                      >
-                        <FiX aria-hidden className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Luoi o tieu chi: bam de sang man chon */}
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {rows.map((row) => {
-                  const value = shownOf(row);
-                  return (
-                    <button
-                      key={row.key}
-                      type="button"
-                      onClick={() => setOpenRow(row.key)}
-                      className={`flex min-w-0 items-center gap-2 rounded-xl bg-white px-2.5 py-2 text-left transition active:scale-[0.98] ${
-                        value ? "ring-2 ring-brand-400" : "ring-1 ring-sky-100"
-                      }`}
-                    >
-                      <span
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                          value ? "bg-gradient-to-br from-sky-400 to-brand-600 text-white" : "bg-brand-50 text-brand-600"
-                        }`}
-                      >
-                        <row.icon aria-hidden className="h-4 w-4" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[11px] leading-tight text-gray-500">{row.label}</span>
-                        <span
-                          className={`block truncate text-theme-sm leading-tight font-semibold ${
-                            value ? "text-brand-700" : "text-gray-400"
-                          }`}
-                        >
-                          {value || "Tất cả"}
-                        </span>
-                      </span>
-                      <FiChevronRight aria-hidden className="h-4 w-4 shrink-0 text-gray-300" />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
-
-      {!isSheet && (
-        <div className={`thin-scroll flex-1 space-y-2.5 overflow-y-auto overscroll-contain py-3 pr-1.5 pl-3 ${isCollapsed ? "hidden" : ""}`}>
-          <label className="relative block">
-            <span className="sr-only">Mã căn</span>
-            <FiSearch
-              aria-hidden
-              className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="search"
-              value={filters.code}
-              onChange={(event) => onField("code")(event.target.value)}
-              placeholder={isHigh ? "Mã căn hộ..." : "Mã căn..."}
-              className={`h-10 w-full rounded-xl border bg-white pr-3 pl-9 text-theme-sm text-gray-900 shadow-[0_6px_16px_-12px_rgba(15,111,209,0.45)] outline-none transition placeholder:text-gray-400 focus:border-brand-400 ${
-                filters.code ? "border-brand-300" : "border-sky-100"
-              }`}
-            />
-          </label>
-
-          {/* Trang thai: ba nut rieng, co icon */}
-          <div role="group" aria-label="Trạng thái" className="grid grid-cols-3 gap-1.5">
-            {statusOptions.map((option) => {
-              const isActive = filters.status === option.value;
-              const Icon = STATUS_ICONS[option.value] ?? FiHome;
-              return (
+        {/* Tieu chi dang loc */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="inline-flex items-center gap-1 rounded-full bg-white py-1 pr-1 pl-2.5 text-[11px] font-semibold text-brand-700 ring-1 ring-brand-200"
+              >
+                {tag.text}
                 <button
-                  key={option.value}
                   type="button"
-                  aria-pressed={isActive}
-                  onClick={() => onField("status")(isActive ? "" : option.value)}
-                  className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg text-theme-xs font-semibold whitespace-nowrap transition ${
-                    isActive
-                      ? "bg-gradient-to-r from-navy-800 to-brand-600 text-white shadow-[0_8px_16px_-10px_rgba(11,33,67,0.8)]"
-                      : "bg-white text-gray-600 ring-1 ring-sky-100 hover:text-brand-600"
+                  onClick={tag.remove}
+                  aria-label={`Bỏ lọc ${tag.text}`}
+                  className="flex h-4 w-4 items-center justify-center rounded-full text-brand-400 transition hover:bg-brand-50 hover:text-brand-700"
+                >
+                  <FiX aria-hidden className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Danh sach tieu chi trong the trang: bam dong de so lua chon */}
+        <ul className="divide-y divide-sky-50 overflow-hidden rounded-xl bg-white shadow-[0_6px_16px_-12px_rgba(15,111,209,0.45)] ring-1 ring-sky-100">
+          {rows.map((row) => {
+            const value = shownOf(row);
+            const isOpen = openRow === row.key;
+            return (
+              <li key={row.key}>
+                <button
+                  type="button"
+                  onClick={() => setOpenRow(isOpen ? null : row.key)}
+                  aria-expanded={isOpen}
+                  className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition hover:bg-brand-25 ${
+                    isOpen ? "bg-brand-25" : ""
                   }`}
                 >
-                  <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${statusDotTones[option.value]}`} />
-                  <Icon aria-hidden className="h-3.5 w-3.5" />
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <RangeLine
-            title="Khoảng giá"
-            icon={FiDollarSign}
-            unit="tỷ"
-            range={priceRange}
-            onRange={onPriceRange}
-            limit={limits.price}
-            step={priceStep}
-            scale={priceScale}
-          />
-          <RangeLine
-            title={mode === "cao-tang" ? "DT thông thủy" : mode === "thap-tang" ? "Diện tích đất" : "Diện tích"}
-            icon={FiMaximize}
-            unit="m²"
-            range={areaRange}
-            onRange={onAreaRange}
-            limit={limits.area}
-            step={5}
-            scale={1}
-          />
-
-          {/* Tieu chi dang loc */}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {tags.map((tag) => (
-                <span
-                  key={tag.id}
-                  className="inline-flex items-center gap-1 rounded-full bg-white py-1 pr-1 pl-2.5 text-[11px] font-semibold text-brand-700 ring-1 ring-brand-200"
-                >
-                  {tag.text}
-                  <button
-                    type="button"
-                    onClick={tag.remove}
-                    aria-label={`Bỏ lọc ${tag.text}`}
-                    className="flex h-4 w-4 items-center justify-center rounded-full text-brand-400 transition hover:bg-brand-50 hover:text-brand-700"
+                  <row.icon aria-hidden className={`h-4 w-4 shrink-0 ${value ? "text-brand-600" : "text-navy-600"}`} />
+                  <span
+                    className={`min-w-0 flex-1 text-theme-sm ${isOpen || value ? "font-bold text-navy-800" : "font-medium text-gray-700"}`}
                   >
-                    <FiX aria-hidden className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Danh sach tieu chi trong the trang: bam dong de so lua chon */}
-          <ul className="divide-y divide-sky-50 overflow-hidden rounded-xl bg-white shadow-[0_6px_16px_-12px_rgba(15,111,209,0.45)] ring-1 ring-sky-100">
-            {rows.map((row) => {
-              const value = shownOf(row);
-              const isOpen = openRow === row.key;
-              return (
-                <li key={row.key}>
-                  <button
-                    type="button"
-                    onClick={() => setOpenRow(isOpen ? null : row.key)}
-                    aria-expanded={isOpen}
-                    className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition hover:bg-brand-25 ${
-                      isOpen ? "bg-brand-25" : ""
+                    {row.label}
+                  </span>
+                  <span
+                    className={`max-w-[45%] truncate text-theme-xs font-semibold ${
+                      value ? "rounded-full bg-brand-50 px-2 py-0.5 text-brand-700" : "text-gray-400"
                     }`}
                   >
-                    <row.icon aria-hidden className={`h-4 w-4 shrink-0 ${value ? "text-brand-600" : "text-navy-600"}`} />
-                    <span
-                      className={`min-w-0 flex-1 text-theme-sm ${isOpen || value ? "font-bold text-navy-800" : "font-medium text-gray-700"}`}
-                    >
-                      {row.label}
-                    </span>
-                    <span
-                      className={`max-w-[45%] truncate text-theme-xs font-semibold ${
-                        value ? "rounded-full bg-brand-50 px-2 py-0.5 text-brand-700" : "text-gray-400"
-                      }`}
-                    >
-                      {value || "Tất cả"}
-                    </span>
-                    <FiChevronDown
-                      aria-hidden
-                      className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                  {isOpen && (
-                    <OptionPicker
-                      options={row.options}
-                      value={filters[row.key]}
-                      header={headerOf(row)}
-                      onPick={(next) => pick(row, next)}
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
+                    {value || "Tất cả"}
+                  </span>
+                  <FiChevronDown
+                    aria-hidden
+                    className={`h-4 w-4 shrink-0 text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {isOpen && (
+                  <OptionPicker
+                    options={row.options}
+                    value={valueOf(row)}
+                    header={headerOf(row)}
+                    onPick={(next) => pick(row, next)}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
       <div className={`px-3 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] max-sm:border-t max-sm:border-sky-100 max-sm:pt-2.5 ${isCollapsed ? "hidden" : ""}`}>
         <button
