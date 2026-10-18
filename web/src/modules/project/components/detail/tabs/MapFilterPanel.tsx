@@ -548,8 +548,8 @@ const MapFilterPanel = ({
       className={
         isSheet
           ? // Ngan keo cap trang: dien thoai rong het, iPad can giua rong toi da 560px
-            "animate-sheet-up fixed inset-x-0 bottom-0 z-[1001] mx-auto flex max-h-[82dvh] w-full max-w-[560px] flex-col overflow-hidden rounded-t-3xl bg-[#eef5ff] shadow-[0_-18px_44px_-16px_rgba(8,24,50,0.55)] ring-1 ring-white/60"
-          : `${isCollapsed ? "max-sm:hidden" : ""} absolute inset-x-0 bottom-0 z-[1000] flex max-h-[70%] flex-col overflow-hidden rounded-t-3xl bg-[#eef5ff] shadow-[0_-18px_44px_-16px_rgba(8,24,50,0.55)] ring-1 ring-white/60 sm:inset-x-auto sm:top-3 sm:right-15 sm:bottom-auto sm:max-h-[min(calc(100%-1.5rem),820px)] sm:w-[min(380px,calc(100%-5.5rem))] sm:rounded-2xl sm:shadow-[0_28px_60px_-22px_rgba(8,24,50,0.6)]`
+            "animate-sheet-up fixed inset-x-2.5 top-[max(0.625rem,env(safe-area-inset-top))] bottom-[max(0.625rem,env(safe-area-inset-bottom))] z-[1001] mx-auto flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-0 sm:top-auto sm:bottom-0 sm:max-h-[82dvh] sm:w-full sm:max-w-[560px] sm:rounded-b-none sm:bg-[#eef5ff] sm:ring-white/60"
+          : `${isCollapsed ? "max-sm:hidden" : ""} absolute inset-2.5 z-[1000] flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-auto sm:bg-[#eef5ff] sm:ring-white/60 sm:top-3 sm:right-15 sm:bottom-auto sm:max-h-[min(calc(100%-1.5rem),820px)] sm:w-[min(380px,calc(100%-5.5rem))] sm:rounded-2xl sm:shadow-[0_28px_60px_-22px_rgba(8,24,50,0.6)]`
       }
     >
       {/* Tieu de (tay cam keo): nen chuyen navy -> xanh */}
@@ -558,13 +558,15 @@ const MapFilterPanel = ({
         onPointerMove={moveDrag}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        className={`relative flex touch-none items-center gap-2.5 bg-gradient-to-r from-navy-800 via-brand-700 to-brand-500 px-3.5 pt-4 pb-3 text-white select-none ${isSheet ? "" : "sm:cursor-grab sm:pt-3 sm:active:cursor-grabbing"}`}
+        className={`relative flex touch-none items-center gap-2.5 bg-gradient-to-r from-navy-800 via-brand-700 to-brand-500 px-3.5 pt-4 pb-3 text-white select-none max-sm:border-b max-sm:border-sky-100 max-sm:bg-none max-sm:bg-white max-sm:px-4 max-sm:pt-3.5 max-sm:text-navy-800 ${isSheet ? "" : "sm:cursor-grab sm:pt-3 sm:active:cursor-grabbing"}`}
       >
         {/* Vach keo cua ngan keo (chi dien thoai) */}
-        <span aria-hidden className={`absolute top-1.5 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/40 ${isSheet ? "" : "sm:hidden"}`} />
-        <FiSliders aria-hidden className="h-4.5 w-4.5 shrink-0" />
+        <span aria-hidden className={`absolute top-1.5 left-1/2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/40 max-sm:hidden ${isSheet ? "" : "sm:hidden"}`} />
+        <span className="flex shrink-0 items-center justify-center max-sm:h-8 max-sm:w-8 max-sm:rounded-lg max-sm:bg-gradient-to-br max-sm:from-sky-400 max-sm:to-brand-600 max-sm:text-white">
+          <FiSliders aria-hidden className="h-4.5 w-4.5 max-sm:h-4 max-sm:w-4" />
+        </span>
         <p className="min-w-0 flex-1 text-base font-bold">Lọc quỹ căn</p>
-        <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-theme-xs font-semibold tabular-nums ring-1 ring-white/25">
+        <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-theme-xs font-semibold tabular-nums ring-1 ring-white/25 max-sm:bg-brand-50 max-sm:text-brand-700 max-sm:ring-brand-100">
           {visibleCount}/{totalCount}
         </span>
         {!isSheet && (
@@ -574,7 +576,7 @@ const MapFilterPanel = ({
           aria-expanded={!isCollapsed}
           aria-label={isCollapsed ? "Hiện bộ lọc" : "Ẩn bộ lọc"}
           title={isCollapsed ? "Hiện bộ lọc" : "Ẩn bộ lọc"}
-          className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/15 sm:h-7 sm:w-7"
+          className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/15 max-sm:text-gray-500 max-sm:hover:bg-gray-100 sm:h-7 sm:w-7"
         >
           {/* Dien thoai (ngan keo duoi): mui ten xuong = ha xuong; may tinh /
               iPad (the tren): mui ten len = thu len */}
@@ -590,7 +592,7 @@ const MapFilterPanel = ({
           disabled={activeCount === 0}
           aria-label="Đặt lại bộ lọc"
           title="Đặt lại"
-          className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/15 disabled:opacity-40 sm:h-7 sm:w-7"
+          className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/15 max-sm:text-gray-500 max-sm:hover:bg-gray-100 disabled:opacity-40 sm:h-7 sm:w-7"
         >
           <FiRefreshCw aria-hidden className="h-3.5 w-3.5" />
         </button>
@@ -598,7 +600,7 @@ const MapFilterPanel = ({
           type="button"
           onClick={onClose}
           aria-label="Đóng bộ lọc"
-          className="-mr-1 flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/15 sm:h-7 sm:w-7"
+          className="-mr-1 flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/15 max-sm:text-gray-500 max-sm:hover:bg-gray-100 sm:h-7 sm:w-7"
         >
           <FiX aria-hidden className="h-4 w-4" />
         </button>
@@ -613,7 +615,7 @@ const MapFilterPanel = ({
             const shown = shownOf(drill);
             return (
               <div className="thin-scroll flex-1 overflow-y-auto overscroll-contain">
-                <div className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-sky-100 bg-[#eef5ff] px-3 py-2.5">
+                <div className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-sky-100 bg-[#eef5ff] px-3 py-2.5 max-sm:bg-white">
                   <button
                     type="button"
                     onClick={() => setOpenRow(null)}
@@ -905,7 +907,7 @@ const MapFilterPanel = ({
         </div>
       )}
 
-      <div className={`px-3 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] max-sm:pt-2.5 ${isCollapsed ? "hidden" : ""}`}>
+      <div className={`px-3 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] max-sm:border-t max-sm:border-sky-100 max-sm:pt-2.5 ${isCollapsed ? "hidden" : ""}`}>
         <button
           type="button"
           onClick={onClose}
