@@ -1,8 +1,7 @@
 'use client';
 
 import { Link } from '@/i18n/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
+import { useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   FiCalendar,
@@ -90,64 +89,30 @@ const useFeaturedEvents = (events: EventItem[], limit: number) => {
 
 const FeaturedEvents = ({ events, limit = 8 }: FeaturedEventsProps) => {
   const allEvents = events ?? MOCK_EVENTS;
-  const featuredEvents = useFeaturedEvents(allEvents, limit);
+  // Trang chu chi hien 3 su kien (bo the cuoi - tren luoi 3 cot no nam le mot minh)
+  const featuredEvents = useFeaturedEvents(allEvents, limit).slice(0, 3);
 
   // `home.featured.events.*` chứa title + label "Xem tất cả" của section
   // này. Đặt ở component để không đẩy logic lên page cha.
   const t = useTranslations('home.featured.events');
 
-  // `loop: true` khi > slidesPerView de khong bi gap.
-  const canLoop = featuredEvents.length > 3;
+  // Dien thoai: nut chuyen qua cuon dung mot the (be ngang the + khe 12px)
+  const mobileTrackRef = useRef<HTMLDivElement>(null);
+  const scrollMobile = (direction: 1 | -1) => {
+    const track = mobileTrackRef.current;
+    const card = track?.firstElementChild as HTMLElement | null;
+    if (!track || !card) return;
+    // Het the thi quay vong: cuoi -> dau, dau -> cuoi
+    const maxLeft = track.scrollWidth - track.clientWidth;
+    if (direction === 1 && track.scrollLeft >= maxLeft - 4) {
+      track.scrollTo({ left: 0, behavior: 'smooth' });
+    } else if (direction === -1 && track.scrollLeft <= 4) {
+      track.scrollTo({ left: maxLeft, behavior: 'smooth' });
+    } else {
+      track.scrollBy({ left: direction * (card.offsetWidth + 12), behavior: 'smooth' });
+    }
+  };
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'start',
-    loop: canLoop,
-    slidesToScroll: 1,
-    skipSnaps: false,
-  });
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-
-    const onReInit = () => {
-      setScrollSnaps(emblaApi.scrollSnapList());
-      setSelectedIndex(emblaApi.selectedScrollSnap());
-    };
-    emblaApi.on('reInit', onReInit);
-    emblaApi.on('select', onSelect);
-
-    emblaApi.reInit();
-    return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onReInit);
-    };
-  }, [emblaApi, onSelect]);
-
-  // Auto-play: tu dong scroll moi 4 giay, dung khi user tuong tac.
-  useEffect(() => {
-    if (!emblaApi || !isAutoPlaying) return;
-
-    const autoScroll = setInterval(() => {
-      emblaApi.scrollNext();
-    }, 4000);
-
-    const stopAutoPlay = () => setIsAutoPlaying(false);
-    emblaApi.on('pointerDown', stopAutoPlay);
-
-    return () => {
-      clearInterval(autoScroll);
-      emblaApi.off('pointerDown', stopAutoPlay);
-    };
-  }, [emblaApi, isAutoPlaying]);
 
   if (featuredEvents.length === 0) return null;
 
@@ -170,76 +135,41 @@ const FeaturedEvents = ({ events, limit = 8 }: FeaturedEventsProps) => {
           </Link>
         </div>
 
-        {/* ── Mobile carousel (<sm) ─────────────────────────────────── */}
-        <div className="sm:hidden">
-          <div className="relative">
-            <div ref={emblaRef} className="overflow-hidden">
-              <div className="flex gap-4">
-                {featuredEvents.map((event, index) => (
-                  <div
-                    key={event.publicId}
-                    className="flex-[0_0_88%] min-w-0"
-                  >
-                    <EventCard
-                      event={event}
-                      ctaLabel={index === featuredEvents.length - 1 ? 'Đăng ký' : 'Xem chi tiết'}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Prev button */}
+        {/* ── Dien thoai (<sm): vuot ngang hoac bam nut chuyen qua ───── */}
+        <div className="relative sm:hidden">
+        {featuredEvents.length > 1 && (
+          <>
             <button
               type="button"
-              onClick={() => {
-                emblaApi?.scrollPrev();
-                setIsAutoPlaying(false);
-              }}
-              disabled={!canLoop && selectedIndex === 0}
-              aria-label={t('title')}
-              className="absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
+              onClick={() => scrollMobile(-1)}
+              aria-label="Sự kiện trước"
+              className="absolute top-[5.5rem] z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 left-1"
             >
               <FiChevronLeft aria-hidden className="h-5 w-5" />
             </button>
-
-            {/* Next button */}
             <button
               type="button"
-              onClick={() => {
-                emblaApi?.scrollNext();
-                setIsAutoPlaying(false);
-              }}
-              disabled={!canLoop && selectedIndex === scrollSnaps.length - 1}
-              aria-label={t('title')}
-              className="absolute right-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
+              onClick={() => scrollMobile(1)}
+              aria-label="Sự kiện tiếp theo"
+              className="absolute top-[5.5rem] z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 right-1"
             >
               <FiChevronRight aria-hidden className="h-5 w-5" />
             </button>
-          </div>
-
-          {/* Dot indicator */}
-          {scrollSnaps.length > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-2">
-              {scrollSnaps.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    emblaApi?.scrollTo(idx);
-                    setIsAutoPlaying(false);
-                  }}
-                  aria-label={`${idx + 1}`}
-                  aria-current={idx === selectedIndex ? 'true' : undefined}
-                  className={`h-2 rounded-full transition-all ${
-                    idx === selectedIndex
-                      ? 'w-6 bg-brand-500'
-                      : 'w-2 bg-gray-300 hover:bg-gray-400'
-                  }`}
-                />
-              ))}
+          </>
+        )}
+        <div
+          ref={mobileTrackRef}
+          className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-3"
+        >
+          {featuredEvents.map((event, index) => (
+            <div key={event.publicId} className="w-[85%] shrink-0 snap-start">
+              <EventCard
+                event={event}
+                ctaLabel={index === featuredEvents.length - 1 ? 'Đăng ký' : 'Xem chi tiết'}
+              />
             </div>
-          )}
+          ))}
+        </div>
         </div>
 
         {/* ── Desktop grid (sm+) ─────────────────────────────────────── */}

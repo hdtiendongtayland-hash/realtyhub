@@ -37,6 +37,17 @@ const FeaturedUnits = ({ initialUnits }: FeaturedUnitsProps) => {
     const gap = 20; // gap-5 = 20px
     const scrollAmount = cardWidth + gap;
 
+    // Het the thi quay vong: cuoi -> dau, dau -> cuoi
+    const maxLeft = container.scrollWidth - container.clientWidth;
+    if (direction === 'right' && container.scrollLeft >= maxLeft - 4) {
+      container.scrollTo({ left: 0, behavior: 'smooth' });
+      return;
+    }
+    if (direction === 'left' && container.scrollLeft <= 4) {
+      container.scrollTo({ left: maxLeft, behavior: 'smooth' });
+      return;
+    }
+
     container.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
@@ -68,14 +79,15 @@ const FeaturedUnits = ({ initialUnits }: FeaturedUnitsProps) => {
           </div>
         ) : (
         <div className="relative">
-          {/* Nút điều hướng carousel ở hai bên */}
-          {initialUnits.length > 4 && (
+          {/* Nút điều hướng carousel ở hai bên: điện thoại luôn có (vuốt hoặc bấm);
+              từ md chỉ khi nhiều hơn 4 căn */}
+          {initialUnits.length > 1 && (
             <>
               <button
                 type="button"
                 onClick={() => scroll('left')}
                 aria-label="Xem sản phẩm trước"
-                className="absolute left-2 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:flex 2xl:-left-0 2xl:-translate-x-[calc(50%+32px)]"
+                className={`absolute left-1 top-[6.5rem] z-10 flex h-9 w-9 -translate-y-1/2 md:top-1/2 md:left-2 md:h-10 md:w-10 ${initialUnits.length > 4 ? "" : "md:hidden"} items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 2xl:-left-0 2xl:-translate-x-[calc(50%+32px)]`}
               >
                 <FiChevronLeft aria-hidden className="h-5 w-5" />
               </button>
@@ -83,7 +95,7 @@ const FeaturedUnits = ({ initialUnits }: FeaturedUnitsProps) => {
                 type="button"
                 onClick={() => scroll('right')}
                 aria-label="Xem sản phẩm tiếp theo"
-                className="absolute right-2 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:flex 2xl:right-0 2xl:translate-x-[calc(50%+32px)]"
+                className={`absolute right-1 top-[6.5rem] z-10 flex h-9 w-9 -translate-y-1/2 md:top-1/2 md:right-2 md:h-10 md:w-10 ${initialUnits.length > 4 ? "" : "md:hidden"} items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 2xl:right-0 2xl:translate-x-[calc(50%+32px)]`}
               >
                 <FiChevronRight aria-hidden className="h-5 w-5" />
               </button>

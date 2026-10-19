@@ -1,7 +1,7 @@
 'use client';
 
 import { Link } from '@/i18n/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { useTranslations } from 'next-intl';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
@@ -33,8 +33,8 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
     );
   }, [initialProjects, favorites]);
 
-  // `loop: true` khi < projects.length se khong hoat dong -> check.
-  const canLoop = projects.length > 3;
+  // Quay vo han: vuot het du an cuoi thi quay lai du an dau (can >= 2 the)
+  const canLoop = projects.length > 1;
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
@@ -43,31 +43,7 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
     skipSnaps: false,
   });
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-
-    const onReInit = () => {
-      setScrollSnaps(emblaApi.scrollSnapList());
-      setSelectedIndex(emblaApi.selectedScrollSnap());
-    };
-    emblaApi.on('reInit', onReInit);
-    emblaApi.on('select', onSelect);
-
-    emblaApi.reInit();
-    return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onReInit);
-    };
-  }, [emblaApi, onSelect]);
 
   // Auto-play: tu dong scroll moi 3 giay, dung khi user tuong tac
   useEffect(() => {
@@ -120,53 +96,35 @@ const FeaturedProjects = ({ projects: initialProjects }: FeaturedProjectsProps) 
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                emblaApi?.scrollPrev();
-                setIsAutoPlaying(false);
-              }}
-              disabled={!canLoop && selectedIndex === 0}
-              aria-label={t('title')}
-              className="absolute left-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
-            >
-              <FiChevronLeft aria-hidden className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                emblaApi?.scrollNext();
-                setIsAutoPlaying(false);
-              }}
-              disabled={!canLoop && selectedIndex === scrollSnaps.length - 1}
-              aria-label={t('title')}
-              className="absolute right-1 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-card transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700"
-            >
-              <FiChevronRight aria-hidden className="h-5 w-5" />
-            </button>
-          </div>
-
-          {scrollSnaps.length > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-2">
-              {scrollSnaps.map((_, idx) => (
+            {/* Nut chuyen qua (ngang giua anh) - van vuot tay duoc, quay vong */}
+            {projects.length > 1 && (
+              <>
                 <button
-                  key={idx}
                   type="button"
                   onClick={() => {
-                    emblaApi?.scrollTo(idx);
+                    emblaApi?.scrollPrev();
                     setIsAutoPlaying(false);
                   }}
-                  aria-label={`${idx + 1}`}
-                  aria-current={idx === selectedIndex ? 'true' : undefined}
-                  className={`h-2 rounded-full transition-all ${
-                    idx === selectedIndex
-                      ? 'w-6 bg-brand-500'
-                      : 'w-2 bg-gray-300 hover:bg-gray-400'
-                  }`}
-                />
-              ))}
-            </div>
-          )}
+                  aria-label="Dự án trước"
+                  className="absolute top-[6.25rem] z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 left-1"
+                >
+                  <FiChevronLeft aria-hidden className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    emblaApi?.scrollNext();
+                    setIsAutoPlaying(false);
+                  }}
+                  aria-label="Dự án tiếp theo"
+                  className="absolute top-[6.25rem] z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-700 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 right-1"
+                >
+                  <FiChevronRight aria-hidden className="h-5 w-5" />
+                </button>
+              </>
+            )}
+          </div>
+
         </div>
 
         {/* ── Desktop grid (sm+) ─────────────────────────────────────────── */}
