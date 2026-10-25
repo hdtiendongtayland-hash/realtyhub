@@ -692,6 +692,14 @@
   background: rgb(15 111 209 / 0.55);
 }
 
+/* Dien thoai: dang xem ban do quy can thi an cac nut noi (chat, Zalo, len dau
+   trang) - chung che mat nua ban do. FloorPlanTab bat / tat class tren <body>. */
+@media (max-width: 639.98px) {
+  body.map-in-view [data-clean-hide='floating-widget'] {
+    display: none !important;
+  }
+}
+
 /* Vach sang chay tren ten tien ich (tab Tong quan): ray mo + doan sang truot
    qua lai lien tuc; ro chuot vao the thi ray dai ra (w-* dat o JSX). */
 .amenity-bar {
@@ -948,6 +956,9 @@
 
 .plan-map-shell:fullscreen .plan-map-canvas {
   height: 100%;
+  /* Dien thoai: khung thuong bi gioi han chieu cao - toan man hinh thi bo */
+  max-height: none;
+  min-height: 0;
 }
 
 /* ── Ghim du an tren ban do khu vuc (Leaflet divIcon) ────────────────────

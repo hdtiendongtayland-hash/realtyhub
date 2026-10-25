@@ -100,7 +100,8 @@ const toParam = (value: ProjectFilterValues[keyof ProjectFilterValues]) => {
 };
 
 const GRID_CLASS =
-  'grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 project-grid-clean';
+  // Dien thoai: moi du an mot hang; tu sm hai cot tro len
+  'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 project-grid-clean';
 
 /**
  * Khung xuong mot the du an.

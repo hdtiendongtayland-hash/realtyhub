@@ -7,10 +7,12 @@ import type { Map as LeafletMap, LayerGroup } from "leaflet";
 import {
   FiCheck,
   FiChevronDown,
+  FiEye,
+  FiEyeOff,
   FiFilter,
-  FiHeart,
   FiLayers,
   FiMaximize,
+  FiMinimize,
   FiMinus,
   FiPlus,
   FiSearch,
@@ -49,6 +51,17 @@ const escapeHtml = (value: string) =>
       ] ?? char,
   );
 
+/** Icon "tim kiem bang AI": kinh lup kem tia sang */
+const AiSearchIcon = ({ className = "" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" className={className}>
+    <path
+      fillRule="evenodd"
+      d="m17.998 11.181-.243.445c-.759 1.387-2.751 1.387-3.51 0l-.75-1.371-1.37-.75c-1.388-.759-1.388-2.751 0-3.51l1.37-.75.75-1.37c.759-1.388 2.751-1.388 3.51 0l.75 1.37 1.37.75c1.388.759 1.388 2.75.001 3.51l-1.371.75zM16 4.834l-.459.839-.572 1.046-1.885 1.031 1.885 1.031L16 10.666l1.031-1.885 1.885-1.03-1.885-1.032z"
+    />
+    <path d="M11 18a7 7 0 0 0 6.046-3.47 3.94 3.94 0 0 0 2.463-1.944l.46-.842a8.96 8.96 0 0 1-1.937 4.874l3.675 3.675a1 1 0 0 1-1.414 1.414l-3.675-3.675A9 9 0 1 1 12.97 2.217q-.27.313-.48.698l-.47.857-.457.25A7 7 0 1 0 11 18m9.125-15.486a.4.4 0 0 1 .75 0l.101.273a.4.4 0 0 0 .237.237l.273.1a.4.4 0 0 1 0 .751l-.273.101a.4.4 0 0 0-.237.237l-.1.273a.4.4 0 0 1-.751 0l-.101-.273a.4.4 0 0 0-.237-.237l-.273-.1a.4.4 0 0 1 0-.751l.273-.101a.4.4 0 0 0 .237-.237l.1-.273Z" />
+  </svg>
+);
+
 const MapButton = ({
   label,
   onClick,
@@ -63,7 +76,7 @@ const MapButton = ({
     onClick={onClick}
     aria-label={label}
     title={label}
-    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-card transition hover:border-brand-400 hover:text-brand-600"
+    className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-card transition hover:border-brand-400 hover:text-brand-600 sm:h-9 sm:w-9"
   >
     {children}
   </button>
@@ -100,7 +113,9 @@ type FloorPlanTabProps = {
    */
   favoritesKey?: string;
   /** Doi phan khu ngay trong bang loc (value "" = tong the du an) */
-  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void };
+  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void; cards?: { value: string; label: string; image?: string }[]; onCardPick?: (value: string) => void };
+  /** Co thi phu trang nay (VD tham quan 360) len khung ban do - giu nguyen cac nut */
+  overlayUrl?: string;
 };
 
 /** Mot khoang lua chon cho bo loc: [min, max) */
@@ -309,8 +324,8 @@ const FloorPlanTab = ({
   showTitle = true,
   controlsSlot,
   filterSlot,
-  favoritesKey,
   phaseSwitch,
+  overlayUrl,
 }: FloorPlanTabProps) => {
   // Ham cua cha doi moi lan render: giu qua ref de khoi ve lai toan bo pin
   const markerClickRef = useRef(onMarkerClick);
@@ -335,6 +350,10 @@ const FloorPlanTab = ({
   // luc do nut "Bo loc" ben ngoai bi che; binh thuong da co nut ben ngoai
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isQuickFilterOpen, setIsQuickFilterOpen] = useState(false);
+  // Nut "^" giua tren: an moi nut dieu khien, chi chua nut toan man hinh
+  const [areControlsHidden, setAreControlsHidden] = useState(false);
+  // Nut "v" tren dai the phan khu o day ban do: an / hien dai the
+  const [isPhaseStripOpen, setIsPhaseStripOpen] = useState(true);
   // iPad / dien thoai: nut loc ben ngoai mo ngan keo gon tu day man hinh thay
   // cho form 13 o day ban do xuong duoi
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -356,11 +375,6 @@ const FloorPlanTab = ({
   const [priceRange, setPriceRange] = useState<[number | null, number | null]>([null, null]);
   const [areaRange, setAreaRange] = useState<[number | null, number | null]>([null, null]);
   const [funds, setFunds] = useState<UnitFundType[]>(FUND_TYPES);
-  // Yêu thích cấp phân khu / dự án (icon tim trong khung bản đồ) - state
-  // local, không đồng bộ backend vì cấp này chưa có hook dùng chung. Khi
-  // doi favoritesKey thi dat lai false de tranh hien tim cua phan khu cu.
-  const [isFavorite, setIsFavorite] = useState(false);
-  useEffect(() => setIsFavorite(false), [favoritesKey]);
   const [isFundLegendOpen, setIsFundLegendOpen] = useState(false);
   const [displayMode, setDisplayMode] = useState<"code" | "name" | "price">(
     "price",
@@ -436,7 +450,14 @@ const FloorPlanTab = ({
         if (areaMax !== null && marker.landArea > areaMax) return false;
         if (!funds.includes(marker.fundType)) return false;
         const code = filters.code.trim().toLowerCase();
-        if (code && !marker.code.toLowerCase().includes(code)) return false;
+        // O tim: khop ma can, loai hinh, toa / day, phan khu hoac huong
+        if (
+          code &&
+          ![marker.code, marker.propertyTypeLabel, marker.block, marker.phaseName, marker.direction]
+            .filter(Boolean)
+            .some((text) => String(text).toLowerCase().includes(code))
+        )
+          return false;
         if (filters.status && marker.status !== filters.status) return false;
         if (filters.phaseName && marker.phaseName !== filters.phaseName) return false;
         if (filters.block && marker.block !== filters.block) return false;
@@ -515,7 +536,15 @@ const FloorPlanTab = ({
         attribution: "RealtyHub",
       }).addTo(map);
 
-      map.fitBounds(bounds);
+      // Mo len: anh phu kin khung (kieu cover); thu nho het co thi thay tron anh
+      const fillFrame = () => {
+        if (!map) return;
+        const coverZoom = map.getBoundsZoom(bounds, true);
+        // Thu nho toi da = thay tron anh (contain); mo len thi phu kin khung
+        map.setMinZoom(Math.min(coverZoom, map.getBoundsZoom(bounds, false)));
+        map.setView([planMap.height / 2, planMap.width / 2], coverZoom, { animate: false });
+      };
+      fillFrame();
       map.setMaxBounds(bounds);
 
       layerRef.current = L.layerGroup().addTo(map);
@@ -524,7 +553,7 @@ const FloorPlanTab = ({
 
       const observer = new ResizeObserver(() => {
         map?.invalidateSize({ animate: false });
-        map?.fitBounds(bounds);
+        fillFrame();
       });
       observer.observe(containerRef.current);
       resizeObserverRef.current = observer;
@@ -621,11 +650,27 @@ const FloorPlanTab = ({
     });
   }, [isMapReady, visibleMarkers, displayMode, toLatLng, hasMarkerClick, hasMarkerDoubleClick]);
 
+  // ── Ban do chiem man hinh (dien thoai): an nut chat / Zalo / len dau ─────
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => document.body.classList.toggle("map-in-view", entry.isIntersecting),
+      { threshold: 0.35 },
+    );
+    observer.observe(wrapper);
+    return () => {
+      observer.disconnect();
+      document.body.classList.remove("map-in-view");
+    };
+  }, []);
+
   // ── Vao/ra toan man hinh: Leaflet phai do lai kich thuoc khung ───────────
   useEffect(() => {
     const onFullscreenChange = () => {
       const isOn = document.fullscreenElement === wrapperRef.current;
       setIsFullscreen(isOn);
+      if (!isOn) setAreControlsHidden(false);
       if (!isOn) setIsQuickFilterOpen(false);
       window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
     };
@@ -866,13 +911,27 @@ const FloorPlanTab = ({
       >
         <div
           ref={containerRef}
-          className="plan-map-canvas h-140 w-full sm:h-170"
+          className="plan-map-canvas min-h-[24rem] w-full max-sm:max-h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-9rem)] sm:min-h-[32rem]"
+          // Dien thoai khong dat chieu cao: aspect-ratio lay theo anh. Tu sm da co
+          // chieu cao co dinh nen ti le nay bi bo qua.
+          style={{ aspectRatio: `${planMap.width} / ${planMap.height}` }}
         />
+
+        {/* Che do 3D: trang tham quan 360 phu len ban do, cac nut van nam tren */}
+        {overlayUrl && (
+          <iframe
+            src={overlayUrl}
+            title="Tham quan 360°"
+            allow="fullscreen; gyroscope; accelerometer; xr-spatial-tracking"
+            allowFullScreen
+            className="absolute inset-0 z-[800] h-full w-full border-0 bg-gray-900"
+          />
+        )}
 
         {/* Dieu khien tu ve de bam dung thiet ke; Leaflet control mac dinh da tat */}
         <div className="absolute left-3 top-3 z-900 flex flex-col items-start gap-2">
           <div
-            className="group/display relative mt-2 inline-flex h-8 w-20 items-center rounded-full border border-gray-300 bg-white shadow-card mb-2"
+            className={`${areControlsHidden ? "!hidden" : ""} group/display relative mt-2 inline-flex h-8 w-20 items-center rounded-full border border-gray-300 bg-white shadow-card mb-2`}
             title={
               displayOptions.find((option) => option.value === displayMode)
                 ?.label
@@ -922,64 +981,58 @@ const FloorPlanTab = ({
               );
             })}
           </div>
-          <MapButton label="Phóng to" onClick={() => mapRef.current?.zoomIn()}>
-            <FiPlus aria-hidden />
-          </MapButton>
-          <MapButton label="Thu nhỏ" onClick={() => mapRef.current?.zoomOut()}>
-            <FiMinus aria-hidden />
-          </MapButton>
+          {!areControlsHidden && (
+            <>
+              <MapButton label="Phóng to" onClick={() => mapRef.current?.zoomIn()}>
+                <FiPlus aria-hidden />
+              </MapButton>
+              <MapButton label="Thu nhỏ" onClick={() => mapRef.current?.zoomOut()}>
+                <FiMinus aria-hidden />
+              </MapButton>
+            </>
+          )}
           {canFullscreen && (
-            <MapButton label="Toàn màn hình" onClick={toggleFullscreen}>
-              <FiMaximize aria-hidden />
+            <MapButton label={isFullscreen ? "Thoát toàn màn hình" : "Toàn màn hình"} onClick={toggleFullscreen}>
+              {isFullscreen ? <FiMinimize aria-hidden /> : <FiMaximize aria-hidden />}
             </MapButton>
           )}
         </div>
 
         <div className="absolute right-3 top-3 z-900 flex flex-col items-end gap-2">
-          {controlsSlot}
-          {/* Nut "Yeu thich" phan khu / du an dang xem: cung cot voi 3D/2D
-              switch va filter, nen khi bat fullscreen van hien (wrapper
-              fullscreen chinh la khoi div cha chua div absolute nay). */}
-          {favoritesKey && (
-            <button
-              type="button"
-              onClick={() => setIsFavorite((value) => !value)}
-              aria-pressed={isFavorite}
-              aria-label={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
-              title={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
-              className={`relative flex h-9 w-9 items-center justify-center rounded-md border shadow-card transition ${
-                isFavorite
-                  ? "border-error-400 bg-error-50 text-error-500"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-error-300 hover:text-error-500"
-              }`}
-            >
-              <FiHeart
-                aria-hidden
-                className={`h-4.5 w-4.5 ${isFavorite ? "fill-current" : ""}`}
-              />
-            </button>
-          )}
+          {!areControlsHidden && controlsSlot}
+          {/* Toan man hinh: nut con mat an / hien moi nut (ke ca dai phan khu),
+              chi chua nut thoat toan man hinh */}
           {isFullscreen && (
+            <MapButton
+              label={areControlsHidden ? "Hiện các nút" : "Ẩn các nút"}
+              onClick={() => setAreControlsHidden((hidden) => !hidden)}
+            >
+              {areControlsHidden ? <FiEye aria-hidden /> : <FiEyeOff aria-hidden />}
+            </MapButton>
+          )}
+          {/* Toan man hinh: nut bo loc */}
+          {isFullscreen && !areControlsHidden && (
             <button
               type="button"
               onClick={() => setIsQuickFilterOpen((open) => !open)}
               aria-expanded={isQuickFilterOpen}
               aria-label={activeFilterCount > 0 ? `Bộ lọc (${activeFilterCount} đang lọc)` : "Bộ lọc"}
               title="Bộ lọc"
-              className={`relative flex h-9 w-9 items-center justify-center rounded-md border shadow-card transition ${
+              className={`relative flex h-8 w-8 items-center justify-center rounded-md border shadow-card transition sm:h-9 sm:w-9 ${
                 isQuickFilterOpen || activeFilterCount > 0
                   ? "border-transparent bg-gradient-to-br from-sky-500 to-brand-600 text-white"
                   : "border-gray-300 bg-white text-gray-700 hover:border-brand-400 hover:text-brand-600"
               }`}
             >
-              <FiFilter aria-hidden className="h-4.5 w-4.5" />
+              <FiFilter aria-hidden />
               {activeFilterCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-brand-600 shadow ring-1 ring-brand-200">
+                <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-brand-600 shadow ring-1 ring-brand-200">
                   {activeFilterCount}
                 </span>
               )}
             </button>
           )}
+          {!areControlsHidden && (
           <MapButton
             label={
               isFundLegendOpen ? "Đóng chú thích quỹ căn" : "Chú thích quỹ căn"
@@ -988,6 +1041,9 @@ const FloorPlanTab = ({
           >
             <FiLayers aria-hidden />
           </MapButton>
+          )}
+          {!areControlsHidden && (
+          <>
 
           {/* Popover chu thich loai quy - flex cot doc, nam ngay sat duoi nut FiLayers */}
           {isFundLegendOpen && (
@@ -1019,7 +1075,88 @@ const FloorPlanTab = ({
               })}
             </div>
           )}
+          </>
+          )}
         </div>
+
+        {/* ── Giua tren (chi khi toan man hinh): thanh tim ma can ── */}
+        {isFullscreen && (
+        <div className="pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[6.25rem] max-sm:w-auto max-sm:translate-x-0">
+          {!areControlsHidden && (
+            <div className="pointer-events-auto flex h-10 w-full items-center gap-1.5 rounded-full bg-white/95 pr-3.5 pl-3.5 max-sm:h-8 max-sm:gap-1 max-sm:pr-2.5 max-sm:pl-3 shadow-card ring-1 ring-gray-200 backdrop-blur focus-within:ring-brand-300">
+              <input
+                type="search"
+                value={filters.code}
+                onChange={(event) => setFilterField("code")(event.target.value)}
+                placeholder="Tìm mã căn, loại hình, tòa, hướng..."
+                aria-label="Tìm mã căn trên bản đồ"
+                className="h-full min-w-0 flex-1 bg-transparent text-theme-sm text-gray-800 outline-none placeholder:text-gray-400 max-sm:text-theme-xs"
+              />
+              <AiSearchIcon className="h-4.5 w-4.5 shrink-0 text-brand-600 max-sm:h-4 max-sm:w-4" />
+            </div>
+          )}
+        </div>
+        )}
+
+        {/* ── Day ban do (chi khi toan man hinh): dai the phan khu co anh, nut "v" an / hien ── */}
+        {isFullscreen && !areControlsHidden && phaseSwitch?.cards && phaseSwitch.cards.length > 1 && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[950] flex flex-col items-center">
+            <button
+              type="button"
+              onClick={() => setIsPhaseStripOpen((open) => !open)}
+              aria-expanded={isPhaseStripOpen}
+              aria-label={isPhaseStripOpen ? "Ẩn phân khu" : "Hiện phân khu"}
+              title={isPhaseStripOpen ? "Ẩn phân khu" : "Hiện phân khu"}
+              className={`pointer-events-auto flex h-7 items-center gap-1 rounded-t-xl bg-navy-900/70 px-3 text-[11px] font-semibold text-white backdrop-blur transition hover:bg-navy-900/85 ${
+                isPhaseStripOpen ? "" : "mb-0"
+              }`}
+            >
+              <FiChevronDown aria-hidden className={`h-4 w-4 transition-transform ${isPhaseStripOpen ? "" : "rotate-180"}`} />
+              Phân khu
+            </button>
+            {isPhaseStripOpen && (
+              <div className="pointer-events-auto w-full bg-gradient-to-t from-navy-900/80 via-navy-900/55 to-navy-900/20 px-3 pt-2.5 pb-3 backdrop-blur-[2px]">
+                <div className="no-scrollbar mx-auto flex w-fit max-w-full gap-2.5 overflow-x-auto">
+                  {phaseSwitch.cards.map((card) => {
+                    const isActive = card.value === phaseSwitch.value;
+                    return (
+                      <button
+                        key={card.value || "tong-the"}
+                        type="button"
+                        onClick={() => (phaseSwitch.onCardPick ?? phaseSwitch.onChange)(card.value)}
+                        aria-pressed={isActive}
+                        className={`group relative aspect-[16/10] w-32 shrink-0 overflow-hidden rounded-xl text-left shadow-card transition sm:w-40 lg:w-44 ${
+                          isActive ? "ring-[3px] ring-sky-400" : "ring-1 ring-white/40 hover:ring-white"
+                        }`}
+                      >
+                        {card.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={card.image}
+                            alt=""
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <span aria-hidden className="absolute inset-0 bg-gradient-to-br from-sky-400 to-brand-700" />
+                        )}
+                        <span aria-hidden className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/75 to-transparent" />
+                        <span className="absolute inset-x-0 bottom-0 truncate px-2 pb-1.5 text-center text-theme-xs font-bold text-white sm:text-theme-sm">
+                          {card.label}
+                        </span>
+                        {isActive && (
+                          <span className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-sky-400 text-white shadow">
+                            <FiCheck aria-hidden className="h-3 w-3" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Bang loc - chi khi toan man hinh (nam trong wrapper fullscreen);
             keo tieu de de di chuyen */}

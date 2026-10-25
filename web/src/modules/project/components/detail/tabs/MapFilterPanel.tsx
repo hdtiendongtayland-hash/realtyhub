@@ -20,9 +20,6 @@ import {
   FiSliders,
   FiX,
   FiArrowRight,
-  FiArchive,
-  FiHome,
-  FiLock,
 } from "react-icons/fi";
 import { TbBuildingSkyscraper, TbRuler2 } from "react-icons/tb";
 import RangeSliderField from "@/common/components/RangeSliderField";
@@ -77,7 +74,7 @@ type MapFilterPanelProps = {
   ranges: { unitPrice: Option[]; build: Option[]; frontage: Option[] };
   lockedPhaseName?: string;
   /** Co thi dong "Phan khu" doi phan khu cua ban do (luon hien) */
-  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void };
+  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void; cards?: { value: string; label: string; image?: string }[]; onCardPick?: (value: string) => void };
   priceRange: Range;
   onPriceRange: (range: Range) => void;
   areaRange: Range;
@@ -99,13 +96,6 @@ type MapFilterPanelProps = {
 };
 
 type Row = { key: FilterKey; label: string; icon: IconType; options: Option[] };
-
-/** Icon cho tung trang thai */
-const STATUS_ICONS: Record<string, IconType> = {
-  "con-hang": FiHome,
-  "giu-cho": FiArchive,
-  "da-ban": FiLock,
-};
 
 const FUND_OPTIONS: Option[] = Object.entries(UNIT_FUND_LABELS).map(([value, label]) => ({ value, label }));
 
@@ -331,7 +321,6 @@ const MapFilterPanel = ({
   mode,
   options,
   statusOptions,
-  statusDotTones,
   ranges,
   lockedPhaseName,
   phaseSwitch,
@@ -518,6 +507,10 @@ const MapFilterPanel = ({
 
   return (
     <>
+      {/* Dien thoai: cham vao khoang trong ngoai the thi dong bang loc */}
+      {!isSheet && !isCollapsed && (
+        <div aria-hidden onClick={onClose} className="absolute inset-0 z-[999] bg-navy-900/30 sm:hidden" />
+      )}
       {/* Dien thoai, dang an: chi con mot vien noi nho o canh duoi ban do */}
       {!isSheet && isCollapsed && (
         <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[1000] flex -translate-x-1/2 items-center rounded-full bg-gradient-to-r from-navy-800 via-brand-700 to-brand-500 p-1 text-white shadow-[0_14px_30px_-10px_rgba(8,24,50,0.7)] ring-1 ring-white/30 sm:hidden">
@@ -559,8 +552,8 @@ const MapFilterPanel = ({
       className={
         isSheet
           ? // Ngan keo cap trang: dien thoai rong het, iPad can giua rong toi da 560px
-            "animate-sheet-up fixed inset-x-2.5 top-[max(0.625rem,env(safe-area-inset-top))] bottom-[max(0.625rem,env(safe-area-inset-bottom))] z-[1001] mx-auto flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-0 sm:top-auto sm:bottom-0 sm:max-h-[82dvh] sm:w-full sm:max-w-[560px] sm:rounded-b-none sm:bg-[#eef5ff] sm:ring-white/60"
-          : `${isCollapsed ? "max-sm:hidden" : ""} absolute inset-2.5 z-[1000] flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-auto sm:bg-[#eef5ff] sm:ring-white/60 sm:top-3 sm:right-15 sm:bottom-auto sm:max-h-[min(calc(100%-1.5rem),820px)] sm:w-[min(380px,calc(100%-5.5rem))] sm:rounded-2xl sm:shadow-[0_28px_60px_-22px_rgba(8,24,50,0.6)]`
+            "animate-sheet-up fixed inset-x-6 top-[max(4.5rem,env(safe-area-inset-top))] bottom-[max(4.5rem,env(safe-area-inset-bottom))] z-[1001] mx-auto flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-0 sm:top-auto sm:bottom-0 sm:max-h-[82dvh] sm:w-full sm:max-w-[560px] sm:rounded-b-none sm:bg-[#eef5ff] sm:ring-white/60"
+          : `${isCollapsed ? "max-sm:hidden" : ""} absolute inset-x-6 inset-y-16 z-[1000] flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-auto sm:bg-[#eef5ff] sm:ring-white/60 sm:top-3 sm:right-15 sm:bottom-auto sm:max-h-[min(calc(100%-1.5rem),820px)] sm:w-[min(380px,calc(100%-5.5rem))] sm:rounded-2xl sm:shadow-[0_28px_60px_-22px_rgba(8,24,50,0.6)]`
       }
     >
       {/* Tieu de (tay cam keo): nen chuyen navy -> xanh */}
@@ -576,7 +569,7 @@ const MapFilterPanel = ({
         <span className="flex shrink-0 items-center justify-center max-sm:h-8 max-sm:w-8 max-sm:rounded-lg max-sm:bg-gradient-to-br max-sm:from-sky-400 max-sm:to-brand-600 max-sm:text-white">
           <FiSliders aria-hidden className="h-4.5 w-4.5 max-sm:h-4 max-sm:w-4" />
         </span>
-        <p className="min-w-0 flex-1 text-base font-bold">Lọc quỹ căn</p>
+        <p className="min-w-0 flex-1 truncate text-base font-bold whitespace-nowrap max-sm:text-theme-sm">Lọc quỹ căn</p>
         <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-theme-xs font-semibold tabular-nums ring-1 ring-white/25 max-sm:bg-brand-50 max-sm:text-brand-700 max-sm:ring-brand-100">
           {visibleCount}/{totalCount}
         </span>
@@ -618,48 +611,6 @@ const MapFilterPanel = ({
       </div>
 
       <div className={`thin-scroll flex-1 space-y-2.5 overflow-y-auto overscroll-contain py-3 pr-1.5 pl-3 ${isCollapsed ? "hidden" : ""}`}>
-        <label className="relative block">
-          <span className="sr-only">Mã căn</span>
-          <FiSearch
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="search"
-            value={filters.code}
-            onChange={(event) => onField("code")(event.target.value)}
-            placeholder={isHigh ? "Mã căn hộ..." : "Mã căn..."}
-            className={`h-10 w-full rounded-xl border bg-white pr-3 pl-9 text-theme-sm text-gray-900 shadow-[0_6px_16px_-12px_rgba(15,111,209,0.45)] outline-none transition placeholder:text-gray-400 focus:border-brand-400 ${
-              filters.code ? "border-brand-300" : "border-sky-100"
-            }`}
-          />
-        </label>
-
-        {/* Trang thai: ba nut rieng, co icon */}
-        <div role="group" aria-label="Trạng thái" className="grid grid-cols-3 gap-1.5">
-          {statusOptions.map((option) => {
-            const isActive = filters.status === option.value;
-            const Icon = STATUS_ICONS[option.value] ?? FiHome;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => onField("status")(isActive ? "" : option.value)}
-                className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg text-theme-xs font-semibold whitespace-nowrap transition ${
-                  isActive
-                    ? "bg-gradient-to-r from-navy-800 to-brand-600 text-white shadow-[0_8px_16px_-10px_rgba(11,33,67,0.8)]"
-                    : "bg-white text-gray-600 ring-1 ring-sky-100 hover:text-brand-600"
-                }`}
-              >
-                <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${statusDotTones[option.value]}`} />
-                <Icon aria-hidden className="h-3.5 w-3.5" />
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
-
         <RangeLine
           title="Khoảng giá"
           icon={FiDollarSign}

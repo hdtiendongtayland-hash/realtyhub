@@ -330,6 +330,7 @@ const PhaseFloorPlan = ({
   controlsSlot,
   filterSlot,
   phaseSwitch,
+  overlayUrl,
 }: {
   project: ProjectDetail;
   /** Bo trong = tong the du an (moi phan khu) */
@@ -341,7 +342,8 @@ const PhaseFloorPlan = ({
   /** Cho dat nut "Bo loc" (cuoi hang nut phan khu) */
   filterSlot?: HTMLElement | null;
   /** Doi phan khu ngay trong bang loc (value "" = tong the du an) */
-  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void };
+  phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void; cards?: { value: string; label: string; image?: string }[]; onCardPick?: (value: string) => void };
+  overlayUrl?: string;
 }) => {
   const query = useMemo(
     () => ({
@@ -488,6 +490,7 @@ const PhaseFloorPlan = ({
         controlsSlot={controlsSlot}
         filterSlot={filterSlot}
         phaseSwitch={phaseSwitch}
+        overlayUrl={overlayUrl}
         favoritesKey={phaseName || project.slug}
         onMarkerClick={handleMarkerClick}
         onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
@@ -502,6 +505,19 @@ const PhaseFloorPlan = ({
 };
 
 type MapMode = "3d" | "2d";
+
+/**
+ * Trang tham quan 360 cho che do 3D, theo thu tu the o day ban do: the 1 = tong
+ * the, the 2.. = tung phan khu (het danh sach thi quay vong). Du lieu mau.
+ */
+const TOUR_360_URLS = [
+  "https://360.vinhome.com.vn/can-gio-360/",
+  "https://dongtayland.vn/360/haus-coastal-quang-ngai/",
+  "https://vinhomegreencity.com.vn/360/",
+  "https://dongtayland.vn/360/coral-hawaii-phu-quoc/",
+  "https://dongtayland.vn/360/haus-coastal-quang-ngai/",
+  "https://dongtayland.vn/360/vinhomes-pearl-bay/",
+];
 
 /** Gia tri "chon tong the du an" trong thanh chon ban do */
 const WHOLE_PROJECT = "tong-the";
@@ -689,7 +705,7 @@ export const PhaseMapViews = ({
           <div
             role="group"
             aria-label="Chọn khu vực bản đồ"
-            className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto"
+            className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto max-lg:[mask-image:linear-gradient(to_right,black_85%,transparent)] max-lg:pr-6"
           >
             {targets.map((item) => {
               const isActive = targetId === item.id;
@@ -699,10 +715,10 @@ export const PhaseMapViews = ({
                   type="button"
                   aria-pressed={isActive}
                   onClick={() => setTargetId(item.id)}
-                  className={`flex h-10 shrink-0 items-center justify-center rounded-lg px-4 text-[11px] font-semibold whitespace-nowrap uppercase transition sm:text-xs lg:flex-auto ${
+                  className={`flex h-9 shrink-0 items-center justify-center rounded-full px-3.5 text-[11px] font-semibold whitespace-nowrap uppercase transition sm:text-xs lg:h-10 lg:flex-auto lg:rounded-lg lg:px-4 ${
                     isActive
-                      ? "bg-brand-600 text-white shadow-sm"
-                      : "bg-gray-100 text-gray-600 ring-1 ring-gray-200 ring-inset hover:bg-gray-200 hover:text-gray-800"
+                      ? "bg-gradient-to-r from-brand-700 to-brand-500 text-white shadow-sm"
+                      : "bg-white text-gray-600 ring-1 ring-gray-200 ring-inset hover:bg-gray-50 hover:text-gray-800 lg:bg-gray-100"
                   }`}
                 >
                   {item.label}
@@ -742,7 +758,26 @@ export const PhaseMapViews = ({
           options: project.phases.map((item) => ({ value: item.publicId, label: item.name })),
           value: target?.publicId ?? "",
           onChange: (value) => setTargetId(value || WHOLE_PROJECT),
+          // The anh o day ban do (toan man hinh): tong the + tung phan khu - co ca
+          // trong tab con "Vi tri quy hang" cua phan khu
+          cards: [
+                {
+                  value: "",
+                  label: "Tổng thể",
+                  image: project.overviewImageUrl || project.hero[0]?.imageUrl,
+                },
+                ...project.phases.map((item) => ({
+                  value: item.publicId,
+                  label: item.name,
+                  image: item.imageUrl,
+                })),
+              ],
         }}
+        overlayUrl={
+          mode === "3d"
+            ? TOUR_360_URLS[(target ? project.phases.indexOf(target) + 1 : 0) % TOUR_360_URLS.length]
+            : undefined
+        }
       />
     </div>
   );
