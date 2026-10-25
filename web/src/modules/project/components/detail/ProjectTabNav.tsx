@@ -195,7 +195,7 @@ const ProjectTabNav = ({
       ref={navRef}
       aria-label="Nội dung dự án"
       className={`${
-        sticky ? "sticky top-16" : "relative"
+        sticky ? "sticky top-[57px] sm:top-16" : "relative"
       } z-30 border-b border-gray-200 bg-white/90 backdrop-blur-lg`}
     >
       <div className="site-container flex items-center gap-3">

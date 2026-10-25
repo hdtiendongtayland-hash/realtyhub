@@ -850,6 +850,27 @@
   --pin: var(--color-error-600);
 }
 
+/* Quy HOT: o gia nhap nhay (vong sang loang ra) de noi bat tren ban do */
+.plan-pin--doc-quyen > span {
+  animation: pin-hot-pulse 1.2s ease-out infinite;
+}
+
+@keyframes pin-hot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(220 38 38 / 0.9);
+    filter: brightness(1.15);
+  }
+  70% {
+    box-shadow: 0 0 0 13px rgb(220 38 38 / 0);
+    filter: brightness(1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(220 38 38 / 0);
+  }
+}
+
+/* Co y giu nhap nhay ca khi may tat hieu ung - nhu cac nhan HOT khac */
+
 .plan-pin--an-cheo {
   --pin: #b45309;
 }

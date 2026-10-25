@@ -625,24 +625,13 @@ export const PhaseMapViews = ({
   externalFilterSlot?: HTMLElement | null;
 }) => {
   const [mode, setMode] = useState<MapMode>("3d");
-  // O cuoi hang nut phan khu - ban do dua nut "Bo loc" (chi icon) vao day
-  const [ownFilterSlot, setFilterSlot] = useState<HTMLDivElement | null>(null);
+  const ownFilterSlot = null;
   const filterSlot =
     externalFilterSlot !== undefined ? externalFilterSlot : ownFilterSlot;
   const [targetId, setTargetId] = useState<string>(
     phase?.publicId ?? WHOLE_PROJECT,
   );
 
-  const targets = useMemo(
-    () => [
-      { id: WHOLE_PROJECT, label: "Tổng thể" },
-      ...project.phases.map((item) => ({
-        id: item.publicId,
-        label: `${project.name} - ${item.name}`,
-      })),
-    ],
-    [project.name, project.phases],
-  );
 
   const target = project.phases.find((item) => item.publicId === targetId);
 
@@ -692,50 +681,6 @@ export const PhaseMapViews = ({
       {/* May tinh: cac nut gian ra lap day ca hang (flex-auto) - hai mep hang
           thang mep ban do ben duoi, khe giua cac nut deu 8px. Hep hon thi
           giu kich thuoc nut va vuot ngang. */}
-      {!hideTargets && (
-        <div className="mb-1.5 flex items-center gap-1.5 sm:mb-2 sm:gap-2">
-          <div
-            role="group"
-            aria-label="Chọn khu vực bản đồ"
-            className="no-scrollbar flex min-w-0 flex-1 gap-2 overflow-x-auto max-lg:[mask-image:linear-gradient(to_right,black_85%,transparent)] max-lg:pr-6"
-          >
-            {targets.map((item) => {
-              const isActive = targetId === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => setTargetId(item.id)}
-                  className={`flex h-8 shrink-0 items-center justify-center rounded-full px-3 text-[10px] font-semibold whitespace-nowrap uppercase transition sm:h-9 sm:px-3.5 sm:text-xs lg:flex-auto lg:rounded-lg lg:px-4 ${
-                    isActive
-                      ? "bg-gradient-to-r from-brand-700 to-brand-500 text-white shadow-sm"
-                      : "bg-white text-gray-600 ring-1 ring-gray-200 ring-inset hover:bg-gray-50 hover:text-gray-800 lg:bg-gray-100"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-          {externalFilterSlot === undefined && (
-            <div ref={setFilterSlot} className="flex shrink-0" />
-          )}
-        </div>
-      )}
-
-      {/* Nut tang nam DUOI hang nut phan khu, ngay tren ban do */}
-      {floorRanges && (
-        <div
-          className="mb-2 flex flex-wrap gap-2"
-          aria-label="Mặt bằng theo tầng"
-        >
-          <span className="inline-flex h-6 items-center rounded-full bg-brand-600 px-2.5 text-[11px] font-bold text-white uppercase shadow-sm sm:h-8 sm:px-3.5 sm:text-theme-xs">
-            Tầng {floorRanges}
-          </span>
-        </div>
-      )}
-
       <PhaseFloorPlan
         // Khong dung key theo phan khu: doi phan khu tu bang loc trong che do
         // toan man hinh ma dung lai ban do thi trinh duyet thoat toan man hinh.
@@ -753,7 +698,10 @@ export const PhaseMapViews = ({
           onChange: (value) => setTargetId(value || WHOLE_PROJECT),
           // The anh o day ban do (toan man hinh): tong the + tung phan khu - co ca
           // trong tab con "Vi tri quy hang" cua phan khu
-          cards: [
+          // Tab con "Vi tri quy hang" cua mot phan khu: da chon phan khu roi -> chi hien tang
+          cards: hideTargets
+            ? []
+            : [
                 {
                   value: "",
                   label: "Tổng thể",
@@ -817,11 +765,11 @@ const PhaseTabs = ({
           (4rem) + chieu cao that cua ProjectTabNav, do ProjectTabNav do va ghi
           vao --project-tabnav-h (thanh do co the xuong hai hang). Nen trang
           phia sau de noi dung cuon qua khong lo qua khe. */}
-      <div className="sticky top-[calc(4rem+var(--project-tabnav-h,57px))] z-20 -mx-1 mb-5 flex items-center gap-2 bg-white px-1 py-2">
+      <div className="sticky top-[calc(4rem+var(--project-tabnav-h,57px))] z-20 -mx-1 mb-4 flex items-center gap-2 bg-white/95 px-1 py-2 backdrop-blur max-sm:top-[calc(57px+var(--project-tabnav-h,57px))]">
         <div
           role="tablist"
           aria-label={`Thông tin ${phase.name}`}
-          className="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1"
+          className="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-full bg-gray-100/80 p-1 ring-1 ring-gray-200 max-lg:[mask-image:linear-gradient(to_right,black_88%,transparent)] max-lg:pr-5"
         >
           {INNER_TABS.map((item) => {
             const isActive = item.key === tab;
@@ -835,9 +783,9 @@ const PhaseTabs = ({
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => changeTab(item.key)}
-                className={`flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-theme-sm whitespace-nowrap transition sm:flex-auto lg:flex-1 ${
+                className={`flex shrink-0 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-theme-xs whitespace-nowrap transition sm:flex-auto sm:px-4 sm:py-2 sm:text-theme-sm lg:flex-1 ${
                   isActive
-                    ? "bg-white font-semibold text-brand-600 shadow-sm"
+                    ? "bg-white font-semibold text-brand-700 shadow-[0_4px_12px_-6px_rgba(15,111,209,0.5)] ring-1 ring-brand-200"
                     : isHot
                       ? "animate-tab-hot font-medium text-gray-700"
                       : "text-gray-700 hover:text-brand-600"
@@ -846,7 +794,7 @@ const PhaseTabs = ({
                 {isHot && (
                   <HiOutlineFire
                     aria-hidden
-                    className="h-4 w-4 shrink-0 animate-pulse-fire text-error-500"
+                    className={`h-4 w-4 shrink-0 animate-pulse-fire ${"text-error-500"}`}
                   />
                 )}
                 {item.label}
@@ -954,7 +902,7 @@ const TileRow = ({
         style={
           { "--fund-cols-desktop": Math.min(tiles.length, 4) } as CSSProperties
         }
-        className="no-scrollbar grid grid-cols-1 gap-3 sm:flex sm:snap-x sm:overflow-x-auto sm:gap-2 lg:grid lg:snap-none lg:grid-cols-[repeat(var(--fund-cols-desktop),minmax(0,1fr))] lg:gap-4 lg:overflow-visible"
+        className="no-scrollbar grid grid-cols-1 gap-2 sm:flex sm:snap-x sm:overflow-x-auto sm:gap-2 lg:grid lg:snap-none lg:grid-cols-[repeat(var(--fund-cols-desktop),minmax(0,1fr))] lg:gap-4 lg:overflow-visible"
       >
         {tiles
           .map(({ id, icon: Icon, title, facts, compactFact }) => {
@@ -963,7 +911,7 @@ const TileRow = ({
               <div
                 key={id}
                 role="listitem"
-                className="flex min-w-0 sm:min-w-40 sm:flex-1 sm:basis-0 sm:snap-start lg:min-w-0"
+                className="flex min-w-0 sm:min-w-44 sm:flex-1 sm:basis-0 sm:snap-start lg:min-w-0"
               >
                 <button
                   type="button"
@@ -971,57 +919,63 @@ const TileRow = ({
                   aria-expanded={isActive}
                   aria-controls={`fund-panel-${id}`}
                   title={title}
-                  className={`relative flex w-full min-w-0 items-center gap-3 rounded-2xl border p-3 text-left transition sm:gap-2 sm:rounded-xl sm:px-2.5 sm:py-2.5 lg:gap-3 lg:rounded-2xl lg:p-4 ${
+                  className={`group relative flex w-full min-w-0 items-center gap-2.5 overflow-hidden rounded-xl p-2 text-left sm:rounded-2xl transition sm:gap-2.5 sm:p-2 lg:gap-3 lg:p-3 ${
                     isActive
-                      ? "border-brand-500 bg-brand-50/70 shadow-[0_6px_20px_-8px_rgba(15,111,209,0.45)]"
-                      : "border-dashed border-brand-300 bg-white hover:border-brand-400 hover:bg-brand-50/40"
+                      ? "bg-gradient-to-br from-[#eef6ff] to-white text-navy-800 shadow-[0_10px_26px_-16px_rgba(15,111,209,0.55)] ring-2 ring-brand-400"
+                      : "bg-white text-navy-800 shadow-[0_8px_22px_-16px_rgba(15,23,42,0.45)] ring-1 ring-gray-200 hover:ring-brand-300"
                   }`}
                 >
+                  {/* Anh / icon */}
                   <span
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl sm:h-8 sm:w-8 sm:rounded-lg lg:h-12 lg:w-12 lg:rounded-xl ${
-                      isActive
-                        ? "bg-brand-500 text-white"
-                        : "bg-brand-50 text-brand-500"
+                    className={`relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:h-10 sm:w-10 lg:h-12 lg:w-12 ${
+                      isActive ? "bg-gradient-to-br from-sky-400 to-brand-600 text-white shadow-sm" : "bg-brand-50 text-brand-600"
                     }`}
                   >
-                    <Icon
-                      className="h-6 w-6 sm:h-4.5 sm:w-4.5 lg:h-7 lg:w-7"
-                      aria-hidden
-                    />
+                    <Icon className="h-5 w-5 lg:h-6 lg:w-6" aria-hidden />
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="line-clamp-2 text-[15px] leading-snug font-semibold uppercase text-brand-600 sm:line-clamp-1 sm:pr-4 sm:text-[12.5px] lg:line-clamp-2 lg:pr-0 lg:text-base">
+                    <span
+                      className={`line-clamp-1 text-[13px] leading-snug font-bold uppercase sm:text-[13px] lg:line-clamp-2 lg:text-base ${
+                        isActive ? "text-brand-700" : "text-navy-800"
+                      }`}
+                    >
                       {title}
                     </span>
-                    {facts.map((fact) => (
-                      <span
-                        key={fact.label}
-                        className={`mt-0.5 block text-theme-xs leading-snug text-gray-600 sm:truncate sm:text-[10.5px] lg:whitespace-normal lg:text-theme-xs ${
-                          compactFact ? "sm:hidden lg:block" : ""
-                        }`}
-                      >
-                        {fact.label}:{" "}
-                        <strong className="font-semibold text-gray-800">
-                          {fact.value}
-                        </strong>
-                      </span>
-                    ))}
-                    {compactFact && (
-                      <span className="mt-0.5 hidden truncate text-[10.5px] leading-snug text-gray-600 sm:block lg:hidden">
-                        {compactFact}
-                      </span>
-                    )}
+                    <span className="mt-1 flex flex-wrap gap-1">
+                      {facts.map((fact) => (
+                        <span
+                          key={fact.label}
+                          className={`inline-flex max-w-full items-center gap-1 truncate rounded-full px-2 py-0.5 text-[11px] leading-tight ${
+                            compactFact ? "sm:hidden lg:inline-flex" : ""
+                          } ${isActive ? "bg-white text-gray-600 ring-1 ring-brand-100" : "bg-gray-100 text-gray-600"}`}
+                        >
+                          <span className="truncate">{fact.label}</span>
+                          <strong className={`font-bold ${isActive ? "text-brand-700" : "text-navy-800"}`}>{fact.value}</strong>
+                        </span>
+                      ))}
+                      {compactFact && (
+                        <span
+                          className={`hidden max-w-full truncate rounded-full px-2 py-0.5 text-[11px] leading-tight whitespace-nowrap sm:block lg:hidden ${
+                            isActive ? "bg-white text-gray-600 ring-1 ring-brand-100" : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {compactFact}
+                        </span>
+                      )}
+                    </span>
                   </span>
 
-                  {/* iPad: mui ten len goc tren phai, canh dong ten (dong ten chua cho
-                    bang pr-4); cac dong so lieu ben duoi dung het be ngang */}
-                  <FiChevronDown
-                    className={`h-5 w-5 shrink-0 text-brand-500 transition-transform sm:absolute sm:right-2 sm:top-2 sm:h-3.5 sm:w-3.5 lg:static lg:h-5 lg:w-5 ${
-                      isActive ? "rotate-180" : ""
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition sm:h-6 sm:w-6 lg:h-8 lg:w-8 ${
+                      isActive ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-600 group-hover:bg-brand-100"
                     }`}
-                    aria-hidden
-                  />
+                  >
+                    <FiChevronDown
+                      className={`h-4.5 w-4.5 transition-transform sm:h-3.5 sm:w-3.5 lg:h-4.5 lg:w-4.5 ${isActive ? "rotate-180" : ""}`}
+                      aria-hidden
+                    />
+                  </span>
                 </button>
               </div>
             );
@@ -1058,7 +1012,7 @@ const TilePanel = ({
 }) => (
   <div
     id={`fund-panel-${id}`}
-    className={`rounded-2xl border border-dashed border-brand-300 bg-white p-3 sm:p-5 lg:p-6 ${
+    className={`rounded-2xl bg-white p-2.5 shadow-[0_14px_36px_-24px_rgba(15,23,42,0.45)] ring-1 ring-gray-200 sm:p-5 lg:p-6 ${
       inline ? "min-w-0" : "mt-3 sm:mt-4"
     }`}
   >
@@ -1179,6 +1133,11 @@ const PhaseFundTab = ({
               : item.phase
                 ? [unitsFact(item.phase)]
                 : [],
+            compactFact: item.towers?.length
+              ? `${item.towers.length} toà nhà`
+              : item.phase
+                ? `${formatNumber(item.phase.totalUnits)} sản phẩm`
+                : undefined,
           }))}
           panel={
             group &&
@@ -1232,6 +1191,7 @@ const PhaseFundTab = ({
             },
             unitsFact(item),
           ],
+          compactFact: `${SEGMENT_SHORT_LABELS[project.segment]} · ${formatNumber(item.totalUnits)} SP`,
         }))}
         panel={
           phase && (

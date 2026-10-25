@@ -50,6 +50,7 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
   const pathname = usePathname();
   const contentRef = useRef<HTMLDivElement>(null);
 
+
   // Tab nam tren URL nen refresh, nut Back va link chia se deu ra dung tab
   const currentTab = parseTabKey(searchParams.get(TAB_PARAM));
 

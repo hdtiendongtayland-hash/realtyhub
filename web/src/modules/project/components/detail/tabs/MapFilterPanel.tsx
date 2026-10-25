@@ -391,6 +391,70 @@ const MapFilterPanel = ({
     dragRef.current = null;
   };
 
+  // ── Dien thoai: keo vien "Bo loc" (dang an) di cho khac tren ban do ──
+  const pillRef = useRef<HTMLDivElement>(null);
+  const [pillOffset, setPillOffset] = useState({ x: 0, y: 0 });
+  const pillMovedRef = useRef(false);
+  const pillDragRef = useRef<{
+    startX: number;
+    startY: number;
+    base: { x: number; y: number };
+    bounds: { minX: number; maxX: number; minY: number; maxY: number };
+  } | null>(null);
+
+  const startPillDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const pill = pillRef.current;
+    const parent = pill?.offsetParent as HTMLElement | null;
+    if (!pill || !parent) return;
+    const p = parent.getBoundingClientRect();
+    const r = pill.getBoundingClientRect();
+    pillMovedRef.current = false;
+    pillDragRef.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      base: pillOffset,
+      bounds: {
+        minX: pillOffset.x - (r.left - p.left) + 6,
+        maxX: pillOffset.x + (p.right - r.right) - 6,
+        minY: pillOffset.y - (r.top - p.top) + 6,
+        maxY: pillOffset.y + (p.bottom - r.bottom) - 6,
+      },
+    };
+    // Nghe tren window: ngon tay ra khoi vien van keo tiep (khong dung pointer
+    // capture vi capture lam mat su kien click cua nut ben trong)
+    const onMove = (moveEvent: PointerEvent) => movePillDrag(moveEvent);
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      endPillDrag();
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+  };
+  const movePillDrag = (event: { clientX: number; clientY: number }) => {
+    const drag = pillDragRef.current;
+    if (!drag) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    // Nhuc nhich duoi 6px van tinh la bam
+    if (!pillMovedRef.current && Math.hypot(dx, dy) < 6) return;
+    pillMovedRef.current = true;
+    const clamp = (value: number, low: number, high: number) => Math.min(Math.max(value, low), Math.max(low, high));
+    setPillOffset({
+      x: clamp(drag.base.x + dx, drag.bounds.minX, drag.bounds.maxX),
+      y: clamp(drag.base.y + dy, drag.bounds.minY, drag.bounds.maxY),
+    });
+  };
+  const endPillDrag = () => {
+    pillDragRef.current = null;
+    // Cho su kien click (neu co) doc co "vua keo" truoc khi xoa
+    window.setTimeout(() => {
+      pillMovedRef.current = false;
+    }, 0);
+  };
+
   // Du cac truong cua bo loc ngoai (tru ma can / tinh trang / gia / dien tich
   // da nam o dau bang); truong khong co du lieu thi an
   const rows = (
@@ -513,10 +577,19 @@ const MapFilterPanel = ({
       )}
       {/* Dien thoai, dang an: chi con mot vien noi nho o canh duoi ban do */}
       {!isSheet && isCollapsed && (
-        <div className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[1000] flex -translate-x-1/2 items-center rounded-full bg-gradient-to-r from-navy-800 via-brand-700 to-brand-500 p-1 text-white shadow-[0_14px_30px_-10px_rgba(8,24,50,0.7)] ring-1 ring-white/30 sm:hidden">
+        <div
+          ref={pillRef}
+          onPointerDown={startPillDrag}
+          style={{ transform: `translate(calc(-50% + ${pillOffset.x}px), ${pillOffset.y}px)` }}
+          className="absolute bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[1000] flex touch-none items-center rounded-full bg-gradient-to-r from-navy-800 via-brand-700 to-brand-500 p-1 text-white shadow-[0_14px_30px_-10px_rgba(8,24,50,0.7)] ring-1 ring-white/30 select-none sm:hidden"
+        >
           <button
             type="button"
-            onClick={() => setIsCollapsed(false)}
+            onClick={() => {
+              // Vua keo vien di cho khac thi khong tinh la bam mo
+              if (pillMovedRef.current) return;
+              setIsCollapsed(false);
+            }}
             aria-label="Hiện bộ lọc"
             className="flex items-center gap-2 rounded-full py-1.5 pr-2 pl-3 text-theme-sm font-semibold whitespace-nowrap"
           >
@@ -535,7 +608,10 @@ const MapFilterPanel = ({
           <span aria-hidden className="h-5 w-px bg-white/25" />
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => {
+              if (pillMovedRef.current) return;
+              onClose();
+            }}
             aria-label="Đóng bộ lọc"
             className="flex h-8 w-8 items-center justify-center rounded-full transition active:bg-white/15"
           >
