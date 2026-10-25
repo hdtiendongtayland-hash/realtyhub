@@ -116,6 +116,8 @@ type FloorPlanTabProps = {
   phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void; cards?: { value: string; label: string; image?: string }[]; onCardPick?: (value: string) => void };
   /** Co thi phu trang nay (VD tham quan 360) len khung ban do - giu nguyen cac nut */
   overlayUrl?: string;
+  /** Dai tang (VD "5-27") - hien o day ban do khi toan man hinh */
+  floorLabel?: string;
 };
 
 /** Mot khoang lua chon cho bo loc: [min, max) */
@@ -326,6 +328,7 @@ const FloorPlanTab = ({
   filterSlot,
   phaseSwitch,
   overlayUrl,
+  floorLabel,
 }: FloorPlanTabProps) => {
   // Ham cua cha doi moi lan render: giu qua ref de khoi ve lai toan bo pin
   const markerClickRef = useRef(onMarkerClick);
@@ -345,7 +348,10 @@ const FloorPlanTab = ({
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const [isMapReady, setIsMapReady] = useState(false);
-  const [canFullscreen, setCanFullscreen] = useState(false);
+  const [canFullscreen] = useState(true);
+  // Trinh duyet khong ho tro Fullscreen API (Safari iPhone / iPad): phong khung
+  // ban do phu kin man hinh bang CSS (.is-pseudo-fs)
+  const [isPseudoFs, setIsPseudoFs] = useState(false);
   // Nut loc + bang loc nhanh trong khung ban do CHI hien khi toan man hinh -
   // luc do nut "Bo loc" ben ngoai bi che; binh thuong da co nut ben ngoai
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -379,7 +385,10 @@ const FloorPlanTab = ({
   const [displayMode, setDisplayMode] = useState<"code" | "name" | "price">(
     "price",
   );
-  const [displayOpen, setDisplayOpen] = useState(false);
+  // Vua bam cong tac Ma / Gia: hien ten che do ~1,5 giay (dien thoai khong co ro chuot)
+  const [displayFlash, setDisplayFlash] = useState<string | null>(null);
+  const displayFlashTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(displayFlashTimer.current), []);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   // `filters` dang ap len ban do; `draft` la cac o dang chinh trong bang -
   // chi ap khi bam "Ap dung bo loc"
@@ -396,7 +405,7 @@ const FloorPlanTab = ({
   const displayOptions = useMemo(
     () => [
       { value: "code" as const, label: "Mã" },
-      { value: "name" as const, label: "Không tên" },
+      { value: "name" as const, label: "Chấm" },
       { value: "price" as const, label: "Giá" },
     ],
     [],
@@ -428,6 +437,18 @@ const FloorPlanTab = ({
       ),
     };
   }, [planMap.markers]);
+
+  // So tang cu the tu dai tang (VD "4-19,21-35" -> 4..19, 21..35)
+  const floorNumbers = useMemo(() => {
+    const result: number[] = [];
+    (floorLabel ?? "").split(",").forEach((part) => {
+      const [from, to] = part.split("-").map((value) => parseInt(value, 10));
+      if (Number.isNaN(from)) return;
+      const end = Number.isNaN(to) ? from : to;
+      for (let floor = from; floor <= end && result.length < 200; floor += 1) result.push(floor);
+    });
+    return result;
+  }, [floorLabel]);
 
   // Moc cuoi duong ray: lam tron len tu gia / dien tich lon nhat dang co
   const sliderLimits = useMemo(() => {
@@ -527,6 +548,7 @@ const FloorPlanTab = ({
         // fitBounds co the thu anh mat bang nho hon khung toi ~16% chieu dai
         // (con lai la hai dai xam hai ben). Zoom le cho anh vua khit khung.
         zoomSnap: 0,
+        attributionControl: false,
         maxBoundsViscosity: 0.9,
         // Bam dup pin da co viec rieng (bang truc can) - khong de ban do zoom
         doubleClickZoom: !hasMarkerDoubleClick,
@@ -551,8 +573,14 @@ const FloorPlanTab = ({
       mapRef.current = map;
       setIsMapReady(true);
 
-      const observer = new ResizeObserver(() => {
+      // Chi canh lai khung khi kich thuoc doi that su (xoay may, vao / ra toan
+      // man hinh) - lech vai px khi cuon tren dien thoai thi giu nguyen goc nhin
+      let lastSize = { w: containerRef.current.clientWidth, h: containerRef.current.clientHeight };
+      const observer = new ResizeObserver(([entry]) => {
+        const { width, height } = entry.contentRect;
         map?.invalidateSize({ animate: false });
+        if (Math.abs(width - lastSize.w) < 2 && Math.abs(height - lastSize.h) < 80) return;
+        lastSize = { w: width, h: height };
         fillFrame();
       });
       observer.observe(containerRef.current);
@@ -680,15 +708,6 @@ const FloorPlanTab = ({
       document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, []);
 
-  // Safari tren iPhone khong cho <div> vao toan man hinh - an nut di thay vi de
-  // no bam khong len gi. Phai do o effect vi server khong co `document`.
-  useEffect(() => {
-    setCanFullscreen(
-      document.fullscreenEnabled &&
-        typeof wrapperRef.current?.requestFullscreen === "function",
-    );
-  }, []);
-
   const toggleFund = (fund: UnitFundType) =>
     setFunds((current) =>
       current.includes(fund)
@@ -702,10 +721,48 @@ const FloorPlanTab = ({
    * `catch` la co mot TypeError chua bat van ra console.
    */
   const toggleFullscreen = () => {
-    if (document.fullscreenElement)
+    const resize = () => window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
+    if (isPseudoFs) {
+      setIsPseudoFs(false);
+      setIsFullscreen(false);
+      setAreControlsHidden(false);
+      setIsQuickFilterOpen(false);
+      resize();
+      return;
+    }
+    if (document.fullscreenElement) {
       void document.exitFullscreen().catch(() => {});
-    else void wrapperRef.current?.requestFullscreen().catch(() => {});
+      return;
+    }
+    const element = wrapperRef.current;
+    if (document.fullscreenEnabled && typeof element?.requestFullscreen === "function") {
+      void element.requestFullscreen().catch(() => {});
+      return;
+    }
+    setIsPseudoFs(true);
+    setIsFullscreen(true);
+    resize();
   };
+
+  // Toan man hinh gia: khoa cuon trang, Esc de thoat
+  useEffect(() => {
+    if (!isPseudoFs) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setIsPseudoFs(false);
+      setIsFullscreen(false);
+      setAreControlsHidden(false);
+      setIsQuickFilterOpen(false);
+      window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previous;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isPseudoFs]);
 
   const activeFilterCount =
     Object.values(filters).filter(Boolean).length +
@@ -756,7 +813,7 @@ const FloorPlanTab = ({
       title="Bộ lọc"
       // May tinh: o icon vuong nhu cu. iPad / dien thoai: nut co chu "Lọc" de
       // de nhan ra trong hang nut phan khu
-      className={`relative flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3.5 text-theme-sm font-semibold shadow-sm transition lg:w-10 lg:px-0 ${
+      className={`relative flex h-8 shrink-0 items-center justify-center gap-1 rounded-lg border px-2.5 text-theme-xs font-semibold shadow-sm transition sm:h-9 sm:gap-1.5 sm:px-3.5 sm:text-theme-sm lg:w-9 lg:px-0 ${
         isFilterOpen || activeFilterCount > 0
           ? "border-transparent bg-gradient-to-r from-brand-600 to-sky-500 text-white lg:border-brand-400 lg:bg-none lg:bg-brand-50 lg:text-brand-600"
           : "border-brand-200 bg-white text-brand-700 hover:border-brand-400 lg:border-gray-300 lg:text-gray-700 lg:hover:text-brand-600"
@@ -907,11 +964,11 @@ const FloorPlanTab = ({
 
       <div
         ref={wrapperRef}
-        className="plan-map-shell relative isolate overflow-hidden rounded-lg border border-gray-200 bg-gray-100 shadow-card"
+        className={`plan-map-shell relative isolate overflow-hidden rounded-lg border border-gray-200 bg-gray-100 shadow-card ${isPseudoFs ? "is-pseudo-fs" : ""}`}
       >
         <div
           ref={containerRef}
-          className="plan-map-canvas min-h-[24rem] w-full max-sm:max-h-[calc(100dvh-12rem)] sm:h-[calc(100dvh-9rem)] sm:min-h-[32rem]"
+          className="plan-map-canvas min-h-[20rem] w-full max-sm:h-[calc(100svh-8.75rem-var(--project-tabnav-h,57px))] sm:h-[min(calc(100svh-9rem),85vw)] sm:min-h-[32rem]"
           // Dien thoai khong dat chieu cao: aspect-ratio lay theo anh. Tu sm da co
           // chieu cao co dinh nen ti le nay bi bo qua.
           style={{ aspectRatio: `${planMap.width} / ${planMap.height}` }}
@@ -931,7 +988,7 @@ const FloorPlanTab = ({
         {/* Dieu khien tu ve de bam dung thiet ke; Leaflet control mac dinh da tat */}
         <div className="absolute left-3 top-3 z-900 flex flex-col items-start gap-2">
           <div
-            className={`${areControlsHidden ? "!hidden" : ""} group/display relative mt-2 inline-flex h-8 w-20 items-center rounded-full border border-gray-300 bg-white shadow-card mb-2`}
+            className={`${areControlsHidden ? "!hidden" : ""} group/display relative mt-2 inline-flex h-8 w-16 items-center sm:w-20 rounded-full border border-gray-300 bg-white shadow-card mb-2`}
             title={
               displayOptions.find((option) => option.value === displayMode)
                 ?.label
@@ -962,16 +1019,25 @@ const FloorPlanTab = ({
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => setDisplayMode(option.value)}
+                  onClick={() => {
+                    setDisplayMode(option.value);
+                    setDisplayFlash(option.value);
+                    window.clearTimeout(displayFlashTimer.current);
+                    displayFlashTimer.current = window.setTimeout(() => setDisplayFlash(null), 1500);
+                  }}
                   aria-label={isNameMode ? undefined : option.label}
                   title={isNameMode ? undefined : option.label}
                   aria-pressed={isActive}
                   className="relative z-10 inline-flex h-full w-1/3 items-center justify-center transition"
                 >
-                  {!isNameMode && (
+                  {(!isNameMode || displayFlash === option.value) && (
                     <span
-                      className={`pointer-events-none absolute top-full left-1/2 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium text-white opacity-0 shadow-card transition-opacity duration-150 group-hover/display:opacity-100 ${
-                        isActive ? "" : "delay-150"
+                      className={`pointer-events-none absolute top-full left-1/2 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-card transition-opacity duration-150 ${
+                        displayFlash === option.value
+                          ? "opacity-100"
+                          : displayFlash
+                            ? "opacity-0"
+                            : `opacity-0 group-hover/display:opacity-100 ${isActive ? "" : "delay-150"}`
                       }`}
                     >
                       {option.label}
@@ -1000,38 +1066,6 @@ const FloorPlanTab = ({
 
         <div className="absolute right-3 top-3 z-900 flex flex-col items-end gap-2">
           {!areControlsHidden && controlsSlot}
-          {/* Toan man hinh: nut con mat an / hien moi nut (ke ca dai phan khu),
-              chi chua nut thoat toan man hinh */}
-          {isFullscreen && (
-            <MapButton
-              label={areControlsHidden ? "Hiện các nút" : "Ẩn các nút"}
-              onClick={() => setAreControlsHidden((hidden) => !hidden)}
-            >
-              {areControlsHidden ? <FiEye aria-hidden /> : <FiEyeOff aria-hidden />}
-            </MapButton>
-          )}
-          {/* Toan man hinh: nut bo loc */}
-          {isFullscreen && !areControlsHidden && (
-            <button
-              type="button"
-              onClick={() => setIsQuickFilterOpen((open) => !open)}
-              aria-expanded={isQuickFilterOpen}
-              aria-label={activeFilterCount > 0 ? `Bộ lọc (${activeFilterCount} đang lọc)` : "Bộ lọc"}
-              title="Bộ lọc"
-              className={`relative flex h-8 w-8 items-center justify-center rounded-md border shadow-card transition sm:h-9 sm:w-9 ${
-                isQuickFilterOpen || activeFilterCount > 0
-                  ? "border-transparent bg-gradient-to-br from-sky-500 to-brand-600 text-white"
-                  : "border-gray-300 bg-white text-gray-700 hover:border-brand-400 hover:text-brand-600"
-              }`}
-            >
-              <FiFilter aria-hidden />
-              {activeFilterCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-brand-600 shadow ring-1 ring-brand-200">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
-          )}
           {!areControlsHidden && (
           <MapButton
             label={
@@ -1077,11 +1111,43 @@ const FloorPlanTab = ({
           )}
           </>
           )}
+          {/* Toan man hinh: nut bo loc */}
+          {isFullscreen && !areControlsHidden && (
+            <button
+              type="button"
+              onClick={() => setIsQuickFilterOpen((open) => !open)}
+              aria-expanded={isQuickFilterOpen}
+              aria-label={activeFilterCount > 0 ? `Bộ lọc (${activeFilterCount} đang lọc)` : "Bộ lọc"}
+              title="Bộ lọc"
+              className={`relative flex h-8 w-8 items-center justify-center rounded-md border shadow-card transition sm:h-9 sm:w-9 ${
+                isQuickFilterOpen || activeFilterCount > 0
+                  ? "border-transparent bg-gradient-to-br from-sky-500 to-brand-600 text-white"
+                  : "border-gray-300 bg-white text-gray-700 hover:border-brand-400 hover:text-brand-600"
+              }`}
+            >
+              <FiFilter aria-hidden />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-brand-600 shadow ring-1 ring-brand-200">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          )}
+          {/* Toan man hinh: nut con mat an / hien moi nut (ke ca dai phan khu),
+              chi chua nut thoat toan man hinh */}
+          {isFullscreen && (
+            <MapButton
+              label={areControlsHidden ? "Hiện các nút" : "Ẩn các nút"}
+              onClick={() => setAreControlsHidden((hidden) => !hidden)}
+            >
+              {areControlsHidden ? <FiEye aria-hidden /> : <FiEyeOff aria-hidden />}
+            </MapButton>
+          )}
         </div>
 
         {/* ── Giua tren (chi khi toan man hinh): thanh tim ma can ── */}
         {isFullscreen && (
-        <div className="pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[6.25rem] max-sm:w-auto max-sm:translate-x-0">
+        <div className="pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[5.25rem] max-sm:w-auto max-sm:translate-x-0">
           {!areControlsHidden && (
             <div className="pointer-events-auto flex h-10 w-full items-center gap-1.5 rounded-full bg-white/95 pr-3.5 pl-3.5 max-sm:h-8 max-sm:gap-1 max-sm:pr-2.5 max-sm:pl-3 shadow-card ring-1 ring-gray-200 backdrop-blur focus-within:ring-brand-300">
               <input
@@ -1114,6 +1180,47 @@ const FloorPlanTab = ({
               <FiChevronDown aria-hidden className={`h-4 w-4 transition-transform ${isPhaseStripOpen ? "" : "rotate-180"}`} />
               Phân khu
             </button>
+            {/* Hang so tang (cao tang): vuot ngang, bam de loc dung tang do */}
+            {isPhaseStripOpen && floorNumbers.length > 0 && (
+              <div className="pointer-events-auto w-full bg-navy-900/80 px-3 pt-2 pb-1 backdrop-blur-[2px]">
+                <div className="mx-auto flex max-w-full items-center gap-2 sm:w-fit">
+                  <span className="flex shrink-0 flex-col leading-tight text-white">
+                    <span className="text-[10px] font-semibold tracking-wide text-sky-200 uppercase">Tầng</span>
+                    <span className="text-theme-xs font-bold whitespace-nowrap">{floorLabel}</span>
+                  </span>
+                  <span aria-hidden className="h-7 w-px shrink-0 bg-white/20" />
+                  <div
+                    role="group"
+                    aria-label="Chọn tầng"
+                    className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-0.5 [mask-image:linear-gradient(to_right,black_90%,transparent)] pr-4 sm:max-w-[42rem]"
+                  >
+                    {[{ value: "", label: "Tất cả" }, ...floorNumbers.map((floor) => ({ value: String(floor), label: String(floor) }))].map(
+                      (chip) => {
+                        const isActive = filters.floor === chip.value;
+                        return (
+                          <button
+                            key={chip.value || "all"}
+                            type="button"
+                            aria-pressed={isActive}
+                            onClick={() => {
+                              setFilterField("floorRange")("");
+                              setFilterField("floor")(isActive ? "" : chip.value);
+                            }}
+                            className={`flex h-7 min-w-8 shrink-0 items-center justify-center rounded-full px-2.5 text-theme-xs font-bold tabular-nums transition ${
+                              isActive
+                                ? "bg-gradient-to-r from-sky-400 to-brand-600 text-white shadow-[0_6px_14px_-6px_rgba(56,189,248,0.9)] ring-1 ring-sky-300"
+                                : "bg-white/12 text-white/90 ring-1 ring-white/20 hover:bg-white/25"
+                            }`}
+                          >
+                            {chip.label}
+                          </button>
+                        );
+                      },
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             {isPhaseStripOpen && (
               <div className="pointer-events-auto w-full bg-gradient-to-t from-navy-900/80 via-navy-900/55 to-navy-900/20 px-3 pt-2.5 pb-3 backdrop-blur-[2px]">
                 <div className="no-scrollbar mx-auto flex w-fit max-w-full gap-2.5 overflow-x-auto">
@@ -1141,7 +1248,7 @@ const FloorPlanTab = ({
                           <span aria-hidden className="absolute inset-0 bg-gradient-to-br from-sky-400 to-brand-700" />
                         )}
                         <span aria-hidden className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/75 to-transparent" />
-                        <span className="absolute inset-x-0 bottom-0 truncate px-2 pb-1.5 text-center text-theme-xs font-bold text-white sm:text-theme-sm">
+                        <span className="absolute inset-x-0 bottom-0 line-clamp-2 px-1.5 pb-1.5 text-center text-theme-xs leading-tight font-bold text-white sm:text-theme-sm sm:leading-tight">
                           {card.label}
                         </span>
                         {isActive && (

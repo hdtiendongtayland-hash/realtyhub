@@ -8,7 +8,6 @@ import { hasLocale } from 'next-intl';
 import './globals.css';
 import SiteHeader from '@/common/layout/SiteHeader';
 import SiteFooter from '@/common/layout/SiteFooter';
-import MobileBottomTabs from '@/common/layout/MobileBottomTabs';
 import ViewportHeightSync from '@/common/layout/ViewportHeightSync';
 import BackToTop from '@/common/components/BackToTop';
 import ChatWidget from '@/modules/chat/components/ChatWidget';
@@ -164,7 +163,6 @@ export default async function LocaleLayout({
               <HideOnPaths paths={FULLSCREEN_PATHS}>
                 <SiteFooter />
               </HideOnPaths>
-              <MobileBottomTabs />
               <StickyContact />
               <HideOnPaths paths={FULLSCREEN_PATHS}>
                 <ChatWidget />

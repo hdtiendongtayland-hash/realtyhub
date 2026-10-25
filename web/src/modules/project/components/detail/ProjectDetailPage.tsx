@@ -164,7 +164,7 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
           giu cot do.
 
           scroll-mt tru cho ca SiteHeader (64px) lan thanh tab dinh (~60px). */}
-      <div ref={contentRef} className="site-container scroll-mt-32 pt-4 sm:pt-10">
+      <div ref={contentRef} className="site-container scroll-mt-32 pt-2 sm:pt-5">
         {tabContent}
       </div>
     </div>

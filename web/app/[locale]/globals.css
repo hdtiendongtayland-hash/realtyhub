@@ -954,6 +954,29 @@
   border-width: 0;
 }
 
+/* Toan man hinh gia (Safari iPhone / iPad khong ho tro Fullscreen API) */
+.plan-map-shell.is-pseudo-fs {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 45 !important;
+  border-radius: 0 !important;
+  border-width: 0 !important;
+}
+
+.plan-map-shell.is-pseudo-fs .plan-map-canvas {
+  height: 100% !important;
+  max-height: none !important;
+  min-height: 0 !important;
+}
+
+.photo360-shell.is-pseudo-fs {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 45 !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+}
+
 .plan-map-shell:fullscreen .plan-map-canvas {
   height: 100%;
   /* Dien thoai: khung thuong bi gioi han chieu cao - toan man hinh thi bo */

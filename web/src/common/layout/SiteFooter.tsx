@@ -335,7 +335,7 @@ const SiteFooter = () => (
         tin bat buoc theo luat, doc lien mach de hon la nhoi vao o. */}
     {/* `MobileBottomTabs` phu len day trang cho toi breakpoint lg - chua cho
         no bang margin, neu khong dong lien he cuoi cung bi thanh tab cat mat. */}
-    <div className="mb-16 border-t border-gray-200 bg-gray-25 lg:mb-0">
+    <div className="border-t border-gray-200 bg-gray-25">
       <div className="site-container space-y-1.5 py-6 text-theme-xs leading-relaxed text-gray-500">
         <p>
           © 2026.{' '}

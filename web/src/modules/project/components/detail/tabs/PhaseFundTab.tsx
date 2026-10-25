@@ -35,6 +35,7 @@ import UnitModal from "../../UnitModal";
 import UnitAxisModal from "../../modal/UnitAxisModal";
 import { MediaFrame, TabEmptyState } from "../shared";
 import FloorPlanTab from "./FloorPlanTab";
+import { TOUR_360_URLS } from "./tour360";
 import SalesPolicyTab from "./SalesPolicyTab";
 
 /**
@@ -331,6 +332,7 @@ const PhaseFloorPlan = ({
   filterSlot,
   phaseSwitch,
   overlayUrl,
+  floorLabel,
 }: {
   project: ProjectDetail;
   /** Bo trong = tong the du an (moi phan khu) */
@@ -344,6 +346,7 @@ const PhaseFloorPlan = ({
   /** Doi phan khu ngay trong bang loc (value "" = tong the du an) */
   phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void; cards?: { value: string; label: string; image?: string }[]; onCardPick?: (value: string) => void };
   overlayUrl?: string;
+  floorLabel?: string;
 }) => {
   const query = useMemo(
     () => ({
@@ -491,6 +494,7 @@ const PhaseFloorPlan = ({
         filterSlot={filterSlot}
         phaseSwitch={phaseSwitch}
         overlayUrl={overlayUrl}
+        floorLabel={floorLabel}
         favoritesKey={phaseName || project.slug}
         onMarkerClick={handleMarkerClick}
         onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
@@ -506,18 +510,6 @@ const PhaseFloorPlan = ({
 
 type MapMode = "3d" | "2d";
 
-/**
- * Trang tham quan 360 cho che do 3D, theo thu tu the o day ban do: the 1 = tong
- * the, the 2.. = tung phan khu (het danh sach thi quay vong). Du lieu mau.
- */
-const TOUR_360_URLS = [
-  "https://360.vinhome.com.vn/can-gio-360/",
-  "https://dongtayland.vn/360/haus-coastal-quang-ngai/",
-  "https://vinhomegreencity.com.vn/360/",
-  "https://dongtayland.vn/360/coral-hawaii-phu-quoc/",
-  "https://dongtayland.vn/360/haus-coastal-quang-ngai/",
-  "https://dongtayland.vn/360/vinhomes-pearl-bay/",
-];
 
 /** Gia tri "chon tong the du an" trong thanh chon ban do */
 const WHOLE_PROJECT = "tong-the";
@@ -643,7 +635,7 @@ export const PhaseMapViews = ({
 
   const targets = useMemo(
     () => [
-      { id: WHOLE_PROJECT, label: project.name },
+      { id: WHOLE_PROJECT, label: "Tổng thể" },
       ...project.phases.map((item) => ({
         id: item.publicId,
         label: `${project.name} - ${item.name}`,
@@ -701,7 +693,7 @@ export const PhaseMapViews = ({
           thang mep ban do ben duoi, khe giua cac nut deu 8px. Hep hon thi
           giu kich thuoc nut va vuot ngang. */}
       {!hideTargets && (
-        <div className="mb-3 flex items-center gap-2">
+        <div className="mb-1.5 flex items-center gap-1.5 sm:mb-2 sm:gap-2">
           <div
             role="group"
             aria-label="Chọn khu vực bản đồ"
@@ -715,7 +707,7 @@ export const PhaseMapViews = ({
                   type="button"
                   aria-pressed={isActive}
                   onClick={() => setTargetId(item.id)}
-                  className={`flex h-9 shrink-0 items-center justify-center rounded-full px-3.5 text-[11px] font-semibold whitespace-nowrap uppercase transition sm:text-xs lg:h-10 lg:flex-auto lg:rounded-lg lg:px-4 ${
+                  className={`flex h-8 shrink-0 items-center justify-center rounded-full px-3 text-[10px] font-semibold whitespace-nowrap uppercase transition sm:h-9 sm:px-3.5 sm:text-xs lg:flex-auto lg:rounded-lg lg:px-4 ${
                     isActive
                       ? "bg-gradient-to-r from-brand-700 to-brand-500 text-white shadow-sm"
                       : "bg-white text-gray-600 ring-1 ring-gray-200 ring-inset hover:bg-gray-50 hover:text-gray-800 lg:bg-gray-100"
@@ -735,10 +727,10 @@ export const PhaseMapViews = ({
       {/* Nut tang nam DUOI hang nut phan khu, ngay tren ban do */}
       {floorRanges && (
         <div
-          className="mb-3 flex flex-wrap gap-2"
+          className="mb-2 flex flex-wrap gap-2"
           aria-label="Mặt bằng theo tầng"
         >
-          <span className="inline-flex h-10 items-center rounded-full bg-brand-600 px-5 text-theme-sm font-bold text-white uppercase shadow-sm">
+          <span className="inline-flex h-6 items-center rounded-full bg-brand-600 px-2.5 text-[11px] font-bold text-white uppercase shadow-sm sm:h-8 sm:px-3.5 sm:text-theme-xs">
             Tầng {floorRanges}
           </span>
         </div>
@@ -754,6 +746,7 @@ export const PhaseMapViews = ({
         highRise={target ? highRise : project.segment === "cao-tang"}
         controlsSlot={<MapModeSwitch mode={mode} onChange={setMode} />}
         filterSlot={filterSlot}
+        floorLabel={floorRanges || undefined}
         phaseSwitch={{
           options: project.phases.map((item) => ({ value: item.publicId, label: item.name })),
           value: target?.publicId ?? "",
