@@ -93,6 +93,8 @@ type MapFilterPanelProps = {
    * dung cho nut loc ben ngoai tren iPad / dien thoai.
    */
   variant?: "map" | "sheet";
+  /** Dien thoai, ban do chua toan man hinh: thu nho toan bo noi dung bang loc */
+  compact?: boolean;
 };
 
 type Row = { key: FilterKey; label: string; icon: IconType; options: Option[] };
@@ -337,6 +339,7 @@ const MapFilterPanel = ({
   onClear,
   onClose,
   variant = "map",
+  compact = false,
 }: MapFilterPanelProps) => {
   const isSheet = variant === "sheet";
   const isHigh = mode !== "thap-tang";
@@ -629,7 +632,7 @@ const MapFilterPanel = ({
         isSheet
           ? // Ngan keo cap trang: dien thoai rong het, iPad can giua rong toi da 560px
             "animate-sheet-up fixed inset-x-6 top-[max(4.5rem,env(safe-area-inset-top))] bottom-[max(4.5rem,env(safe-area-inset-bottom))] z-[1001] mx-auto flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-0 sm:top-auto sm:bottom-0 sm:max-h-[82dvh] sm:w-full sm:max-w-[560px] sm:rounded-b-none sm:bg-[#eef5ff] sm:ring-white/60"
-          : `${isCollapsed ? "max-sm:hidden" : ""} absolute inset-x-6 inset-y-16 z-[1000] flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-auto sm:bg-[#eef5ff] sm:ring-white/60 sm:top-3 sm:right-15 sm:bottom-auto sm:max-h-[min(calc(100%-1.5rem),820px)] sm:w-[min(380px,calc(100%-5.5rem))] sm:rounded-2xl sm:shadow-[0_28px_60px_-22px_rgba(8,24,50,0.6)]`
+          : `${isCollapsed ? "max-sm:hidden" : ""} ${compact ? "max-sm:[zoom:0.86]" : ""} absolute inset-x-6 inset-y-16 z-[1000] flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_24px_60px_-18px_rgba(8,24,50,0.6)] ring-1 ring-sky-100 sm:inset-x-auto sm:bg-[#eef5ff] sm:ring-white/60 sm:top-3 sm:right-15 sm:bottom-auto sm:max-h-[min(calc(100%-1.5rem),820px)] sm:w-[min(380px,calc(100%-5.5rem))] sm:rounded-2xl sm:shadow-[0_28px_60px_-22px_rgba(8,24,50,0.6)]`
       }
     >
       {/* Tieu de (tay cam keo): nen chuyen navy -> xanh */}
@@ -645,7 +648,10 @@ const MapFilterPanel = ({
         <span className="flex shrink-0 items-center justify-center max-sm:h-8 max-sm:w-8 max-sm:rounded-lg max-sm:bg-gradient-to-br max-sm:from-sky-400 max-sm:to-brand-600 max-sm:text-white">
           <FiSliders aria-hidden className="h-4.5 w-4.5 max-sm:h-4 max-sm:w-4" />
         </span>
-        <p className="min-w-0 flex-1 truncate text-base font-bold whitespace-nowrap max-sm:text-theme-sm">Lọc quỹ căn</p>
+        <p className="min-w-0 flex-1 truncate text-base font-bold whitespace-nowrap max-sm:text-theme-sm">
+          <span className="sm:hidden">Lọc</span>
+          <span className="max-sm:hidden">Lọc quỹ căn</span>
+        </p>
         <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-theme-xs font-semibold tabular-nums ring-1 ring-white/25 max-sm:bg-brand-50 max-sm:text-brand-700 max-sm:ring-brand-100">
           {visibleCount}/{totalCount}
         </span>

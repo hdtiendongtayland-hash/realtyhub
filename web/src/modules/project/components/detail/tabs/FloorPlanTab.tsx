@@ -1279,6 +1279,7 @@ const FloorPlanTab = ({
             keo tieu de de di chuyen */}
         {isQuickFilterOpen && (
           <MapFilterPanel
+            compact={!isFullscreen}
             filters={filters}
             onField={setFilterField}
             mode={options.mode}
