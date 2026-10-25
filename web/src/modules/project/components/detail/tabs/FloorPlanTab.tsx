@@ -1202,7 +1202,7 @@ const FloorPlanTab = ({
                   <div
                     role="group"
                     aria-label="Chọn tầng"
-                    className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-0.5 [mask-image:linear-gradient(to_right,black_90%,transparent)] pr-4 sm:max-w-[42rem]"
+                    className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-1 pl-1 [mask-image:linear-gradient(to_right,black_90%,transparent)] pr-4 sm:max-w-[42rem]"
                   >
                     {[{ value: "", label: "Tất cả" }, ...floorNumbers.map((floor) => ({ value: String(floor), label: String(floor) }))].map(
                       (chip) => {

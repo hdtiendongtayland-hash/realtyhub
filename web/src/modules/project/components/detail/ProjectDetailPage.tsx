@@ -145,7 +145,7 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
   );
 
   return (
-    <div className="pb-16">
+    <div className="pb-6 sm:pb-8">
       <ProjectHero project={project} />
 
       <ProjectTabNav
