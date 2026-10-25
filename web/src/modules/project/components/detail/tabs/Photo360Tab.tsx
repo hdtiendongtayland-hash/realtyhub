@@ -215,7 +215,7 @@ const Photo360Tab = ({ project }: { project: ProjectDetail }) => {
       <div
         ref={shellRef}
         className={`photo360-shell relative isolate w-full overflow-hidden rounded-xl bg-navy-900 shadow-card ${
-          isPseudoFs ? 'is-pseudo-fs' : 'h-[calc(100lvh-8.5rem)] min-h-[22rem] sm:h-170'
+          isPseudoFs ? 'is-pseudo-fs' : 'h-[calc(100svh-10rem)] min-h-[22rem] sm:h-170'
         } ${isFullscreen ? 'rounded-none' : ''}`}
       >
         {slide.kind === 'tour' ? (

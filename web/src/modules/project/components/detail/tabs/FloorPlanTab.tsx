@@ -939,7 +939,7 @@ const FloorPlanTab = ({
       >
         <div
           ref={containerRef}
-          className="plan-map-canvas min-h-[20rem] w-full max-sm:h-[calc(100lvh-8.5rem)] sm:h-[min(calc(100svh-9.25rem),105vw)] sm:min-h-[32rem] lg:h-[min(calc(100svh-10rem),56vw)] lg:portrait:h-[min(calc(100svh-9.25rem),90vw)] lg:min-h-[26rem]"
+          className="plan-map-canvas min-h-[20rem] w-full max-sm:h-[calc(100svh-10rem)] sm:h-[min(calc(100svh-9.25rem),105vw)] sm:min-h-[32rem] lg:h-[min(calc(100svh-10rem),56vw)] lg:portrait:h-[min(calc(100svh-9.25rem),90vw)] lg:min-h-[26rem]"
           // Dien thoai khong dat chieu cao: aspect-ratio lay theo anh. Tu sm da co
           // chieu cao co dinh nen ti le nay bi bo qua.
           style={{ aspectRatio: `${planMap.width} / ${planMap.height}` }}
