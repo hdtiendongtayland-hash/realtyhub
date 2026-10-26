@@ -31,6 +31,7 @@ import {
   type PlanMarker,
   type UnitFundType,
 } from "../../../models/project-detail.model";
+import { useDragToggle } from "./useDragToggle";
 
 const FUND_TYPES = Object.keys(UNIT_FUND_LABELS) as UnitFundType[];
 
@@ -41,6 +42,10 @@ const FUND_BG_TONES: Record<UnitFundType, string> = {
   "an-cheo": "bg-amber-600",
   thuong: "bg-success-500",
 };
+
+/** Bo dau tieng Viet + chu thuong de tim kiem ("ha" khop "HÂ", "dong" khop "ĐÔNG") */
+const foldText = (value: string) =>
+  value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\u0110\u0111]/g, "d").toLowerCase();
 
 /** Chuoi tu mock la an toan, nhung popup ghep bang HTML tho nen van phai thoat */
 const escapeHtml = (value: string) =>
@@ -119,6 +124,8 @@ type FloorPlanTabProps = {
   overlayUrl?: string;
   /** Dai tang (VD "5-27") - hien o day ban do khi toan man hinh */
   floorLabel?: string;
+  /** Mat bang tang theo ban ve (VD ["3", "4-19"]) - co thi chi hien cac nut nay */
+  floorLevels?: string[];
 };
 
 /** Mot khoang lua chon cho bo loc: [min, max) */
@@ -329,6 +336,7 @@ const FloorPlanTab = ({
   phaseSwitch,
   overlayUrl,
   floorLabel,
+  floorLevels,
 }: FloorPlanTabProps) => {
   // Ham cua cha doi moi lan render: giu qua ref de khoi ve lai toan bo pin
   const markerClickRef = useRef(onMarkerClick);
@@ -356,6 +364,8 @@ const FloorPlanTab = ({
   // luc do nut "Bo loc" ben ngoai bi che; binh thuong da co nut ben ngoai
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isQuickFilterOpen, setIsQuickFilterOpen] = useState(false);
+  // O tim kiem dang duoc chon -> hien bang goi y ben duoi
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   // Nut "^" giua tren: an moi nut dieu khien, chi chua nut toan man hinh
   const [areControlsHidden, setAreControlsHidden] = useState(false);
   // Che do 3D (trang 360 nhung tu ngoai): +/- phong to khung bang CSS vi
@@ -419,6 +429,15 @@ const FloorPlanTab = ({
     [],
   );
 
+  const pickDisplay = (value: "code" | "name" | "price") => {
+    setDisplayMode(value);
+    setDisplayFlash(value);
+    window.clearTimeout(displayFlashTimer.current);
+    displayFlashTimer.current = window.setTimeout(() => setDisplayFlash(null), 1500);
+  };
+  // An giu nut tron roi keo qua lai cung doi duoc che do
+  const { trackRef: displayTrackRef, dragPos: displayDragPos, handlers: displayDragHandlers } = useDragToggle(displayOptions.length, (index) => pickDisplay(displayOptions[index].value));
+
   // Lua chon cua tung o lay tu chinh cac pin dang co - khong co gia tri nao
   // (VD du lieu chua co huong) thi o do tu an
   const options = useMemo(() => {
@@ -458,6 +477,69 @@ const FloorPlanTab = ({
     return result;
   }, [floorLabel]);
 
+  // Nut tang o day ban do: theo ban ve mat bang (dai tang loc bang floorRange)
+  // hoac tung tang mot
+  const [activeFloorChip, setActiveFloorChip] = useState<string | null>(null);
+  const floorChips = useMemo(
+    () =>
+      floorLevels?.length
+        ? floorLevels.map((level) => {
+            // "B2|6-14" -> nut "B2 · 6-14", loc tang 6-14
+            const [tower, range] = level.includes("|") ? level.split("|") : ["", level];
+            return { value: range, label: tower ? `${tower} · ${range}` : range, isRange: range.includes("-") };
+          })
+        : floorNumbers.map((floor) => ({ value: String(floor), label: String(floor), isRange: false })),
+    [floorLevels, floorNumbers],
+  );
+
+  // Goi y tim kiem: can khop ma + cac nhom tim nhanh (loai hinh, toa, huong...)
+  const searchSuggestions = useMemo(() => {
+    const query = foldText(filters.code.trim());
+    const markers = planMap.markers;
+    const count = (pick: (marker: PlanMarker) => string | undefined) => {
+      const map = new Map<string, number>();
+      markers.forEach((marker) => {
+        const value = pick(marker);
+        if (value) map.set(value, (map.get(value) ?? 0) + 1);
+      });
+      return [...map.entries()];
+    };
+    const groups = [
+      { label: "Loại hình", items: count((marker) => marker.propertyTypeLabel) },
+      { label: "Tòa / Dãy", items: count((marker) => marker.block) },
+      { label: "Phân khu", items: count((marker) => marker.phaseName) },
+      { label: "Hướng", items: count((marker) => marker.direction) },
+    ]
+      .map((group) => ({
+        label: group.label,
+        items: group.items
+          .filter(([value]) => !query || foldText(value).includes(query))
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, query ? 6 : 5),
+      }))
+      .filter((group) => group.items.length > 1 || (query && group.items.length > 0));
+    const units = query
+      ? markers
+          .filter((marker) =>
+            [marker.code, marker.propertyTypeLabel, marker.block, marker.direction]
+              .filter(Boolean)
+              .some((text) => foldText(String(text)).includes(query)),
+          )
+          .slice(0, 6)
+      : [...markers]
+          .sort((a, b) => Number(b.fundType === "doc-quyen") - Number(a.fundType === "doc-quyen"))
+          .slice(0, 4);
+    return { groups, units, query };
+  }, [filters.code, planMap.markers]);
+
+  /** Chon mot can tu goi y: bay toi can do, mo chi tiet */
+  const pickSuggestedUnit = (marker: PlanMarker) => {
+    setFilterField("code")(marker.code);
+    setIsSearchFocused(false);
+    mapRef.current?.flyTo(toLatLng(marker), Math.max(mapRef.current.getZoom(), 0.5), { duration: 0.6 });
+    if (markerClickRef.current) window.setTimeout(() => markerClickRef.current?.(marker), 650);
+  };
+
   // Moc cuoi duong ray: lam tron len tu gia / dien tich lon nhat dang co
   const sliderLimits = useMemo(() => {
     const maxPrice = Math.max(0, ...planMap.markers.map((marker) => marker.price || 0));
@@ -477,15 +559,17 @@ const FloorPlanTab = ({
         const [areaMin, areaMax] = areaRange;
         if (areaMin !== null && marker.landArea < areaMin) return false;
         if (areaMax !== null && marker.landArea > areaMax) return false;
+        // Tat "An" = an toan bo quy can tren ban do (ke ca HOT)
+        if (!funds.includes("thuong")) return false;
         // Quy HOT luon hien (tat HOT chi doi mau); Chung / An tat thi an han
         if (marker.fundType !== "doc-quyen" && !funds.includes(marker.fundType)) return false;
-        const code = filters.code.trim().toLowerCase();
+        const code = foldText(filters.code.trim());
         // O tim: khop ma can, loai hinh, toa / day, phan khu hoac huong
         if (
           code &&
           ![marker.code, marker.propertyTypeLabel, marker.block, marker.phaseName, marker.direction]
             .filter(Boolean)
-            .some((text) => String(text).toLowerCase().includes(code))
+            .some((text) => foldText(String(text)).includes(code))
         )
           return false;
         if (filters.status && marker.status !== filters.status) return false;
@@ -719,6 +803,18 @@ const FloorPlanTab = ({
   useEffect(() => {
     const onFullscreenChange = () => {
       const isOn = document.fullscreenElement === wrapperRef.current;
+      // Dang go o tim kiem ma trinh duyet tu thoat toan man hinh (Safari iPad
+      // thoat khi hien ban phim) -> giu khung phu kin bang CSS
+      const isTyping =
+        !isOn &&
+        document.activeElement instanceof HTMLInputElement &&
+        wrapperRef.current?.contains(document.activeElement);
+      if (isTyping) {
+        setIsPseudoFs(true);
+        setIsFullscreen(true);
+        window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
+        return;
+      }
       setIsFullscreen(isOn);
       window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
     };
@@ -960,9 +1056,11 @@ const FloorPlanTab = ({
         )}
 
         {/* Dieu khien tu ve de bam dung thiet ke; Leaflet control mac dinh da tat */}
-        <div className="absolute left-3 top-3 z-900 flex flex-col items-start gap-2">
+        <div className={`absolute left-3 top-3 z-900 flex flex-col items-start gap-2 ${isFullscreen ? "sm:max-lg:top-14" : ""}`}>
           <div
-            className={`${areControlsHidden ? "!hidden" : ""} group/display relative mt-2 inline-flex h-8 w-16 items-center sm:w-20 rounded-full border border-gray-300 bg-white shadow-card mb-2`}
+            ref={displayTrackRef}
+            {...displayDragHandlers}
+            className={`${areControlsHidden ? "!hidden" : ""} group/display relative mt-2 inline-flex h-8 w-16 touch-none select-none items-center sm:w-20 rounded-full border border-gray-300 bg-white shadow-card mb-2`}
             title={
               displayOptions.find((option) => option.value === displayMode)
                 ?.label
@@ -970,21 +1068,27 @@ const FloorPlanTab = ({
           >
             <span
               aria-hidden
-              className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card transition-[left] duration-300 ease-out ${
+              className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card ${
+                displayDragPos !== null ? "scale-110" : "transition-[left,translate,scale] duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]"
+              } ${
                 displayMode === "code"
                   ? ""
                   : displayMode === "name"
                     ? "-translate-x-1/2"
                     : "-translate-x-full"
               }`}
-              style={{
-                left:
-                  displayMode === "code"
-                    ? "7%"
-                    : displayMode === "name"
-                      ? "50%"
-                      : "93%",
-              }}
+              style={
+                displayDragPos !== null
+                  ? { left: `${7 + displayDragPos * 86}%`, translate: `${-displayDragPos * 100}% -50%` }
+                  : {
+                      left:
+                        displayMode === "code"
+                          ? "7%"
+                          : displayMode === "name"
+                            ? "50%"
+                            : "93%",
+                    }
+              }
             />
             {displayOptions.map((option) => {
               const isActive = option.value === displayMode;
@@ -993,12 +1097,7 @@ const FloorPlanTab = ({
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => {
-                    setDisplayMode(option.value);
-                    setDisplayFlash(option.value);
-                    window.clearTimeout(displayFlashTimer.current);
-                    displayFlashTimer.current = window.setTimeout(() => setDisplayFlash(null), 1500);
-                  }}
+                  onClick={() => pickDisplay(option.value)}
                   aria-label={isNameMode ? undefined : option.label}
                   title={isNameMode ? undefined : option.label}
                   aria-pressed={isActive}
@@ -1052,7 +1151,7 @@ const FloorPlanTab = ({
           )}
         </div>
 
-        <div className="absolute right-3 top-3 z-900 flex flex-col items-end gap-2">
+        <div className={`absolute right-3 top-3 z-900 flex flex-col items-end gap-2 ${isFullscreen ? "sm:max-lg:top-14" : ""}`}>
           {!areControlsHidden && controlsSlot}
           {!areControlsHidden && (
           <div className="relative">
@@ -1157,13 +1256,20 @@ const FloorPlanTab = ({
 
         {/* ── Giua tren: thanh tim ma can (ca khi chua toan man hinh) ── */}
         {(
-        <div className="pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[5.25rem] max-sm:w-auto max-sm:translate-x-0">
+        <div className={`pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] ${isFullscreen ? "sm:max-lg:w-[calc(100%-1.5rem)]" : "sm:max-lg:right-[5rem] sm:max-lg:left-[6.5rem] sm:max-lg:w-auto sm:max-lg:translate-x-0"} -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[5.25rem] max-sm:w-auto max-sm:translate-x-0`}>
           {!areControlsHidden && (
             <div className="pointer-events-auto flex h-10 w-full items-center gap-1.5 rounded-full bg-white/95 pr-3.5 pl-3.5 max-sm:h-8 max-sm:gap-1 max-sm:pr-2.5 max-sm:pl-3 shadow-card ring-1 ring-gray-200 backdrop-blur focus-within:ring-brand-300">
               <input
                 type="search"
                 value={filters.code}
                 onChange={(event) => setFilterField("code")(event.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => window.setTimeout(() => setIsSearchFocused(false), 150)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") (event.target as HTMLInputElement).blur();
+                }}
+                enterKeyHint="search"
+                autoComplete="off"
                 placeholder="Tìm mã căn, loại hình, tòa, hướng..."
                 aria-label="Tìm mã căn trên bản đồ"
                 className="h-full min-w-0 flex-1 bg-transparent text-theme-sm text-gray-800 outline-none placeholder:text-gray-400 max-sm:text-theme-xs"
@@ -1171,11 +1277,72 @@ const FloorPlanTab = ({
               <AiSearchIcon className="h-4.5 w-4.5 shrink-0 text-brand-600 max-sm:h-4 max-sm:w-4" />
             </div>
           )}
+
+          {/* Bang goi y: hien khi bam vao o tim */}
+          {isSearchFocused && !areControlsHidden && (
+            <div
+              onMouseDown={(event) => event.preventDefault()}
+              className="thin-scroll pointer-events-auto mt-1 max-h-[min(22rem,60vh)] max-sm:max-h-[min(15rem,40svh)] max-sm:p-1.5 w-full overflow-y-auto rounded-2xl bg-white/97 p-2 text-left shadow-[0_18px_40px_-16px_rgba(8,24,50,0.55)] ring-1 ring-gray-200 backdrop-blur max-sm:w-[calc(100vw-2rem)]"
+            >
+              {searchSuggestions.units.length > 0 && (
+                <div className="mb-1.5">
+                  <p className="px-2 pt-1 pb-1.5 text-[10px] font-bold tracking-wide text-gray-500 uppercase">
+                    {searchSuggestions.query ? "Căn khớp" : "Căn nổi bật"}
+                  </p>
+                  {searchSuggestions.units.map((marker) => (
+                    <button
+                      key={marker.publicId}
+                      type="button"
+                      onClick={() => pickSuggestedUnit(marker)}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition hover:bg-brand-25"
+                    >
+                      <span
+                        aria-hidden
+                        className={`h-2 w-2 shrink-0 rounded-full ${FUND_BG_TONES[marker.fundType]}`}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-theme-sm font-semibold text-navy-800">{marker.code}</span>
+                        <span className="block truncate text-[11px] text-gray-500">
+                          {[marker.propertyTypeLabel, marker.phaseName, marker.direction].filter(Boolean).join(" · ")}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-theme-xs font-bold text-brand-700">{formatBillion(marker.price)}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {searchSuggestions.groups.map((group) => (
+                <div key={group.label} className="border-t border-gray-100 px-2 pt-2 pb-1.5">
+                  <p className="mb-1.5 text-[10px] font-bold tracking-wide text-gray-500 uppercase">{group.label}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {group.items.map(([value, total]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setFilterField("code")(value)}
+                        className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-theme-xs font-medium text-gray-700 transition hover:bg-brand-50 hover:text-brand-700"
+                      >
+                        {value}
+                        <span className="text-[10px] text-gray-400">{total}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {searchSuggestions.units.length === 0 && searchSuggestions.groups.length === 0 && (
+                <p className="px-2 py-3 text-center text-theme-xs text-gray-500">
+                  Không tìm thấy căn khớp “{filters.code}”
+                </p>
+              )}
+            </div>
+          )}
         </div>
         )}
 
         {/* ── Day ban do: dai the phan khu co anh + so tang, nut "v" an / hien ── */}
-        {!areControlsHidden && (((phaseSwitch?.cards?.length ?? 0) > 1) || floorNumbers.length > 0) && (
+        {!areControlsHidden && (((phaseSwitch?.cards?.length ?? 0) > 1) || floorChips.length > 0) && (
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[950] flex flex-col items-center">
             <button
               type="button"
@@ -1191,7 +1358,7 @@ const FloorPlanTab = ({
               {(phaseSwitch?.cards?.length ?? 0) > 1 ? "Phân khu" : "Tầng"}
             </button>
             {/* Hang so tang (cao tang): vuot ngang, bam de loc dung tang do */}
-            {isPhaseStripOpen && floorNumbers.length > 0 && (
+            {isPhaseStripOpen && floorChips.length > 0 && (
               <div className="pointer-events-auto w-full bg-navy-900/80 px-2 pt-1 pb-0.5 backdrop-blur-[2px] sm:px-3 sm:pt-1.5 sm:pb-1">
                 <div className="mx-auto flex max-w-full items-center gap-2 sm:w-fit">
                   <span className="flex shrink-0 flex-col leading-tight text-white">
@@ -1204,17 +1371,23 @@ const FloorPlanTab = ({
                     aria-label="Chọn tầng"
                     className="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto py-1 pl-1 [mask-image:linear-gradient(to_right,black_90%,transparent)] pr-4 sm:max-w-[42rem]"
                   >
-                    {[{ value: "", label: "Tất cả" }, ...floorNumbers.map((floor) => ({ value: String(floor), label: String(floor) }))].map(
+                    {[{ value: "", label: "Tất cả", isRange: false }, ...floorChips].map(
                       (chip) => {
-                        const isActive = filters.floor === chip.value;
+                        // Hai toa cung dai tang (B2, B3 deu 6-14): chi sang nut vua bam
+                        const isActive =
+                          (chip.isRange
+                            ? filters.floorRange === chip.value
+                            : filters.floor === chip.value && (chip.value !== "" || !filters.floorRange)) &&
+                          (!chip.value || !activeFloorChip || activeFloorChip === chip.label);
                         return (
                           <button
-                            key={chip.value || "all"}
+                            key={chip.label}
                             type="button"
                             aria-pressed={isActive}
                             onClick={() => {
-                              setFilterField("floorRange")("");
-                              setFilterField("floor")(isActive ? "" : chip.value);
+                              setActiveFloorChip(isActive ? null : chip.label);
+                              setFilterField("floorRange")(chip.isRange && !isActive ? chip.value : "");
+                              setFilterField("floor")(chip.isRange || isActive ? "" : chip.value);
                             }}
                             className={`flex h-5.5 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 text-[10px] ${isFullscreen ? "max-sm:h-6 max-sm:min-w-7 max-sm:px-1.5 max-sm:text-[11px]" : ""} sm:h-6 sm:min-w-7 sm:px-2 sm:text-[11px] font-bold tabular-nums transition ${
                               isActive

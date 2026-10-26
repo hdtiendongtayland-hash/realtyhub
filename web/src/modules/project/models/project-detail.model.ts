@@ -143,6 +143,12 @@ export type ProjectPhase = {
   specs: ProjectSpec[];
   /** Cac ban ve mat bang lon xep doc duoi phan mo ta */
   masterPlanImages: MediaSlide[];
+  /**
+   * Cac mat bang tang theo ban ve thuc te (VD ["3", "4-19", "20"]). Co thi
+   * day ban do chi hien dung cac nut tang nay thay vi tung tang mot. Phan khu
+   * nhieu toa ghi kem ten toa truoc dau "|" (VD "B2|6-14").
+   */
+  floorPlanLevels?: string[];
 };
 
 // ── Tab: Vi tri quy can (nhom phan khu) ────────────────────────────────────

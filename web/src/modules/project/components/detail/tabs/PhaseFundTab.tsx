@@ -35,6 +35,7 @@ import UnitModal from "../../UnitModal";
 import UnitAxisModal from "../../modal/UnitAxisModal";
 import { MediaFrame, TabEmptyState } from "../shared";
 import FloorPlanTab from "./FloorPlanTab";
+import { useDragToggle } from "./useDragToggle";
 import { TOUR_360_URLS } from "./tour360";
 import SalesPolicyTab from "./SalesPolicyTab";
 
@@ -237,6 +238,16 @@ const floorNumber = (unit: ProjectUnit) =>
 const isApartmentUnit = (unit: ProjectUnit) =>
   Boolean(unit.floor) && (unit.floors ?? 1) <= 1;
 
+/** Dai tang chung cua cac mat bang tang (VD ["B2|6-14", "B7|18-32"] -> "6-32") */
+const levelSpan = (levels: string[]) => {
+  const floors = levels.flatMap((level) =>
+    (level.split("|").pop() ?? "").split("-").map((value) => parseInt(value, 10)),
+  ).filter((floor) => !Number.isNaN(floor));
+  const from = Math.min(...floors);
+  const to = Math.max(...floors);
+  return from === to ? String(from) : `${from}-${to}`;
+};
+
 const formatFloorRanges = (units: ProjectUnit[]) => {
   if (units.length === 0 || !units.every(isApartmentUnit)) return "";
   const floors = [
@@ -333,6 +344,7 @@ const PhaseFloorPlan = ({
   phaseSwitch,
   overlayUrl,
   floorLabel,
+  floorLevels,
 }: {
   project: ProjectDetail;
   /** Bo trong = tong the du an (moi phan khu) */
@@ -347,6 +359,7 @@ const PhaseFloorPlan = ({
   phaseSwitch?: { options: { value: string; label: string }[]; value: string; onChange: (value: string) => void; cards?: { value: string; label: string; image?: string }[]; onCardPick?: (value: string) => void };
   overlayUrl?: string;
   floorLabel?: string;
+  floorLevels?: string[];
 }) => {
   const query = useMemo(
     () => ({
@@ -495,6 +508,7 @@ const PhaseFloorPlan = ({
         phaseSwitch={phaseSwitch}
         overlayUrl={overlayUrl}
         floorLabel={floorLabel}
+        floorLevels={floorLevels}
         favoritesKey={phaseName || project.slug}
         onMarkerClick={handleMarkerClick}
         onMarkerDoubleClick={highRise ? handleMarkerDoubleClick : undefined}
@@ -553,24 +567,34 @@ const MapModeSwitch = ({
   };
 
   // Goi y: nua dang ro chuot; khong ro chuot thi che do dang xem
+  // An giu nut tron roi keo qua lai cung doi duoc 3D / 2D
+  const { trackRef: dragTrackRef, dragPos, handlers: dragHandlers } = useDragToggle(2, (index) => select(index === 0 ? "3d" : "2d"));
+
   const hintMode = hovered ?? mode;
   const isHintVisible = hovered !== null || isFlashing;
 
   return (
     <div
+      ref={dragTrackRef}
+      {...dragHandlers}
       role="radiogroup"
       aria-label="Chế độ bản đồ"
       onMouseLeave={() => setHovered(null)}
       // Cung chieu cao / do cao voi cong tac "Gia" ben trai ban do (h-8, cach
       // mep tren them mt-2) nhung NGAN hon (w-14): chi co hai trang thai.
       // z-20: goi y ben duoi de len nut tim kiem ngay duoi, khong bi che.
-      className="relative z-20 mt-2 mb-2 inline-flex h-8 w-14 shrink-0 items-center rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
+      className="relative z-20 mt-2 mb-2 inline-flex h-8 w-14 shrink-0 touch-none select-none items-center rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
     >
       <span
         aria-hidden
-        className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card transition-[left] duration-300 ease-out ${
-          mode === "2d" ? "left-[calc(100%-1.5rem)]" : "left-1"
-        }`}
+        className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-brand-500 shadow-card ${
+          dragPos !== null ? "scale-110" : "transition-[left,scale] duration-300 ease-[cubic-bezier(0.34,1.4,0.64,1)]"
+        } ${mode === "2d" ? "left-[calc(100%-1.5rem)]" : "left-1"}`}
+        style={
+          dragPos !== null
+            ? { left: `calc(0.25rem + ${dragPos} * (100% - 1.75rem))` }
+            : undefined
+        }
       />
       {(["3d", "2d"] as const).map((value) => (
         <button
@@ -691,7 +715,12 @@ export const PhaseMapViews = ({
         highRise={target ? highRise : project.segment === "cao-tang"}
         controlsSlot={<MapModeSwitch mode={mode} onChange={setMode} />}
         filterSlot={filterSlot}
-        floorLabel={floorRanges || undefined}
+        floorLabel={
+          target?.floorPlanLevels?.length
+            ? levelSpan(target.floorPlanLevels)
+            : floorRanges || undefined
+        }
+        floorLevels={target?.floorPlanLevels}
         phaseSwitch={{
           options: project.phases.map((item) => ({ value: item.publicId, label: item.name })),
           value: target?.publicId ?? "",

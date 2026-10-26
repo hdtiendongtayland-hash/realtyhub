@@ -356,6 +356,8 @@ const BEACHTRO_TOWER: FundTower = {
     description:
       'Beachtro Tower nằm sát bờ biển Bãi Sau, cao 40 tầng với bể bơi vô cực trên mái. Toàn bộ căn hộ đều có ban công hướng biển hoặc hướng núi Lớn.',
   }),
+  // Theo bo ban ve mat bang tang cua toa Beachtro Tower
+  floorPlanLevels: ['3', '20', '35-36', '37'],
   floors: 40,
 };
 
@@ -374,6 +376,8 @@ const BEACON_TOWER: FundTower = {
     description:
       'Beacon là tòa tháp đầu tiên của Blanca City, mang thiết kế hình cánh buồm vươn ra biển lớn. Căn hộ từ Studio đến 3PN, tầm nhìn panorama ôm trọn biển trời Bãi Sau.',
   }),
+  // Theo bo ban ve mat bang tang cua toa Beacon 1
+  floorPlanLevels: ['3', '4-19', '20', '21-35', '36', '37'],
   floors: 40,
 };
 
@@ -391,6 +395,8 @@ const SKY_SAIL_TOWER: FundTower = {
     description:
       'Sky Sail kết nối trực tiếp trung tâm thương mại sát biển của dự án, có Skybar rooftop và đường dạo bộ trên không tầng 20.',
   }),
+  // Theo bo ban ve mat bang tang cac toa B2, B3, B6, B7
+  floorPlanLevels: ['6-14', '6-11', '18-32'],
   floors: 38,
 };
 
