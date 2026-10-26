@@ -1,7 +1,7 @@
-import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
 /** Keo it hon nguong nay (px) thi van tinh la bam */
-const DRAG_THRESHOLD = 4;
+const DRAG_THRESHOLD = 3;
 
 /**
  * Cong tac nhieu nac (VD Ma / Cham / Gia, 3D / 2D): ngoai bam tung nac con cho
@@ -12,6 +12,18 @@ export const useDragToggle = (count: number, onPick: (index: number) => void) =>
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragPos, setDragPos] = useState<number | null>(null);
   const dragRef = useRef({ pointerId: -1, startX: 0, moved: false, pos: 0, suppressClick: false });
+
+  // iPad / iPhone: Safari khong tin hoan toan touch-action, ngon tay keo tren
+  // cong tac van lam cuon trang (ngoai che do toan man hinh) -> chan cuon tai day
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return undefined;
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.cancelable) event.preventDefault();
+    };
+    track.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => track.removeEventListener("touchmove", onTouchMove);
+  }, []);
 
   const posAt = (clientX: number) => {
     const rect = trackRef.current?.getBoundingClientRect();

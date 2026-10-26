@@ -583,7 +583,7 @@ const MapModeSwitch = ({
       // Cung chieu cao / do cao voi cong tac "Gia" ben trai ban do (h-8, cach
       // mep tren them mt-2) nhung NGAN hon (w-14): chi co hai trang thai.
       // z-20: goi y ben duoi de len nut tim kiem ngay duoi, khong bi che.
-      className="relative z-20 mt-2 mb-2 inline-flex h-8 w-14 shrink-0 touch-none select-none items-center rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
+      className="relative z-20 mt-2 mb-2 inline-flex h-8 w-14 shrink-0 touch-none select-none [-webkit-touch-callout:none] items-center rounded-full border border-gray-300 bg-white shadow-card transition hover:border-brand-300"
     >
       <span
         aria-hidden

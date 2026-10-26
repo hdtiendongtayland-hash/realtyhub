@@ -1186,7 +1186,7 @@ const FloorPlanTab = ({
       >
         <div
           ref={containerRef}
-          className="plan-map-canvas min-h-[20rem] w-full max-sm:h-[calc(100svh-10rem)] sm:h-[min(calc(100svh-9.25rem),105vw)] sm:min-h-[32rem] lg:h-[min(calc(100svh-10rem),56vw)] lg:portrait:h-[min(calc(100svh-9.25rem),90vw)] lg:min-h-[26rem]"
+          className="plan-map-canvas min-h-[20rem] w-full max-sm:h-[calc(100svh-10rem)] sm:h-[min(calc(100svh-9.25rem),105vw)] sm:min-h-[32rem] lg:h-[min(calc(100svh-10rem),56vw)] lg:portrait:h-[min(calc(100svh-9.25rem),90vw)] lg:min-h-[26rem] sm:pointer-coarse:h-[min(calc(100svh-12.5rem),105vw)] lg:pointer-coarse:h-[min(calc(100svh-12.5rem),56vw)] lg:portrait:pointer-coarse:h-[min(calc(100svh-12.5rem),90vw)]"
           // Dien thoai khong dat chieu cao: aspect-ratio lay theo anh. Tu sm da co
           // chieu cao co dinh nen ti le nay bi bo qua.
           style={{ aspectRatio: `${planMap.width} / ${planMap.height}` }}
@@ -1232,7 +1232,7 @@ const FloorPlanTab = ({
           <div
             ref={displayTrackRef}
             {...displayDragHandlers}
-            className={`${areControlsHidden ? "!hidden" : ""} group/display relative mt-2 inline-flex h-8 w-16 touch-none select-none items-center sm:w-20 rounded-full border border-gray-300 bg-white shadow-card mb-2`}
+            className={`${areControlsHidden ? "!hidden" : ""} group/display relative mt-2 inline-flex h-8 w-16 touch-none select-none [-webkit-touch-callout:none] items-center sm:w-20 rounded-full border border-gray-300 bg-white shadow-card mb-2`}
             title={
               displayOptions.find((option) => option.value === displayMode)
                 ?.label
@@ -1275,7 +1275,7 @@ const FloorPlanTab = ({
                   aria-pressed={isActive}
                   className="relative z-10 inline-flex h-full w-1/3 items-center justify-center transition"
                 >
-                  {(!isNameMode || displayFlash === option.value) && (
+                  {!isNameMode && (
                     <span
                       className={`pointer-events-none absolute top-full left-1/2 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-card transition-opacity duration-150 ${
                         displayFlash === option.value
@@ -1519,7 +1519,7 @@ const FloorPlanTab = ({
 
         {/* ── Day ban do: dai the phan khu co anh + so tang, nut "v" an / hien ── */}
         {!areControlsHidden && (((phaseSwitch?.cards?.length ?? 0) > 1) || floorChips.length > 0) && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[950] flex flex-col items-center">
+          <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-[950] flex flex-col items-center`}>
             <button
               type="button"
               onClick={() => setIsPhaseStripOpen((open) => !open)}
