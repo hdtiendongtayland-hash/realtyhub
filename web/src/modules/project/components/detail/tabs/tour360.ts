@@ -4,10 +4,10 @@
  */
 export const TOUR_360_URLS = [
   "https://360.vinhome.com.vn/can-gio-360/",
-  "https://dongtayland.vn/360/haus-coastal-quang-ngai/",
+  "https://360.qtopia.vn/floor-plan",
   "https://vinhomegreencity.com.vn/360/",
   "https://dongtayland.vn/360/coral-hawaii-phu-quoc/",
-  "https://dongtayland.vn/360/haus-coastal-quang-ngai/",
+  "https://360.qtopia.vn/floor-plan",
   "https://dongtayland.vn/360/vinhomes-pearl-bay/",
 ];
 

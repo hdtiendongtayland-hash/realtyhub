@@ -366,6 +366,42 @@ const FloorPlanTab = ({
   const [isQuickFilterOpen, setIsQuickFilterOpen] = useState(false);
   // O tim kiem dang duoc chon -> hien bang goi y ben duoi
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchBoxRef = useRef<HTMLDivElement>(null);
+  // Vua cham vao o tim (~2,5 giay) - de nhan ra Safari thoat toan man hinh vi ban phim
+  const searchIntentRef = useRef(false);
+  const searchIntentTimer = useRef<number | undefined>(undefined);
+  const markSearchIntent = () => {
+    searchIntentRef.current = true;
+    window.clearTimeout(searchIntentTimer.current);
+    searchIntentTimer.current = window.setTimeout(() => (searchIntentRef.current = false), 2500);
+  };
+  /**
+   * May cam ung (iPad, dien thoai): Safari tu thoat toan man hinh that khi ban
+   * phim hien. Cham vao o tim luc dang toan man hinh thi tu chuyen truoc sang
+   * toan man hinh gia (CSS) - khung ban do van phu kin, khong bi "vang" ra.
+   */
+  const keepFullscreenForTyping = () => {
+    markSearchIntent();
+    if (navigator.maxTouchPoints === 0 || document.fullscreenElement !== wrapperRef.current) return;
+    setIsPseudoFs(true);
+    setIsFullscreen(true);
+    void document.exitFullscreen().catch(() => {});
+    window.setTimeout(() => mapRef.current?.invalidateSize(), 150);
+  };
+  // Cham ra ngoai o tim / bang goi y thi thu bang goi y lai. Leaflet chan su
+  // kien cham tren ban do nen o tim khong tu mat focus (nhat la iPad).
+  useEffect(() => {
+    if (!isSearchFocused) return undefined;
+    const onPointerDown = (event: PointerEvent) => {
+      const box = searchBoxRef.current;
+      if (!box || box.contains(event.target as Node)) return;
+      setIsSearchFocused(false);
+      const active = document.activeElement;
+      if (active instanceof HTMLInputElement && box.contains(active)) active.blur();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [isSearchFocused]);
   // Nut "^" giua tren: an moi nut dieu khien, chi chua nut toan man hinh
   const [areControlsHidden, setAreControlsHidden] = useState(false);
   // Che do 3D (trang 360 nhung tu ngoai): +/- phong to khung bang CSS vi
@@ -807,8 +843,9 @@ const FloorPlanTab = ({
       // thoat khi hien ban phim) -> giu khung phu kin bang CSS
       const isTyping =
         !isOn &&
-        document.activeElement instanceof HTMLInputElement &&
-        wrapperRef.current?.contains(document.activeElement);
+        ((document.activeElement instanceof HTMLInputElement &&
+          wrapperRef.current?.contains(document.activeElement)) ||
+          searchIntentRef.current);
       if (isTyping) {
         setIsPseudoFs(true);
         setIsFullscreen(true);
@@ -1256,14 +1293,18 @@ const FloorPlanTab = ({
 
         {/* ── Giua tren: thanh tim ma can (ca khi chua toan man hinh) ── */}
         {(
-        <div className={`pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] ${isFullscreen ? "sm:max-lg:w-[calc(100%-1.5rem)]" : "sm:max-lg:right-[5rem] sm:max-lg:left-[6.5rem] sm:max-lg:w-auto sm:max-lg:translate-x-0"} -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[5.25rem] max-sm:w-auto max-sm:translate-x-0`}>
+        <div ref={searchBoxRef} className={`pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] ${isFullscreen ? "sm:max-lg:w-[calc(100%-1.5rem)]" : "sm:max-lg:right-[5rem] sm:max-lg:left-[6.5rem] sm:max-lg:w-auto sm:max-lg:translate-x-0"} -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[5.25rem] max-sm:w-auto max-sm:translate-x-0`}>
           {!areControlsHidden && (
             <div className="pointer-events-auto flex h-10 w-full items-center gap-1.5 rounded-full bg-white/95 pr-3.5 pl-3.5 max-sm:h-8 max-sm:gap-1 max-sm:pr-2.5 max-sm:pl-3 shadow-card ring-1 ring-gray-200 backdrop-blur focus-within:ring-brand-300">
               <input
                 type="search"
                 value={filters.code}
                 onChange={(event) => setFilterField("code")(event.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
+                onPointerDown={keepFullscreenForTyping}
+                onFocus={() => {
+                  markSearchIntent();
+                  setIsSearchFocused(true);
+                }}
                 onBlur={() => window.setTimeout(() => setIsSearchFocused(false), 150)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") (event.target as HTMLInputElement).blur();
