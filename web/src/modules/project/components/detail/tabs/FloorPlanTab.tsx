@@ -954,7 +954,11 @@ const FloorPlanTab = ({
       return;
     }
     const element = wrapperRef.current;
-    if (document.fullscreenEnabled && typeof element?.requestFullscreen === "function") {
+    // iPad / iPhone: toan man hinh that cua Safari bi thoat chi voi mot cu vuot
+    // xuong nhe (web khong chan duoc) -> dung toan man hinh gia (CSS) cho on dinh
+    const isAppleTouch =
+      navigator.maxTouchPoints > 1 && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
+    if (!isAppleTouch && document.fullscreenEnabled && typeof element?.requestFullscreen === "function") {
       void element.requestFullscreen().catch(() => {});
       return;
     }
