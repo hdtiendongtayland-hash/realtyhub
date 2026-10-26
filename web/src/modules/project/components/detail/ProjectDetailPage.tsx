@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useProjectDetail } from '../../hooks/useProjects';
@@ -79,6 +79,33 @@ const ProjectDetailPage = ({ slug, initialProject }: ProjectDetailPageProps) => 
     },
     [pathname, router, searchParams],
   );
+
+  // Vao thang tab ban do (VD nut "Mat bang" tren the du an): cuon toi ngay
+  // duoi thanh tab dinh de ban do hien tron man hinh, khong phai tu keo xuong
+  const hasProject = Boolean(detailQuery.data);
+  const landedOnMapRef = useRef(false);
+  useEffect(() => {
+    if (!hasProject || landedOnMapRef.current || currentTab !== 'mat-bang-quy-can') return undefined;
+    const scrollToMap = () => {
+      const content = contentRef.current;
+      if (!content) return;
+      landedOnMapRef.current = true;
+      const headerHeight = window.matchMedia('(min-width: 640px)').matches ? 64 : 57;
+      const navHeight =
+        parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--project-tabnav-h')) || 57;
+      const top = content.getBoundingClientRect().top + window.scrollY - headerHeight - navHeight;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+    };
+    // Lan hai: anh hero / thanh tab do xong chieu cao that
+    const frame = window.requestAnimationFrame(scrollToMap);
+    const timer = window.setTimeout(scrollToMap, 450);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+    // Chi chay mot lan khi trang vua co du lieu
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasProject]);
 
   if (detailQuery.isLoading) return <DetailSkeleton />;
 

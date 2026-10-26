@@ -18,6 +18,7 @@ import {
   FiSearch,
   FiX,
 } from "react-icons/fi";
+import { TbBuildingSkyscraper } from "react-icons/tb";
 import { formatBillion, formatBillionShort } from "@/common/utils/format";
 import MapFilterPanel from "./MapFilterPanel";
 import {
@@ -740,6 +741,71 @@ const FloorPlanTab = ({
     [funds],
   );
 
+  // Pin tren anh toan canh 3D (demo): vi tri gia lap tu ma can - cung mot can
+  // luon nam cung mot cho. Gioi han so pin cho anh khong bi roi.
+  const overlayPins = useMemo(() => {
+    if (!overlayUrl) return [];
+    // FNV-1a + tron bit: ma can gan giong nhau van roi vao cho rat khac nhau
+    const hash = (text: string, seed: number) => {
+      let value = 2166136261 ^ seed;
+      for (let index = 0; index < text.length; index += 1) {
+        value = Math.imul(value ^ text.charCodeAt(index), 16777619);
+      }
+      value = Math.imul(value ^ (value >>> 15), 2246822507);
+      value = Math.imul(value ^ (value >>> 13), 3266489909);
+      return ((value ^ (value >>> 16)) >>> 0) / 4294967296;
+    };
+    const phaseNames = new Set(planMap.markers.map((marker) => marker.phaseName));
+    if (phaseNames.size !== 1) {
+      // Tong the: rai khap anh
+      return visibleMarkers.slice(0, 40).map((marker) => ({
+        key: marker.publicId,
+        marker,
+        x: 10 + hash(marker.publicId, 7) * 80,
+        y: 38 + hash(marker.publicId, 13) * 42,
+      }));
+    }
+    // Mot phan khu: chum cac cham gan nhau quanh mot tam, it can thi lap lai
+    // can (demo) cho du ~28 cham
+    // "Tat ca" tang: day cham; chon mot tang / dai tang thi it lai. Tang chua
+    // co can mau (VD tang 3, 37) van hien vai cham demo tu can cua phan khu.
+    const isFloorPicked = Boolean(filters.floor || filters.floorRange);
+    // Cung luat cong tac quy nhu ban do mat bang: tat "An" an het, tat "Chung"
+    // an can Chung, HOT luon hien (tat HOT chi doi mau)
+    const fundMarkers = funds.includes("thuong")
+      ? planMap.markers.filter(
+          (marker) => marker.fundType === "doc-quyen" || funds.includes(marker.fundType),
+        )
+      : [];
+    const source =
+      visibleMarkers.length > 0 ? visibleMarkers : isFloorPicked ? fundMarkers : [];
+    if (source.length === 0) return [];
+    // Lap can de demo day hon, ti le theo so can con lai sau bo loc / cong tac
+    const density = 36 / Math.max(1, planMap.markers.length);
+    const [phaseName] = [...phaseNames];
+    const centerX = 32 + hash(phaseName, 3) * 36;
+    const centerY = 52 + hash(phaseName, 5) * 12;
+    const floorSeed = filters.floor || filters.floorRange;
+    const total = isFloorPicked
+      ? Math.min(12, Math.max(visibleMarkers.length, Math.min(6, Math.round(source.length * density))))
+      : Math.min(40, Math.max(source.length, Math.round(source.length * density)));
+    return Array.from({ length: total }, (_, index) => {
+      // Moi tang mot bo can khac nhau (lech vi tri bat dau theo tang)
+      const offset = isFloorPicked ? Math.floor(hash(floorSeed, 23) * source.length) : 0;
+      const marker = source[(index + offset) % source.length];
+      const key = `${marker.publicId}-${index}`;
+      // Lech khoi tam theo hinh tron, day o giua thua dan ra mep
+      const angle = hash(key, 11) * Math.PI * 2;
+      const radius = Math.sqrt(hash(key, 17));
+      return {
+        key,
+        marker,
+        x: centerX + Math.cos(angle) * radius * 19,
+        y: centerY + Math.sin(angle) * radius * 12,
+      };
+    });
+  }, [overlayUrl, visibleMarkers, planMap.markers, filters.floor, filters.floorRange, funds]);
+
   // ── Ve lai pin moi khi bo loc hoac cong tac Gia doi ──────────────────────
   useEffect(() => {
     const L = leafletRef.current;
@@ -896,6 +962,50 @@ const FloorPlanTab = ({
     setIsFullscreen(true);
     resize();
   };
+
+  /**
+   * iPad: Safari thoat toan man hinh khi vuot xuong ma khong co gi cuon duoc
+   * (VD keo bang loc dang o dinh). Chan cu vuot "keo qua mep" do: chi cho
+   * vuot khi vung cuon ben duoi ngon tay con cho de cuon theo huong do.
+   */
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!isFullscreen || !wrapper) return undefined;
+    let startX = 0;
+    let startY = 0;
+    const onTouchStart = (event: TouchEvent) => {
+      startX = event.touches[0]?.clientX ?? 0;
+      startY = event.touches[0]?.clientY ?? 0;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length !== 1) return;
+      const deltaY = (event.touches[0]?.clientY ?? 0) - startY;
+      // Vuot ngang (dai tang, the phan khu, thanh keo gia) de nguyen
+      if (Math.abs((event.touches[0]?.clientX ?? 0) - startX) > Math.abs(deltaY)) return;
+      // Tim vung cuon doc gan nhat duoi ngon tay
+      let node = event.target instanceof Element ? event.target : null;
+      while (node && node !== wrapper) {
+        const style = window.getComputedStyle(node);
+        const canScroll =
+          /(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 1;
+        if (canScroll) {
+          const atTop = node.scrollTop <= 0;
+          const atBottom = node.scrollTop + node.clientHeight >= node.scrollHeight - 1;
+          if ((deltaY > 0 && atTop) || (deltaY < 0 && atBottom)) event.preventDefault();
+          return;
+        }
+        node = node.parentElement;
+      }
+      // Khong co vung cuon (ban do, nut...): ban do tu xu ly keo, chan vuot cua trinh duyet
+      if (event.cancelable) event.preventDefault();
+    };
+    wrapper.addEventListener("touchstart", onTouchStart, { passive: true });
+    wrapper.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      wrapper.removeEventListener("touchstart", onTouchStart);
+      wrapper.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [isFullscreen]);
 
   // Toan man hinh gia: khoa cuon trang, Esc de thoat
   useEffect(() => {
@@ -1089,6 +1199,27 @@ const FloorPlanTab = ({
               style={{ transform: `scale(${overlayZoom})` }}
               className="h-full w-full origin-center border-0 transition-transform duration-300"
             />
+            {/* Demo: cam pin quy can len anh toan canh o vi tri ngau nhien (co
+                dinh theo ma can). Van theo bo loc, tim kiem, cong tac Ma / Gia. */}
+            <div className="pointer-events-none absolute inset-0">
+              {overlayPins.map(({ key, marker, x, y }) => {
+                const isDot = displayMode === "name";
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    title={`${marker.code} · ${formatBillion(marker.price)}`}
+                    onClick={() => markerClickRef.current?.(marker)}
+                    className={`plan-pin plan-pin--${displayFund(marker.fundType)}${isDot ? " plan-pin--dot" : ""} pointer-events-auto absolute cursor-pointer transition-[left,top] duration-300`}
+                    style={{ left: `${50 + (x - 50) * overlayZoom}%`, top: `${50 + (y - 50) * overlayZoom}%` }}
+                  >
+                    <span>
+                      {isDot ? "" : displayMode === "code" ? marker.code : formatBillionShort(marker.price)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -1399,9 +1530,16 @@ const FloorPlanTab = ({
               {(phaseSwitch?.cards?.length ?? 0) > 1 ? "Phân khu" : "Tầng"}
             </button>
             {/* Hang so tang (cao tang): vuot ngang, bam de loc dung tang do */}
+            {/* Nen toi chi om sat cum tang, mep loang mo - khong keo dai ca be ngang */}
             {isPhaseStripOpen && floorChips.length > 0 && (
-              <div className="pointer-events-auto w-full bg-navy-900/80 px-2 pt-1 pb-0.5 backdrop-blur-[2px] sm:px-3 sm:pt-1.5 sm:pb-1">
-                <div className="mx-auto flex max-w-full items-center gap-2 sm:w-fit">
+              <div className="pointer-events-none w-full px-2 pt-1 pb-1.5 sm:px-3 sm:pt-1.5 sm:pb-2">
+                <div className="pointer-events-auto mx-auto flex w-fit max-w-full items-center gap-2 rounded-full bg-navy-900/70 py-0.5 pr-1.5 pl-1 shadow-[0_0_22px_10px_rgba(8,24,50,0.45)] backdrop-blur-[2px]">
+                  <span
+                    aria-hidden
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-brand-600 text-white shadow-[0_4px_12px_-4px_rgba(56,189,248,0.9)] ring-1 ring-white/30"
+                  >
+                    <TbBuildingSkyscraper className="h-4 w-4" />
+                  </span>
                   <span className="flex shrink-0 flex-col leading-tight text-white">
                     <span className="text-[9px] font-semibold tracking-wide text-sky-200 uppercase sm:text-[10px]">Tầng</span>
                     <span className={`text-[11px] font-bold whitespace-nowrap sm:text-theme-xs ${isFullscreen ? "max-sm:text-theme-xs" : ""}`}>{floorLabel}</span>
