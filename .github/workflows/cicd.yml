@@ -73,11 +73,13 @@ jobs:
           script: |
             set -e
             cd /home/realtyhub
-            # Keo code moi nhat ve server truoc khi build - thieu buoc nay thi
-            # docker build lai tu ma nguon cu tren server, web khong doi.
-            # Repo cong khai nen keo qua HTTPS, khong can SSH key tren server
-            # (server khong co ~/.ssh/id_rsa).
-            git pull --ff-only https://github.com/hdtiendongtayland-hash/realtyhub.git main
+            # Cap nhat ma nguon web tren server truoc khi build - thieu buoc nay
+            # thi docker build lai tu code cu, web khong doi. /home/realtyhub
+            # khong phai ban clone git va server khong co SSH key, nen tai ban
+            # nen cua dung commit nay qua HTTPS (repo cong khai) va giai nen de
+            # len thu muc web. Giu nguyen file .env rieng cua server.
+            curl -fsSL "https://codeload.github.com/${{ github.repository }}/tar.gz/${{ github.sha }}" \
+              | tar -xz --strip-components=1 --exclude='*/web/.env' "realtyhub-${{ github.sha }}/web"
             cd web
             docker compose up -d --build
             docker ps
