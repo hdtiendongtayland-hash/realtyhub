@@ -70,11 +70,11 @@ jobs:
           script: |
             set -e
             cd /home/realtyhub
-            eval $(ssh-agent -s)
-            ssh-add ~/.ssh/id_rsa
             # Keo code moi nhat ve server truoc khi build - thieu buoc nay thi
-            # docker build lai tu ma nguon cu tren server, web khong doi
-            git pull --ff-only origin main
+            # docker build lai tu ma nguon cu tren server, web khong doi.
+            # Repo cong khai nen keo qua HTTPS, khong can SSH key tren server
+            # (server khong co ~/.ssh/id_rsa).
+            git pull --ff-only https://github.com/hdtiendongtayland-hash/realtyhub.git main
             cd web
             docker compose up -d --build
             docker ps
