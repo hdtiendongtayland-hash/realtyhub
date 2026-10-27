@@ -8,6 +8,7 @@ on:
       - 'web/**'
       - 'backend/**'
       - 'admin/**'
+      - '.github/workflows/cicd.yml'
   workflow_dispatch:
 
 jobs:
@@ -30,6 +31,8 @@ jobs:
           filters: |
             web:
               - 'web/**'
+              # Sua quy trinh deploy thi chay lai web de ap dung ngay
+              - '.github/workflows/cicd.yml'
             backend:
               - 'backend/**'
             admin:
