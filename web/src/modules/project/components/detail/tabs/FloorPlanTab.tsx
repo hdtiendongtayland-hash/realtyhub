@@ -12,7 +12,6 @@ import {
   FiFilter,
   FiLayers,
   FiMaximize,
-  FiMaximize2,
   FiMinimize,
   FiMinus,
   FiPlus,
@@ -36,12 +35,6 @@ import {
 import { useDragToggle } from "./useDragToggle";
 
 const FUND_TYPES = Object.keys(UNIT_FUND_LABELS) as UnitFundType[];
-
-/** Trinh duyet cho dua khung len toan man hinh that (iPad co, iPhone khong) */
-const canGoNativeFromPseudo = () =>
-  typeof document !== "undefined" &&
-  document.fullscreenEnabled &&
-  typeof HTMLElement.prototype.requestFullscreen === "function";
 
 
 /** Cung mau tren, dang nen (cham tron trong bang chu thich) */
@@ -377,9 +370,6 @@ const FloorPlanTab = ({
   const searchBoxRef = useRef<HTMLDivElement>(null);
   // Vua cham vao o tim (~2,5 giay) - de nhan ra Safari thoat toan man hinh vi ban phim
   const searchIntentRef = useRef(false);
-  // iPad: dang o buoc toan man hinh hẳn (vao tu buoc phong to) / vua bam thoat han
-  const nativeFromPseudoRef = useRef(false);
-  const exitAllRef = useRef(false);
   const searchIntentTimer = useRef<number | undefined>(undefined);
   const markSearchIntent = () => {
     searchIntentRef.current = true;
@@ -922,16 +912,7 @@ const FloorPlanTab = ({
         ((document.activeElement instanceof HTMLInputElement &&
           wrapperRef.current?.contains(document.activeElement)) ||
           searchIntentRef.current);
-      if (isOn) {
-        setIsPseudoFs(false);
-      } else if (exitAllRef.current) {
-        // Bam nut thoat o buoc toan man hinh hẳn -> ve han khung thuong
-        exitAllRef.current = false;
-        nativeFromPseudoRef.current = false;
-        setIsPseudoFs(false);
-      } else if (isTyping || nativeFromPseudoRef.current) {
-        // iPad: vuot xuong / ban phim lam Safari thoat -> lui ve buoc phong to
-        // (con thanh dia chi) thay vi vang ra ngoai
+      if (isTyping) {
         setIsPseudoFs(true);
         setIsFullscreen(true);
         window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
@@ -958,28 +939,9 @@ const FloorPlanTab = ({
    * phai thao tac cua nguoi dung...). `void` khong nuot duoc loi do - thieu
    * `catch` la co mot TypeError chua bat van ra console.
    */
-  /**
-   * iPad bam nut 3 buoc: (1) phong to - con thanh dia chi, (2) toan man hinh
-   * hẳn cua Safari, (3) thoat ve khung thuong. May khac: bat / tat nhu cu.
-   */
   const toggleFullscreen = () => {
     const resize = () => window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
-    const element = wrapperRef.current;
-    if (document.fullscreenElement) {
-      exitAllRef.current = true;
-      void document.exitFullscreen().catch(() => {});
-      setAreControlsHidden(false);
-      setIsQuickFilterOpen(false);
-      return;
-    }
     if (isPseudoFs) {
-      if (canGoNativeFromPseudo() && element) {
-        nativeFromPseudoRef.current = true;
-        void element.requestFullscreen().catch(() => {
-          nativeFromPseudoRef.current = false;
-        });
-        return;
-      }
       setIsPseudoFs(false);
       setIsFullscreen(false);
       setAreControlsHidden(false);
@@ -987,6 +949,11 @@ const FloorPlanTab = ({
       resize();
       return;
     }
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => {});
+      return;
+    }
+    const element = wrapperRef.current;
     // iPad / iPhone: toan man hinh that cua Safari bi thoat chi voi mot cu vuot
     // xuong nhe (web khong chan duoc) -> dung toan man hinh gia (CSS) cho on dinh
     const isAppleTouch =
@@ -1350,24 +1317,8 @@ const FloorPlanTab = ({
             </>
           )}
           {canFullscreen && (
-            <MapButton
-              label={
-                isPseudoFs && canGoNativeFromPseudo()
-                  ? "Toàn màn hình hẳn"
-                  : isFullscreen
-                    ? "Thoát toàn màn hình"
-                    : "Toàn màn hình"
-              }
-              onClick={toggleFullscreen}
-            >
-              {/* Moi buoc mot bieu tuong: phong to / toan man hinh hẳn / thoat */}
-              {isPseudoFs && canGoNativeFromPseudo() ? (
-                <FiMaximize2 aria-hidden />
-              ) : isFullscreen ? (
-                <FiMinimize aria-hidden />
-              ) : (
-                <FiMaximize aria-hidden />
-              )}
+            <MapButton label={isFullscreen ? "Thoát toàn màn hình" : "Toàn màn hình"} onClick={toggleFullscreen}>
+              {isFullscreen ? <FiMinimize aria-hidden /> : <FiMaximize aria-hidden />}
             </MapButton>
           )}
         </div>
