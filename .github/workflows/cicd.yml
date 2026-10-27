@@ -68,10 +68,14 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           command_timeout: 30m
           script: |
+            set -e
             cd /home/realtyhub
-            cd web
             eval $(ssh-agent -s)
             ssh-add ~/.ssh/id_rsa
+            # Keo code moi nhat ve server truoc khi build - thieu buoc nay thi
+            # docker build lai tu ma nguon cu tren server, web khong doi
+            git pull --ff-only origin main
+            cd web
             docker compose up -d --build
             docker ps
 
