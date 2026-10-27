@@ -1,5 +1,4 @@
-import { FiClock, FiMail, FiMapPin, FiMessageCircle, FiPhone } from 'react-icons/fi';
-import { FaFacebookF, FaTiktok, FaYoutube } from 'react-icons/fa';
+import { FiClock, FiMail, FiMapPin, FiPhone } from 'react-icons/fi';
 
 import PageBanner from '@/common/components/PageBanner';
 import ContactForm from '@/modules/contact/components/ContactForm';
@@ -76,13 +75,6 @@ const QUICK_CONTACTS = [
     value: 'T2 - T7: 8:00 - 21:00',
     tone: 'bg-purple-50 text-purple-600',
   },
-];
-
-const SOCIAL_LINKS = [
-  { label: 'Facebook', href: '#', icon: FaFacebookF, color: 'bg-blue-600' },
-  { label: 'YouTube', href: '#', icon: FaYoutube, color: 'bg-red-600' },
-  { label: 'TikTok', href: '#', icon: FaTiktok, color: 'bg-gray-900' },
-  { label: 'Zalo', href: '#', icon: FiMessageCircle, color: 'bg-blue-500' },
 ];
 
 const LienHeChungToiPage = () => (
@@ -180,26 +172,6 @@ const LienHeChungToiPage = () => (
                       </a>
                     </p>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex items-center justify-between gap-4 rounded-3xl border border-gray-100 bg-white p-5 shadow-theme-sm">
-            <div>
-              <h3 className="text-base font-semibold text-gray-900">Kết nối với chúng tôi</h3>
-              <p className="text-theme-xs text-gray-500">Tin tức và sự kiện mới nhất</p>
-            </div>
-            <ul className="flex items-center gap-2">
-              {SOCIAL_LINKS.map((social) => (
-                <li key={social.label}>
-                  <a
-                    href={social.href}
-                    aria-label={social.label}
-                    className={`flex h-10 w-10 items-center justify-center rounded-full text-white shadow-theme-sm transition hover:-translate-y-0.5 ${social.color}`}
-                  >
-                    <social.icon aria-hidden className="h-4 w-4" />
-                  </a>
                 </li>
               ))}
             </ul>
