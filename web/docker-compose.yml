@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build:
@@ -9,8 +7,10 @@ services:
     container_name: al_demo_dongtayland_click_web
     ports:
       - "8826:8826"
+    # .env tuy chon: server hien khong co (web dang chay du lieu mau)
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
       - PORT=8826
     deploy:
