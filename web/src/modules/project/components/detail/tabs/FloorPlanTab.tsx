@@ -377,17 +377,26 @@ const FloorPlanTab = ({
     searchIntentTimer.current = window.setTimeout(() => (searchIntentRef.current = false), 2500);
   };
   /**
-   * May cam ung (iPad, dien thoai): Safari tu thoat toan man hinh that khi ban
-   * phim hien. Cham vao o tim luc dang toan man hinh thi tu chuyen truoc sang
-   * toan man hinh gia (CSS) - khung ban do van phu kin, khong bi "vang" ra.
+   * Cham vao o tim: giu nguyen toan man hinh that (khong tu thoat). Chi danh
+   * dau de neu trinh duyet tu thoat vi ban phim thi onFullscreenChange giu
+   * khung phu kin bang CSS thay vi vang ra ngoai.
    */
   const keepFullscreenForTyping = () => {
     markSearchIntent();
-    if (navigator.maxTouchPoints === 0 || document.fullscreenElement !== wrapperRef.current) return;
-    setIsPseudoFs(true);
-    setIsFullscreen(true);
-    void document.exitFullscreen().catch(() => {});
-    window.setTimeout(() => mapRef.current?.invalidateSize(), 150);
+  };
+  // Safari iPad thoat toan man hinh that khi ban phim hien (web khong chan
+  // duoc) -> danh dau de go xong (Enter, chon goi y, cham ra ngoai) tu vao lai
+  const resumeNativeRef = useRef(false);
+  const resumeNativeFullscreen = () => {
+    const element = wrapperRef.current;
+    if (!resumeNativeRef.current || !element || document.fullscreenElement) return;
+    resumeNativeRef.current = false;
+    const active = document.activeElement;
+    if (active instanceof HTMLInputElement && element.contains(active)) active.blur();
+    void element
+      .requestFullscreen()
+      .then(() => setIsPseudoFs(false))
+      .catch(() => {});
   };
   // Cham ra ngoai o tim / bang goi y thi thu bang goi y lai. Leaflet chan su
   // kien cham tren ban do nen o tim khong tu mat focus (nhat la iPad).
@@ -403,6 +412,20 @@ const FloorPlanTab = ({
     document.addEventListener("pointerdown", onPointerDown, true);
     return () => document.removeEventListener("pointerdown", onPointerDown, true);
   }, [isSearchFocused]);
+  // Dang phu kin tam (vua bi ban phim day ra): cham ra ngoai o tim thi vao lai
+  // toan man hinh that. pointerup cua ngon tay duoc tinh la thao tac nguoi dung.
+  useEffect(() => {
+    if (!isPseudoFs) return undefined;
+    const onPointerUp = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (!target || searchBoxRef.current?.contains(target)) return;
+      // Nut thoat toan man hinh tu xu ly
+      if (target.closest('[aria-label="Thoát toàn màn hình"]')) return;
+      resumeNativeFullscreen();
+    };
+    document.addEventListener("pointerup", onPointerUp, true);
+    return () => document.removeEventListener("pointerup", onPointerUp, true);
+  });
   // Nut "^" giua tren: an moi nut dieu khien, chi chua nut toan man hinh
   const [areControlsHidden, setAreControlsHidden] = useState(false);
   // Che do 3D (trang 360 nhung tu ngoai): +/- phong to khung bang CSS vi
@@ -573,6 +596,7 @@ const FloorPlanTab = ({
   const pickSuggestedUnit = (marker: PlanMarker) => {
     setFilterField("code")(marker.code);
     setIsSearchFocused(false);
+    resumeNativeFullscreen();
     mapRef.current?.flyTo(toLatLng(marker), Math.max(mapRef.current.getZoom(), 0.5), { duration: 0.6 });
     if (markerClickRef.current) window.setTimeout(() => markerClickRef.current?.(marker), 650);
   };
@@ -587,6 +611,17 @@ const FloorPlanTab = ({
     };
   }, [planMap.markers]);
 
+  /**
+   * Cong tac quy can quyet dinh o nao duoc hien:
+   * - Chung / An: tat loai nao an loai do.
+   * - HOT: con bat it nhat mot cong tac thi van hien (tat HOT chi doi mau,
+   *   xem displayFund); tat ca deu tat thi an het.
+   */
+  const isFundShown = useCallback(
+    (fund: UnitFundType) => (fund === "doc-quyen" ? funds.length > 0 : funds.includes(fund)),
+    [funds],
+  );
+
   const visibleMarkers = useMemo(
     () =>
       planMap.markers.filter((marker) => {
@@ -596,10 +631,7 @@ const FloorPlanTab = ({
         const [areaMin, areaMax] = areaRange;
         if (areaMin !== null && marker.landArea < areaMin) return false;
         if (areaMax !== null && marker.landArea > areaMax) return false;
-        // Tat "An" = an toan bo quy can tren ban do (ke ca HOT)
-        if (!funds.includes("thuong")) return false;
-        // Quy HOT luon hien (tat HOT chi doi mau); Chung / An tat thi an han
-        if (marker.fundType !== "doc-quyen" && !funds.includes(marker.fundType)) return false;
+        if (!isFundShown(marker.fundType)) return false;
         const code = foldText(filters.code.trim());
         // O tim: khop ma can, loai hinh, toa / day, phan khu hoac huong
         if (
@@ -638,7 +670,7 @@ const FloorPlanTab = ({
         if (filters.handover && marker.handoverStandard !== filters.handover) return false;
         return true;
       }),
-    [planMap.markers, funds, filters, priceRange, areaRange],
+    [planMap.markers, isFundShown, filters, priceRange, areaRange],
   );
 
   /** % tren anh -> toa do CRS.Simple (truc y cua Leaflet huong len tren) */
@@ -770,13 +802,8 @@ const FloorPlanTab = ({
     // "Tat ca" tang: day cham; chon mot tang / dai tang thi it lai. Tang chua
     // co can mau (VD tang 3, 37) van hien vai cham demo tu can cua phan khu.
     const isFloorPicked = Boolean(filters.floor || filters.floorRange);
-    // Cung luat cong tac quy nhu ban do mat bang: tat "An" an het, tat "Chung"
-    // an can Chung, HOT luon hien (tat HOT chi doi mau)
-    const fundMarkers = funds.includes("thuong")
-      ? planMap.markers.filter(
-          (marker) => marker.fundType === "doc-quyen" || funds.includes(marker.fundType),
-        )
-      : [];
+    // Cung luat cong tac quy nhu ban do mat bang
+    const fundMarkers = planMap.markers.filter((marker) => isFundShown(marker.fundType));
     const source =
       visibleMarkers.length > 0 ? visibleMarkers : isFloorPicked ? fundMarkers : [];
     if (source.length === 0) return [];
@@ -804,7 +831,7 @@ const FloorPlanTab = ({
         y: centerY + Math.sin(angle) * radius * 12,
       };
     });
-  }, [overlayUrl, visibleMarkers, planMap.markers, filters.floor, filters.floorRange, funds]);
+  }, [overlayUrl, visibleMarkers, planMap.markers, filters.floor, filters.floorRange, isFundShown]);
 
   // ── Ve lai pin moi khi bo loc hoac cong tac Gia doi ──────────────────────
   useEffect(() => {
@@ -913,6 +940,7 @@ const FloorPlanTab = ({
           wrapperRef.current?.contains(document.activeElement)) ||
           searchIntentRef.current);
       if (isTyping) {
+        resumeNativeRef.current = true;
         setIsPseudoFs(true);
         setIsFullscreen(true);
         window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
@@ -941,6 +969,7 @@ const FloorPlanTab = ({
    */
   const toggleFullscreen = () => {
     const resize = () => window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
+    resumeNativeRef.current = false;
     if (isPseudoFs) {
       setIsPseudoFs(false);
       setIsFullscreen(false);
@@ -954,11 +983,14 @@ const FloorPlanTab = ({
       return;
     }
     const element = wrapperRef.current;
-    // iPad / iPhone: toan man hinh that cua Safari bi thoat chi voi mot cu vuot
-    // xuong nhe (web khong chan duoc) -> dung toan man hinh gia (CSS) cho on dinh
-    const isAppleTouch =
-      navigator.maxTouchPoints > 1 && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
-    if (!isAppleTouch && document.fullscreenEnabled && typeof element?.requestFullscreen === "function") {
+    // iPad / may tinh bang (cam ung, man hinh tu 600px): chi phu kin bang CSS,
+    // giu thanh dia chi - toan man hinh that de bi vang ra, kho thao tac.
+    // Trinh duyet khong ho tro (iPhone) cung dung cach nay.
+    const isTablet =
+      navigator.maxTouchPoints > 1 &&
+      window.matchMedia("(pointer: coarse)").matches &&
+      Math.min(window.screen.width, window.screen.height) >= 600;
+    if (!isTablet && document.fullscreenEnabled && typeof element?.requestFullscreen === "function") {
       void element.requestFullscreen().catch(() => {});
       return;
     }
@@ -1228,7 +1260,7 @@ const FloorPlanTab = ({
         )}
 
         {/* Dieu khien tu ve de bam dung thiet ke; Leaflet control mac dinh da tat */}
-        <div className={`absolute left-3 top-3 z-900 flex flex-col items-start gap-2 ${isFullscreen ? "sm:max-lg:top-14" : ""}`}>
+        <div className={`absolute left-3 top-3 z-900 flex flex-col items-start gap-2 ${isFullscreen ? "sm:max-lg:top-5" : ""}`}>
           <div
             ref={displayTrackRef}
             {...displayDragHandlers}
@@ -1323,7 +1355,7 @@ const FloorPlanTab = ({
           )}
         </div>
 
-        <div className={`absolute right-3 top-3 z-900 flex flex-col items-end gap-2 ${isFullscreen ? "sm:max-lg:top-14" : ""}`}>
+        <div className={`absolute right-3 top-3 z-900 flex flex-col items-end gap-2 ${isFullscreen ? "sm:max-lg:top-5" : ""}`}>
           {!areControlsHidden && controlsSlot}
           {!areControlsHidden && (
           <div className="relative">
@@ -1397,6 +1429,7 @@ const FloorPlanTab = ({
             <button
               type="button"
               onClick={() => setIsQuickFilterOpen((open) => !open)}
+              data-filter-toggle
               aria-expanded={isQuickFilterOpen}
               aria-label={activeFilterCount > 0 ? `Bộ lọc (${activeFilterCount} đang lọc)` : "Bộ lọc"}
               title="Bộ lọc"
@@ -1428,7 +1461,7 @@ const FloorPlanTab = ({
 
         {/* ── Giua tren: thanh tim ma can (ca khi chua toan man hinh) ── */}
         {(
-        <div ref={searchBoxRef} className={`pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] ${isFullscreen ? "sm:max-lg:w-[calc(100%-1.5rem)]" : "sm:max-lg:right-[5rem] sm:max-lg:left-[6.5rem] sm:max-lg:w-auto sm:max-lg:translate-x-0"} -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[5.25rem] max-sm:w-auto max-sm:translate-x-0`}>
+        <div ref={searchBoxRef} className={`pointer-events-none absolute top-4 left-1/2 z-[950] flex w-[min(26rem,calc(100%-13rem))] sm:max-lg:right-[5rem] sm:max-lg:left-[6.5rem] sm:max-lg:w-auto sm:max-lg:translate-x-0 ${isFullscreen ? "sm:max-lg:top-6" : ""} -translate-x-1/2 flex-col items-center gap-1.5 max-sm:top-5 max-sm:right-[4.75rem] max-sm:left-[5.25rem] max-sm:w-auto max-sm:translate-x-0`}>
           {!areControlsHidden && (
             <div className="pointer-events-auto flex h-10 w-full items-center gap-1.5 rounded-full bg-white/95 pr-3.5 pl-3.5 max-sm:h-8 max-sm:gap-1 max-sm:pr-2.5 max-sm:pl-3 shadow-card ring-1 ring-gray-200 backdrop-blur focus-within:ring-brand-300">
               <input
@@ -1442,7 +1475,9 @@ const FloorPlanTab = ({
                 }}
                 onBlur={() => window.setTimeout(() => setIsSearchFocused(false), 150)}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") (event.target as HTMLInputElement).blur();
+                  if (event.key !== "Enter") return;
+                  (event.target as HTMLInputElement).blur();
+                  resumeNativeFullscreen();
                 }}
                 enterKeyHint="search"
                 autoComplete="off"

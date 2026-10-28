@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import type { IconType } from "react-icons";
 import {
   FiAward,
@@ -394,6 +394,22 @@ const MapFilterPanel = ({
     dragRef.current = null;
   };
 
+  // Bam ra ngoai bang (ban do, nut khac...) thi dong bang loc. Bo qua nut mo
+  // bang (no tu bat / tat) va ngan keo cap trang (co nen rieng).
+  useEffect(() => {
+    if (isSheet || isCollapsed) return undefined;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (!target || panelRef.current?.contains(target)) return;
+      // Lop nen tu dong bang khi bam xong (click) - dong ngay luc cham xuong thi
+      // cu click sau do roi trung nut ben duoi (VD nut loc, mo lai bang)
+      if (target.closest("[data-filter-toggle], [data-filter-backdrop]")) return;
+      onClose();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [isSheet, isCollapsed, onClose]);
+
   // ── Dien thoai: keo vien "Bo loc" (dang an) di cho khac tren ban do ──
   const pillRef = useRef<HTMLDivElement>(null);
   const [pillOffset, setPillOffset] = useState({ x: 0, y: 0 });
@@ -496,7 +512,7 @@ const MapFilterPanel = ({
     return value ? labelOf(row, value) : "";
   };
 
-  /** Chon mot lua chon; chon khoang tang thi bo so tang go tay (va nguoc lai) */
+  /** Chon mot lua chon; chon khoang tang thi bo so tang (chon tu dai tang) */
   const pick = (row: Row, next: string) => {
     if (row.key === "phaseName" && phaseSwitch) {
       phaseSwitch.onChange(next);
@@ -508,33 +524,6 @@ const MapFilterPanel = ({
     setOpenRow(null);
   };
 
-  const floorInput = (
-    <label className="flex items-center gap-2 rounded-lg bg-white pr-1 pl-3 ring-1 ring-sky-100 focus-within:ring-brand-300">
-      <span className="text-theme-xs font-semibold whitespace-nowrap text-gray-500">Số tầng</span>
-      <input
-        type="text"
-        inputMode="numeric"
-        value={filters.floor}
-        onChange={(event) => {
-          onField("floorRange")("");
-          onField("floor")(event.target.value.replace(/\D/g, "").slice(0, 3));
-        }}
-        placeholder="Nhập tầng, vd. 15"
-        className="h-9 min-w-0 flex-1 bg-transparent text-theme-sm font-semibold text-brand-700 outline-none placeholder:font-normal placeholder:text-gray-400"
-      />
-      {filters.floor && (
-        <button
-          type="button"
-          onClick={() => onField("floor")("")}
-          aria-label="Xóa số tầng"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-gray-400 hover:text-brand-600"
-        >
-          <FiX aria-hidden className="h-3.5 w-3.5" />
-        </button>
-      )}
-    </label>
-  );
-  const headerOf = (row: Row) => (row.key === "floorRange" ? floorInput : undefined);
 
   // The cac tieu chi dang loc (bo nhanh bang nut x)
   const tags: { id: string; text: string; remove: () => void }[] = [
@@ -574,9 +563,11 @@ const MapFilterPanel = ({
 
   return (
     <>
-      {/* Dien thoai: cham vao khoang trong ngoai the thi dong bang loc */}
+      {/* Cham ra ngoai bang thi dong bang loc. Lop nen nay chan ca anh toan canh
+          360 (iframe trang khac - trang minh khong nhan duoc cham ben trong);
+          dien thoai co nen toi, may lon trong suot */}
       {!isSheet && !isCollapsed && (
-        <div aria-hidden onClick={onClose} className="absolute inset-0 z-[999] bg-navy-900/30 sm:hidden" />
+        <div aria-hidden data-filter-backdrop onClick={onClose} className="absolute inset-0 z-[999] bg-navy-900/30 sm:bg-transparent" />
       )}
       {/* Dien thoai, dang an: chi con mot vien noi nho o canh duoi ban do */}
       {!isSheet && isCollapsed && (
@@ -773,7 +764,6 @@ const MapFilterPanel = ({
                   <OptionPicker
                     options={row.options}
                     value={valueOf(row)}
-                    header={headerOf(row)}
                     onPick={(next) => pick(row, next)}
                   />
                 )}
