@@ -101,8 +101,8 @@ export const FEEDBACK_STATS = {
   totalShipped: 218,
   /** Trung binh thoi gian phan hoi (gio) */
   avgResponseHours: 18,
-  /** Tỉ lệ feedback duoc upvote boi nguoi khac */
-  upvoteRate: 73,
+  /** Ti le gop y da duoc doi ngu tra loi (%) */
+  respondedRate: 98,
 };
 
 // ============================================================================

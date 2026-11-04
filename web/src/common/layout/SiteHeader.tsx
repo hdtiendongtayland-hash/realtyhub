@@ -68,6 +68,20 @@ const NAV_ITEMS_CLEAN: NavItem[] = [
   { labelKey: 'utility', href: '/tien-ich' },
 ];
 
+/**
+ * Khung menu desktop chung cho ca hai che do (moi o mot muc):
+ * - `clean` khong khai bao: muc giu nguyen o present mode
+ * - `clean: null`: present mode an muc nay nhung van giu cho
+ * - `clean: <muc khac>`: present mode doi sang muc kia ngay trong o do
+ */
+const DESKTOP_NAV_SLOTS: { normal: NavItem; clean?: NavItem | null }[] = [
+  { normal: NAV_ITEMS_NORMAL[0], clean: null },
+  { normal: NAV_ITEMS_NORMAL[1] },
+  { normal: NAV_ITEMS_NORMAL[2] },
+  { normal: NAV_ITEMS_NORMAL[3] },
+  { normal: NAV_ITEMS_NORMAL[4], clean: NAV_ITEMS_CLEAN[3] },
+];
+
 const MORE_MENU_ITEMS: NavItem[] = [
   { labelKey: 'news', href: '/tin-tuc' },
   { labelKey: 'utility', href: '/tien-ich' },
@@ -303,38 +317,59 @@ const SiteHeader = () => {
 
         <nav aria-label={tHeader('home')} className="hidden xl:block" />
 
-        <nav aria-label={tHeader('home')} className="hidden xl:block">
-          <ul className="flex items-center gap-5 xl:gap-6 min-[1760px]:gap-8">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  aria-current={isNavItemActive(item) ? 'page' : undefined}
-                  className={`whitespace-nowrap text-theme-sm font-semibold xl:text-[15px] min-[1760px]:text-base uppercase tracking-wide transition ${
-                    isNavItemActive(item) ? navColor.active : navColor.idle
-                  }`}
-                >
-                  {tHeader(item.labelKey)}
-                </Link>
-              </li>
-            ))}
+        {/* Menu neo giua header (desktop): bat present mode an logo / bot nut
+            hai ben thi menu khong bi day lech nhu khi chia deu khoang trong */}
+        <nav
+          aria-label={tHeader('home')}
+          className="hidden xl:absolute xl:top-1/2 xl:left-1/2 xl:block xl:-translate-x-1/2 xl:-translate-y-1/2"
+        >
+          {/* Hai che do dung chung mot khung menu: muc khong dung thi chi an
+              (van giu cho), "Su kien" / "Tien ich" chung mot o -> cac muc
+              chung (Chu dau tu, Du an, Quy can) dung yen khi bat present mode */}
+          <ul className="flex items-center gap-5 xl:gap-4 min-[1366px]:gap-6 min-[1760px]:gap-8">
+            {DESKTOP_NAV_SLOTS.map(({ normal, clean }) => {
+              const shown = clean === undefined ? normal : isCleanMode ? clean : normal;
+              const options = clean ? [normal, clean] : [normal];
+              return (
+                <li key={normal.href} className="grid" aria-hidden={shown ? undefined : true}>
+                  {options.map((item) => {
+                    const isShown = item === shown;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        tabIndex={isShown ? undefined : -1}
+                        aria-hidden={isShown ? undefined : true}
+                        aria-current={isShown && isNavItemActive(item) ? 'page' : undefined}
+                        className={`[grid-area:1/1] whitespace-nowrap text-center text-theme-sm font-semibold min-[1366px]:text-[15px] min-[1760px]:text-base uppercase tracking-wide transition ${
+                          isNavItemActive(item) ? navColor.active : navColor.idle
+                        } ${isShown ? '' : 'invisible'}`}
+                      >
+                        {tHeader(item.labelKey)}
+                      </Link>
+                    );
+                  })}
+                </li>
+              );
+            })}
 
-            {/* Hide "More" menu in clean mode */}
-            {!isCleanMode && (
+            {/* "Muc khac": present mode chi an (van giu cho) de menu khong lech */}
+            {(
               <li
-                className="relative"
+                className={`relative ${isCleanMode ? 'invisible' : ''}`}
+                aria-hidden={isCleanMode || undefined}
                 ref={moreRef}
                 onMouseEnter={onMoreMouseEnter}
                 onMouseLeave={onMoreMouseLeave}
-                data-clean-hide="secondary-nav"
               >
                 <button
                   type="button"
                   onClick={onMoreToggleClick}
+                  tabIndex={isCleanMode ? -1 : undefined}
                   aria-haspopup="menu"
                   aria-expanded={isMoreOpen}
                   aria-current={isMoreActive ? 'page' : undefined}
-                  className={`inline-flex items-center gap-1 whitespace-nowrap text-theme-sm font-semibold xl:text-[15px] min-[1760px]:text-base uppercase tracking-wide transition ${moreBtnActive}`}
+                  className={`inline-flex items-center gap-1 whitespace-nowrap text-theme-sm font-semibold min-[1366px]:text-[15px] min-[1760px]:text-base uppercase tracking-wide transition ${moreBtnActive}`}
                 >
                   {tHeader('more')}
                   <FiChevronDown

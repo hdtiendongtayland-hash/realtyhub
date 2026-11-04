@@ -1,11 +1,12 @@
 'use client';
 
 import { useRef, useState, type FormEvent } from 'react';
-import { FEEDBACK_RATING_ICON } from '../feedbackIcons';
+import { FEEDBACK_CATEGORY_ICON } from '../feedbackIcons';
 
 import {
   FiAlertCircle,
   FiCheckCircle,
+  FiChevronDown,
   FiImage,
   FiLoader,
   FiSend,
@@ -15,14 +16,12 @@ import {
 import {
   FEEDBACK_CATEGORY_LABELS,
   type FeedbackCategory,
-  type FeedbackRating,
 } from '@/modules/feedback/mocks/feedback.mock';
 
 /**
  * Form gop y & phan hoi - client component.
  *
- * Fields (5 + 2 toggles + screenshot):
- *   - Rating (1-3 emoji: pos / neu / neg) - required
+ * Fields (4 + 2 toggles + screenshot):
  *   - Category (select, 6 chuyen muc) - required
  *   - Title (text, <= 80 ky tu) - required
  *   - Content (textarea, 10-1000 ky tu) - required
@@ -37,7 +36,6 @@ import {
  */
 
 type FormValues = {
-  rating: FeedbackRating | null;
   category: FeedbackCategory;
   title: string;
   content: string;
@@ -47,7 +45,6 @@ type FormValues = {
 };
 
 const EMPTY_VALUES: FormValues = {
-  rating: null,
   category: 'tinh-nang',
   title: '',
   content: '',
@@ -60,17 +57,6 @@ const TITLE_MAX = 80;
 const CONTENT_MAX = 1000;
 const FILE_MAX_BYTES = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_MIME = ['image/png', 'image/jpeg', 'image/webp'];
-
-const RATING_OPTIONS: Array<{
-  id: FeedbackRating;
-  emoji: string;
-  label: string;
-  desc: string;
-}> = [
-  { id: 'pos', emoji: '👍', label: 'Hài lòng', desc: 'Trải nghiệm tốt, muốn ủng hộ tiếp' },
-  { id: 'neu', emoji: '😐', label: 'Tạm được', desc: 'Có điểm tốt nhưng cần cải thiện' },
-  { id: 'neg', emoji: '👎', label: 'Cần cải thiện', desc: 'Có vấn đề gây khó chịu' },
-];
 
 const CATEGORY_OPTIONS: FeedbackCategory[] = [
   'tinh-nang',
@@ -87,7 +73,6 @@ const CATEGORY_OPTIONS: FeedbackCategory[] = [
 
 const validate = (v: FormValues, hasFile: boolean): Partial<Record<keyof FormValues | 'file', string>> => {
   const errors: Partial<Record<keyof FormValues | 'file', string>> = {};
-  if (!v.rating) errors.rating = 'Vui lòng chọn mức độ hài lòng.';
   if (!v.title.trim()) errors.title = 'Vui lòng nhập tiêu đề.';
   else if (v.title.length > TITLE_MAX) errors.title = `Tiêu đề tối đa ${TITLE_MAX} ký tự.`;
   if (!v.content.trim()) errors.content = 'Vui lòng nhập nội dung.';
@@ -160,7 +145,6 @@ const FeedbackForm = () => {
     const allErrors = validate(values, !!screenshot);
     setErrors(allErrors);
     setTouched({
-      rating: true,
       category: true,
       title: true,
       content: true,
@@ -195,8 +179,8 @@ const FeedbackForm = () => {
   // Success
   if (status === 'success') {
     return (
-      <div className="rounded-2xl border border-brand-200 bg-brand-50/50 p-8 text-center md:p-10">
-        <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-white shadow-theme-sm">
+      <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-sky-50 via-white to-violet-50 p-8 text-center md:p-10">
+        <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 via-brand-500 to-violet-600 text-white shadow-[0_10px_24px_-8px_rgba(79,70,229,0.7)] ring-4 ring-white">
           <FiCheckCircle aria-hidden className="h-7 w-7" />
         </span>
         <h3 className="mt-5 font-serif text-2xl font-bold text-gray-900">
@@ -206,7 +190,7 @@ const FeedbackForm = () => {
           Cảm ơn bạn đã dành thời gian chia sẻ. Đội ngũ RealtyHub sẽ xem xét và
           {values.contactBack
             ? ' phản hồi qua email trong 24 giờ làm việc.'
-            : ' cập nhật tiến độ xử lý trên bảng tin công khai.'}
+            : ' liên hệ lại với bạn khi có kết quả xử lý.'}
         </p>
         <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-theme-xs font-semibold uppercase tracking-[0.18em] text-gray-700 shadow-theme-xs">
           Mã góp ý của bạn: {submittedId}
@@ -214,7 +198,7 @@ const FeedbackForm = () => {
         <button
           type="button"
           onClick={() => setStatus('idle')}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-500 px-5 py-2.5 text-theme-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-500 to-violet-600 px-5 py-2.5 text-theme-sm font-semibold text-white shadow-theme-sm transition hover:brightness-110"
         >
           Gửi góp ý khác
         </button>
@@ -224,72 +208,37 @@ const FeedbackForm = () => {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-7">
-      {/* ============ Rating (3 emoji cards) ============ */}
-      <fieldset>
-        <legend className="mb-3 text-theme-sm font-semibold text-gray-800">
-          Bạn cảm thấy thế nào về RealtyHub?
-          <span className="ml-1 text-rose-500">*</span>
-        </legend>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {RATING_OPTIONS.map((opt) => {
-            const isActive = values.rating === opt.id;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => {
-                  onChange('rating', opt.id);
-                  setTouched((prev) => ({ ...prev, rating: true }));
-                }}
-                className={`flex flex-col items-start gap-1 rounded-2xl border-2 p-4 text-left transition ${
-                  isActive
-                    ? 'border-brand-500 bg-brand-50 shadow-theme-xs'
-                    : 'border-gray-200 bg-white hover:border-brand-300 hover:bg-brand-50/50'
-                }`}
-              >
-                {(() => {
-                  const { icon: RatingIcon, tone } = FEEDBACK_RATING_ICON[opt.id];
-                  return (
-                    <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
-                      <RatingIcon aria-hidden className="h-5 w-5" />
-                    </span>
-                  );
-                })()}
-                <span
-                  className={`mt-1 text-sm font-bold ${
-                    isActive ? 'text-brand-700' : 'text-gray-900'
-                  }`}
-                >
-                  {opt.label}
-                </span>
-                <span className="text-theme-xs text-gray-600">{opt.desc}</span>
-              </button>
-            );
-          })}
-        </div>
-        {fieldError('rating') && (
-          <p className="mt-2 flex items-center gap-1 text-theme-xs text-rose-600">
-            <FiAlertCircle aria-hidden className="h-3.5 w-3.5" />
-            {fieldError('rating')}
-          </p>
-        )}
-      </fieldset>
-
       {/* ============ Category + Title ============ */}
       <div className="grid gap-5 sm:grid-cols-3">
         <Field label="Chuyên mục" required htmlFor="fb-category">
-          <select
-            id="fb-category"
-            value={values.category}
-            onChange={(e) => onChange('category', e.target.value as FeedbackCategory)}
-            className={inputClass(false)}
-          >
-            {CATEGORY_OPTIONS.map((id) => (
-              <option key={id} value={id}>
-                {FEEDBACK_CATEGORY_LABELS[id]}
-              </option>
-            ))}
-          </select>
+          {/* Bieu tuong chuyen muc dang chon + mui ten rieng */}
+          <div className="relative">
+            {(() => {
+              const CategoryIcon = FEEDBACK_CATEGORY_ICON[values.category];
+              return (
+                <CategoryIcon
+                  aria-hidden
+                  className="pointer-events-none absolute top-1/2 left-4 h-4.5 w-4.5 -translate-y-1/2 text-brand-600"
+                />
+              );
+            })()}
+            <select
+              id="fb-category"
+              value={values.category}
+              onChange={(e) => onChange('category', e.target.value as FeedbackCategory)}
+              className={`${inputClass(false)} cursor-pointer appearance-none pr-10 pl-11 font-semibold text-navy-800`}
+            >
+              {CATEGORY_OPTIONS.map((id) => (
+                <option key={id} value={id}>
+                  {FEEDBACK_CATEGORY_LABELS[id]}
+                </option>
+              ))}
+            </select>
+            <FiChevronDown
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-gray-400"
+            />
+          </div>
         </Field>
 
         <div className="sm:col-span-2">
@@ -339,7 +288,6 @@ const FeedbackForm = () => {
       {/* ============ Screenshot upload ============ */}
       <Field
         label="Ảnh minh hoạ"
-        hint="Tùy chọn · PNG, JPG, WEBP · tối đa 5MB"
         htmlFor="fb-screenshot"
         error={visibleFileError}
       >
@@ -366,10 +314,10 @@ const FeedbackForm = () => {
         ) : (
           <label
             htmlFor="fb-screenshot"
-            className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50/50 px-6 py-10 text-center transition hover:border-brand-400 hover:bg-brand-50/30"
+            className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-sky-200 bg-gradient-to-br from-sky-50/70 via-white to-violet-50/70 px-6 py-9 text-center transition hover:border-brand-400"
           >
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-500 shadow-theme-xs">
-              <FiImage aria-hidden className="h-6 w-6" />
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 via-brand-500 to-violet-600 text-white shadow-[0_10px_22px_-10px_rgba(79,70,229,0.7)] ring-4 ring-white transition group-hover:scale-105">
+              <FiImage aria-hidden className="h-5 w-5" />
             </span>
             <span className="text-theme-sm font-semibold text-gray-800">
               Kéo thả hoặc nhấn để chọn ảnh
@@ -390,27 +338,33 @@ const FeedbackForm = () => {
       </Field>
 
       {/* ============ Name + Anonymous ============ */}
-      <div className="space-y-3 rounded-2xl border border-gray-200 bg-gray-50/50 p-5">
+      <div className="space-y-4 rounded-2xl border border-sky-100 bg-sky-50/40 p-5">
         <div className="flex items-start justify-between gap-3">
           <label
             htmlFor="fb-anonymous"
             className="flex flex-1 cursor-pointer items-start gap-3"
           >
-            <input
-              id="fb-anonymous"
-              type="checkbox"
-              checked={values.isAnonymous}
-              onChange={(e) => onChange('isAnonymous', e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-400"
-            />
-            <span>
+            <span className="flex-1">
               <span className="block text-theme-sm font-semibold text-gray-800">
                 Gửi ẩn danh
               </span>
               <span className="mt-0.5 block text-theme-xs text-gray-600">
-                Tên bạn sẽ không hiển thị trên bảng tin công khai
+                Không cần nhập tên, góp ý vẫn được ghi nhận đầy đủ
               </span>
             </span>
+            {/* Cong tac bat / tat */}
+            <input
+              id="fb-anonymous"
+              type="checkbox"
+              role="switch"
+              checked={values.isAnonymous}
+              onChange={(e) => onChange('isAnonymous', e.target.checked)}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden
+              className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-gray-300 transition peer-checked:bg-gradient-to-r peer-checked:from-brand-500 peer-checked:to-violet-600 peer-focus-visible:ring-4 peer-focus-visible:ring-brand-100 after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition-all peer-checked:after:left-[1.375rem]"
+            />
           </label>
         </div>
 
@@ -461,7 +415,7 @@ const FeedbackForm = () => {
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 px-6 py-3.5 text-theme-sm font-semibold text-white shadow-theme-sm transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+        className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-500 to-violet-600 px-7 py-3.5 text-theme-sm font-semibold text-white shadow-[0_12px_28px_-12px_rgba(79,70,229,0.85)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
       >
         {status === 'submitting' ? (
           <>
@@ -484,10 +438,10 @@ const FeedbackForm = () => {
 // ============================================================================
 
 const inputClass = (hasError: boolean) =>
-  `w-full rounded-xl border bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition focus:outline-none focus:ring-2 ${
+  `w-full rounded-2xl border px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition focus:bg-white focus:outline-none focus:ring-4 ${
     hasError
-      ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-200'
-      : 'border-gray-200 focus:border-brand-500 focus:ring-brand-200'
+      ? 'border-rose-300 bg-rose-50/40 focus:border-rose-400 focus:ring-rose-100'
+      : 'border-sky-100 bg-sky-50/40 hover:border-sky-200 focus:border-brand-400 focus:ring-brand-100'
   }`;
 
 type FieldProps = {

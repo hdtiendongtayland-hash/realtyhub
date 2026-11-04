@@ -218,7 +218,6 @@ const ContactForm = () => {
           label="Số điện thoại"
           error={fieldError('phone')}
           htmlFor="contact-phone"
-          hint="Tùy chọn — để tư vấn viên gọi nhanh hơn"
         >
           <input
             id="contact-phone"

@@ -24,7 +24,7 @@ const AudienceSelect = ({
         value={value ?? ''}
         onChange={handleChange}
         aria-label="Lọc theo đối tượng"
-        className="h-12 cursor-pointer appearance-none rounded-full border border-gray-200 bg-white px-5 pr-10 text-theme-sm font-semibold text-gray-700 shadow-card hover:border-brand-300 focus:border-brand-400 focus:outline-none"
+        className="h-[3.25rem] cursor-pointer appearance-none rounded-full border border-white bg-white px-5 pr-10 text-theme-sm font-semibold text-brand-700 shadow-[0_10px_30px_-16px_rgba(30,64,175,0.5)] hover:border-brand-300 focus:border-brand-400 focus:outline-none"
       >
         <option value="">Tất cả đối tượng</option>
         {options.map((o) => (

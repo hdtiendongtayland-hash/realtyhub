@@ -266,7 +266,7 @@ const TrainingVideoLibrary = ({ withHeader = false }: { withHeader?: boolean }) 
     }`;
 
   return (
-    <section id="thu-vien-video" className={`site-container scroll-mt-28 pb-16 md:pb-20 ${withHeader ? 'pt-6' : 'pt-10 md:pt-12'}`}>
+    <section id="thu-vien-video" className={`site-container scroll-mt-28 pb-16 md:pb-20 ${withHeader ? 'pt-6' : 'pt-4 md:pt-5'}`}>
       {withHeader ? (
         <div className="relative isolate mb-6 overflow-hidden rounded-3xl border border-white bg-[linear-gradient(115deg,#e3efff_0%,#eef4ff_40%,#f1ecff_75%,#e6dcff_100%)] p-5 shadow-[0_20px_50px_-28px_rgba(30,64,175,0.45)] sm:p-7 lg:p-8">
           {/* Anh thanh pho nua phai, mo dan sang trai */}
